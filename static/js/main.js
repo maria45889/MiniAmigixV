@@ -31,11 +31,14 @@
       weatherEl.textContent = 'Listo para conectar API';
     }
 
-    // Botón sin comportamiento por ahora (para no romper la UI)
+    // Botones (con comportamiento mínimo visible)
     var btn = document.querySelector('.btn-neon');
     if (btn) {
-      btn.addEventListener('click', function () {
-        // Placeholder: aquí conectarías el launcher real
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        // Acción visible: evita que parezca que no hace nada
+        // Si luego agregas navegación/launcher real, reemplazar esta lógica.
+        alert('Iniciando Partida...');
       });
     }
   });
