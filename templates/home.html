@@ -6,8 +6,54 @@ MiniAmigixV
 
 {% block content %}
 
-<h1>MiniAmigixV 💕</h1>
+    <div class="dashboard-container">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <span class="material-icons-round menu-icon">menu</span>
+                <div class="sidebar-line"></div>
+            </div>
+            <nav class="nav-links">
+                <a href="#" class="nav-item active"><span class="material-icons-round">dashboard</span></a>
+                <a href="#" class="nav-item"><span class="material-icons-round">sports_esports</span></a>
+                <a href="#" class="nav-item"><span class="material-icons-round">psychology</span></a>
+                <a href="#" class="nav-item"><span class="material-icons-round">settings</span></a>
+            </nav>
+        </aside>
 
-<p>Tu plataforma inteligente todo en uno.</p>
+        <main class="main-content">
+
+            <header class="hero-header">
+                <h1 class="brand-title">MiniAmigixV <span class="heart-emoji">💕</span></h1>
+                <p class="brand-subtitle">Tu plataforma inteligente todo en uno.</p>
+            </header>
+
+            <section class="dashboard-grid">
+
+                <div class="glass-card widget-weather">
+                    <div class="widget-header-inline">
+                        <span class="material-icons-round icon-cyan">schedule</span>
+                        <span class="material-icons-round icon-pink">wb_sunny</span>
+                    </div>
+                    <div class="widget-body">
+                        <h2 id="live-clock">12:00 PM</h2>
+                        <p id="weather-status">Sincronizando clima...</p>
+                    </div>
+                </div>
+
+                <div class="glass-card widget-insights">
+                    <h3 class="widget-title"><span class="material-icons-round">insights</span> Insights del Día</h3>
+                    <p class="insight-text">"El éxito es la suma de pequeños esfuerzos repetidos día tras día. ¡Vamos a romperla hoy!"</p>
+                </div>
+
+                <div class="glass-card widget-games">
+                    <h3 class="widget-title"><span class="material-icons-round">gamepad</span> Arena Zen</h3>
+                    <div class="game-launcher">
+                        <button class="btn-neon">Iniciar Partida</button>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+    </div>
 
 {% endblock %}
