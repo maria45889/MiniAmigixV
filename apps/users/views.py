@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
 
+
 def login_view(request):
     if request.method == "POST":
         username = request.POST.get("username")
@@ -30,3 +31,8 @@ def register_view(request):
         return redirect("login")
 
     return render(request, "users/register.html")
+
+
+def home_view(request):
+    return render(request, "home.html")
+
