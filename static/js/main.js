@@ -31,14 +31,24 @@
       weatherEl.textContent = 'Listo para conectar API';
     }
 
-    // Botones (con comportamiento mínimo visible)
-    var btn = document.querySelector('.btn-neon');
+    // Botones
+    var btn = document.getElementById('btn-launch-zen');
     if (btn) {
       btn.addEventListener('click', function (e) {
         e.preventDefault();
-        // Acción visible: evita que parezca que no hace nada
-        // Si luego agregas navegación/launcher real, reemplazar esta lógica.
         alert('Iniciando Partida...');
+      });
+    }
+
+    // Botones de navegación/registro (por si existen en otras páginas)
+    // Si no existen, no hacemos nada.
+    var navItems = document.querySelectorAll('[data-nav]');
+    if (navItems && navItems.length) {
+      navItems.forEach(function (el) {
+        el.addEventListener('click', function (e) {
+          e.preventDefault();
+          window.location.href = el.getAttribute('data-nav');
+        });
       });
     }
   });
