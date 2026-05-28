@@ -131,12 +131,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const editBtn = item.querySelector('.action-btn.edit');
             editBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
-                alert('Funcionalidad de edición en desarrollo');
+                alert('No disponible: edición de canciones (pendiente)');
             });
         });
     }
     
     function selectSong(index, autoPlay = true) {
+        console.log('[musica] selectSong', { index, autoPlay, songsLen: songs.length });
         if (index < 0 || index >= songs.length) return;
         
         currentSongIndex = index;
@@ -196,16 +197,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (isYouTubeLink(link)) {
             const videoId = extractYouTubeVideoId(link);
+            console.log('[musica] loadSongMedia YouTube', { link, videoId, embeddedPlayerExists: !!embeddedPlayer });
             if (videoId) {
-                const iframe = document.createElement('iframe');
-                iframe.width = "100%";
-                iframe.height = "100%";
-                iframe.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0`;
-                iframe.title = "YouTube video player";
-                iframe.frameBorder = "0";
-                iframe.allow = "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture";
-                iframe.allowFullscreen = true;
-                embeddedPlayer.appendChild(iframe);
+                crearPlayer(videoId, embeddedPlayer);
+                const created = embeddedPlayer && embeddedPlayer.querySelector('#youtube-player');
+                console.log('[musica] iframe created?', { hasYoutubePlayer: !!created });
             } else {
                 embeddedPlayer.innerHTML = `
                     <div class="player-placeholder">
@@ -285,30 +281,74 @@ document.addEventListener('DOMContentLoaded', () => {
         return /\.(mp3|wav|ogg|m4a|flac)$/i.test(link);
     }
 
-    function extractYouTubeVideoId(url) {
+function extractYouTubeVideoId(url) {
+    try {
         if (!url) return null;
-        try {
-            const parsed = new URL(url);
-            const host = parsed.hostname.toLowerCase();
-            if (host.includes('youtu.be')) {
-                return parsed.pathname.slice(1).split(/[?#]/)[0];
-            }
-            if (parsed.pathname.includes('/embed/')) {
-                return parsed.pathname.split('/embed/')[1].split(/[/?#]/)[0];
-            }
-            if (parsed.searchParams.has('v')) {
-                return parsed.searchParams.get('v');
-            }
-            if (parsed.pathname.startsWith('/v/')) {
-                return parsed.pathname.split('/v/')[1].split(/[/?#]/)[0];
-            }
-        } catch (e) {
-            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
-            const match = url.match(regExp);
-            return (match && match[2].length === 11) ? match[2] : null;
+        const trimmed = String(url).trim();
+
+        // Already an embed URL
+        // https://www.youtube.com/embed/VIDEO_ID
+        const embedMatch = trimmed.match(/\/(embed|v)\/([^?&/]+)/i);
+        if (embedMatch && embedMatch[2]) return embedMatch[2];
+
+        // https://youtu.be/VIDEO_ID
+        const shortMatch = trimmed.match(/youtu\.be\/([^?&/]+)/i);
+        if (shortMatch && shortMatch[1]) return shortMatch[1];
+
+        // https://www.youtube.com/shorts/VIDEO_ID
+        const shortsMatch = trimmed.match(/\/shorts\/([^?&/]+)/i);
+        if (shortsMatch && shortsMatch[1]) return shortsMatch[1];
+
+        // https://www.youtube.com/watch?v=VIDEO_ID&list=...&start_radio=...
+        if (trimmed.includes('watch?v=')) {
+            return trimmed.split('watch?v=')[1].split('&')[0];
         }
+
+        // Fallback: try URL parsing
+        const u = new URL(trimmed);
+        if (u.hostname.includes('youtube.com')) {
+            const v = u.searchParams.get('v');
+            if (v) return v;
+        }
+
+        return null;
+    } catch (error) {
+        console.error('Error extrayendo ID:', error);
         return null;
     }
+}
+
+function crearPlayer(videoID, contenedor) {
+    contenedor.innerHTML = `
+        <iframe
+            id="youtube-player"
+            width="100%"
+            height="315"
+            src="https://www.youtube-nocookie.com/embed/${videoID}?rel=0&playsinline=1"
+            frameborder="0"
+            allow="autoplay; encrypted-media"
+            allowfullscreen>
+        </iframe>
+    `;
+
+    const iframe = document.getElementById("youtube-player");
+
+    iframe.onerror = function () {
+        contenedor.innerHTML = `
+            <div class="alert alert-warning">
+                ⚠️ No se pudo cargar el video.
+                <br>• El propietario bloqueó la incrustación.
+                <br>• El video no está disponible en tu región.
+                <br>• Alguna extensión del navegador lo bloquea.
+                <br><br>
+                <a href="https://www.youtube.com/watch?v=${videoID}"
+                   target="_blank">
+                    Abrir directamente en YouTube
+                </a>
+            </div>
+        `;
+    };
+}
     
     function loadLyrics(songName) {
         const normalized = escapeHtml(songName || 'Tu canción');

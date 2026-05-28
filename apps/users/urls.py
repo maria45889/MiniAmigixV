@@ -35,10 +35,12 @@ urlpatterns = [
     path('eventos/', TemplateView.as_view(template_name='eventos/index.html'), name='eventos'),
     path('estudios/', TemplateView.as_view(template_name='estudios/index.html'), name='estudios'),
     path('entretenimiento/', TemplateView.as_view(template_name='entretenimiento/index.html'), name='entretenimiento'),
+    # Antiestrés / Juegos
+    path('antistres/', TemplateView.as_view(template_name='antistres/index.html'), name='antistres'),
+    path('antiestres/', TemplateView.as_view(template_name='antistres/index.html'), name='antiestres'),
     path('juegos/', TemplateView.as_view(template_name='antistres/index.html'), name='juegos'),
     path('juegos/arena-zen/', TemplateView.as_view(template_name='antistres/index.html'), name='arena_zen'),
-    path('antiestres/', TemplateView.as_view(template_name='antistres/index.html'), name='antiestres'),
-    path('antistres/', TemplateView.as_view(template_name='antistres/index.html'), name='antistres'),
+
     path('notificaciones/', TemplateView.as_view(template_name='notificaciones/index.html'), name='notificaciones'),
     path('sugerencias/', TemplateView.as_view(template_name='sugerencias/index.html'), name='sugerencias'),
     path('soporte/', support_view, name='soporte'),
