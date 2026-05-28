@@ -1,0 +1,164 @@
+{% extends 'base/base.html' %} {% load static %}
+
+{% block title %}MiniAmigixV - Traductor{% endblock %}
+
+{% block content %}
+<div class="traductor-container">
+    <!-- Header -->
+    <header class="traductor-header">
+        <h1>Traductor Universal</h1>
+        <p>Traducir texto entre más de 100 idiomas</p>
+    </header>
+
+    <!-- Main Content -->
+    <div class="traductor-main">
+        <!-- Translation Interface -->
+        <div class="translation-interface">
+            <!-- Source Language -->
+            <div class="language-section">
+                <label for="source-language">Idioma de origen:</label>
+                <select id="source-language" class="language-select">
+                    <option value="auto">Detectar automáticamente</option>
+                    <option value="es">Español</option>
+                    <option value="en">Inglés</option>
+                    <option value="fr">Francés</option>
+                    <option value="de">Alemán</option>
+                    <option value="it">Italiano</option>
+                    <option value="pt">Portugués</option>
+                    <option value="ru">Ruso</option>
+                    <option value="zh">Chino</option>
+                    <option value="ja">Japonés</option>
+                    <option value="ko">Coreano</option>
+                    <option value="ar">Árabe</option>
+                    <option value="hi">Hindi</option>
+                    <option value="nl">Holandés</option>
+                    <option value="sv">Sueco</option>
+                    <option value="pl">Polaco</option>
+                    <option value="tr">Turco</option>
+                    <option value="el">Griego</option>
+                    <option value="he">Hebreo</option
+                    <option value="th">Tailandés</option>
+                    <option value="vi">Vietnamita</option>
+                    <option value="id">Indonesio</option>
+                    <option value="fi">Finlandés</option>
+                    <option value="no">Noruego</option>
+                    <option value="da">Danés</option>
+                    <option value="cs">Checo</option>
+                    <option value="hu">Húngaro</option>
+                    <option value="ro">Rumano</option>
+                    <option value="uk">Ucraniano</option>
+                    <option value="hu">Húngaro</option>
+                </select>
+            </div>
+            
+            <!-- Swap Button -->
+            <div class="swap-languages">
+                <button id="swap-languages" class="btn-icon">
+                    <span class="material-icons-round">swap_horiz</span>
+                </button>
+            </div>
+            
+            <!-- Target Language -->
+            <div class="language-section">
+                <label for="target-language">Idioma de destino:</label>
+                <select id="target-language" class="language-select">
+                    <option value="en">Inglés</option>
+                    <option value="es">Español</option>
+                    <option value="fr">Francés</option>
+                    <option value="de">Alemán</option>
+                    <option value="it">Italiano</option>
+                    <option value="pt">Portugués</option>
+                    <option value="ru">Ruso</option>
+                    <option value="zh">Chino</option>
+                    <option value="ja">Japonés</option>
+                    <option value="ko">Coreano</option>
+                    <option value="ar">Árabe</option>
+                    <option value="hi">Hindi</option>
+                    <option value="nl">Holandés</option>
+                    <option value="sv">Sueco</option>
+                    <option value="pl">Polaco</option>
+                    <option value="tr">Turco</option>
+                    <option value="el">Griego</option>
+                    <option value="he">Hebreo</option>
+                    <option value="th">Tailandés</option>
+                    <option value="vi">Vietnamita</option>
+                    <option value="id">Indonesio</option>
+                    <option value="fi">Finlandés</option>
+                    <option value="no">Noruego</option>
+                    <option value="da">Danés</option>
+                    <option value="cs">Checo</option>
+                    <option value="hu">Húngaro</option>
+                    <option value="ro">Rumano</option>
+                    <option value="uk">Ucraniano</option>
+                </select>
+            </div>
+        </div>
+        
+        <!-- Text Areas -->
+        <div class="text-areas">
+            <!-- Source Text -->
+            <div class="text-section">
+                <label for="source-text">Texto a traducir:</label>
+                <textarea id="source-text" placeholder="Escribe o pega el texto que deseas traducir..." rows="8"></textarea>
+                <div class="text-controls">
+                    <button id="clear-source" class="btn-icon">
+                        <span class="material-icons-round">clear</span>
+                    </button>
+                    <button id="copy-source" class="btn-icon">
+                        <span class="material-icons-round">content_copy</span>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Arrow -->
+            <div class="translation-arrow">
+                <span class="material-icons-round">translate</span>
+            </div>
+            
+            <!-- Target Text -->
+            <div class="text-section">
+                <label for="target-text">Traducción:</label>
+                <textarea id="target-text" placeholder="La traducción aparecerá aquí..." rows="8" readonly></textarea>
+                <div class="text-controls">
+                    <button id="copy-target" class="btn-icon">
+                        <span class="material-icons-round">content_copy</span>
+                    </button>
+                    <button id="clear-target" class="btn-icon">
+                        <span class="material-icons-round">clear</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Translate Button -->
+        <div class="translate-button">
+            <button id="translate-btn" class="btn-neon">Traducir</button>
+        </div>
+        
+        <!-- Language Detection Info -->
+        <div id="language-info" class="language-info">
+            <!-- Detection info will appear here -->
+        </div>
+        
+        <!-- Examples -->
+        <div class="translation-examples">
+            <h3>Ejemplos de traducción:</h3>
+            <div class="example-list">
+                <div class="example-item" data-es="Hola, ¿cómo estás?" data-en="Hello, how are you?">Español → Inglés</div>
+                <div class="example-item" data-en="Good morning!" data-es="¡Buenos días!">Inglés → Español</div>
+                <div class="example-item" data-fr="Bonjour comment ça va?" data-es="Hola, ¿cómo estás?">Francés → Español</div>
+                <div class="example-item" data-de="Guten Tag, wie geht es dir?" data-es="Buenos días, ¿cómo estás?">Alemán → Español</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/traductor.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/traductor.js' %}"></script>
+{% endblock %}

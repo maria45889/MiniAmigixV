@@ -1,0 +1,243 @@
+{% extends 'base/base.html' %} {% load static %}
+
+{% block title %}MiniAmigixV - Entretenimiento{% endblock %}
+
+{% block content %}
+<div class="entretenimiento-container">
+    <!-- Header -->
+    <header class="entretenimiento-header">
+        <h1>Entretenimiento</h1>
+        <p>Actividades divertidas e interactivas para pasar el tiempo y relajarse</p>
+    </header>
+
+    <!-- Main Content -->
+    <div class="entretenimiento-main">
+        <!-- Entertainment Grid -->
+        <section class="entertainment-grid">
+            <!-- Adivinanzas -->
+            <div class="entertainment-card" data-activity="riddles">
+                <div class="entertainment-header">
+                    <span class="material-icons-round">question_answer</span>
+                    <h3>Adivinanzas</h3>
+                </div>
+                <div class="entertainment-body">
+                    <p class="entertainment-description">Pon a prueba tu ingenio con divertidas adivinanzas y acertijos de diferentes niveles de dificultad.</p>
+                    <div class="entertainment-rules">
+                        <h4>Cómo jugar:</h4>
+                        <ul>
+                            <li>Lee la adivinanza y piensa en la respuesta</li>
+                            <li>Haz clic para revelar la solución</li>
+                            <li>Adivina tantas como puedas</li>
+                            <li>Comparte tus favoritas con amigos</li>
+                        </ul>
+                    </div>
+                    <button class="btn-neon-sm entertainment-launch" data-activity="riddles">Empezar</button>
+                </div>
+            </div>
+
+            <!-- Ruleta de la Fortuna -->
+            <div class="entertainment-card" data-activity="wheel-fortune">
+                <div class="entertainment-header">
+                    <span class="material-icons-round">casino</span>
+                    <h3>Ruleta de la Fortuna</h3>
+                </div>
+                <div class="entertainment-body">
+                    <p class="entertainment-description">Gira la ruleta y descubre qué sorpresa te espera: premios, retos, mensajes motivacionales y más.</p>
+                    <div class="entertainment-rules">
+                        <h4>Cómo funciona:</h4>
+                        <ul>
+                            <li>Haz clic en "Girar" para hacer mover la ruleta</li>
+                            <li>Espera a que se detenga y revele tu premio</li>
+                            <li>Cada giro da un resultado diferente</li>
+                            <li>Acumula puntos y logra logros</li>
+                        </ul>
+                    </div>
+                    <button class="btn-neon-sm entertainment-launch" data-activity="wheel-fortune">Girar</button>
+                </div>
+            </div>
+
+            <!-- Galleta de la Fortuna -->
+            <div class="entertainment-card" data-activity="fortune-cookie">
+                <div class="entertainment-header">
+                    <span class="material-icons-round">cookie</span>
+                    <h3>Galleta de la Fortuna</h3>
+                </div>
+                <div class="entertainment-body">
+                    <p class="entertainment-description">Rompe una galleta virtual y descubre un mensaje de fortuna, consejo o predicción para tu día.</p>
+                    <div class="entertainment-rules">
+                        <h4>Cómo funciona:</h4>
+                        <ul>
+                            <li>Haz clic en la galleta para romperla</li>
+                            <li>Descubre el mensaje oculto en su interior</li>
+                            <li>Guarda tus fortunes favoritas</li>
+                            <li>Comparte las más inspiradoras</li>
+                        </ul>
+                    </div>
+                    <button class="btn-neon-sm entertainment-launch" data-activity="fortune-cookie">Romper Galleta</button>
+                </div>
+            </div>
+
+            <!-- Signo Zodiacal -->
+            <div class="entertainment-card" data-activity="zodiac">
+                <div class="entertainment-header">
+                    <span class="material-icons-round">horoscope</span>
+                    <h3>Signo Zodiacal</h3>
+                </div>
+                <div class="entertainment-body">
+                    <p class="entertainment-description">Descubre qué dice tu signo zodiacal sobre tu personalidad, compatibilidad y horóscopo diario.</p>
+                    <div class="entertainment-rules">
+                        <h4>Cómo funciona:</h4>
+                        <ul>
+                            <li>Selecciona tu fecha de nacimiento</li>
+                            <li>Descubre tu signo zodiacal y sus características</li>
+                            <li>Lee tu horóscopo diario personalizado</li>
+                            <li>Explora compatibilidad con otros signos</li>
+                        </ul>
+                    </div>
+                    <button class="btn-neon-sm entertainment-launch" data-activity="zodiac">Consultar</button>
+                </div>
+            </div>
+
+            <!-- Curiosidades -->
+            <div class="entertainment-card" data-activity="curiosities">
+                <div class="entertainment-header">
+                    <span class="material-icons-round">lightbulb</span>
+                    <h3>Curiosidades</h3>
+                </div>
+                <div class="entertainment-body">
+                    <p class="entertainment-description">Aprende datos interesantes, hechos sorprendentes y trivia de ciencia, historia, cultura y más.</p>
+                    <div class="entertainment-rules">
+                        <h4>Cómo funciona:</h4>
+                        <ul>
+                            <li>Lee una curiosidad aleatoria</li>
+                            <li>Haz clic para ver otra</li>
+                            <li>Guarda las que más te sorprendan</li>
+                            <li>Descubre hechos de diferentes categorías</li>
+                        </ul>
+                    </div>
+                    <button class="btn-neon-sm entertainment-launch" data-activity="curiosidades">Descubrir</button>
+                </div>
+            </div>
+
+            <!-- Frases Aleatorias -->
+            <div class="entertainment-card" data-activity="random-quotes">
+                <div class="entertainment-header">
+                    <span class="material-icons-round">format_quote</span>
+                    <h3>Frases Aleatorias</h3>
+                </div>
+                <div class="entertainment-body">
+                    <p class="entertainment-description">Inspírate con frases motivacionales, reflexivas y divertidas de autores famosos y anónimos.</p>
+                    <div class="entertainment-rules">
+                        <h4>Cómo funciona:</h4>
+                        <ul>
+                            <li>Lee una frase inspiradora</li>
+                            <li>Haz clic para ver otra aleatoria</li>
+                            <li>Guarda tus frases favoritas</li>
+                            <li>Comparte las que más te resonaron</li>
+                        </ul>
+                    </div>
+                    <button class="btn-neon-sm entertainment-launch" data-activity="random-quotes">Nueva Frase</button>
+                </div>
+            </div>
+
+            <!-- Retos Divertidos -->
+            <div class="entertainment-card" data-activity="fun-challenges">
+                <div class="entertainment-header">
+                    <span class="material-icons-round">emoji_events</span>
+                    <h3>Retos Divertidos</h3>
+                </div>
+                <div class="entertainment-body">
+                    <p class="entertainment-description">Acepta desafíos graciosos y creativos para hacer solo o con amigos, desde pruebas mentales hasta actividades físicas ligeras.</p>
+                    <div class="entertainment-rules">
+                        <h4>Cómo funciona:</h4>
+                        <ul>
+                            <li>Selecciona un reto aleatorio</li>
+                            <li>Intenta completarlo siguiendo las instrucciones</li>
+                            <li>Marca los que hayas logrado</li>
+                            <li>Crea y comparte tus propios retos</li>
+                        </ul>
+                    </div>
+                    <button class="btn-neon-sm entertainment-launch" data-activity="fun-challenges">Aceptar Reto</button>
+                </div>
+            </div>
+
+            <!-- Piedra, Papel o Tijera -->
+            <div class="entertainment-card" data-activity="rps">
+                <div class="entertainment-header">
+                    <span class="material-icons-round">handshake</span>
+                    <h3>Piedra, Papel o Tijera</h3>
+                </div>
+                <div class="entertainment-body">
+                    <p class="entertainment-description">Juega el clásico juego de mano contra la IA o invita a un amigo para una partida rápida y divertida.</p>
+                    <div class="entertainment-rules">
+                        <h4>Cómo jugar:</h4>
+                        <ul>
+                            <li>Elige piedra, papel o tijera</li>
+                            <li>La IA hará su elección simultáneamente</li>
+                            <li>Piedra gana a tijera, tijera gana a papel, papel gana a piedra</li>
+                            <li>Mejor de 3 partidas gana el juego</li>
+                        </ul>
+                    </div>
+                    <button class="btn-neon-sm entertainment-launch" data-activity="rps">Jugar</button>
+                </div>
+            </
+
+            <!-- Ahorcado -->
+            <div class="entertainment-card" data-activity="hangman">
+                <div class="entertainment-header">
+                    <span class="material-icons-round">title</span>
+                    <h3>Ahorcado</h3>
+                </div>
+                <div class="entertainment-body">
+                    <p class="entertainment-description">Adivina la palabra oculta letra por letra antes de que se complete el dibujo del ahorcado.</p>
+                    <div class="entertainment-rules">
+                        <h4>Cómo jugar:</h4>
+                        <ul>
+                            <li>Selecciona una categoría de palabras</li>
+                            <li>Adivina letras para completar la palabra</li>
+                            <li>Cada error dibuja una parte del ahorcado</li>
+                            <li>Gana si adivinas la palabra antes de completar el dibujo</li>
+                        </ul>
+                    </div>
+                    <button class="btn-neon-sm entertainment-launch" data-activity="hangman">Jugar</button>
+                </div>
+            </div>
+
+            <!-- Sudoku Fácil -->
+            <div class="entertainment-card" data-activity="sudoku">
+                <div class="entertainment-header">
+                    <span class="material-icons-round">functions</span>
+                    <h3>Sudoku Fácil</h3>
+                </div>
+                <div class="entertainment-body">
+                    <p class="entertainment-description">Resuelve rompecabezas de sudoku de dificultad fácil para ejercitar tu lógica y concentración.</p>
+                    <div class="entertainment-rules">
+                        <h4>Cómo jugar:</h4>
+                        <ul>
+                            <li>Llena los espacios vacíos con números del 1 al 9</li>
+                            <li>Cada fila, columna y bloque 3x3 debe contener todos los números</li>
+                            <li>No puede haber números repetidos en fila, columna o bloque</li>
+                            <li>Usa la lógica para deducir los números correctos</li>
+                        </ul>
+                    </div>
+                    <button class="btn-neon-sm entertainment-launch" data-activity="sudoku">Jugar</button>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- Notification System -->
+<div id="notification-container" class="notification-container">
+    <!-- Notifications will appear here -->
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/entretenimiento.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/entretenimiento.js' %}"></script>
+{% endblock %}

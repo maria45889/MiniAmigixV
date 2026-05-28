@@ -1,0 +1,122 @@
+{% extends 'base/base.html' %} {% load static %}
+
+{% block title %}MiniAmigixV - Clima{% endblock %}
+
+{% block content %}
+<div class="clima-container">
+    <!-- Header -->
+    <header class="clima-header">
+        <h1>Consultador del Clima</h1>
+        <p>Obtén información meteorológica precisa para cualquier ubicación</p>
+    </header>
+
+    <!-- Main Content -->
+    <div class="clima-main">
+        <!-- Search Section -->
+        <section class="search-section">
+            <div class="search-card">
+                <h2>Buscar Ubicación</h2>
+                <form id="weather-search-form" class="search-form">
+                    <div class="search-input-group">
+                   <input type="text" id="city-input" placeholder="Ej: Nueva York, Londres, Tokio..." 
+                       autocomplete="off" required>
+                   <div id="city-suggestions" class="city-suggestions" aria-hidden="true"></div>
+                   <button type="submit" class="btn-neon">Buscar Clima</button>
+                    </div>
+                    <div class="search-examples">
+                        <p>Ejemplos: Quito, Guayaquil, Cuenca, Madrid, Paris, Sydney</p>
+                    </div>
+                </form>
+                
+                <!-- Loading indicator -->
+                <div id="loading-indicator" class="loading-indicator">
+                    <div class="loading-spinner"></div>
+                    <p>Obteniendo datos del clima...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Weather Results -->
+        <section class="weather-results" id="weather-results">
+            <!-- Current Weather -->
+            <div class="weather-card" id="current-weather">
+                <div class="weather-header">
+                    <h2>Clima Actual</h2>
+                    <div class="weather-location" id="weather-location">
+                        <!-- Ciudad y país se mostrarán aquí -->
+                    </div>
+                </div>
+                
+                <div class="weather-main" id="weather-main">
+                    <!-- Icono y temperatura -->
+                    <div class="weather-icon-temp">
+                        <div class="weather-icon" id="weather-icon">
+                            <!-- Icono del clima se mostrará aquí -->
+                        </div>
+                        <div class="weather-temperature" id="weather-temperature">
+                            --°C
+                        </div>
+                    </div>
+                    
+                    <!-- Descripción -->
+                    <div class="weather-description" id="weather-description">
+                        --
+                    </div>
+                    
+                    <!-- Detalles adicionales -->
+                    <div class="weather-details" id="weather-details">
+                        <div class="detail-item">
+                            <span class="material-icons-round">humidity_percentage</span>
+                            <span class="detail-label">Humedad</span>
+                            <span class="detail-value" id="humidity-value">--%</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="material-icons-round">wind</span>
+                            <span class="detail-label">Viento</span>
+                            <span class="detail-value" id="wind-value">-- km/h</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="material-icons-round">pressure</span>
+                            <span class="detail-label">Presión</span>
+                            <span class="detail-value" id="pressure-value">-- hPa</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="material-icons-round">visibility</span>
+                            <span class="detail-label">Visibilidad</span>
+                            <span class="detail-value" id="visibility-value">-- km</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recomendaciones contextuales -->
+                <div id="weather-alerts" class="weather-alerts" aria-live="polite"></div>
+                <div class="weather-recommendations" id="weather-recommendations">
+                    <h3>Recomendaciones</h3>
+                    <p id="recommendation-text">Ingrese una ubicación para obtener recomendaciones personalizadas</p>
+                </div>
+            </div>
+
+            <!-- Forecast Section -->
+            <div class="weather-card" id="forecast-section">
+                <div class="weather-header">
+                    <h2>Pronóstico Extendido</h2>
+                </div>
+                <div class="forecast-container" id="forecast-container">
+                    <!-- Los pronósticos se mostrarán aquí -->
+                    <div class="forecast-placeholder">
+                        <p>Seleccione una ubicación para ver el pronóstico extendido</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/clima.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/clima.js' %}"></script>
+{% endblock %}

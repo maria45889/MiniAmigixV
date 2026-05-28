@@ -1,0 +1,111 @@
+{% extends 'base/base.html' %} {% load static %}
+
+{% block title %}MiniAmigixV - Sugerencias{% endblock %}
+
+{% block content %}
+<div class="sugerencias-container">
+    <!-- Header -->
+    <header class="sugerencias-header">
+        <h1>Sugerencias</h1>
+        <p>Envíanos tus ideas, comentarios y reportes para mejorar MiniAmigixV</p>
+    </header>
+
+    <!-- Main Content -->
+    <div class="sugerencias-main">
+        <!-- Stats -->
+        <div class="sugerencias-stats">
+            <div class="stat-item">
+                <h4>Total enviadas</h4>
+                <p>{{ sugerencias|length }}</p>
+            </div>
+            <div class="stat-item">
+                <h4>Pendientes de respuesta</h4>
+                <p>{{ pending_count|default:0 }}</p>
+            </div>
+        </div>
+
+        <!-- Send Suggestion Form -->
+        <div class="send-sugerencia-card">
+            <h2>Enviar una Sugerencia</h2>
+            <form id="send-sugerencia-form" class="send-sugerencia-form">
+                <div class="form-group">
+                    <label for="sugerencia-titulo">Título:</label>
+                    <input type="text" id="sugerencia-titulo" placeholder="Ej: Nueva función de recordatorios" required>
+                </div>
+                <div class="form-group">
+                    <label for="sugerencia-descripcion">Descripción:</label>
+                    <textarea id="sugerencia-descripcion" placeholder="Describe detalladamente tu idea, comentario o reporte..." rows="6" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="sugerencia-tipo">Tipo:</label>
+                    <select id="sugerencia-tipo">
+                        <option value="idea">Idea</option>
+                        <option value="mejora">Mejora</option>
+                        <option value="reporte">Reporte de Error</option>
+                        <option value="pregunta">Pregunta</option>
+                        <option value="elogio">Elogio</option>
+                        <option value="otro">Otro</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn-neon">Enviar Sugerencia</button>
+            </form>
+        </div>
+
+        <!-- Your Suggestions -->
+        <div class="your-sugerencias-card">
+            <h2>Tus Sugerencias</h2>
+            <div class="sugerencias-list" id="sugerencias-list">
+                {% if sugerencias %}
+                {% for sugerencia in sugerencias %}
+                <div class="sugerencia-item sugerencia-{{ sugerencia.tipo }} estado-{{ sugerencia.estado }}">
+                    <div class="sugerencia-header">
+                        <div class="sugerencia-icon">
+                            <span class="material-icons-round">lightbulb</span>
+                        </div>
+                        <div class="sugerencia-content">
+                            <h3>{{ sugerencia.titulo }}</h3>
+                            <p>{{ sugerencia.descripcion|truncatewords:10 }}</p>
+                        </div>
+                        <div class="sugerencia-meta">
+                            <span class="tipo-tag">{{ sugerencia.get_tipo_display }}</span>
+                            <span class="estado-tag estado-{{ sugerencia.estado }}">{{ sugerencia.get_estado_display }}</span>
+                            <small>{{ sugerencia.creado_en|date:"d/m H:i" }}</small>
+                        </div>
+                    </div>
+                    {% if sugerencia.respuesta %}
+                    <div class="sugerencia-respuesta">
+                        <div class="respuesta-header">
+                            <span class="material-icons-round">reply</span>
+                            <h4>Respuesta del equipo:</h4>
+                        </div>
+                        <div class="respuesta-content">
+                            <p>{{ sugerencia.respuesta }}</p>
+                        </div>
+                        <div class="respuesta-footer">
+                            <small>Respondido el {{ sugerencia.respondido_en|date:"d/m H:i" }} por {{ sugerencia.respondido_por.username|default:'Equipo' }}</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                {% else %}
+                <div class="empty-state">
+                    <span class="material-icons-round">lightbulb_outline</span>
+                    <h2>Aún no tienes sugerencias</h2>
+                    <p>¡Sé el primero en enviar una sugerencia para ayudar a mejorar MiniAmigixV!</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/sugerencias.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/sugerencias.js' %}"></script>
+{% endblock %}

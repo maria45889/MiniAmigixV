@@ -1,0 +1,155 @@
+{% extends 'base/base.html' %} {% load static %}
+
+{% block title %}MiniAmigixV - Tutorial Interactivo{% endblock %}
+
+{% block content %}
+<div class="tutorial-container">
+    <!-- Header -->
+    <header class="tutorial-header">
+        <h1>Tutorial Interactivo</h1>
+        <p>Aprende a usar MiniAmigixV paso a paso</p>
+    </header>
+
+    <!-- Tutorial Content -->
+    <div class="tutorial-main">
+        {% if tutorial_completed %}
+        <div class="tutorial-completed">
+            <div class="tutorial-icon">
+                <span class="material-icons-round">check_circle</span>
+            </div>
+            <h2>¡Tutorial Completado!</h2>
+            <p>Ya conoces todas las funcionalidades de MiniAmigixV. Puedes acceder directamente a la aplicación.</p>
+            <div class="tutorial-actions">
+                <a href="/home/" class="btn-neon">Ir al Inicio</a>
+                <button class="btn-neon-outline" id="reset-tutorial">Reiniciar Tutorial</button>
+            </div>
+        </div>
+        {% else %}
+        <!-- Tutorial Menu -->
+        <section class="tutorial-menu">
+            <h2>Selecciona un Tutorial</h2>
+            <p>Elige el módulo que deseas aprender a usar:</p>
+            
+            <div class="tutorial-grid">
+                <!-- Chat IA Tutorial -->
+                <div class="tutorial-card" data-module="chat">
+                    <div class="tutorial-icon">
+                        <span class="material-icons-round">auto_awesome</span>
+                    </div>
+                    <h3>Chat IA</h3>
+                    <p>Aprende a conversar con nuestro asistente inteligente</p>
+                    <button class="btn-neon-sm tutorial-start">Empezar</button>
+                </div>
+                
+                <!-- Música Tutorial -->
+                <div class="tutorial-card" data-module="musica">
+                    <div class="tutorial-icon">
+                        <span class="material-icons-round">music_note</span>
+                    </div>
+                    <h3>Música</h3>
+                    <p>Descubre cómo reproducir y gestionar tu música favorita</p>
+                    <button class="btn-neon-sm tutorial-start">Empezar</button>
+                </div>
+                
+                <!-- Clima Tutorial -->
+                <div class="tutorial-card" data-module="clima">
+                    <div class="tutorial-icon">
+                        <span class="material-icons-round">cloud</span>
+                    </div>
+                    <h3>Clima</h3>
+                    <p>Aprende a consultar el tiempo y pronósticos</p>
+                    <button class="btn-neon-sm tutorial-start">Empezar</button>
+                </div>
+                
+                <!-- Eventos Tutorial -->
+                <div class="tutorial-card" data-module="eventos">
+                    <div class="tutorial-icon">
+                        <span class="material-icons-round">calendar_today</span>
+                    </div>
+                    <h3>Eventos</h3>
+                    <p>Organiza tu tiempo con recordatorios y calendario</p>
+                    <button class="btn-neon-sm tutorial-start">Empezar</button>
+                </div>
+                
+                <!-- Juegos Tutorial -->
+                <div class="tutorial-card" data-module="juegos">
+                    <div class="tutorial-icon">
+                        <span class="material-icons-round">sports_esports</span>
+                    </div>
+                    <h3>Juegos</h3>
+                    <p>Diviértete con nuestra colección de juegos</p>
+                    <button class="btn-neon-sm tutorial-start">Empezar</button>
+                </div>
+                
+                <!-- Estudios Tutorial -->
+                <div class="tutorial-card" data-module="estudios">
+                    <div class="tutorial-icon">
+                        <span class="material-icons-round">school</span>
+                    </div>
+                    <h3>Estudios</h3>
+                    <p>Mejora tu productividad académica con nuestras herramientas</p>
+                    <button class="btn-neon-sm tutorial-start">Empezar</button>
+                </div>
+                
+                <!-- Entretenimiento Tutorial -->
+                <div class="tutorial-card" data-module="entretenimiento">
+                    <div class="tutorial-icon">
+                        <span class="material-icons-round">sentiment_satisfied</span>
+                    </div>
+                    <h3>Entretenimiento</h3>
+                    <p>Disfruta de actividades divertidas e interactivas</p>
+                    <button class="btn-neon-sm tutorial-start">Empezar</button>
+                </div>
+                
+                <!-- Traductor Tutorial -->
+                <div class="tutorial-card" data-module="traductor">
+                    <div class="tutorial-icon">
+                        <span class="material-icons-round">translate</span>
+                    </div>
+                    <h3>Traductor</h3>
+                    <p>Traduce textos entre múltiples idiomas</p>
+                    <button class="btn-neon-sm tutorial-start">Empezar</button>
+                </div>
+            </div>
+            
+            <!-- Tutorial Actions -->
+            <div class="tutorial-actions">
+                <button class="btn-neon-outline" id="skip-tutorial">Omitir Tutorial</button>
+                <button class="btn-neon-sm" id="start-full-tutorial">Tutorial Completo</button>
+            </div>
+        </section>
+        
+        <!-- Tutorial Steps Container (hidden by default) -->
+        <section class="tutorial-steps" style="display: none;">
+            <div class="tutorial-header-steps">
+                <button class="btn-icon btn-tutorial-back" id="tutorial-back-btn">
+                    <span class="material-icons-round">arrow_back</span>
+                </button>
+                <h2 id="tutorial-step-title">Paso 1: Bienvenido</h2>
+                <button class="btn-icon btn-tutorial-close" id="tutorial-close-btn">
+                    <span class="material-icons-round">close</span>
+                </button>
+            </div>
+            
+            <div class="tutorial-step-content" id="tutorial-step-content">
+                <!-- Tutorial content will be injected here -->
+            </div>
+            
+            <div class="tutorial-step-footer">
+                <button class="btn-neon-outline" id="tutorial-prev-btn" style="display: none;">Anterior</button>
+                <button class="btn-neon-sm" id="tutorial-next-btn">Siguiente</button>
+            </div>
+        </section>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/tutorial.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/tutorial.js' %}"></script>
+{% endblock %}

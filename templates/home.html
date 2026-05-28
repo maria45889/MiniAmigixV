@@ -1,59 +1,89 @@
-{% extends 'base.html' %}
+{% extends 'base.html' %} {% load static %}
 
-{% block title %}
-MiniAmigixV
-{% endblock %}
+{% block title %}MiniAmigixV - Dashboard{% endblock %}
 
 {% block content %}
+<main class="main-content">
+    <section class="dashboard-topbar">
+        <div class="dashboard-greeting-panel glass-card">
+            <p class="welcome-label">Panel Principal</p>
+            <h1>Hola, {{ user.username|default:"Amigo" }} 👋</h1>
+            <p class="welcome-subtitle">Desde aquí puedes revisar tu estado del día, acceder a tus herramientas favoritas y mantener todo bajo control de forma sencilla.</p>
+        </div>
 
-    <div class="dashboard-container">
-        <aside class="sidebar">
-            <div class="sidebar-header">
-                <span class="material-icons-round menu-icon">menu</span>
-                <div class="sidebar-line"></div>
+        <div class="dashboard-actions-panel">
+            <div class="top-status-card glass-card">
+                <div class="status-icon">
+                    <span class="material-icons-round">schedule</span>
+                </div>
+                <div class="status-copy">
+                    <span class="status-label">Hora actual</span>
+                    <strong id="dashboard-clock">00:00</strong>
+                </div>
             </div>
-            <nav class="nav-links">
-                <a href="#" class="nav-item active"><span class="material-icons-round">dashboard</span></a>
-                <a href="#" class="nav-item"><span class="material-icons-round">sports_esports</span></a>
-                <a href="#" class="nav-item"><span class="material-icons-round">psychology</span></a>
-                <a href="#" class="nav-item"><span class="material-icons-round">settings</span></a>
-            </nav>
-        </aside>
 
-        <main class="main-content">
+            <button type="button" id="toggle-dark-mode" class="btn-action toggle-dark-mode">
+                <span class="material-icons-round">dark_mode</span>
+                <span>Modo oscuro</span>
+            </button>
+        </div>
+    </section>
 
-            <header class="hero-header">
-                <h1 class="brand-title">MiniAmigixV <span class="heart-emoji">💕</span></h1>
-                <p class="brand-subtitle">Tu plataforma inteligente todo en uno.</p>
-            </header>
+    <section id="dashboard-content" class="dashboard-grid">
+        <!-- Tarjeta de Bienvenida Personalizada -->
+        <div class="glass-card">
+            <div class="widget-header">
+                <span class="material-icons-round">sentiment_very_satisfied</span>
+                <h3>Bienvenido, {{ user.username|default:"Amigo" }}!</h3>
+            </div>
+            <div class="widget-body">
+                <p>¡Gracias por volver a MiniAmigixV! Esperamos que tengas un día productivo y lleno de buenas vibras.</p>
+            </div>
+        </div>
 
-            <section class="dashboard-grid">
+        <!-- Frase o Mensaje del Día -->
+        <div class="glass-card">
+            <div class="widget-header">
+                <span class="material-icons-round">quote</span>
+                <h3>Mensaje del Día</h3>
+            </div>
+            <div class="widget-body">
+                <p class="quote-text">"El único modo de hacer un gran trabajo es amar lo que haces." – Steve Jobs</p>
+            </div>
+        </div>
 
-                <div class="glass-card widget-weather">
-                    <div class="widget-header-inline">
-                        <span class="material-icons-round icon-cyan">schedule</span>
-                        <span class="material-icons-round icon-pink">wb_sunny</span>
+        <!-- Panel de Estadísticas del Tiempo o Actividad del Usuario -->
+        <div class="glass-card">
+            <div class="widget-header">
+                <span class="material-icons-round">insights</span>
+                <h3>Tu Actividad</h3>
+            </div>
+            <div class="widget-body">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <span class="material-icons-round">show_chart</span>
+                        <div>
+                            <h4>Sesiones Hoy</h4>
+                            <p class="stat-number">5</p>
+                        </div>
                     </div>
-                    <div class="widget-body">
-                        <h2 id="live-clock">12:00 PM</h2>
-                        <p id="weather-status">Sincronizando clima...</p>
+                    <div class="stat-item">
+                        <span class="material-icons-round">timeline</span>
+                        <div>
+                            <h4>Tiempo de Estudio</h4>
+                            <p class="stat-number">2h 15m</p>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <span class="material-icons-round">settings</span>
+                        <div>
+                            <h4>Metas Cumplidas</h4>
+                            <p class="stat-number">3/5</p>
+                        </div>
                     </div>
                 </div>
-
-                <div class="glass-card widget-insights">
-                    <h3 class="widget-title"><span class="material-icons-round">insights</span> Insights del Día</h3>
-                    <p class="insight-text">"El éxito es la suma de pequeños esfuerzos repetidos día tras día. ¡Vamos a romperla hoy!"</p>
-                </div>
-
-                <div class="glass-card widget-games">
-                    <h3 class="widget-title"><span class="material-icons-round">gamepad</span> Arena Zen</h3>
-                    <div class="game-launcher">
-<button id="btn-launch-zen" class="btn-neon">Iniciar Partida</button>
-                    </div>
-                </div>
-
-            </section>
-        </main>
-    </div>
-
+            </div>
+        </div>
+    </section>
+</main>
 {% endblock %}

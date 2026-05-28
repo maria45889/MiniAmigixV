@@ -1,0 +1,250 @@
+{% extends 'base/base.html' %} {% load static %}
+
+{% block title %}MiniAmigixV - Juegos Antiestrés{% endblock %}
+
+{% block content %}
+<div class="antistres-container">
+    <!-- Header -->
+    <header class="antistres-header">
+        <h1>Juegos Antiestrés</h1>
+        <p>Relaja tu mente y reduce la ansiedad con estos juegos terapéuticos</p>
+    </header>
+
+    <!-- Games Grid -->
+    <section class="games-grid">
+        <!-- Tres en Raya -->
+        <div class="game-card" data-game="tic-tac-toe">
+            <div class="game-header">
+                <span class="material-icons-round">toc</span>
+                <h3>Tres en Raya</h3>
+            </div>
+            <div class="game-body">
+                <p class="game-description">Clásico juego de estrategia para dos jugadores. Perfecto para enfocar la mente y tomar un breve descanso.</p>
+                <div class="game-rules">
+                    <h4>Reglas básicas:</h4>
+                    <ul>
+                        <li>Dos jugadores turnan colocando X y O</li>
+                        <li>Gana quien alinea 3 símbolos en fila, columna o diagonal</li>
+                        <li>Si se llena el tablero sin ganador, es empate</li>
+                    </ul>
+                </div>
+                <button class="btn-neon-sm game-launch" data-game="tic-tac-toe">Jugar Ahora</button>
+            </div>
+        </div>
+
+        <!-- Ejercicios de Respiración -->
+        <div class="game-card" data-game="breathing">
+            <div class="game-header">
+                <span class="material-icons-round">air</span>
+                <h3>Respiración Guiada</h3>
+            </div>
+            <div class="game-body">
+                <p class="game-description">Ejercicio de respiración profunda para reducir el estrés y la ansiedad en pocos minutos.</p>
+                <div class="game-rules">
+                    <h4>Cómo funciona:</h4>
+                    <ul>
+                        <li>Inhala profundamente por 4 segundos</li>
+                        <li>Mantén la respiración por 4 segundos</li>
+                        <li>Exhala lentamente por 6 segundos</li>
+                        <li>Repite el ciclo 5-10 veces</li>
+                    </ul>
+                </div>
+                <button class="btn-neon-sm game-launch" data-game="breathing">Comenzar</button>
+            </div>
+        </div>
+
+        <!-- Rompecabezas de Colores -->
+        <div class="game-card" data-game="color-puzzle">
+            <div class="game-header">
+                <span class="material-icons-round">palette</span>
+                <h3>Rompecabezas de Colores</h3>
+            </div>
+            <div class="game-body">
+                <p class="game-description">Ordena los colores degradados para crear una transición suave. Excelente para la concentración y percepción visual.</p>
+                <div class="game-rules">
+                    <h4>Reglas básicas:</h4>
+                    <ul>
+                        <li>Arrastra los bloques de color para ordenarlos</li>
+                        <li>Crea una transición suave de un color a otro</li>
+                        <li>Menos movimientos = mejor puntuación</li>
+                    </ul>
+                </div>
+                <button class="btn-neon-sm game-launch" data-game="color-puzzle">Jugar Ahora</button>
+            </div>
+        </div>
+
+        <!-- Laberinto Relajante -->
+        <div class="game-card" data-game="maze">
+            <div class="game-header">
+                <span class="material-icons-round">map</span>
+                <h3>Laberinto Zen</h3>
+            </div>
+            <div class="game-body">
+                <p class="game-description">Encuentra la salida en laberintos generados aleatoriamente con música ambiental suave.</p>
+                <div class="game-rules">
+                    <h4>Cómo jugar:</h4>
+                    <ul>
+                        <li>Usa flechas o click para mover el personaje</li>
+                        <li>Encuentra la salida marcada</li>
+                        <li>Cada nivel aumenta en complejidad</li>
+                    </ul>
+                </div>
+                <button class="btn-neon-sm game-launch" data-game="maze">Explorar</button>
+            </div>
+        </div>
+
+        <!-- Burbujas Antiestrés -->
+        <div class="game-card" data-game="bubbles">
+            <div class="game-header">
+                <span class="material-icons-round">circle</span>
+                <h3>Burbujas Relajantes</h3>
+            </div>
+            <div class="game-body">
+                <p class="game-description">Haz clic en las burbujas que aparecen en pantalla para liberar tensión con efectos visuales y sonoros calmantes.</p>
+                <div class="game-rules">
+                    <h4>Mecánica del juego:</h4>
+                    <ul>
+                        <li>Burbujas aparecen aleatoriamente en pantalla</li>
+                        <li>Haz clic en ellas antes de que desaparezcan</li>
+                        <li>Cada burbuja liberada produce un sonido suave</li>
+                    </ul>
+                </div>
+                <button class="btn-neon-sm game-launch" data-game="bubbles">Empezar</button>
+            </div>
+        </div>
+
+        <!-- Empareja Parejas -->
+        <div class="game-card" data-game="memory">
+            <div class="game-header">
+                <span class="material-icons-round">memory</span>
+                <h3>Memoria Visual</h3>
+            </div>
+            <div class="game-body">
+                <p class="game-description">Encuentra las parejas de imágenes idénticas para ejercitar la memoria de forma lúdica y relajante.</p>
+                <div class="game-rules">
+                    <h4>Reglas del juego:</h4>
+                    <ul>
+                        <li>Se muestran cartas boca abajo</li>
+                        <li>Voltea dos cartas por turno</li>
+                        <li>Si coinciden, quedan descubiertas; si no, se vuelven a tapar</li>
+                        <li>Gana cuando encuentres todas las parejas</li>
+                    </ul>
+                </div>
+                <button class="btn-neon-sm game-launch" data-game="memory">Jugar Ahora</button>
+            </div>
+        </div>
+
+        <!-- Dibujo Antiestrés -->
+        <div class="game-card" data-game="drawing">
+            <div class="game-header">
+                <span class="material-icons-round">brush</span>
+                <h3>Dibujo Terapéutico</h3>
+            </div>
+            <div class="game-body">
+                <p class="game-description">Libera tu creatividad con herramientas de dibujo simples y colores relajantes sin presión de resultado.</p>
+                <div class="game-rules">
+                    <h4>Características:</h4>
+                    <ul>
+                        <li>Lápiz, marcador y borrador disponibles</li>
+                        <li>Paleta de colores suaves y terapéuticos</li>
+                        <li>Opción de descargar tu creación</li>
+                        <li>Modo pantalla completa para inmersión total</li>
+                    </ul>
+                </div>
+                <button class="btn-neon-sm game-launch" data-game="drawing">Crear</button>
+            </div>
+        </div>
+
+        <!-- Meditación Guiada -->
+        <div class="game-card" data-game="meditation">
+            <div class="game-header">
+                <span class="material-icons-round">psychology</span>
+                <h3>Meditación Breve</h3>
+            </div>
+            <div class="game-body">
+                <p class="game-description">Sesiones guiadas de 3-5 minutos para reducir el estrés y mejorar la concentración.</p>
+                <div class="game-rules">
+                    <h4>Tipos de meditación:</h4>
+                    <ul>
+                        <li>Escaneo corporal para liberar tensión</li>
+                        <li>Atención plena en la respiración</li>
+                        <li>Visualización de lugares tranquilos</li>
+                        <li>Mantras para enfocar la mente</li>
+                    </ul>
+                </div>
+                <button class="btn-neon-sm game-launch" data-game="meditation">Comenzar</button>
+            </div>
+        </div>
+
+        <!-- Rompecabezas de Palabras -->
+        <div class="game-card" data-game="word-puzzle">
+            <div class="game-header">
+                <span class="material-icons-round">title</span>
+                <h3>Sopa de Letras Calma</h3>
+            </div>
+            <div class="game-body">
+                <p class="game-description">Encuentra palabras relacionadas con bienestar y relajación en una sopa de letras temática.</p>
+                <div class="game-rules">
+                    <h4>Cómo jugar:</h4>
+                    <ul>
+                        <li>Busca las palabras ocultas en la cuadrícula</li>
+                        <li>Pueden estar en horizontal, vertical o diagonal</li>
+                        <li>Todas las palabras están relacionadas con paz y tranquilidad</li>
+                    </ul>
+                </div>
+                <button class="btn-neon-sm game-launch" data-game="word-puzzle">Jugar Ahora</button>
+            </div>
+        </div>
+
+        <!-- Simulador de Acuario -->
+        <div class="game-card" data-game="aquarium">
+            <div class="game-header">
+                <span class="material-icons-round">aquarium</span>
+                <h3>Acuario Virtual</h3>
+            </div>
+            <div class="game-body">
+                <p class="game-description">Observa y interactúa con peces virtuales en un ambiente acuático tranquilizador con sonidos de agua.</p>
+                <div class="game-rules">
+                    <h4>Interacciones disponibles:</h4>
+                    <ul>
+                        <li>Alimenta a los peces haciendo click en la superficie</li>
+                        <li>Observa comportamientos naturales de distintas especies</li>
+                        <li>Cambia entre diferentes escenarios acuáticos</li>
+                        <li>Activa/deactiva sonidos de ambiente</li>
+                    </ul>
+                </div>
+                <button class="btn-neon-sm game-launch" data-game="aquarium">Observar</button>
+            </div>
+        </div>
+
+        <!-- Juego de Equilibrio -->
+        <div class="game-card" data-game="balance">
+            <div class="game-header">
+                <span class="material-icons-round">timeline</span>
+                <h3>Equilibrio Emocional</h3>
+            </div>
+            <div class="game-body">
+                <p class="game-description">Mantén el balancín estable mientras aparecen emociones que debes clasificar como positivas o negativas.</p>
+                <div class="game-rules">
+                    <h4>Mecánica del juego:</h4>
+                    <ul>
+                        <li>Aparecen emociones en la parte superior</li>
+                        <li>Arrástralas al lado correcto (positivo/negativo)</li>
+                        <li>Mantén el equilibrio mientras clasificas</li>
+                        <li>Mejora la inteligencia emocional mientras juegas</li>
+                    </ul>
+                </div>
+                <button class="btn-neon-sm game-launch" data-game="balance">Jugar Ahora</button>
+            </div>
+        </div>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/antistres.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/antistres.js' %}"></script>
+{% endblock %}
