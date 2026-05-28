@@ -27,9 +27,19 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
+        // Tuerca única (modo + idioma + notificaciones) - aplica cambios inmediatos
+        // Importante: si aún no está renderizado el control, no rompe.
+        const unifiedToggle = document.getElementById('unified-settings-toggle');
+        if (unifiedToggle) {
+            unifiedToggle.addEventListener('click', () => {
+                unifiedToggle.classList.toggle('open');
+            });
+        }
+
         if (saveSettingsBtn) {
             saveSettingsBtn.addEventListener('click', saveAllSettings);
         }
+
 
         if (resetSettingsBtn) {
             resetSettingsBtn.addEventListener('click', resetSettings);

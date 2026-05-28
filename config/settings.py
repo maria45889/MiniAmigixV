@@ -183,3 +183,10 @@ LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ===============================
+# Admin exclusivo (solo TU cuenta)
+# ===============================
+# Usado para proteger paneles y endpoints administrativos.
+ADMIN_USERNAME = 'mariajosetacoc2005'
+

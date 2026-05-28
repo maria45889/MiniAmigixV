@@ -304,14 +304,31 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
+    // Exponer switchView globalmente para evitar errores de "switchView no definido".
+    // Si algún fragmento usa inline onclick="switchView('chat')", esto lo resuelve.
+    window.switchView = function(viewName) {
+        // Ocultar vistas
+        document.querySelectorAll('.view').forEach(view => {
+            view.classList.remove('active');
+        });
+
+        // Mostrar vista seleccionada (convención: id="view-<nombre>" )
+        const selectedView = document.getElementById(`view-${viewName}`);
+        if (selectedView) {
+            selectedView.classList.add('active');
+        } else {
+            console.error('switchView: vista no encontrada:', viewName);
+        }
+    };
+
     // Función para ocultar/mostrar el reloj basada en preferencias
     function toggleTimeVisibility() {
         const checkbox = document.getElementById('config-hide-time');
         const clockWidget = document.getElementById('live-clock');
         const weatherStatus = document.getElementById('weather-status');
-        
+
         if (clockWidget && weatherStatus) {
-            if (checkbox.checked) {
+            if (checkbox && checkbox.checked) {
                 clockWidget.style.transition = "opacity 0.3s ease";
                 clockWidget.style.opacity = "0";
                 weatherStatus.style.opacity = "0";
@@ -333,5 +350,13 @@ document.addEventListener('DOMContentLoaded', () => {
     // Inicializamos las escuchas al cargar la página por primera vez
     if (mainContent) {
         bindDashboardButtons();
+    }
+
+    // Aplicar preferencia de ocultar tiempo globalmente (todas las páginas)
+    // Si no hay checkbox en la página, no hacemos nada.
+    try {
+        toggleTimeVisibility();
+    } catch (e) {
+        // no romper otras páginas
     }
 });

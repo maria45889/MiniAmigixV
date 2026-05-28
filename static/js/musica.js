@@ -32,6 +32,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let isDragging = false;
     let isProgressDragging = false;
     let floatingPosition = JSON.parse(localStorage.getItem('miniamigixv_floating_player') || '{}');
+    let youtubePlayerIframe = null;
+    let isYouTubePlaying = false;
     
     // Initialize
     if (floatingPlayer && floatingPlayer.parentElement !== document.body) {
@@ -159,7 +161,7 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         
         // Load the song (audio or iframe)
-        loadSongMedia(song.link);
+        loadSongMedia(song.link, autoPlay);
         
         // Load lyrics (simulated)
         loadLyrics(song.name);
@@ -177,9 +179,11 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('miniamigixv_current_song', currentSongIndex);
     }
     
-    function loadSongMedia(link) {
+    function loadSongMedia(link, autoPlay = false) {
         // Clear previous content
         embeddedPlayer.innerHTML = '';
+        youtubePlayerIframe = null;
+        isYouTubePlaying = false;
         if (audioPlayer) {
             audioPlayer.pause();
             audioPlayer.src = '';
@@ -199,8 +203,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const videoId = extractYouTubeVideoId(link);
             console.log('[musica] loadSongMedia YouTube', { link, videoId, embeddedPlayerExists: !!embeddedPlayer });
             if (videoId) {
-                crearPlayer(videoId, embeddedPlayer);
+                crearPlayer(videoId, embeddedPlayer, autoPlay);
                 const created = embeddedPlayer && embeddedPlayer.querySelector('#youtube-player');
+                youtubePlayerIframe = created;
+                isYouTubePlaying = autoPlay;
                 console.log('[musica] iframe created?', { hasYoutubePlayer: !!created });
             } else {
                 embeddedPlayer.innerHTML = `
@@ -318,20 +324,32 @@ function extractYouTubeVideoId(url) {
     }
 }
 
-function crearPlayer(videoID, contenedor) {
+function crearPlayer(videoID, contenedor, autoPlay = false) {
+    const params = new URLSearchParams({
+        rel: '0',
+        playsinline: '1',
+        enablejsapi: '1',
+        origin: window.location.origin
+    });
+
+    if (autoPlay) {
+        params.set('autoplay', '1');
+    }
+
     contenedor.innerHTML = `
         <iframe
             id="youtube-player"
             width="100%"
             height="315"
-            src="https://www.youtube-nocookie.com/embed/${videoID}?rel=0&playsinline=1"
+            src="https://www.youtube-nocookie.com/embed/${videoID}?${params.toString()}"
             frameborder="0"
-            allow="autoplay; encrypted-media"
+            allow="autoplay; encrypted-media; picture-in-picture"
             allowfullscreen>
         </iframe>
     `;
 
     const iframe = document.getElementById("youtube-player");
+    youtubePlayerIframe = iframe;
 
     iframe.onerror = function () {
         contenedor.innerHTML = `
@@ -349,6 +367,27 @@ function crearPlayer(videoID, contenedor) {
         `;
     };
 }
+
+    function sendYouTubeCommand(command) {
+        if (!youtubePlayerIframe || !youtubePlayerIframe.contentWindow) return;
+        if (!youtubePlayerIframe.src) return;
+
+        // Use '*' to avoid browser strict origin mismatch errors.
+        // YouTube iframe reads the message via its internal handler.
+        // In practice this eliminates the recurring console error.
+        youtubePlayerIframe.contentWindow.postMessage(
+            JSON.stringify({
+                event: 'command',
+                func: command,
+                args: []
+            }),
+            '*'
+        );
+    }
+
+
+
+
     
     function loadLyrics(songName) {
         const normalized = escapeHtml(songName || 'Tu canción');
@@ -389,8 +428,8 @@ function crearPlayer(videoID, contenedor) {
         if (!currentSong) return;
 
         if (isYouTubeLink(currentSong.link)) {
-            // YouTube iframe will autoplay if we set the src with autoplay=1
-            // Already handled in loadSongMedia
+            sendYouTubeCommand('playVideo');
+            isYouTubePlaying = true;
             updatePlayPauseIcon(true);
             return;
         }
@@ -409,7 +448,8 @@ function crearPlayer(videoID, contenedor) {
         if (!currentSong) return;
 
         if (isYouTubeLink(currentSong.link)) {
-            // For YouTube, we'd need to use the API to pause - simplified
+            sendYouTubeCommand('pauseVideo');
+            isYouTubePlaying = false;
             updatePlayPauseIcon(false);
             return;
         }
@@ -549,12 +589,8 @@ function crearPlayer(videoID, contenedor) {
             if (!currentSong) return;
 
             if (isYouTubeLink(currentSong.link)) {
-                // For YouTube, we'd need API - simplified toggle
-                if (audioPlayer.paused) {
-                    playSong();
-                } else {
-                    pauseSong();
-                }
+                if (isYouTubePlaying) pauseSong();
+                else playSong();
             } else {
                 if (audioPlayer.paused) {
                     playSong();
