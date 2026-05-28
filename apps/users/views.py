@@ -140,10 +140,39 @@ def support_view(request):
         )
 
         try:
+            # 1) Notificar al admin
             mail_admins(subject, message, fail_silently=False)
-            messages.success(request, 'Tu consulta de soporte fue enviada. El equipo de administración recibió una notificación por correo.')
+
+            # 2) Acuse/confirmación al usuario por correo
+            # (opción B solicitada)
+            user_subject = f"[MiniAmigixV] Confirmación de tu ticket: {ticket.title}"
+            user_message = (
+                f"Hola {request.user.get_full_name() or request.user.username},\n\n"
+                "Recibimos tu solicitud de soporte y el equipo de MiniAmigixV ya fue notificado.\n\n"
+                f"Título: {ticket.title}\n"
+                f"Tipo: {ticket.get_tipo_display()}\n"
+                f"Prioridad: {ticket.get_prioridad_display()}\n"
+                f"Creado en: {ticket.created_at.strftime('%d/%m/%Y %H:%M')}\n\n"
+                "Cuando el administrador responda, también recibirás un correo con la respuesta.\n\n"
+                "Gracias por usar MiniAmigixV."
+            )
+
+            if request.user.email:
+                send_mail(
+                    user_subject,
+                    user_message,
+                    settings.DEFAULT_FROM_EMAIL,
+                    [request.user.email],
+                    fail_silently=False,
+                )
+
+            messages.success(
+                request,
+                'Tu consulta de soporte fue enviada. El equipo de administración recibió una notificación por correo y también te enviamos una confirmación por correo.'
+            )
         except Exception as error:
-            messages.error(request, f'No se pudo enviar el correo de notificación: {error}')
+            messages.error(request, f'No se pudo enviar el correo de notificación/acuse: {error}')
+
 
         return redirect('soporte')
 
