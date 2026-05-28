@@ -1,0 +1,132 @@
+{% extends 'base/base.html' %} {% load static %}
+
+{% block title %}MiniAmigixV - Estudios{% endblock %}
+
+{% block content %}
+<div class="study-container">
+    <!-- Header -->
+    <header class="study-header">
+        <h1>Herramientas de Estudio</h1>
+        <p>Organiza tu tiempo y mejora tu rendimiento académico</p>
+    </header>
+
+    <!-- Main Content -->
+    <div class="study-main">
+        <!-- Left Panel: Timer & Tasks -->
+        <section class="study-sidebar">
+            <!-- Study Timer -->
+            <div class="timer-card">
+                <h2>Cronómetro de Estudio</h2>
+                <div class="timer-display" id="timer-display">25:00</div>
+                <div class="timer-controls">
+                    <button id="start-timer" class="btn-neon-sm">Iniciar</button>
+                    <button id="pause-timer" class="btn-neon-sm">Pausar</button>
+                    <button id="reset-timer" class="btn-neon-sm">Reiniciar</button>
+                    <button id="mode-toggle" class="btn-neon-sm">Modo: Enfoque</button>
+                </div>
+                <div class="timer-mode-indicator">
+                    <span id="mode-label">Modo Enfoque</span>
+                    <div id="mode-indicator" class="mode-indicator focus"></div>
+                </div>
+                <div class="timer-stats">
+                    <div class="stat-item">
+                        <h4>Sesiones Hoy</h4>
+                        <p id="sessions-today">0</p>
+                    </div>
+                    <div class="stat-item">
+                        <h4>Tiempo Total</h4>
+                        <p id="total-time">0h 0m</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Task List -->
+            <div class="tasks-card">
+                <h2>Lista de Tareas</h2>
+                <form id="add-task-form" class="add-task-form">
+                    <div class="form-group">
+                        <input type="text" id="task-input" placeholder="¿Qué necesitas hacer?" required>
+                        <button type="submit" class="btn-neon-sm">Agregar Tarea</button>
+                    </div>
+                </form>
+                <div class="tasks-list" id="tasks-list">
+                    <!-- Tasks will be loaded here -->
+                    <div class="empty-state">
+                        <p>No tienes tareas aún. ¡Agrega tu primera tarea!</p>
+                    </div>
+                </div>
+                <div class="task-progress">
+                    <div class="progress-label">Progreso General</div>
+                    <div class="progress-container">
+                        <div class="progress-bar" id="task-progress-bar"></div>
+                        <div class="progress-text" id="task-progress-text">0%</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Panel: Calendar & Notes -->
+        <section class="study-calendar">
+            <!-- Mini Calendar -->
+            <div class="calendar-card">
+                <h2>Calendario Académico</h2>
+                <div class="calendar-header">
+                    <button id="prev-month-study" class="nav-btn">
+                        <span class="material-icons-round">chevron_left</span>
+                    </button>
+                    <div class="calendar-title">
+                        <span id="current-month-year-study">Mes Año</span>
+                    </div>
+                    <button id="next-month-study" class="nav-btn">
+                        <span class="material-icons-round">chevron_right</span>
+                    </button>
+                </div>
+                <div class="calendar-body">
+                    <div class="calendar-weekdays">
+                        <div>Dom</div>
+                        <div>Lun</div>
+                        <div>Mar</div>
+                        <div>Mié</div>
+                        <div>Jue</div>
+                        <div>Vie</div>
+                        <div>Sáb</div>
+                    </div>
+                    <div class="calendar-days" id="calendar-days-study">
+                        <!-- Days will be populated here -->
+                    </div>
+                </div>
+                <div class="calendar-events" id="calendar-events-study">
+                    <!-- Events on specific dates will be shown here -->
+                </div>
+            </div>
+
+            <!-- Study Notes -->
+            <div class="notes-card">
+                <h2>Notas de Estudio</h2>
+                <div class="notes-toolbar">
+                    <button id="add-note" class="btn-icon">
+                        <span class="material-icons-round">add</span>
+                    </button>
+                    <button id="clear-notes" class="btn-icon">
+                        <span class="material-icons-round">clear_all</span>
+                    </button>
+                </div>
+                <div class="notes-content" id="notes-content">
+                    <div class="notes-placeholder">
+                        <p>Tus notas de estudio aparecerán aquí</p>
+                        <p>Usa el botón de arriba para crear una nueva nota</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/estudios.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/estudios.js' %}"></script>
+{% endblock %}

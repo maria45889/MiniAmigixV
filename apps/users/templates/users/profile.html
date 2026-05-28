@@ -1,0 +1,197 @@
+{% extends 'base.html' %} {% load static %}
+
+{% block title %}MiniAmigixV - Mi Perfil{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div id="notification-container" class="notification-container"></div>
+    <!-- Header -->
+    <header class="profile-header">
+        <h1>Mi Perfil</h1>
+        <p>Personaliza tu cuenta y preferencias</p>
+    </header>
+
+    <!-- Main Content -->
+    <div class="profile-main">
+        <!-- Profile Picture Section -->
+        <div class="profile-picture-section">
+            <div class="profile-picture-container">
+                <img src="{{ user.profile.profile_picture.url }}" alt="Foto de perfil" id="profile-preview" onerror="this.onerror=null; this.src='/static/images/default-avatar.png';">
+                <div class="profile-picture-overlay">
+                    <span class="material-icons-round">camera_alt</span>
+                    <input type="file" id="profile-picture-input" accept="image/*" style="display: none;">
+                </div>
+            </div>
+            
+            <div class="profile-info">
+                <h2 id="profile-name">{{ user.profile.display_name|default:user.username }}</h2>
+                <p class="profile-username">@<span id="profile-username">{{ user.username }}</span></p>
+                <div class="profile-stats">
+                    <div class="stat-item">
+                        <h4>Miembro desde</h4>
+                        <p>{{ user.date_joined|date:"d M Y" }}</p>
+                    </div>
+                    <div class="stat-item">
+                        <h4>Nombre de IA</h4>
+                        <p>{{ user.profile.ai_name }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Customization Sections -->
+        <section class="customization-sections">
+            <!-- Personal Information -->
+            <div class="customization-card">
+                <h3>Información Personal</h3>
+                <form id="personal-info-form" class="personal-info-form">
+                    <div class="form-group">
+                        <label for="username">Nombre de Usuario:</label>
+                        <input type="text" id="username" value="{{ user.username }}" placeholder="Tu nombre de usuario">
+                    </div>
+                    <div class="form-group">
+                        <label for="display-name">Nombre de Perfil:</label>
+                        <input type="text" id="display-name" value="{{ user.profile.display_name|default:'' }}" placeholder="Tu nombre para mostrar">
+                    </div>
+                    <div class="form-group">
+                        <label for="ai-name">Nombre de la IA:</label>
+                        <input type="text" id="ai-name" value="{{ user.profile.ai_name }}" placeholder="Cómo quieres que te llame la IA">
+                    </div>
+                    <button type="submit" class="btn-neon">Guardar Cambios</button>
+                </form>
+            </div>
+
+            <!-- Visual Customization -->
+            <div class="customization-card">
+                <h3>Personalización Visual</h3>
+                <div class="customization-tabs">
+                    <button class="tab-btn active" data-tab="backgrounds">Fondos</button>
+                    <button class="tab-btn" data-tab="appearance">Apariencia</button>
+                    <button class="tab-btn" data-tab="theme">Tema</button>
+                </div>
+                
+                <!-- Backgrounds Tab -->
+                <div class="tab-content active" id="backgrounds-tab">
+                    <div class="customization-option">
+                        <label for="profile-background">Fondo de Perfil:</label>
+                        <select id="profile-background">
+                            <option value="default" {% if user.profile.profile_background == 'default' %}selected{% endif %}>Predeterminado</option>
+                            <option value="space" {% if user.profile.profile_background == 'space' %}selected{% endif %}>Espacio Cósmico</option>
+                            <option value="nature" {% if user.profile.profile_background == 'nature' %}selected{% endif %}>Naturaleza</option>
+                            <option value="abstract" {% if user.profile.profile_background == 'abstract' %}selected{% endif %}>Abstracto</option>
+                            <option value="minimal" {% if user.profile.profile_background == 'minimal' %}selected{% endif %}>Minimalista</option>
+                            <option value="custom" {% if user.profile.profile_background == 'custom' %}selected{% endif %}>Personalizado</option>
+                        </select>
+                    </div>
+                    
+                    <div class="customization-option">
+                        <label for="app-background">Fondo de Aplicación:</label>
+                        <select id="app-background">
+                            <option value="default" {% if user.profile.app_background == 'default' %}selected{% endif %}>Predeterminado</option>
+                            <option value="dark-gradient" {% if user.profile.app_background == 'dark-gradient' %}selected{% endif %}>Gradiente Oscuro</option>
+                            <option value="neon-grid" {% if user.profile.app_background == 'neon-grid' %}selected{% endif %}>Neón Grid</option>
+                            <option value="stars" {% if user.profile.app_background == 'stars' %}selected{% endif %}>Estrellas</option>
+                            <option value="waves" {% if user.profile.app_background == 'waves' %}selected{% endif %}>Ondas</option>
+                            <option value="custom" {% if user.profile.app_background == 'custom' %}selected{% endif %}>Personalizado</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Appearance Tab -->
+                <div class="tab-content" id="appearance-tab">
+                    <div class="customization-option">
+                        <label for="screen-appearance">Apariencia de Pantalla:</label>
+                        <select id="screen-appearance">
+                            <option value="standard" {% if user.profile.screen_appearance == 'standard' %}selected{% endif %}>Estándar</option>
+                            <option value="compact" {% if user.profile.screen_appearance == 'compact' %}selected{% endif %}>Compacta</option>
+                            <option value="comfortable" {% if user.profile.screen_appearance == 'comfortable' %}selected{% endif %}>Cómoda</option>
+                            <option value="large" {% if user.profile.screen_appearance == 'large' %}selected{% endif %}>Grande</option>
+                        </select>
+                    </div>
+                    
+                    <div class="customization-option">
+                        <label for="font-size">Tamaño de Fuente:</label>
+                        <select id="font-size">
+                            <option value="small" {% if user.profile.font_size == 'small' %}selected{% endif %}>Pequeño</option>
+                            <option value="medium" {% if user.profile.font_size == 'medium' %}selected{% endif %}>Mediano</option>
+                            <option value="large" {% if user.profile.font_size == 'large' %}selected{% endif %}>Grande</option>
+                            <option value="extra-large" {% if user.profile.font_size == 'extra-large' %}selected{% endif %}>Extra Grande</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Theme Tab -->
+                <div class="tab-content" id="theme-tab">
+                    <div class="customization-option">
+                        <label for="theme-preference">Tema de Color:</label>
+                        <div class="theme-options">
+                            <label class="theme-option">
+                                <input type="radio" name="theme" value="dark" {% if user.profile.theme_preference == 'dark' %}checked{% endif %}>
+                                <span class="theme-label">Oscuro</span>
+                                <div class="theme-preview">
+                                    <div class="theme-color-dark"></div>
+                                </div>
+                            </label>
+                            <label class="theme-option">
+                                <input type="radio" name="theme" value="light" {% if user.profile.theme_preference == 'light' %}checked{% endif %}>
+                                <span class="theme-label">Claro</span>
+                                <div class="theme-preview">
+                                    <div class="theme-color-light"></div>
+                                </div>
+                            </label>
+                            <label class="theme-option">
+                                <input type="radio" name="theme" value="neon" {% if user.profile.theme_preference == 'neon' %}checked{% endif %}>
+                                <span class="theme-label">Neón</span>
+                                <div class="theme-preview">
+                                    <div class="theme-color-neon"></div>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-actions">
+                    <button type="submit" class="btn-neon" id="save-visual-settings">Guardar Apariencia</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Additional Actions -->
+        <section class="profile-actions">
+            <div class="action-card">
+                <h3>Acciones de Cuenta</h3>
+                <div class="action-buttons">
+                    <button class="btn-neon-outline" id="change-password">
+                        <span class="material-icons-round">lock_reset</span>
+                        Cambiar Contraseña
+                    </button>
+                    <button class="btn-neon-outline" id="export-data">
+                        <span class="material-icons-round">download</span>
+                        Exportar Datos
+                    </button>
+                    <form id="profile-logout-form" method="post" action="{% url 'logout' %}" style="display:none;">
+                        {% csrf_token %}
+                    </form>
+                    <a class="btn-neon-outline logout-action" href="#" onclick="if (confirm('¿Cerrar sesión?')) { document.getElementById('profile-logout-form').submit(); } return false;">
+                        <span class="material-icons-round">logout</span>
+                        Cerrar Sesión
+                    </a>
+                    <button class="btn-neon-outline" id="delete-account">
+                        <span class="material-icons-round">delete</span>
+                        Eliminar Cuenta
+                    </button>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/profile.js' %}"></script>
+{% endblock %}

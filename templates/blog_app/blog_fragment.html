@@ -1,0 +1,130 @@
+{% extends 'base/base.html' %} {% load static %}
+
+{% block title %}MiniAmigixV - Blog{% endblock %}
+
+{% block content %}
+<div class="blog-container">
+    <!-- Header -->
+    <header class="blog-header">
+        <h1>Blog de MiniAmigixV</h1>
+        <p>Descubre noticias, anuncios y contenido relevante</p>
+        <a href="#create-post-modal" class="btn-neon" id="open-create-post">Crear Publicación</a>
+    </header>
+
+    <!-- Main Content -->
+    <div class="blog-main">
+        {% if posts %}
+        <div class="posts-grid">
+            {% for post in posts %}
+            <div class="post-card">
+                <div class="post-header">
+                    <span class="material-icons-round post-icon">
+                        {% if post.post_type == 'admin' %}
+                        announcement
+                        {% else %}
+                        person
+                        {% endif %}
+                    </span>
+                    <h3>{{ post.titulo }}</h3>
+                </div>
+                <div class="post-body">
+                    <p class="post-excerpt">{{ post.contenido|truncatewords:20 }}</p>
+                    <div class="post-meta">
+                        <span class="post-author">
+                            <span class="material-icons-round">person</span>
+                            {{ post.autor }}
+                        </span>
+                        <span class="post-date">
+                            <span class="material-icons-round">calendar_today</span>
+                            {{ post.fecha }}
+                        </span>
+                        <span class="post-read-time">
+                            <span class="material-icons-round">timer</span>
+                            {{ post.lectura_min }} min de lectura
+                        </span>
+                        <span class="post-type-badge {% if post.post_type == 'admin' %}admin{% else %}personal{% endif %}">
+                            {% if post.post_type == 'admin' %}
+                            Oficial
+                            {% else %}
+                            Personal
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                <div class="post-footer">
+                    <a href="{% url 'blog_app:blog_fragment' %}?post_id={{ post.id }}" class="btn-neon-sm">Leer más</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <span class="material-icons-round">article</span>
+            <h2>Aún no hay publicaciones</h2>
+            <p>¡Sé el primero en crear una entrada en el blog!</p>
+            <a href="#create-post-modal" class="btn-neon" id="open-create-post">Crear Primera Publicación</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Create Post Modal -->
+<div id="create-post-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <span class="close-modal material-icons-round">close</span>
+            <h2>Crear Nueva Publicación</h2>
+        </div>
+        <div class="modal-body">
+            <form id="create-post-form" class="create-post-form">
+                <div class="form-group">
+                    <label for="post-title">Título:</label>
+                    <input type="text" id="post-title" placeholder="Ingresa el título de tu publicación" required>
+                </div>
+                <div class="form-group">
+                    <label for="post-category">Categoría:</label>
+                    <select id="post-category" required>
+                        <option value="">Selecciona una categoría</option>
+                        <option value="noticias">Noticias</option>
+                        <option value="anuncios">Anuncios</option>
+                        <option value="consejos">Consejos</option>
+                        <option value="novedades">Novedades</option>
+                        <option value="tutoriales">Tutoriales</option>
+                        <option value="personal">Personal</option>
+                        <option value="otros">Otros</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="post-content">Contenido:</label>
+                    <textarea id="post-content" placeholder="Escribe el contenido de tu publicación..." rows="8" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="post-type">Tipo de Publicación:</label>
+                    <select id="post-type">
+                        <option value="personal">Personal (Tu espacio)</option>
+                        <option value="admin">Oficial (Anuncios, noticias)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="post-autor">Autor:</label>
+                    <input type="text" id="post-autor" value="{{ user.username|default:'Anónimo' }}">
+                </div>
+                <div class="form-group">
+                    <label for="post-lectura">Tiempo estimado de lectura (minutos):</label>
+                    <input type="number" id="post-lectura" value="1" min="1">
+                </div>
+                <button type="submit" class="btn-neon">Publicar</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/blog.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/blog.js' %}"></script>
+{% endblock %}

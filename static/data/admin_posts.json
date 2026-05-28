@@ -1,0 +1,20 @@
+[
+  {
+    "titulo": "Bienvenida a MiniAmigixV",
+    "categoria": "anuncios",
+    "contenido": "¡Bienvenidos a MiniAmigixV! Aquí compartiré noticias, actualizaciones y anuncios importantes.",
+    "autor": "Admin",
+    "fecha": "2026-01-01 10:00",
+    "lectura_min": 1,
+    "post_type": "admin"
+  },
+  {
+    "titulo": "Nuevas funciones disponibles",
+    "categoria": "novedades",
+    "contenido": "Hemos lanzado pequeñas mejoras en la interfaz y nuevas herramientas para tu productividad. Mantente atento a más actualizaciones.",
+    "autor": "Admin",
+    "fecha": "2026-03-15 09:30",
+    "lectura_min": 2,
+    "post_type": "admin"
+  }
+]

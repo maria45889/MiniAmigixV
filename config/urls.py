@@ -1,20 +1,26 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.conf import settings
+from django.conf.urls.static import static
+from django.urls import include, path
 from django.views.generic import RedirectView
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+
+from apps.chat.views import chat_view
+from apps.users.auth_views import register_view
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    
-    # Redirige la raíz básica al home de usuarios
-    path('', RedirectView.as_view(url='/home/', permanent=True)),
-    
-    # Incluye las URLs de tus aplicaciones
-    path('', include('apps.users.urls')),
-    path('juegos/', include('apps.juegos.urls')),
-
-    path('traductor/', include('apps.traductor.urls')),
-
-    path('clima/', include('apps.clima.urls')),
-    path('chat/', include('apps.chat.urls')),
-    path('entretenimiento/', include('apps.entretenimiento.urls')),
+    path("admin/", admin.site.urls),
+    path("api/auth/login/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/auth/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    path("api/auth/register/", register_view, name="register"),
+    path("api/", include("apps.chat.urls")),
+    path("api/mongo/", include("mongodb_app.urls")),
+    path("blog/", include("apps.blog_app.urls")),
+    path("chat/ia/", chat_view, name="chat"),
+    path("oauth/", include("social_django.urls", namespace="social")),
+    path("", RedirectView.as_view(url="/home/", permanent=True)),
+    path("", include("apps.users.urls")),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

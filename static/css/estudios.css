@@ -1,0 +1,67 @@
+/* Estilos para el módulo Estudios */
+:root{
+    --bg: rgba(10,10,12,0.6);
+    --card-bg: rgba(20,20,30,0.7);
+    --border: rgba(255,255,255,0.06);
+    --accent: #6ee7b7;
+    --muted: #9b8db8;
+    --text: #f5f2fa;
+}
+
+.study-container{max-width:1200px;margin:0 auto;padding:20px;min-height:calc(100vh - 160px)}
+.study-header{text-align:center;margin-bottom:18px}
+.study-header h1{font-size:2rem;color:var(--text)}
+.study-header p{color:var(--muted)}
+
+.study-main{display:grid;grid-template-columns:360px 1fr;gap:20px}
+
+/* Sidebar cards */
+.timer-card,.tasks-card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:16px}
+.timer-display{font-size:2.4rem;text-align:center;padding:18px;background:rgba(255,255,255,0.02);border-radius:10px;margin:10px 0;color:var(--text)}
+.timer-controls{display:flex;gap:8px;flex-wrap:wrap}
+.mode-indicator{width:14px;height:14px;border-radius:50%;display:inline-block;margin-left:8px}
+.mode-indicator.focus{background:var(--accent)}
+.mode-indicator.relax{background:#ffd166}
+.timer-stats{display:flex;gap:12px;margin-top:12px}
+.stat-item h4{margin:0;color:var(--muted);font-size:0.9rem}
+.stat-item p{margin:0;color:var(--text);font-weight:600}
+
+/* Tasks */
+.tasks-list{margin-top:12px;max-height:300px;overflow:auto}
+.task-item{display:flex;align-items:center;justify-content:space-between;padding:10px;border-radius:8px;margin-bottom:8px;background:rgba(255,255,255,0.02)}
+.task-checkbox{display:flex;align-items:center;gap:10px}
+.task-text{color:var(--text)}
+.task-text.completed{text-decoration:line-through;color:rgba(255,255,255,0.5)}
+.btn-icon{background:transparent;border:none;color:var(--muted);cursor:pointer}
+
+.task-progress{margin-top:12px}
+.progress-container{position:relative;height:18px;background:rgba(255,255,255,0.03);border-radius:999px}
+.progress-bar{position:absolute;left:0;top:0;height:100%;width:0;background:var(--accent);border-radius:999px;transition:width 0.3s ease}
+.progress-text{position:absolute;right:8px;top:0;color:var(--text);font-size:0.85rem;padding:2px}
+
+/* Calendar */
+.calendar-card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+.calendar-header{display:flex;align-items:center;justify-content:space-between}
+.calendar-body{margin-top:12px}
+.calendar-weekdays{display:grid;grid-template-columns:repeat(7,1fr);color:var(--muted);font-size:0.9rem}
+.calendar-days{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-top:8px}
+.calendar-day{background:rgba(255,255,255,0.01);padding:10px;border-radius:8px;min-height:64px;position:relative;cursor:pointer}
+.calendar-day.today{outline:2px solid rgba(255,255,255,0.06)}
+.calendar-day.has-events{box-shadow:inset 0 -4px 0 rgba(110,231,183,0.12)}
+.day-events-indicator{position:absolute;bottom:6px;left:6px;display:flex;gap:4px}
+.event-dot{width:8px;height:8px;background:var(--accent);border-radius:50%}
+.calendar-events{margin-top:12px}
+.study-event-item{display:flex;gap:12px;padding:8px;border-radius:8px;background:rgba(255,255,255,0.02);margin-bottom:8px}
+.event-date{font-weight:700;color:var(--accent)}
+
+/* Notes */
+.notes-card{background:var(--card-bg);border:1px solid var(--border);border-radius:12px;padding:16px}
+.notes-toolbar{display:flex;gap:8px;margin-bottom:8px}
+.notes-content .note-item{background:rgba(255,255,255,0.02);padding:10px;border-radius:8px;margin-bottom:8px;display:flex;justify-content:space-between}
+
+/* Modal for day events */
+.day-events-modal{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;z-index:1300}
+.day-events-modal-content{width:90%;max-width:760px;background:linear-gradient(180deg,rgba(10,10,12,0.98),rgba(8,8,10,0.98));border-radius:12px;padding:12px;border:1px solid rgba(255,255,255,0.04)}
+.day-events-modal-body{max-height:400px;overflow:auto}
+
+@media(max-width:900px){.study-main{grid-template-columns:1fr;}}

@@ -1,0 +1,179 @@
+{% extends 'base/base.html' %} {% load static %}
+
+{% block title %}MiniAmigixV - Eventos{% endblock %}
+
+{% block content %}
+<div class="eventos-container">
+    <!-- Header -->
+    <header class="eventos-header">
+        <div class="eventos-header-left">
+            <h1>Calendario de Eventos</h1>
+            <p>Organiza tu tiempo y no olvides fechas importantes</p>
+        </div>
+        <div class="eventos-header-right">
+            <div class="live-clock" aria-live="polite">
+                <span id="live-clock">00:00:00</span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="eventos-main">
+        <!-- Left Panel: Add Event & Upcoming -->
+        <section class="eventos-sidebar">
+            <!-- Add Event Form -->
+            <div class="add-event-card">
+                <h2>Agregar Nuevo Evento</h2>
+                <form id="add-event-form" class="add-event-form">
+                    <div class="form-group">
+                        <label for="event-title">Título del Evento:</label>
+                        <input type="text" id="event-title" placeholder="Ej: Reunión de trabajo, Cena familiar..." required>
+                    </div>
+                    <div class="form-group">
+                        <label for="event-description">Descripción:</label>
+                        <textarea id="event-description" placeholder="Detalles adicionales sobre el evento..." rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="event-date">Fecha y Hora:</label>
+                        <input type="datetime-local" id="event-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="event-type">Tipo de Evento:</label>
+                        <select id="event-type">
+                            <option value="personal">Personal</option>
+                            <option value="trabajo">Trabajo</option>
+                            <option value="familia">Familia</option>
+                            <option value="salud">Salud</option>
+                            <option value="otros">Otros</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="reminder-time">Recordatorio:</label>
+                        <select id="reminder-time">
+                            <option value="0">Ninguno</option>
+                            <option value="5">5 minutos antes</option>
+                            <option value="30">30 minutos antes</option>
+                            <option value="120">2 horas antes</option>
+                            <option value="1440">1 día antes</option>
+                            <option value="2880">2 días antes</option>
+                            <option value="4320">3 días antes</option>
+                            <option value="10080">1 semana antes</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn-neon">Agregar Evento</button>
+                </form>
+            </div>
+
+            <!-- Upcoming Events -->
+            <div class="upcoming-events-card">
+                <h2>Próximos Eventos</h2>
+                <div class="upcoming-list" id="upcoming-list">
+                    <!-- Events will be loaded here -->
+                    <div class="empty-state">
+                        <p>No hay eventos próximos. ¡Agrega tu primer evento!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Panel: Calendar & Holiday Events -->
+        <section class="eventos-calendar">
+            <!-- Calendar -->
+            <div class="calendar-card">
+                <h2>Calendario Mensual</h2>
+                <div class="calendar-header">
+                    <button id="prev-month" class="nav-btn">
+                        <span class="material-icons-round">chevron_left</span>
+                    </button>
+                    <div class="calendar-title">
+                        <span id="current-month-year">Mes Año</span>
+                    </div>
+                    <button id="next-month" class="nav-btn">
+                        <span class="material-icons-round">chevron_right</span>
+                    </button>
+                </div>
+                <div class="calendar-body">
+                    <div class="calendar-weekdays">
+                        <div>Dom</div>
+                        <div>Lun</div>
+                        <div>Mar</div>
+                        <div>Mié</div>
+                        <div>Jue</div>
+                        <div>Vie</div>
+                        <div>Sáb</div>
+                    </div>
+                    <div class="calendar-days" id="calendar-days">
+                        <!-- Days will be populated here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Holiday Events -->
+            <div class="holidays-card">
+                <h2>Eventos Festivos</h2>
+                <div class="holidays-list" id="holidays-list">
+                    <!-- Holiday events will be loaded here -->
+                    <div class="holiday-item">
+                        <div class="holiday-icon">
+                            <span class="material-icons-round">card_giftcard</span>
+                        </div>
+                        <div class="holiday-info">
+                            <h3>Navidad</h3>
+                            <p>25 de diciembre</p>
+                        </div>
+                    </div>
+                    <div class="holiday-item">
+                        <div class="holiday-icon">
+                            <span class="material-icons-round">celebration</span>
+                        </div>
+                        <div class="holiday-info">
+                            <h3>Año Nuevo</h3>
+                            <p>1 de enero</p>
+                        </div>
+                    </div>
+                    <div class="holiday-item">
+                        <div class="holiday-icon">
+                            <span class="material-icons-round">family_restroom</span>
+                        </div>
+                        <div class="holiday-info">
+                            <h3>Día del Padre</h3>
+                            <p>Tercer domingo de junio</p>
+                        </div>
+                    </div>
+                    <div class="holiday-item">
+                        <div class="holiday-icon">
+                            <span class="material-icons-round">child_friendly</span>
+                        </div>
+                        <div class="holiday-info">
+                            <h3>Día del Niño</h3>
+                            <p>1 de junio (Ecuador)</p>
+                        </div>
+                    </div>
+                    <div class="holiday-item">
+                        <div class="holiday-icon">
+                            <span class="material-icons-round">flag</span>
+                        </div>
+                        <div class="holiday-info">
+                            <h3>Independencia</h3>
+                            <p>10 de agosto (Ecuador)</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+
+<!-- Notification System -->
+<div id="notification-container" class="notification-container">
+    <!-- Notifications will appear here -->
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/eventos.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/eventos.js' %}"></script>
+{% endblock %}

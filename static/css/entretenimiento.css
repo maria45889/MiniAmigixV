@@ -1,0 +1,180 @@
+/* Entretenimiento Module Styles */
+
+.entretenimiento-container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    padding: 20px;
+}
+
+.entretenimiento-header {
+    text-align: center;
+    padding: 20px 0;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.entretenimiento-header h1 {
+    color: var(--neon-cyan);
+    font-size: 2rem;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.entretenimiento-header p {
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+
+.entretenimiento-main {
+    /* Content will be in the grid */
+}
+
+.entertainment-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
+    margin-top: 20px;
+}
+
+.entertainment-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 24px;
+    padding: 25px;
+    transition: transform 0.3s, border-color 0.3s;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.entertainment-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(154, 78, 255, 0.4);
+}
+
+.entertainment-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.entertainment-header span {
+    font-size: 1.8rem;
+    background: var(--glass-bg);
+    padding: 8px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+}
+
+.entertainment-header h3 {
+    margin: 0;
+    color: var(--neon-cyan);
+    font-size: 1.4rem;
+}
+
+.entertainment-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.entertainment-description {
+    color: var(--text-muted);
+    margin-bottom: 15px;
+    line-height: 1.5;
+    flex-grow: 1;
+}
+
+.entertainment-rules {
+    margin-top: auto;
+}
+
+.entertainment-rules h4 {
+    color: var(--text-main);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1rem;
+}
+
+.entertainment-rules ul {
+    color: var(--text-muted);
+    margin: 0;
+    padding-left: 20px;
+    line-height: 1.6;
+}
+
+.entertainment-rules li {
+    margin-bottom: 6px;
+    position: relative;
+}
+
+.entertainment-rules li:before {
+    content: "•";
+    color: var(--neon-cyan);
+    font-weight: bold;
+    display: inline-block;
+    width: 1em;
+    margin-left: -1em;
+}
+
+.entertainment-launch {
+    margin-top: 20px;
+    padding: 12px;
+    font-weight: 600;
+    border-radius: 14px;
+    text-align: center;
+}
+
+/* Notification System (reuse from eventos) */
+.notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 350px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .entertainment-grid {
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 20px;
+    }
+    
+    .entertainment-card {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .entretenimiento-container {
+        padding: 10px;
+    }
+    
+    .entertainment-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .entertainment-card {
+        padding: 15px;
+    }
+    
+    .entretenimiento-header h1 {
+        font-size: 1.5rem;
+    }
+}

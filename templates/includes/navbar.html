@@ -1,0 +1,115 @@
+{% load static %}
+<aside class="sidebar" aria-label="Navegación principal">
+    <div class="sidebar-header">
+        <a class="navbar-brand" href="/home/" title="Inicio">
+            <span class="material-icons-round">psychology</span>
+        </a>
+        <div class="brand-meta">
+            <span class="brand-title">MiniAmigixV</span>
+            <span class="brand-tagline">Tu centro digital</span>
+        </div>
+    </div>
+
+    <div class="sidebar-clock-wrapper">
+        <div id="live-clock" class="sidebar-clock">--:--</div>
+        <p class="clock-label">Hora actual</p>
+    </div>
+
+    <nav class="nav-links" aria-label="Menú de navegación">
+        <div class="nav-section">
+            <p class="section-label">Principal</p>
+            <a href="/home/" class="nav-item {% if request.path == '/home/' %}active{% endif %}">
+                <span class="material-icons-round">home</span>
+                <span>Inicio</span>
+            </a>
+            <a href="/chat/ia/" class="nav-item {% if '/chat/ia/' in request.path %}active{% endif %}">
+                <span class="material-icons-round">psychology_alt</span>
+                <span>Chat</span>
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <p class="section-label">Lifestyle</p>
+            <a href="/musica/" class="nav-item {% if request.path|startswith:'/musica/' %}active{% endif %}">
+                <span class="material-icons-round">headphones</span>
+                <span>Música</span>
+            </a>
+            <a href="/clima/" class="nav-item {% if request.path|startswith:'/clima/' %}active{% endif %}">
+                <span class="material-icons-round">cloud</span>
+                <span>Clima</span>
+            </a>
+            <a href="/eventos/" class="nav-item {% if request.path|startswith:'/eventos/' %}active{% endif %}">
+                <span class="material-icons-round">calendar_month</span>
+                <span>Eventos</span>
+            </a>
+            <a href="/juegos/" class="nav-item {% if request.path|startswith:'/juegos/' %}active{% endif %}">
+                <span class="material-icons-round">sports_esports</span>
+                <span>Juegos</span>
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <p class="section-label">Productividad</p>
+            <a href="/estudios/" class="nav-item {% if request.path|startswith:'/estudios/' %}active{% endif %}">
+                <span class="material-icons-round">menu_book</span>
+                <span>Estudio</span>
+            </a>
+            <a href="/traductor/" class="nav-item {% if request.path|startswith:'/traductor/' %}active{% endif %}">
+                <span class="material-icons-round">translate</span>
+                <span>Traductor</span>
+            </a>
+            <a href="/blog/" class="nav-item {% if request.path|startswith:'/blog/' %}active{% endif %}">
+                <span class="material-icons-round">newspaper</span>
+                <span>Blog</span>
+            </a>
+            <a href="/tutorial/" class="nav-item {% if request.path|startswith:'/tutorial/' %}active{% endif %}">
+                <span class="material-icons-round">school</span>
+                <span>Tutorial</span>
+            </a>
+        </div>
+
+        <div class="nav-section">
+            <p class="section-label">Sistema</p>
+            <a href="/configuraciones/" class="nav-item {% if request.path|startswith:'/configuraciones/' %}active{% endif %}">
+                <span class="material-icons-round">settings</span>
+                <span>Config.</span>
+            </a>
+            {% if request.user.is_authenticated and request.user.is_staff %}
+            <a href="/perfil/" class="nav-item {% if request.path|startswith:'/perfil/' %}active{% endif %}">
+                <span class="material-icons-round">person</span>
+                <span>Perfil</span>
+            </a>
+            <a href="/soporte/" class="nav-item {% if request.path|startswith:'/soporte/' %}active{% endif %}">
+                <span class="material-icons-round">support_agent</span>
+                <span>Soporte</span>
+            </a>
+            <a href="{% url 'admin_soporte' %}" class="nav-item {% if request.path|startswith:'/admin-soporte/' %}active{% endif %}">
+                <span class="material-icons-round">manage_accounts</span>
+                <span>Panel Soporte</span>
+            </a>
+            {% endif %}
+        </div>
+
+        {% if request.user.is_authenticated %}
+        <div class="nav-section auth-section">
+            <p class="section-label">Administración</p>
+            {% if request.user.is_staff %}
+            <a href="/admin/" class="nav-item auth-item">
+                <span class="material-icons-round">admin_panel_settings</span>
+                <span>Panel admin</span>
+            </a>
+            {% endif %}
+            <a href="#" class="nav-item auth-item logout-action" onclick="if (confirm('¿Cerrar sesión?')) { document.getElementById('logout-form').submit(); } return false;">
+                <span class="material-icons-round">logout</span>
+                <span>Cerrar sesión</span>
+            </a>
+        </div>
+        {% endif %}
+    </nav>
+
+    <div class="sidebar-footer">
+        <form id="logout-form" method="post" action="{% url 'logout' %}" style="display:none;">
+            {% csrf_token %}
+        </form>
+    </div>
+</aside>

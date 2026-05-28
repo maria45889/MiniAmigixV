@@ -1,0 +1,212 @@
+{% extends 'base.html' %} {% load static %}
+
+{% block title %}MiniAmigixV - Configuraciones{% endblock %}
+
+{% block content %}
+<div class="configuraciones-container">
+    <div id="notification-container" class="notification-container"></div>
+    <header class="configuraciones-header">
+        <h1>Configuraciones</h1>
+        <p>Ajusta la apariencia, notificaciones y preferencias de tu cuenta</p>
+    </header>
+
+    <div class="configuraciones-main">
+        <div class="settings-tabs" role="tablist">
+            <button type="button" class="tab-btn active" data-tab="general">General</button>
+            <button type="button" class="tab-btn" data-tab="visual">Visual</button>
+            <button type="button" class="tab-btn" data-tab="notificaciones">Notificaciones</button>
+            <button type="button" class="tab-btn" data-tab="privacidad">Privacidad</button>
+            <button type="button" class="tab-btn" data-tab="cuenta">Cuenta</button>
+        </div>
+
+        <div class="settings-content">
+            <section class="tab-pane active" id="general-tab">
+                <div class="settings-card">
+                    <h3><span class="material-icons-round">tune</span> General</h3>
+                    <div class="settings-group">
+                        <label class="setting-item">
+                            <span class="setting-name">Mostrar reloj</span>
+                            <span class="setting-toggle"><input type="checkbox" id="show-clock" checked></span>
+                        </label>
+                        <label class="setting-item">
+                            <span class="setting-name">Mostrar clima</span>
+                            <span class="setting-toggle"><input type="checkbox" id="show-weather" checked></span>
+                        </label>
+                        <label class="setting-item">
+                            <span class="setting-name">Mostrar barra lateral</span>
+                            <span class="setting-toggle"><input type="checkbox" id="show-sidebar" checked></span>
+                        </label>
+                        <label class="setting-item">
+                            <span class="setting-name">Mostrar icono de notificaciones</span>
+                            <span class="setting-toggle"><input type="checkbox" id="show-notifications-badge" checked></span>
+                        </label>
+                        <div class="setting-item">
+                            <label for="language">Idioma</label>
+                            <select id="language">
+                                <option value="es">Español</option>
+                                <option value="en">English</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <label for="date-format">Formato de fecha</label>
+                            <select id="date-format">
+                                <option value="d/m/Y">DD/MM/YYYY</option>
+                                <option value="m/d/Y">MM/DD/YYYY</option>
+                                <option value="Y-m-d">YYYY-MM-DD</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <label for="time-format">Formato de hora</label>
+                            <select id="time-format">
+                                <option value="H:i">24 horas</option>
+                                <option value="h:i A">12 horas</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <label for="first-day-of-week">Primer día de la semana</label>
+                            <select id="first-day-of-week">
+                                <option value="0">Domingo</option>
+                                <option value="1">Lunes</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="tab-pane" id="visual-tab">
+                <div class="settings-card">
+                    <h3><span class="material-icons-round">palette</span> Visual</h3>
+                    <div class="settings-group">
+                        <label class="setting-item">
+                            <span class="setting-name">Animaciones</span>
+                            <span class="setting-toggle"><input type="checkbox" id="enable-animations" checked></span>
+                        </label>
+                        <label class="setting-item">
+                            <span class="setting-name">Sonidos</span>
+                            <span class="setting-toggle"><input type="checkbox" id="enable-sounds" checked></span>
+                        </label>
+                        <label class="setting-item">
+                            <span class="setting-name">Partículas dinámicas</span>
+                            <span class="setting-toggle"><input type="checkbox" id="enable-particles"></span>
+                        </label>
+                        <div class="setting-item">
+                            <label for="theme-preference">Tema de la interfaz</label>
+                            <select id="theme-preference">
+                                <option value="dark">Oscuro</option>
+                                <option value="light">Claro</option>
+                                <option value="neon">Neón</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section class="tab-pane" id="notificaciones-tab">
+                <div class="settings-card">
+                    <h3><span class="material-icons-round">notifications</span> Notificaciones</h3>
+                    <div class="settings-group">
+                        <label class="setting-item">
+                            <span class="setting-name">Notificaciones por correo</span>
+                            <span class="setting-toggle"><input type="checkbox" id="email-notifications" checked></span>
+                        </label>
+                        <label class="setting-item">
+                            <span class="setting-name">Notificaciones en pantalla</span>
+                            <span class="setting-toggle"><input type="checkbox" id="push-notifications" checked></span>
+                        </label>
+                        <div class="setting-item">
+                            <label for="reminder-advance-time">Recordatorio antes del evento</label>
+                            <select id="reminder-advance-time">
+                                <option value="5">5 minutos</option>
+                                <option value="15">15 minutos</option>
+                                <option value="30" selected>30 minutos</option>
+                                <option value="60">1 hora</option>
+                            </select>
+                        </div>
+                        <label class="setting-item">
+                            <span class="setting-name">Mostrar insignia de notificaciones</span>
+                            <span class="setting-toggle"><input type="checkbox" id="show-notifications-badge" checked></span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <section class="tab-pane" id="privacidad-tab">
+                <div class="settings-card">
+                    <h3><span class="material-icons-round">lock</span> Privacidad</h3>
+                    <div class="settings-group">
+                        <div class="setting-item">
+                            <label for="profile-visibility">Visibilidad del perfil</label>
+                            <select id="profile-visibility">
+                                <option value="private">Privado</option>
+                                <option value="contacts">Contactos</option>
+                                <option value="public">Público</option>
+                            </select>
+                        </div>
+                        <div class="setting-item">
+                            <label for="allow-messages-from">Solicitudes de mensajes</label>
+                            <select id="allow-messages-from">
+                                <option value="contacts">Solo contactos</option>
+                                <option value="everyone">Todos</option>
+                                <option value="no_one">Nadie</option>
+                            </select>
+                        </div>
+                        <label class="setting-item">
+                            <span class="setting-name">Mostrar estado en línea</span>
+                            <span class="setting-toggle"><input type="checkbox" id="show-online-status" checked></span>
+                        </label>
+                        <label class="setting-item">
+                            <span class="setting-name">Recolección de datos</span>
+                            <span class="setting-toggle"><input type="checkbox" id="data-collection" checked></span>
+                        </label>
+                    </div>
+                </div>
+            </section>
+
+            <section class="tab-pane" id="cuenta-tab">
+                <div class="settings-card">
+                    <h3><span class="material-icons-round">person</span> Cuenta y autenticación</h3>
+                    <div class="settings-group">
+                        <label class="setting-item">
+                            <span class="setting-name">Habilitar inicio de sesión con Google</span>
+                            <span class="setting-toggle"><input type="checkbox" id="google-login-enabled" checked></span>
+                        </label>
+                        <label class="setting-item">
+                            <span class="setting-name">Recordar este dispositivo</span>
+                            <span class="setting-toggle"><input type="checkbox" id="remember-device"></span>
+                        </label>
+                        <label class="setting-item">
+                            <span class="setting-name">Autenticación en dos pasos</span>
+                            <span class="setting-toggle"><input type="checkbox" id="enable-2fa"></span>
+                        </label>
+                        <div class="setting-item">
+                            <button type="button" id="manage-account" class="btn-neon-outline">Gestionar mi cuenta</button>
+                        </div>
+                        <div class="setting-item">
+                            <a href="{% url 'google_auth' %}" id="google-auth-link" class="btn-neon-outline">Iniciar sesión / registrar con Google</a>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <div class="configuraciones-actions">
+            <button type="button" id="reset-settings">
+                <span class="material-icons-round">restart_alt</span>
+                Restablecer
+            </button>
+            <button type="button" id="save-settings" disabled style="opacity: 0.5;">
+                <span class="material-icons-round">save</span>
+                Guardar cambios
+            </button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/configuraciones.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/configuraciones.js' %}"></script>
+{% endblock %}

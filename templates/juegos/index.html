@@ -1,0 +1,77 @@
+{% extends 'base/base.html' %} {% load static %}
+
+{% block title %}MiniAmigixV - Juegos{% endblock %}
+
+{% block content %}
+<div class="entretenimiento-container">
+    <header class="entretenimiento-header">
+        <h1>Juegos</h1>
+        <p>Elige una experiencia para relajarte, concentrarte o despejar la mente</p>
+    </header>
+
+    <div class="entretenimiento-main">
+        <a class="game-card" href="/antistres/">
+            <div class="game-icon">
+                <span class="material-icons-round">spa</span>
+            </div>
+            <div class="game-content">
+                <h3>Juegos Antiestrés</h3>
+                <p>Actividades ligeras para bajar el ritmo y recuperar calma.</p>
+            </div>
+        </a>
+
+        <a class="game-card" href="/juegos/arena-zen/">
+            <div class="game-icon">
+                <span class="material-icons-round">self_improvement</span>
+            </div>
+            <div class="game-content">
+                <h3>Arena Zen</h3>
+                <p>Acceso rápido a la experiencia zen desde el módulo de juegos.</p>
+            </div>
+        </a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/entretenimiento.css' %}">
+<style>
+    .entretenimiento-main {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1rem;
+    }
+
+    .game-card {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+        min-height: 130px;
+        padding: 1.25rem;
+        color: inherit;
+        text-decoration: none;
+        border: 1px solid rgba(186, 85, 211, 0.35);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.08);
+        transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .game-card:hover {
+        transform: translateY(-2px);
+        border-color: rgba(186, 85, 211, 0.75);
+    }
+
+    .game-icon .material-icons-round {
+        font-size: 2.4rem;
+    }
+
+    .game-content h3,
+    .game-content p {
+        margin: 0;
+    }
+
+    .game-content p {
+        margin-top: 0.4rem;
+    }
+</style>
+{% endblock %}

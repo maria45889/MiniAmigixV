@@ -64,7 +64,30 @@ text-align:center;
 
 h1{color:#ff4fa0;margin-bottom:10px;}
 
-.subtitle{color:#666;margin-bottom:30px;font-size:15px;}
+.subtitle{color:#666;margin-bottom:20px;font-size:15px;}
+
+.messages{
+margin-bottom:18px;
+text-align:left;
+}
+
+.message{
+margin-bottom:10px;
+padding:14px 16px;
+border-radius:16px;
+font-size:0.95rem;
+line-height:1.4;
+}
+
+.message.error{background:rgba(255,94,111,0.12);border:1px solid rgba(255,94,111,0.25);color:#8b1a2f;}
+.message.success{background:rgba(0,213,161,0.12);border:1px solid rgba(0,213,161,0.25);color:#0c5f3f;}
+.message.info{background:rgba(0,135,255,0.12);border:1px solid rgba(0,135,255,0.25);color:#0f3f78;}
+
+.google-btn-disabled{
+    opacity:0.65;
+    cursor:not-allowed;
+    pointer-events:none;
+}
 
 .input-group{
 margin-bottom:18px;
@@ -116,6 +139,49 @@ color:#ff4fa0;
 text-decoration:none;
 }
 
+/* Google Login Button */
+.google-login{
+margin-top:25px;
+padding-top:20px;
+border-top:1px solid #eee;
+}
+
+.google-login p{
+margin-bottom:15px;
+color:#666;
+font-size:14px;
+}
+
+.google-btn{
+display:inline-flex;
+align-items:center;
+justify-content:center;
+width:100%;
+padding:16px;
+border:1px solid #ddd;
+border-radius:18px;
+font-size:14px;
+font-weight:bold;
+color:#555;
+cursor:pointer;
+transition:all 0.2s ease;
+background:white;
+text-decoration:none;
+margin-top:10px;
+}
+
+.google-btn:hover{
+background:#f8f9fa;
+transform:translateY(-1px);
+border-color:#ddd;
+}
+
+.google-btn img{
+margin-right:10px;
+width:18px;
+height:18px;
+}
+
 button{
 width:100%;
 padding:16px;
@@ -151,15 +217,26 @@ text-decoration:none;
 <div class="card">
 
 <div class="logo">💕</div>
-<h1>MiniAmigixV</h1>
-<p class="subtitle">Tu plataforma inteligente todo en uno</p>
+<h1>Iniciar Sesión</h1>
+<p class="subtitle">Accede con tu correo para entrar rápido y seguro.</p>
+
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+        <div class="message {{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+</div>
+{% endif %}
 
 <form method="POST">
 {% csrf_token %}
+{% if next %}
+    <input type="hidden" name="next" value="{{ next }}">
+{% endif %}
 
 <div class="input-group">
-<label>Usuario</label>
-<input type="text" name="username" required>
+<label>Correo Electrónico</label>
+<input type="email" name="email" placeholder="tucorreo@ejemplo.com" required>
 </div>
 
 <div class="input-group">
@@ -184,9 +261,8 @@ text-decoration:none;
 
 <div class="register">
 ¿No tienes cuenta?
-<a href="{% url 'registro' %}">Regístrate</a>
+<a href="{% url 'registro' %}">Crea una cuenta</a>
 </div>
-
 
 </div>
 

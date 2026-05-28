@@ -27,8 +27,30 @@ text-align:center;
 
 h1{
 color:#ff4fa0;
-margin-bottom:20px;
+margin-bottom:10px;
 }
+
+.subtitle{
+color:#666;
+margin-bottom:22px;
+font-size:15px;
+}
+
+.messages{
+margin-bottom:18px;
+text-align:left;
+}
+
+.message{
+margin-bottom:10px;
+padding:14px 16px;
+border-radius:16px;
+font-size:0.95rem;
+line-height:1.4;
+}
+
+.message.error{background:rgba(255,94,111,0.12);border:1px solid rgba(255,94,111,0.25);color:#8b1a2f;}
+.message.success{background:rgba(0,213,161,0.12);border:1px solid rgba(0,213,161,0.25);color:#0c5f3f;}
 
 input{
 width:100%;
@@ -57,6 +79,49 @@ margin-top:15px;
 color:#ff4fa0;
 text-decoration:none;
 }
+
+/* Google Login Button */
+.google-login{
+margin-top:25px;
+padding-top:20px;
+border-top:1px solid #eee;
+}
+
+.google-login p{
+margin-bottom:15px;
+color:#666;
+font-size:14px;
+}
+
+.google-btn{
+display:inline-flex;
+align-items:center;
+justify-content:center;
+width:100%;
+padding:14px;
+border:1px solid #ddd;
+border-radius:15px;
+font-size:14px;
+font-weight:bold;
+color:#555;
+cursor:pointer;
+transition:all 0.2s ease;
+background:white;
+text-decoration:none;
+margin-top:10px;
+}
+
+.google-btn:hover{
+background:#f8f9fa;
+transform:translateY(-1px);
+border-color:#ddd;
+}
+
+.google-btn img{
+margin-right:10px;
+width:18px;
+height:18px;
+}
 </style>
 </head>
 
@@ -64,12 +129,23 @@ text-decoration:none;
 
 <div class="card">
 
-<h1>Crear cuenta 💕</h1>
+<h1>Registro</h1>
+<p class="subtitle">Crea tu cuenta en segundos y comienza a disfrutar de MiniAmigixV.</p>
+
+{% if messages %}
+<div class="messages">
+    {% for message in messages %}
+        <div class="message {{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+</div>
+{% endif %}
 
 <form method="POST">
 {% csrf_token %}
 
-<input type="text" name="username" placeholder="Usuario" required>
+<input type="text" name="name" placeholder="Nombre completo" required>
+
+<input type="email" name="email" placeholder="Correo electrónico" required>
 
 <input type="password" name="password" placeholder="Contraseña" required>
 
@@ -77,7 +153,7 @@ text-decoration:none;
 
 </form>
 
-<a href="{% url 'login' %}">Ya tengo cuenta</a>
+<a href="{% url 'login' %}">¿Ya tienes cuenta? Inicia sesión</a>
 
 </div>
 

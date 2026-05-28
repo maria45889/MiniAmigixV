@@ -1,11 +1,12 @@
+from django.urls import include, path
+from rest_framework.routers import DefaultRouter
 
-from django.urls import path
-from . import views
+from .views import MarcaViewSet, VehiculoViewSet
+
+router = DefaultRouter()
+router.register(r"marcas", MarcaViewSet, basename="marcas")
+router.register(r"vehiculos", VehiculoViewSet, basename="vehiculos")
 
 urlpatterns = [
-    path('', views.chat_view, name='chat'),
-    path('animos/', views.animos_del_dia, name='animo_del_dia'),
-
-    path('admin-panel/', views.admin_dashboard_view, name='admin_dashboard'),
-    path('api/admin-stats/', views.api_admin_stats, name='api_admin_stats'),
+    path("", include(router.urls)),
 ]

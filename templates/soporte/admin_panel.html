@@ -1,0 +1,97 @@
+{% extends 'base/base.html' %} {% load static %}
+
+{% block title %}MiniAmigixV - Panel de Soporte{% endblock %}
+
+{% block content %}
+<div class="soporte-container">
+    <header class="soporte-header">
+        <h1>Panel de Soporte Administrativo</h1>
+        <p>Administra los mensajes de soporte y responde directamente a los usuarios desde aquí.</p>
+    </header>
+
+    <div class="soporte-main">
+        <div class="tickets-card">
+            <h2>Tickets recibidos</h2>
+            {% if messages %}
+            <div class="soporte-alerts">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="tickets-list">
+                {% if tickets %}
+                    {% for ticket in tickets %}
+                    <div class="ticket-item ticket-{{ ticket.tipo }} prioridad-{{ ticket.prioridad }} estado-{{ ticket.estado }}">
+                        <div class="ticket-header">
+                            <div class="ticket-icon">
+                                <span class="material-icons-round">support_agent</span>
+                            </div>
+                            <div class="ticket-content">
+                                <h3>{{ ticket.title }}</h3>
+                                <p>{{ ticket.description|truncatewords:15 }}</p>
+                            </div>
+                            <div class="ticket-meta">
+                                <span class="tipo-tag">{{ ticket.get_tipo_display }}</span>
+                                <span class="prioridad-tag prioridad-{{ ticket.prioridad }}">{{ ticket.get_prioridad_display }}</span>
+                                <span class="estado-tag estado-{{ ticket.estado }}">{{ ticket.get_estado_display }}</span>
+                                <small>{{ ticket.created_at|date:"d/m H:i" }}</small>
+                            </div>
+                        </div>
+
+                        <div class="ticket-details">
+                            <p><strong>Usuario:</strong> {{ ticket.user.get_full_name|default:ticket.user.username }} &lt;{{ ticket.user.email }}&gt;</p>
+                            <p><strong>Tipo:</strong> {{ ticket.get_tipo_display }}</p>
+                            <p><strong>Prioridad:</strong> {{ ticket.get_prioridad_display }}</p>
+                        </div>
+
+                        <div class="ticket-response-card">
+                            <h4>Respuesta administrativa</h4>
+                            {% if ticket.respuesta %}
+                            <div class="ticket-respuesta">
+                                <p>{{ ticket.respuesta }}</p>
+                                <div class="respuesta-footer">
+                                    <small>Respondido el {{ ticket.respondido_en|date:"d/m H:i" }} por {{ ticket.respondido_por.username|default:'Administrador' }}</small>
+                                </div>
+                            </div>
+                            {% else %}
+                            <p class="ticket-no-response">Aún no hay respuesta para este ticket.</p>
+                            {% endif %}
+
+                            <form method="post" class="admin-response-form" action="{% url 'admin_soporte' %}">
+                                {% csrf_token %}
+                                <input type="hidden" name="ticket_id" value="{{ ticket.id }}">
+                                <div class="form-group">
+                                    <label for="respuesta-{{ ticket.id }}">Enviar respuesta:</label>
+                                    <textarea id="respuesta-{{ ticket.id }}" name="respuesta" rows="4" placeholder="Escribe la respuesta aquí...">{% if ticket.respuesta %}{{ ticket.respuesta }}{% endif %}</textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label for="estado-{{ ticket.id }}">Estado:</label>
+                                    <select id="estado-{{ ticket.id }}" name="estado">
+                                        <option value="abierto" {% if ticket.estado == 'abierto' %}selected{% endif %}>Abierto</option>
+                                        <option value="en_revision" {% if ticket.estado == 'en_revision' %}selected{% endif %}>En Revisión</option>
+                                        <option value="resuelto" {% if ticket.estado == 'resuelto' %}selected{% endif %}>Resuelto</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn-neon">Guardar respuesta</button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <span class="material-icons-round">support_agent</span>
+                        <h2>No hay tickets de soporte</h2>
+                        <p>Los usuarios aún no han enviado consultas por el formulario de soporte.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/soporte.css' %}">
+{% endblock %}

@@ -1,0 +1,106 @@
+{% extends 'base/base.html' %} {% load static %}
+
+{% block title %}MiniAmigixV - Notificaciones{% endblock %}
+
+{% block content %}
+<div class="notificaciones-container">
+    <!-- Header -->
+    <header class="notificaciones-header">
+        <h1>Notificaciones</h1>
+        <p>Mantente al día con avisos importantes y recordatorios</p>
+    </header>
+
+    <!-- Main Content -->
+    <div class="notificaciones-main">
+        <!-- Stats Bar -->
+        <div class="notificaciones-stats">
+            <div class="stat-item">
+                <h4>Total</h4>
+                <p>{{ notifications.paginator.count }}</p>
+            </div>
+            <div class="stat-item">
+                <h4>No leídas</h4>
+                <p>{{ unread_count }}</p>
+            </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="notificaciones-actions">
+            <button class="btn-neon-outline" id="mark-all-read">
+                <span class="material-icons-round">mark_as_unread</span>
+                Marcar todo como leído
+            </button>
+            <button class="btn-neon" id="clear-notifications">
+                <span class="material-icons-round">delete_sweep</span>
+                Limpiar todas
+            </button>
+        </div>
+
+        <!-- Notifications List -->
+        <div class="notificaciones-list">
+            {% if notifications %}
+            {% for notification in notifications %}
+            <div class="notification-item notification-{{ notification.notification_type }} {% if not notification.is_read %}unread{% endif %}">
+                <div class="notification-header">
+                    <div class="notification-icon">
+                        <span class="material-icons-round">notifications</span>
+                    </div>
+                    <div class="notification-content">
+                        <h3>{{ notification.title }}</h3>
+                        <p>{{ notification.message|truncatewords:15 }}</p>
+                    </div>
+                    <div class="notification-time">
+                        <small>{{ notification.created_at|date:"d/m H:i" }}</small>
+                    </div>
+                </div>
+                {% if notification.related_url %}
+                <div class="notification-action">
+                    <a href="{{ notification.related_url }}" class="btn-neon-sm">Ver más</a>
+                </div>
+                {% endif %}
+                <div class="notification-footer">
+                    <button class="btn-icon mark-as-read-btn" data-id="{{ notification.id }}">
+                        <span class="material-icons-round">{% if notification.is_read %}mark_as_unread{% else %}done{% endif %}</span>
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <span class="material-icons-round">notifications_none</span>
+                <h2>No tienes notificaciones</h2>
+                <p>No hay notificaciones pendientes. ¡Mantente activo para recibir actualizaciones!</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Pagination -->
+        {% if notifications.has_other_pages %}
+        <div class="notificaciones-pagination">
+            <span class="step-links">
+                {% if notifications.has_previous %}
+                    <a href="?page={{ notifications.previous_page_number }}" class="btn-neon-outline">&laquo; Anterior</a>
+                {% endif %}
+
+                <span class="current">
+                    Página {{ notifications.number }} de {{ notifications.paginator.num_pages }}
+                </span>
+
+                {% if notifications.has_next %}
+                    <a href="?page={{ notifications.next_page_number }}" class="btn-neon-outline">Siguiente &raquo;</a>
+                {% endif %}
+            </span>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/notificaciones.css' %}">
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/notificaciones.js' %}"></script>
+{% endblock %}
