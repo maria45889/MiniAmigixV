@@ -372,26 +372,19 @@ function crearPlayer(videoID, contenedor, autoPlay = false) {
         if (!youtubePlayerIframe || !youtubePlayerIframe.contentWindow) return;
         if (!youtubePlayerIframe.src) return;
 
-        // Derive targetOrigin from the iframe src.
-        // This prevents the origin mismatch error in some browsers.
-        let targetOrigin;
-        try {
-            const url = new URL(youtubePlayerIframe.src);
-            targetOrigin = url.origin;
-        } catch (e) {
-            console.warn('[musica] sendYouTubeCommand: invalid iframe src, skipping postMessage', e);
-            return;
-        }
-
+        // Use '*' to avoid browser strict origin mismatch errors.
+        // YouTube iframe reads the message via its internal handler.
+        // In practice this eliminates the recurring console error.
         youtubePlayerIframe.contentWindow.postMessage(
             JSON.stringify({
                 event: 'command',
                 func: command,
                 args: []
             }),
-            targetOrigin
+            '*'
         );
     }
+
 
 
 
