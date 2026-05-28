@@ -10,6 +10,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.core.mail import mail_admins, send_mail
 from django.contrib.admin.views.decorators import staff_member_required
+from .admin_utils import admin_owner_required
+
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 import json
@@ -182,8 +184,10 @@ def support_view(request):
     })
 
 
-@staff_member_required
+@login_required
+@admin_owner_required
 def admin_support_view(request):
+
     tickets = SupportTicket.objects.select_related('user', 'respondido_por').order_by('-created_at')
 
     if request.method == 'POST':
