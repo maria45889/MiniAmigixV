@@ -275,11 +275,13 @@ document.addEventListener('DOMContentLoaded', () => {
             selectedItem.classList.add('active');
         }
         
-        // Update current song info in floating player
-        currentSongInfo.innerHTML = `
-            <p class="song-title">${escapeHtml(song.name)}</p>
-            <p class="song-artist">En reproducción</p>
-        `;
+        // Update current song info (safe guard)
+        if (currentSongInfo) {
+            currentSongInfo.innerHTML = `
+                <p class="song-title">${escapeHtml(song.name)}</p>
+                <p class="song-artist">En reproducción</p>
+            `;
+        }
         
         // Load the song (audio or iframe)
         loadSongMedia(song.link, autoPlay, index);
@@ -303,8 +305,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 playSong();
             }
         } else {
-            updatePlayPauseIcon(false);
+            // No siempre existen controles locales en el template (play/pause, etc.).
+            // Evitamos cualquier update de UI cuando falten.
+            try {
+                updatePlayPauseIcon(false);
+            } catch (e) {
+                // ignore
+            }
         }
+
         
         // Show floating player
         showFloatingPlayer();
@@ -779,14 +788,12 @@ function sendYouTubeCommand(command) {
     }
     
     function updatePlayPauseIcon(isPlaying) {
-        if (isPlaying) {
-            playPauseBtn.innerHTML = '<span class="material-icons-round">pause</span>';
-        } else {
-            playPauseBtn.innerHTML = '<span class="material-icons-round">play_arrow</span>';
-        }
-        
-        // Also update in floating player (same element)
+        // En esta página no existe el botón #play-pause-btn.
+        // Mantengo este método para compatibilidad, pero no hace nada.
+        return;
     }
+
+
     
     function nextSong() {
         if (songs.length === 0) return;
