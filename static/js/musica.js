@@ -12,6 +12,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const floatingPlayer = document.getElementById('floating-player');
     const closeFloatBtn = document.getElementById('close-float');
     const playPauseBtn = document.getElementById('play-pause-btn');
+    const floatPlayPauseBtn = document.getElementById('float-play-pause-btn');
+    const floatPrevBtn = document.getElementById('float-prev-btn');
+    const floatNextBtn = document.getElementById('float-next-btn');
+    const openFloatBtn = document.getElementById('open-float-btn');
+    const floatSongInfo = document.getElementById('float-song-info');
     const prevBtn = document.getElementById('prev-btn');
     const nextBtn = document.getElementById('next-btn');
     const volumeSlider = document.getElementById('volume-slider');
@@ -134,6 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderBlockedYouTubeMessage(videoID, message) {
+    if (!embeddedPlayer) return;
         const link = blockedYouTubeLink || `https://www.youtube.com/watch?v=${videoID}`;
         embeddedPlayer.innerHTML = `
             <div class="alert alert-warning youtube-blocked-message">
@@ -282,6 +288,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 <p class="song-artist">En reproducción</p>
             `;
         }
+        if (floatSongInfo) {
+            floatSongInfo.innerHTML = `
+                <p class="song-title">${escapeHtml(song.name)}</p>
+                <p class="song-artist">En reproducción</p>
+            `;
+        }
         
         // Load the song (audio or iframe)
         loadSongMedia(song.link, autoPlay, index);
@@ -323,6 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function loadSongMedia(link, autoPlay = false, songIndex = null) {
+    if (!embeddedPlayer) return;
         // Clear previous content
         embeddedPlayer.innerHTML = '';
         youtubePlayerIframe = null;
@@ -645,6 +658,7 @@ function sendYouTubeCommand(command) {
     }
 
     function renderLyrics(lyrics, song) {
+    if (!lyricsContent) return;
         const displayLines = lyrics.split(/\r?\n/).filter(line => line.trim());
         currentLyrics = displayLines.map((line, index) => ({
             text: line,
@@ -672,11 +686,18 @@ function sendYouTubeCommand(command) {
         if (!song?.name) return null;
 
         const raw = song.name.trim();
-        const parts = raw.replace(/—|–/g, '-').split('-').map(part => part.trim()).filter(Boolean);
+        // Try splitting by ' - ' first, then by '|'
+        let parts = raw.replace(/—|–/g, ' - ').split(' - ').map(p => p.trim()).filter(Boolean);
+        if (parts.length < 2) {
+            // Try splitting by '|'
+            parts = raw.split('|').map(p => p.trim()).filter(Boolean);
+        }
         if (parts.length < 2) return null;
 
+        // Clean up common suffixes from title like "(Cover Español)", "(Lyrics)", "(Extended VERSION)"
         const artist = encodeURIComponent(parts[0]);
-        const title = encodeURIComponent(parts.slice(1).join(' - '));
+        const titleRaw = parts.slice(1).join(' ').replace(/\(.*?\)/g, '').trim();
+        const title = encodeURIComponent(titleRaw);
         const url = `https://api.lyrics.ovh/v1/${artist}/${title}`;
 
         try {
@@ -698,11 +719,13 @@ function sendYouTubeCommand(command) {
             return;
         }
 
-        lyricsContent.innerHTML = `
-            <div class="lyrics-loading">
-                <p>Buscando letra para "${escapeHtml(song.name)}"...</p>
-            </div>
-        `;
+        if (lyricsContent) {
+            lyricsContent.innerHTML = `
+                <div class="lyrics-loading">
+                    <p>Buscando letra para "${escapeHtml(song.name)}"...</p>
+                </div>
+            `;
+        }
 
         const lyrics = await fetchLyricsFromApi(song);
         if (lyrics) {
@@ -787,10 +810,26 @@ function sendYouTubeCommand(command) {
         updatePlayPauseIcon(false);
     }
     
-    function updatePlayPauseIcon(isPlaying) {
-        // En esta página no existe el botón #play-pause-btn.
-        // Mantengo este método para compatibilidad, pero no hace nada.
-        return;
+        function updatePlayPauseIcon(isPlaying) {
+        const iconHtml = isPlaying ? '<span class="material-icons-round">pause</span>' : '<span class="material-icons-round">play_arrow</span>';
+        
+        if (playPauseBtn) {
+            playPauseBtn.innerHTML = iconHtml;
+            if (isPlaying) {
+                playPauseBtn.classList.add('playing');
+            } else {
+                playPauseBtn.classList.remove('playing');
+            }
+        }
+        
+        if (floatPlayPauseBtn) {
+            floatPlayPauseBtn.innerHTML = iconHtml;
+            if (isPlaying) {
+                floatPlayPauseBtn.classList.add('playing');
+            } else {
+                floatPlayPauseBtn.classList.remove('playing');
+            }
+        }
     }
 
 
@@ -811,17 +850,28 @@ function sendYouTubeCommand(command) {
     
     function updateVolume() {
         try {
-            if (!volumeSlider || typeof currentSongIndex !== 'number' || !Number.isInteger(currentSongIndex)) return;
-            if (currentSongIndex < 0 || currentSongIndex >= songs.length) return;
-            const currentSong = songs[currentSongIndex];
-            if (!currentSong || typeof currentSong !== 'object') return;
-            const volume = volumeSlider.value / 100;
-            if (currentSong?.link && isYouTubeLink(currentSong.link)) {
-                // YouTube iframe volume control requires the YouTube Player API.
-                return;
+            if (!volumeSlider) return;
+            const volume = parseInt(volumeSlider.value, 10);
+            const volumeFraction = volume / 100;
+
+            // Update percentage display
+            const pctEl = document.getElementById('volume-pct');
+            if (pctEl) pctEl.textContent = volume + '%';
+
+            // Update volume icon
+            const iconEl = document.getElementById('volume-icon');
+            if (iconEl) {
+                if (volume === 0) iconEl.textContent = 'volume_off';
+                else if (volume < 40) iconEl.textContent = 'volume_down';
+                else iconEl.textContent = 'volume_up';
             }
-            if (audioPlayer) {
-                audioPlayer.volume = volume;
+
+            // Audio player volume
+            if (audioPlayer) audioPlayer.volume = volumeFraction;
+
+            // YouTube player volume (works even when embedded)
+            if (youtubePlayer && typeof youtubePlayer.setVolume === 'function') {
+                youtubePlayer.setVolume(volume);
             }
         } catch (e) {
             console.warn('updateVolume error', e);
@@ -856,12 +906,10 @@ function sendYouTubeCommand(command) {
     }
     
     function setupEventListeners() {
-        if (!addSongForm || !songNameInput || !songLinkInput || !songList || !floatingPlayer || !playPauseBtn || !prevBtn || !nextBtn || !volumeSlider || !progressBg || !currentTimeSpan || !totalTimeSpan || !closeFloatBtn || !refreshLyricsBtn || !audioPlayer) {
-            return;
-        }
+        // Continue even if some elements are missing
 
         // Add song form
-        addSongForm.addEventListener('submit', (e) => {
+        if(addSongForm) addSongForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const name = songNameInput.value.trim();
             const link = songLinkInput.value.trim();
@@ -878,7 +926,7 @@ function sendYouTubeCommand(command) {
         });
 
         // Song list actions (delegated)
-        songList.addEventListener('click', (e) => {
+        if(songList) songList.addEventListener('click', (e) => {
             const songItem = e.target.closest('.song-item');
             if (!songItem) return;
 
@@ -911,20 +959,20 @@ function sendYouTubeCommand(command) {
         });
         
         // Audio player events
-        audioPlayer.addEventListener('timeupdate', updateProgress);
-        audioPlayer.addEventListener('timeupdate', syncLyrics);
-        audioPlayer.addEventListener('ended', () => {
+        if(audioPlayer) audioPlayer.addEventListener('timeupdate', updateProgress);
+        if(audioPlayer) audioPlayer.addEventListener('timeupdate', syncLyrics);
+        if(audioPlayer) audioPlayer.addEventListener('ended', () => {
             // Auto-play next song
             nextSong();
         });
-        audioPlayer.addEventListener('loadedmetadata', () => {
+        if(audioPlayer) audioPlayer.addEventListener('loadedmetadata', () => {
             // Duration is now available
             updateProgress();
             syncLyrics();
         });
         
         // Progress bar
-        progressBg.addEventListener('mousedown', (e) => {
+        if(progressBg) progressBg.addEventListener('mousedown', (e) => {
             isProgressDragging = true;
             const rect = progressBg.getBoundingClientRect();
             const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
@@ -944,10 +992,20 @@ function sendYouTubeCommand(command) {
         });
         
         // Volume slider
-        volumeSlider.addEventListener('input', updateVolume);
+        if(volumeSlider) volumeSlider.addEventListener('input', updateVolume);
         
         // Play/pause button
-        playPauseBtn.addEventListener('click', () => {
+        
+        if (floatPlayPauseBtn) {
+            floatPlayPauseBtn.addEventListener('click', () => {
+                if (playPauseBtn) playPauseBtn.click();
+            });
+        }
+        if (floatPrevBtn && prevBtn) floatPrevBtn.addEventListener('click', () => prevBtn.click());
+        if (floatNextBtn && nextBtn) floatNextBtn.addEventListener('click', () => nextBtn.click());
+        if (openFloatBtn) openFloatBtn.addEventListener('click', showFloatingPlayer);
+
+        if(playPauseBtn) playPauseBtn.addEventListener('click', () => {
             const currentSong = songs[currentSongIndex];
             if (!currentSong) return;
 
@@ -964,17 +1022,17 @@ function sendYouTubeCommand(command) {
         });
         
         // Next/previous buttons
-        nextBtn.addEventListener('click', nextSong);
-        prevBtn.addEventListener('click', prevSong);
+        if(nextBtn) nextBtn.addEventListener('click', nextSong);
+        if(prevBtn) prevBtn.addEventListener('click', prevSong);
         
         // Close floating player
-        closeFloatBtn.addEventListener('click', () => {
+        if(closeFloatBtn) closeFloatBtn.addEventListener('click', () => {
             floatingPlayer.classList.remove('active');
             localStorage.setItem('miniamigixv_floating_player_visible', 'false');
         });
         
         // Refresh lyrics
-        refreshLyricsBtn.addEventListener('click', () => {
+        if(refreshLyricsBtn) refreshLyricsBtn.addEventListener('click', () => {
             const currentSong = songs[currentSongIndex];
             if (currentSong) {
                 loadLyrics(currentSong, currentSongIndex);
@@ -982,7 +1040,7 @@ function sendYouTubeCommand(command) {
         });
         
         // Make floating player draggable
-        makeDraggable(floatingPlayer);
+        if(floatingPlayer) makeDraggable(floatingPlayer);
         
         // Hide floating player when ESC key pressed
         document.addEventListener('keydown', (e) => {
@@ -1132,8 +1190,10 @@ function sendYouTubeCommand(command) {
     }
     
     // Initialize volume
-    volumeSlider.value = 70;
-    updateVolume();
+    if (volumeSlider) {
+        volumeSlider.value = 70;
+        updateVolume();
+    }
     
     console.log("🎵 Music module initialized");
 });
