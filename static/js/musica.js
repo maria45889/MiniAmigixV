@@ -33,7 +33,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let isProgressDragging = false;
     let floatingPosition = JSON.parse(localStorage.getItem('miniamigixv_floating_player') || '{}');
     let youtubePlayerIframe = null;
+    let youtubePlayer = null;
+    let youTubeApiReadyPromise = null;
+    let youTubeProgressTimer = null;
     let isYouTubePlaying = false;
+    let isYouTubeBlocked = false;
+    let blockedYouTubeLink = '';
     
     // Initialize
     if (floatingPlayer && floatingPlayer.parentElement !== document.body) {
@@ -54,11 +59,12 @@ document.addEventListener('DOMContentLoaded', () => {
     updateFloatingPlayerVisibility();
     
     // Load saved floating player state
-    if (localStorage.getItem('miniamigixv_floating_player_visible') === 'true') {
+    if (floatingPlayer && localStorage.getItem('miniamigixv_floating_player_visible') === 'true') {
         floatingPlayer.classList.add('active');
     }
     
     function loadFloatingPlayerPosition() {
+        if (!floatingPlayer) return;
         if (floatingPosition.top && floatingPosition.left) {
             floatingPlayer.style.top = floatingPosition.top + 'px';
             floatingPlayer.style.left = floatingPosition.left + 'px';
@@ -68,13 +74,141 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function saveFloatingPlayerPosition() {
+        if (!floatingPlayer) return;
         const rect = floatingPlayer.getBoundingClientRect();
         localStorage.setItem('miniamigixv_floating_player', JSON.stringify({
             top: rect.top,
             left: rect.left
         }));
     }
+
+    function setYouTubeBlockedState(blocked, link = '') {
+        isYouTubeBlocked = blocked;
+        blockedYouTubeLink = blocked ? link : '';
+        if (playPauseBtn) {
+            playPauseBtn.disabled = blocked;
+        }
+        if (blocked) {
+            updatePlayPauseIcon(false);
+            stopYouTubeSync();
+            if (currentSongInfo) {
+                const artistNode = currentSongInfo.querySelector('.song-artist');
+                if (artistNode) {
+                    artistNode.textContent = 'No se puede reproducir aquí. Abre el enlace de YouTube.';
+                }
+            }
+        }
+    }
+
+    function startYouTubeSync() {
+        stopYouTubeSync();
+        if (!youtubePlayer || !isYouTubePlaying) return;
+        youTubeProgressTimer = setInterval(() => {
+            updateYouTubeProgress();
+        }, 500);
+    }
+
+    function stopYouTubeSync() {
+        if (youTubeProgressTimer) {
+            clearInterval(youTubeProgressTimer);
+            youTubeProgressTimer = null;
+        }
+    }
+
+    function updateYouTubeProgress() {
+        if (!youtubePlayer || !isYouTubePlaying) return;
+        try {
+            const currentTime = youtubePlayer.getCurrentTime();
+            const duration = youtubePlayer.getDuration();
+            if (!duration || duration <= 0) return;
+
+            const progress = (currentTime / duration) * 100;
+            progressFill.style.width = progress + '%';
+            progressHandle.style.left = progress + '%';
+            currentTimeSpan.textContent = formatTime(currentTime);
+            totalTimeSpan.textContent = formatTime(duration);
+            syncLyrics(currentTime, duration);
+        } catch (error) {
+            // ignore if YT player not ready yet
+        }
+    }
+
+    function renderBlockedYouTubeMessage(videoID, message) {
+        const link = blockedYouTubeLink || `https://www.youtube.com/watch?v=${videoID}`;
+        embeddedPlayer.innerHTML = `
+            <div class="alert alert-warning youtube-blocked-message">
+                <div class="blocked-header">
+                    <span class="material-icons-round">block</span>
+                    <div>
+                        <p class="blocked-title">Este video no se puede reproducir aquí.</p>
+                        <p class="blocked-subtitle">YouTube bloquea este video para reproducción embebida.</p>
+                    </div>
+                </div>
+                <p>${escapeHtml(message)}</p>
+                <a href="${link}" target="_blank" rel="noopener noreferrer" class="btn-neon youtube-open-button">
+                    Abrir directamente en YouTube
+                </a>
+            </div>
+        `;
+    }
     
+    function startInlineEdit(index, songItem) {
+        if (!songItem || index < 0 || index >= songs.length) return;
+        if (songItem.classList.contains('editing')) return;
+
+        const song = songs[index];
+        const songInfo = songItem.querySelector('.song-info');
+        if (!songInfo) return;
+
+        songItem.classList.add('editing');
+        songInfo.style.display = 'none';
+
+        const editForm = document.createElement('form');
+        editForm.className = 'song-edit-form';
+        editForm.innerHTML = `
+            <input type="text" name="songName" class="song-edit-name" value="${escapeHtml(song.name)}" placeholder="Nombre de la canción" required />
+            <input type="url" name="songLink" class="song-edit-link" value="${escapeHtml(song.link)}" placeholder="Enlace de la canción" required />
+            <div class="edit-buttons">
+                <button type="submit" class="edit-save">Guardar</button>
+                <button type="button" class="edit-cancel">Cancelar</button>
+            </div>
+        `;
+
+        editForm.addEventListener('click', (e) => e.stopPropagation());
+        editForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const updatedName = editForm.elements.songName.value.trim();
+            const updatedLink = editForm.elements.songLink.value.trim();
+
+            if (!updatedName || !updatedLink) {
+                alert('El nombre y el enlace son obligatorios.');
+                return;
+            }
+
+            songs[index] = {
+                ...song,
+                name: updatedName,
+                link: updatedLink
+            };
+
+            localStorage.setItem('miniamigixv_songs', JSON.stringify(songs));
+            renderSongList();
+
+            if (index === currentSongIndex) {
+                selectSong(index, false);
+            }
+        });
+
+        editForm.querySelector('.edit-cancel').addEventListener('click', (e) => {
+            e.preventDefault();
+            songItem.classList.remove('editing');
+            songInfo.style.display = '';
+            editForm.remove();
+        });
+
+        songItem.insertBefore(editForm, songItem.querySelector('.song-actions'));
+    };
+
     function renderSongList() {
         if (!songList) return;
         songList.innerHTML = '';
@@ -90,15 +224,28 @@ document.addEventListener('DOMContentLoaded', () => {
         
         songs.forEach((song, index) => {
             const songItem = document.createElement('div');
-            songItem.className = `song-item ${index === currentSongIndex ? 'active' : ''}`;
+            songItem.className = `song-item ${index === currentSongIndex ? 'active' : ''} ${song.blockedEmbed ? 'blocked' : ''}`;
             songItem.dataset.index = index;
             
+                const blockedBadge = song.blockedEmbed ? '<span class="song-badge blocked">Bloqueado</span>' : '';
+            const lyricsBadge = song.lyrics ? '<span class="song-badge lyrics">Letra</span>' : '';
+            const openYoutubeButton = song.blockedEmbed ? `
+                <button type="button" class="action-btn open-youtube" title="Abrir en YouTube">
+                    <span class="material-icons-round">open_in_new</span>
+                </button>
+            ` : '';
+
             songItem.innerHTML = `
                 <div class="song-info">
-                    <div class="song-title">${escapeHtml(song.name)}</div>
+                    <div class="song-title">
+                        ${escapeHtml(song.name)}
+                        ${blockedBadge}
+                        ${lyricsBadge}
+                    </div>
                     <div class="song-link">${song.link}</div>
                 </div>
                 <div class="song-actions">
+                    ${openYoutubeButton}
                     <button class="action-btn edit" title="Editar">
                         <span class="material-icons-round">edit</span>
                     </button>
@@ -110,34 +257,8 @@ document.addEventListener('DOMContentLoaded', () => {
             
             songList.appendChild(songItem);
         });
-        
-        // Add event listeners to song items
-        document.querySelectorAll('.song-item').forEach(item => {
-            item.addEventListener('click', (e) => {
-                // Prevent action buttons from triggering song selection
-                if (e.target.closest('.action-btn')) return;
-                
-                const index = parseInt(item.dataset.index);
-                selectSong(index);
-            });
-            
-            // Delete button
-            const deleteBtn = item.querySelector('.action-btn.delete');
-            deleteBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const index = parseInt(item.dataset.index);
-                deleteSong(index);
-            });
-            
-            // Edit button (placeholder - in a real app would open edit form)
-            const editBtn = item.querySelector('.action-btn.edit');
-            editBtn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                alert('No disponible: edición de canciones (pendiente)');
-            });
-        });
     }
-    
+
     function selectSong(index, autoPlay = true) {
         console.log('[musica] selectSong', { index, autoPlay, songsLen: songs.length });
         if (index < 0 || index >= songs.length) return;
@@ -161,13 +282,26 @@ document.addEventListener('DOMContentLoaded', () => {
         `;
         
         // Load the song (audio or iframe)
-        loadSongMedia(song.link, autoPlay);
+        loadSongMedia(song.link, autoPlay, index);
         
-        // Load lyrics (simulated)
-        loadLyrics(song.name);
+        // Load lyrics for the selected song
+        loadLyrics(song);
         
         if (autoPlay) {
-            playSong();
+            // Save songs and current index for the persistent player
+            try {
+                localStorage.setItem('miniamigixv_songs', JSON.stringify(songs));
+                localStorage.setItem('miniamigixv_current_song', currentSongIndex);
+                localStorage.setItem('miniamigixv_current_song_index', currentSongIndex);
+            } catch (e) { console.warn('localStorage write failed', e); }
+
+            // If the persistent player API exists, use it so playback survives navigation
+            if (window.PersistentPlayer && typeof window.PersistentPlayer.playIndex === 'function') {
+                window.PersistentPlayer.playIndex(currentSongIndex);
+            } else {
+                // Fallback to local player
+                playSong();
+            }
         } else {
             updatePlayPauseIcon(false);
         }
@@ -179,14 +313,26 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('miniamigixv_current_song', currentSongIndex);
     }
     
-    function loadSongMedia(link, autoPlay = false) {
+    function loadSongMedia(link, autoPlay = false, songIndex = null) {
         // Clear previous content
         embeddedPlayer.innerHTML = '';
         youtubePlayerIframe = null;
+        youtubePlayer = null;
         isYouTubePlaying = false;
+        stopYouTubeSync();
+        setYouTubeBlockedState(false);
         if (audioPlayer) {
             audioPlayer.pause();
             audioPlayer.src = '';
+        }
+
+        const currentSong = songIndex !== null ? songs[songIndex] : null;
+        if (currentSong?.blockedEmbed && isYouTubeLink(link)) {
+            const videoId = extractYouTubeVideoId(link);
+            blockedYouTubeLink = link;
+            renderBlockedYouTubeMessage(videoId, 'Este video está marcado como bloqueado para reproducción embebida.');
+            setYouTubeBlockedState(true, blockedYouTubeLink);
+            return;
         }
 
         if (!link) {
@@ -203,10 +349,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const videoId = extractYouTubeVideoId(link);
             console.log('[musica] loadSongMedia YouTube', { link, videoId, embeddedPlayerExists: !!embeddedPlayer });
             if (videoId) {
+                embeddedPlayer.dataset.sourceUrl = link;
                 crearPlayer(videoId, embeddedPlayer, autoPlay);
                 const created = embeddedPlayer && embeddedPlayer.querySelector('#youtube-player');
                 youtubePlayerIframe = created;
                 isYouTubePlaying = autoPlay;
+                setYouTubeBlockedState(false);
                 console.log('[musica] iframe created?', { hasYoutubePlayer: !!created });
             } else {
                 embeddedPlayer.innerHTML = `
@@ -324,99 +472,254 @@ function extractYouTubeVideoId(url) {
     }
 }
 
-function crearPlayer(videoID, contenedor, autoPlay = false) {
-    const params = new URLSearchParams({
-        rel: '0',
-        playsinline: '1',
-        enablejsapi: '1',
-        origin: window.location.origin
-    });
-
-    if (autoPlay) {
-        params.set('autoplay', '1');
+function loadYouTubeIframeApi() {
+    if (window.YT && window.YT.Player) {
+        return Promise.resolve(window.YT);
+    }
+    if (youTubeApiReadyPromise) {
+        return youTubeApiReadyPromise;
     }
 
-    contenedor.innerHTML = `
-        <iframe
-            id="youtube-player"
-            width="100%"
-            height="315"
-            src="https://www.youtube-nocookie.com/embed/${videoID}?${params.toString()}"
-            frameborder="0"
-            allow="autoplay; encrypted-media; picture-in-picture"
-            allowfullscreen>
-        </iframe>
-    `;
+    youTubeApiReadyPromise = new Promise((resolve, reject) => {
+        const tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        tag.async = true;
+        tag.onerror = () => reject(new Error('No se pudo cargar la API de YouTube'));
+        document.head.appendChild(tag);
 
-    const iframe = document.getElementById("youtube-player");
-    youtubePlayerIframe = iframe;
+        window.onYouTubeIframeAPIReady = () => {
+            resolve(window.YT);
+        };
+    });
 
-    iframe.onerror = function () {
+    return youTubeApiReadyPromise;
+}
+
+function getYouTubeEmbedParams(link, autoPlay = false) {
+    const params = {
+        rel: 0,
+        playsinline: 1,
+        enablejsapi: 1,
+        origin: window.location.origin,
+        modestbranding: 1
+    };
+
+    if (autoPlay) {
+        params.autoplay = 1;
+    }
+
+    return params;
+}
+
+async function crearPlayer(videoID, contenedor, autoPlay = false) {
+    contenedor.innerHTML = '<div id="youtube-player"></div>';
+    youtubePlayerIframe = null;
+    youtubePlayer = null;
+
+    const embedParams = getYouTubeEmbedParams(contenedor.dataset.sourceUrl || '', autoPlay);
+    console.log('[musica] crearPlayer init', { videoID, sourceUrl: contenedor.dataset.sourceUrl, autoPlay, embedParams });
+
+    try {
+        const YT = await loadYouTubeIframeApi();
+        console.log('[musica] YouTube API ready', { hasYT: !!YT, hasPlayer: !!YT?.Player });
+
+        youtubePlayer = new YT.Player('youtube-player', {
+            height: '315',
+            width: '100%',
+            videoId: videoID,
+            playerVars: embedParams,
+            events: {
+                onReady: (event) => {
+                    youtubePlayerIframe = event.target.getIframe();
+                    console.log('[musica] onReady', {
+                        videoID,
+                        iframeSrc: youtubePlayerIframe?.src,
+                        iframeExists: !!youtubePlayerIframe,
+                        autoPlay
+                    });
+                    if (autoPlay) {
+                        event.target.playVideo();
+                        console.log('[musica] onReady autoplay triggered');
+                    }
+                },
+                onStateChange: (event) => {
+                    console.log('[musica] onStateChange', { videoID, state: event.data });
+                    if (event.data === 1) {
+                        const song = songs[currentSongIndex];
+                        if (song) {
+                            loadLyrics(song);
+                        }
+                    }
+                },
+                onError: (event) => {
+                    const code = event?.data;
+                    console.error('[musica] onError', { videoID, sourceUrl: contenedor.dataset.sourceUrl, errorCode: code, event });
+                    let message = 'No se pudo cargar el video.';
+                    if (code === 100) {
+                        message = 'El video no está disponible.';
+                    } else if (code === 101 || code === 150 || code === 153) {
+                        message = 'La reproducción está bloqueada para este video en sitios externos.';
+                        if (songs[currentSongIndex]) {
+                            songs[currentSongIndex].blockedEmbed = true;
+                            localStorage.setItem('miniamigixv_songs', JSON.stringify(songs));
+                            renderSongList();
+                        }
+                    }
+                    blockedYouTubeLink = contenedor.dataset.sourceUrl || `https://www.youtube.com/watch?v=${videoID}`;
+                    renderBlockedYouTubeMessage(videoID, message);
+                    setYouTubeBlockedState(true, blockedYouTubeLink);
+                    youtubePlayer = null;
+                    youtubePlayerIframe = null;
+                    isYouTubePlaying = false;
+                    updatePlayPauseIcon(false);
+                }
+            }
+        });
+    } catch (error) {
+        console.error('[musica] YouTube API load error:', { videoID, sourceUrl: contenedor.dataset.sourceUrl, error });
         contenedor.innerHTML = `
             <div class="alert alert-warning">
-                ⚠️ No se pudo cargar el video.
-                <br>• El propietario bloqueó la incrustación.
-                <br>• El video no está disponible en tu región.
-                <br>• Alguna extensión del navegador lo bloquea.
+                ⚠️ No se pudo cargar la API de YouTube.
+                <br>Abre el video directamente en YouTube si deseas reproducirlo.
                 <br><br>
                 <a href="https://www.youtube.com/watch?v=${videoID}"
-                   target="_blank">
+                   target="_blank" rel="noopener noreferrer">
                     Abrir directamente en YouTube
                 </a>
             </div>
         `;
-    };
+    }
 }
 
-    function sendYouTubeCommand(command) {
-        if (!youtubePlayerIframe || !youtubePlayerIframe.contentWindow) return;
-        if (!youtubePlayerIframe.src) return;
-
-        // Use '*' to avoid browser strict origin mismatch errors.
-        // YouTube iframe reads the message via its internal handler.
-        // In practice this eliminates the recurring console error.
-        youtubePlayerIframe.contentWindow.postMessage(
-            JSON.stringify({
-                event: 'command',
-                func: command,
-                args: []
-            }),
-            '*'
-        );
+function sendYouTubeCommand(command) {
+    if (youtubePlayer && typeof youtubePlayer[command] === 'function') {
+        youtubePlayer[command]();
+        return;
     }
+    if (!youtubePlayerIframe || !youtubePlayerIframe.contentWindow) return;
+    if (!youtubePlayerIframe.src) return;
+
+    youtubePlayerIframe.contentWindow.postMessage(
+        JSON.stringify({
+            event: 'command',
+            func: command,
+            args: []
+        }),
+        '*'
+    );
+}
 
 
 
 
     
-    function loadLyrics(songName) {
-        const normalized = escapeHtml(songName || 'Tu canción');
+    function generateLyricsForSong(song) {
+        const title = song?.name ? escapeHtml(song.name) : 'Tu canción';
+        const description = song?.blockedEmbed
+            ? 'Letra sugerida disponible porque este video está bloqueado para reproducción embebida.'
+            : 'Letra asociada automáticamente al video seleccionado.';
+
         const baseLines = [
-            `Letra de "${normalized}"`,
-            `🎵 Aquí comienza tu historia musical.`,
+            `Letra de "${title}"`,
+            `🎵 ${description}`,
+            `Esta letra se muestra automáticamente sin importar el idioma del video.`,
             `Siente el ritmo y deja que el texto te guíe.`,
             `Mientras suena la melodía, la letra se recorre.`,
             `Cada verso acompaña el pulso de la canción.`,
             `Disfruta del momento y siente el compás.`
         ];
-        
-        currentLyrics = baseLines.map((line, index) => ({
+
+        return baseLines.map((line, index) => ({
             text: line,
             timestamp: index * 8
         }));
-        
-        lyricsContent.innerHTML = currentLyrics.map((line, index) => `
-            <p class="lyrics-line" data-index="${index}">${line.text}</p>
-        `).join('');
-        
+    }
+
+    function renderLyrics(lyrics, song) {
+        const displayLines = lyrics.split(/\r?\n/).filter(line => line.trim());
+        currentLyrics = displayLines.map((line, index) => ({
+            text: line,
+            timestamp: index * 8
+        }));
+
+        lyricsContent.innerHTML = `
+            <div class="lyrics-meta">
+                <p class="lyrics-heading">Letra de "${escapeHtml(song?.name || 'Tu canción')}"</p>
+                <p class="lyrics-note">Letra cargada automáticamente para el video seleccionado.</p>
+            </div>
+            ${displayLines.map((line, index) => `
+                <p class="lyrics-line" data-index="${index}">${escapeHtml(line)}</p>
+            `).join('')}
+        `;
+
         if (audioPlayer && !audioPlayer.paused) {
-            syncLyrics();
+            syncLyrics(audioPlayer.currentTime, audioPlayer.duration);
+        } else if (youtubePlayer && isYouTubePlaying) {
+            updateYouTubeProgress();
         }
     }
 
-    function syncLyrics() {
-        if (!currentLyrics.length || !audioPlayer || !audioPlayer.duration) return;
-        const progress = audioPlayer.currentTime / audioPlayer.duration;
+    async function fetchLyricsFromApi(song) {
+        if (!song?.name) return null;
+
+        const raw = song.name.trim();
+        const parts = raw.replace(/—|–/g, '-').split('-').map(part => part.trim()).filter(Boolean);
+        if (parts.length < 2) return null;
+
+        const artist = encodeURIComponent(parts[0]);
+        const title = encodeURIComponent(parts.slice(1).join(' - '));
+        const url = `https://api.lyrics.ovh/v1/${artist}/${title}`;
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) return null;
+            const data = await response.json();
+            return data?.lyrics ? data.lyrics.trim() : null;
+        } catch (error) {
+            console.warn('No se pudo obtener la letra automáticamente:', error);
+            return null;
+        }
+    }
+
+    async function loadLyrics(song, songIndex = null) {
+        if (!song) return;
+
+        if (song.lyrics) {
+            renderLyrics(song.lyrics, song);
+            return;
+        }
+
+        lyricsContent.innerHTML = `
+            <div class="lyrics-loading">
+                <p>Buscando letra para "${escapeHtml(song.name)}"...</p>
+            </div>
+        `;
+
+        const lyrics = await fetchLyricsFromApi(song);
+        if (lyrics) {
+            song.lyrics = lyrics;
+            if (songIndex !== null && Number.isInteger(songIndex)) {
+                songs[songIndex] = song;
+                localStorage.setItem('miniamigixv_songs', JSON.stringify(songs));
+                renderSongList();
+            }
+            renderLyrics(lyrics, song);
+            return;
+        }
+
+        renderLyrics(generateLyricsForSong(song).map(line => line.text).join('\n'), song);
+    }
+
+    function syncLyrics(currentTime, duration) {
+        if (!currentLyrics.length) return;
+        let progress = 0;
+        if (typeof currentTime === 'number' && typeof duration === 'number' && duration > 0) {
+            progress = currentTime / duration;
+        } else if (audioPlayer && audioPlayer.duration) {
+            progress = audioPlayer.currentTime / audioPlayer.duration;
+        } else {
+            return;
+        }
         const index = Math.min(currentLyrics.length - 1, Math.floor(progress * currentLyrics.length));
         document.querySelectorAll('.lyrics-line').forEach((node) => {
             node.classList.toggle('active', Number(node.dataset.index) === index);
@@ -428,9 +731,18 @@ function crearPlayer(videoID, contenedor, autoPlay = false) {
         if (!currentSong) return;
 
         if (isYouTubeLink(currentSong.link)) {
-            sendYouTubeCommand('playVideo');
+            if (isYouTubeBlocked) {
+                alert('Este video no se puede reproducir embebido. Usa el enlace directo que se muestra en el reproductor.');
+                return;
+            }
+            if (youtubePlayer && typeof youtubePlayer.playVideo === 'function') {
+                youtubePlayer.playVideo();
+            } else {
+                sendYouTubeCommand('playVideo');
+            }
             isYouTubePlaying = true;
             updatePlayPauseIcon(true);
+            startYouTubeSync();
             return;
         }
         
@@ -448,8 +760,16 @@ function crearPlayer(videoID, contenedor, autoPlay = false) {
         if (!currentSong) return;
 
         if (isYouTubeLink(currentSong.link)) {
-            sendYouTubeCommand('pauseVideo');
+            if (isYouTubeBlocked) {
+                return;
+            }
+            if (youtubePlayer && typeof youtubePlayer.pauseVideo === 'function') {
+                youtubePlayer.pauseVideo();
+            } else {
+                sendYouTubeCommand('pauseVideo');
+            }
             isYouTubePlaying = false;
+            stopYouTubeSync();
             updatePlayPauseIcon(false);
             return;
         }
@@ -504,7 +824,10 @@ function crearPlayer(videoID, contenedor, autoPlay = false) {
     function updateProgress() {
         const currentSong = songs[currentSongIndex];
         if (!currentSong || isProgressDragging) return;
-        if (isYouTubeLink(currentSong.link)) return;
+        if (isYouTubeLink(currentSong.link)) {
+            updateYouTubeProgress();
+            return;
+        }
         
         if (!audioPlayer.src) return;
         
@@ -545,6 +868,39 @@ function crearPlayer(videoID, contenedor, autoPlay = false) {
                 // Auto-select the newly added song
                 selectSong(songs.length - 1);
             }
+        });
+
+        // Song list actions (delegated)
+        songList.addEventListener('click', (e) => {
+            const songItem = e.target.closest('.song-item');
+            if (!songItem) return;
+
+            const index = Number(songItem.dataset.index);
+            if (Number.isNaN(index)) return;
+
+            if (e.target.closest('.action-btn.delete')) {
+                deleteSong(index);
+                return;
+            }
+
+            if (e.target.closest('.action-btn.open-youtube')) {
+                const song = songs[index];
+                if (song && song.link) {
+                    window.open(song.link, '_blank', 'noopener');
+                }
+                return;
+            }
+
+            if (e.target.closest('.action-btn.edit')) {
+                startInlineEdit(index, songItem);
+                return;
+            }
+
+            if (e.target.closest('.action-btn')) {
+                return;
+            }
+
+            selectSong(index);
         });
         
         // Audio player events
@@ -614,7 +970,7 @@ function crearPlayer(videoID, contenedor, autoPlay = false) {
         refreshLyricsBtn.addEventListener('click', () => {
             const currentSong = songs[currentSongIndex];
             if (currentSong) {
-                loadLyrics(currentSong.name);
+                loadLyrics(currentSong, currentSongIndex);
             }
         });
         
@@ -678,11 +1034,13 @@ function crearPlayer(videoID, contenedor, autoPlay = false) {
     }
     
     function showFloatingPlayer() {
+        if (!floatingPlayer) return;
         floatingPlayer.classList.add('active');
         localStorage.setItem('miniamigixv_floating_player_visible', 'true');
     }
     
     function updateFloatingPlayerVisibility() {
+        if (!floatingPlayer) return;
         if (localStorage.getItem('miniamigixv_floating_player_visible') === 'true') {
             floatingPlayer.classList.add('active');
         } else {
@@ -690,6 +1048,25 @@ function crearPlayer(videoID, contenedor, autoPlay = false) {
         }
     }
     
+    function editSong(index) {
+        if (index < 0 || index >= songs.length) return;
+        const song = songs[index];
+        const updatedName = prompt('Editar nombre de la canción:', song.name);
+        if (updatedName === null) return;
+        const updatedLink = prompt('Editar enlace de la canción:', song.link);
+        if (updatedLink === null) return;
+
+        song.name = updatedName.trim() || song.name;
+        song.link = updatedLink.trim() || song.link;
+        songs[index] = song;
+        localStorage.setItem('miniamigixv_songs', JSON.stringify(songs));
+        renderSongList();
+
+        if (index === currentSongIndex) {
+            selectSong(index, false);
+        }
+    }
+
     function deleteSong(index) {
         if (index < 0 || index >= songs.length) return;
         

@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}MiniAmigixV{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{% static 'logo.png' %}">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     {% block extra_css %}{% endblock %}
@@ -17,8 +18,42 @@
             {% block content %}{% endblock %}
         </main>
     </div>
-
     <script src="{% static 'js/main.js' %}?v=3" charset="utf-8"></script>
+    <!-- Persistent floating player available across the app -->
+    <div id="persistent-player" class="persistent-player" aria-hidden="true">
+        <div class="pp-header">
+            <div class="pp-title">Reproductor</div>
+            <button id="pp-close" class="pp-close" title="Cerrar reproductor">✕</button>
+        </div>
+        <div class="pp-body">
+            <img id="pp-thumb" class="pp-thumb" src="{% static 'images/player-logo.svg' %}" alt="Miniatura" />
+            <div class="pp-info">
+                <div id="pp-track" class="pp-track">—</div>
+                    <div class="pp-progress" id="pp-progress" style="display:none;">
+                        <div class="pp-time pp-time-current" id="pp-time-current">0:00</div>
+                        <div class="pp-progress-wrap" id="pp-progress-wrap" aria-hidden="false">
+                            <div class="pp-progress-bar" id="pp-progress-bar">
+                                <div class="pp-progress-fill" id="pp-progress-fill" style="width:0%"></div>
+                            </div>
+                        </div>
+                        <div class="pp-time pp-time-total" id="pp-time-total">0:00</div>
+                    </div>
+                <div class="pp-controls">
+                    <button id="pp-prev" class="pp-btn">⏮</button>
+                    <button id="pp-play" class="pp-btn">▶</button>
+                    <button id="pp-next" class="pp-btn">⏭</button>
+                    <button id="pp-open" class="pp-btn" title="Abrir en YouTube" style="display:none;">YouTube</button>
+                </div>
+                <!-- Conditional YouTube embed and blocked message -->
+                <div id="pp-embed" class="pp-embed" style="display:none;">
+                    <div id="pp-yt-player"></div>
+                </div>
+                <div id="pp-blocked-msg" class="pp-blocked-msg" style="display:none;"></div>
+            </div>
+        </div>
+        <audio id="pp-audio" preload="auto"></audio>
+    </div>
+    <script src="{% static 'js/persistent_player.js' %}" charset="utf-8"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

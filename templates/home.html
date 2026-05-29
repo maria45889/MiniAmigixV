@@ -7,7 +7,7 @@
     <section class="dashboard-topbar">
         <div class="dashboard-greeting-panel glass-card">
             <p class="welcome-label">Panel Principal</p>
-            <h1>Hola, {{ user.username|default:"Amigo" }} 👋</h1>
+            <h1>Hola, {{ user.first_name|default:user.username|truncatechars:18 }} 👋</h1>
             <p class="welcome-subtitle">Desde aquí puedes revisar tu estado del día, acceder a tus herramientas favoritas y mantener todo bajo control de forma sencilla.</p>
         </div>
 
@@ -34,7 +34,7 @@
         <div class="glass-card">
             <div class="widget-header">
                 <span class="material-icons-round">sentiment_very_satisfied</span>
-                <h3>Bienvenido, {{ user.username|default:"Amigo" }}!</h3>
+                <h3>Bienvenido, {{ user.first_name|default:user.username|truncatechars:18 }}!</h3>
             </div>
             <div class="widget-body">
                 <p>¡Gracias por volver a MiniAmigixV! Esperamos que tengas un día productivo y lleno de buenas vibras.</p>

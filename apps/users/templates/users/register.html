@@ -1,161 +1,310 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MiniAmigixV - Crear Cuenta</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #090514;
+            --glass-bg: rgba(22, 13, 36, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --neon-primary: #8b5cf6;
+            --neon-glow: 0 0 15px rgba(139, 92, 246, 0.5);
+            --text-main: #f5f2fa;
+            --text-muted: #9b8db8;
+        }
 
-<title>Registro MiniAmigixV 💕</title>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
 
-<style>
-body{
-font-family:Segoe UI, sans-serif;
-background:linear-gradient(135deg,#ffd6e7,#ffeef6);
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
-}
+        body {
+            background: radial-gradient(circle at 20% 20%, rgba(0, 255, 255, 0.08), transparent 30%),
+                        radial-gradient(circle at 80% 10%, rgba(255, 42, 116, 0.14), transparent 18%),
+                        radial-gradient(circle at 50% 75%, rgba(154, 78, 255, 0.12), transparent 22%),
+                        radial-gradient(circle at 55% 45%, #1a0e33 0%, var(--bg-dark) 90%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-main);
+            padding: 20px;
+        }
 
-.card{
-background:white;
-padding:40px;
-border-radius:25px;
-width:380px;
-box-shadow:0 20px 50px rgba(0,0,0,.15);
-text-align:center;
-}
+        .auth-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 40px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
 
-h1{
-color:#ff4fa0;
-margin-bottom:10px;
-}
+        .logo-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
 
-.subtitle{
-color:#666;
-margin-bottom:22px;
-font-size:15px;
-}
+        .logo-img {
+            width: 220px;
+            height: auto;
+            max-height: 120px;
+            object-fit: contain;
+            background: transparent;
+            padding: 0;
+            border-radius: 0;
+            margin-bottom: 12px;
+            filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.6));
+            transition: transform 0.3s ease;
+        }
 
-.messages{
-margin-bottom:18px;
-text-align:left;
-}
+        .logo-img:hover {
+            transform: scale(1.06) rotate(3deg);
+        }
 
-.message{
-margin-bottom:10px;
-padding:14px 16px;
-border-radius:16px;
-font-size:0.95rem;
-line-height:1.4;
-}
+        .logo {
+            font-size: 2.8rem;
+            margin-bottom: 0;
+            display: inline-block;
+            background: linear-gradient(135deg, #8b5cf6, #0ea5e9, #ec4899);
+            -webkit-background-clip: text;
+            color: transparent;
+            font-weight: 900;
+            letter-spacing: -1.5px;
+            text-shadow: 0px 4px 15px rgba(14, 165, 233, 0.3);
+        }
 
-.message.error{background:rgba(255,94,111,0.12);border:1px solid rgba(255,94,111,0.25);color:#8b1a2f;}
-.message.success{background:rgba(0,213,161,0.12);border:1px solid rgba(0,213,161,0.25);color:#0c5f3f;}
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
 
-input{
-width:100%;
-padding:14px;
-margin-bottom:15px;
-border:none;
-border-radius:15px;
-background:#f5f5f5;
-outline:none;
-}
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 30px;
+        }
 
-button{
-width:100%;
-padding:14px;
-border:none;
-border-radius:15px;
-background:linear-gradient(90deg,#ff4fa0,#ff70b5);
-color:white;
-font-weight:bold;
-cursor:pointer;
-}
+        .messages {
+            margin-bottom: 20px;
+            text-align: left;
+        }
 
-a{
-display:block;
-margin-top:15px;
-color:#ff4fa0;
-text-decoration:none;
-}
+        .message {
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+        }
 
-/* Google Login Button */
-.google-login{
-margin-top:25px;
-padding-top:20px;
-border-top:1px solid #eee;
-}
+        .message.error { background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.2); color: #fca5a5; }
+        .message.success { background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.2); color: #86efac; }
 
-.google-login p{
-margin-bottom:15px;
-color:#666;
-font-size:14px;
-}
+        .form-group {
+            text-align: left;
+            margin-bottom: 20px;
+        }
 
-.google-btn{
-display:inline-flex;
-align-items:center;
-justify-content:center;
-width:100%;
-padding:14px;
-border:1px solid #ddd;
-border-radius:15px;
-font-size:14px;
-font-weight:bold;
-color:#555;
-cursor:pointer;
-transition:all 0.2s ease;
-background:white;
-text-decoration:none;
-margin-top:10px;
-}
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
 
-.google-btn:hover{
-background:#f8f9fa;
-transform:translateY(-1px);
-border-color:#ddd;
-}
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+        }
 
-.google-btn img{
-margin-right:10px;
-width:18px;
-height:18px;
-}
-</style>
+        input:focus {
+            outline: none;
+            border-color: var(--neon-primary);
+            box-shadow: var(--neon-glow);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .password-container {
+            position: relative;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 14px;
+            background: var(--neon-primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 14px rgba(139, 92, 246, 0.4);
+            margin-top: 10px;
+        }
+
+        button[type="submit"]:hover {
+            background: #7c3aed;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(139, 92, 246, 0.6);
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            text-align: center;
+            margin: 24px 0;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .divider::before, .divider::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .divider:not(:empty)::before { margin-right: .5em; }
+        .divider:not(:empty)::after { margin-left: .5em; }
+
+        .google-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            padding: 14px;
+            background: white;
+            color: #333;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .google-btn:hover {
+            background: #f8fafc;
+            transform: translateY(-1px);
+        }
+
+        .google-btn img {
+            width: 20px;
+            height: 20px;
+        }
+
+        .footer-links {
+            margin-top: 24px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .footer-links a {
+            color: var(--neon-primary);
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+    </style>
 </head>
-
 <body>
 
-<div class="card">
+    <div class="auth-container">
+        <div class="logo-container">
+            <img src="{% static 'logo.png' %}" alt="MiniAmigixV Logo" class="logo-img">
+            <div class="logo">MiniAmigixV</div>
+        </div>
+        <h1>Crear una Cuenta</h1>
+        <p class="subtitle">Únete y empieza a gestionar tu vida digital</p>
 
-<h1>Registro</h1>
-<p class="subtitle">Crea tu cuenta en segundos y comienza a disfrutar de MiniAmigixV.</p>
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        {% endif %}
 
-{% if messages %}
-<div class="messages">
-    {% for message in messages %}
-        <div class="message {{ message.tags }}">{{ message }}</div>
-    {% endfor %}
-</div>
-{% endif %}
+        <form method="POST" action="{% url 'registro' %}">
+            {% csrf_token %}
 
-<form method="POST">
-{% csrf_token %}
+            <div class="form-group">
+                <label>Nombre Completo</label>
+                <input type="text" name="name" placeholder="Tu Nombre" required>
+            </div>
 
-<input type="text" name="name" placeholder="Nombre completo" required>
+            <div class="form-group">
+                <label>Correo Electrónico</label>
+                <input type="email" name="email" placeholder="tu@correo.com" required>
+            </div>
 
-<input type="email" name="email" placeholder="Correo electrónico" required>
+            <div class="form-group">
+                <label>Contraseña</label>
+                <div class="password-container">
+                    <input type="password" id="password" name="password" placeholder="••••••••" required>
+                    <span class="toggle-password" onclick="togglePassword()">👁️</span>
+                </div>
+            </div>
 
-<input type="password" name="password" placeholder="Contraseña" required>
+            <button type="submit">Registrarse</button>
+        </form>
 
-<button type="submit">Registrarme</button>
+        <div class="divider">O regístrate con</div>
 
-</form>
+        <a href="{% url 'google_auth' %}" class="google-btn">
+            <img src="{% static 'images/google-logo.svg' %}" alt="Google Logo">
+            Registrarse con Google
+        </a>
 
-<a href="{% url 'login' %}">¿Ya tienes cuenta? Inicia sesión</a>
+        <div class="footer-links">
+            ¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia Sesión</a>
+        </div>
+    </div>
 
-</div>
-
+    <script>
+        function togglePassword() {
+            const pass = document.getElementById("password");
+            pass.type = pass.type === "password" ? "text" : "password";
+        }
+    </script>
 </body>
 </html>

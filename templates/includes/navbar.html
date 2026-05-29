@@ -2,7 +2,7 @@
 <aside class="sidebar" aria-label="Navegación principal">
     <div class="sidebar-header">
         <a class="navbar-brand" href="/home/" title="Inicio">
-            <span class="material-icons-round">psychology</span>
+            <img src="{% static 'logo.png' %}" alt="MiniAmigixV Logo" class="navbar-logo-img">
         </a>
         <div class="brand-meta">
             <span class="brand-title">MiniAmigixV</span>
@@ -99,13 +99,22 @@
                 <span>Panel admin</span>
             </a>
             {% endif %}
-            <a href="#" class="nav-item auth-item logout-action" onclick="if (confirm('¿Cerrar sesión?')) { document.getElementById('logout-form').submit(); } return false;">
-                <span class="material-icons-round">logout</span>
-                <span>Cerrar sesión</span>
-            </a>
         </div>
         {% endif %}
     </nav>
+
+    <!-- Enlace persistente de inicio/cerrar sesión (siempre visible) -->
+    <div class="nav-section auth-always">
+        <a href="{% url 'login' %}" class="nav-item auth-item" {% if request.user.is_authenticated %} onclick="document.getElementById('logout-modal').style.display='flex'; return false;" {% endif %}>
+            <span class="material-icons-round">logout</span>
+            {% if request.user.is_authenticated %}
+                <span>Cerrar sesión</span>
+                <span class="sidebar-username">{{ request.user.username }}</span>
+            {% else %}
+                <span>Iniciar sesión</span>
+            {% endif %}
+        </a>
+    </div>
 
     <div class="sidebar-footer">
         <form id="logout-form" method="post" action="{% url 'logout' %}" style="display:none;">
@@ -113,3 +122,16 @@
         </form>
     </div>
 </aside>
+
+<!-- Logout Confirmation Modal -->
+<div id="logout-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 9999; justify-content: center; align-items: center;">
+    <div style="background: rgba(30, 41, 59, 0.85); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 30px; text-align: center; max-width: 350px; box-shadow: 0 20px 40px rgba(0,0,0,0.4); color: white;">
+        <span class="material-icons-round" style="font-size: 48px; color: #ff4fa0; margin-bottom: 15px;">logout</span>
+        <h3 style="margin-top: 0; font-size: 1.3rem;">¿Cerrar sesión?</h3>
+        <p style="color: #94a3b8; font-size: 0.95rem; margin-bottom: 25px;">Estás a punto de salir de tu cuenta. ¿Estás seguro de que deseas continuar?</p>
+        <div style="display: flex; gap: 10px; justify-content: center;">
+            <button onclick="document.getElementById('logout-modal').style.display='none';" style="padding: 10px 20px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); background: transparent; color: white; cursor: pointer; transition: 0.2s;">Cancelar</button>
+            <button onclick="document.getElementById('logout-form').submit();" style="padding: 10px 20px; border-radius: 12px; border: none; background: #ff4fa0; color: white; cursor: pointer; font-weight: bold; box-shadow: 0 4px 12px rgba(255, 79, 160, 0.4); transition: 0.2s;">Sí, salir</button>
+        </div>
+    </div>
+</div>
