@@ -162,9 +162,122 @@
     word-break: break-all;
 }
 
+.song-edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.song-edit-form input {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-main);
+}
+
+.song-edit-form .edit-buttons {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.song-edit-form button {
+    padding: 10px 14px;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.song-edit-form .edit-save {
+    background: var(--accent-cyan);
+    color: #12131d;
+}
+
+.song-edit-form .edit-cancel {
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--text-main);
+}
+
+.youtube-blocked-message {
+    display: grid;
+    gap: 14px;
+    padding: 24px;
+    border-radius: 22px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    color: var(--text-main);
+}
+
+.youtube-blocked-message .blocked-header {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+}
+
+.youtube-blocked-message .blocked-header .material-icons-round {
+    font-size: 32px;
+    color: #ff7bb3;
+}
+
+.youtube-blocked-message .blocked-title {
+    margin: 0;
+    font-size: 1.15rem;
+    font-weight: 700;
+}
+
+.youtube-blocked-message .blocked-subtitle {
+    margin: 2px 0 0;
+    color: rgba(255, 255, 255, 0.75);
+}
+
+.youtube-blocked-message p {
+    margin: 0;
+    line-height: 1.65;
+}
+
+.youtube-blocked-message a.youtube-open-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: fit-content;
+    padding: 12px 16px;
+    border-radius: 999px;
+    background: rgba(0, 240, 255, 0.12);
+    color: #8cfffe;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.youtube-blocked-message a.youtube-open-button:hover {
+    background: rgba(0, 240, 255, 0.18);
+}
+
 .song-actions {
     display: flex;
     gap: 10px;
+    align-items: center;
+}
+
+.song-item.blocked {
+    border-left-color: #ff6aa3;
+    background: rgba(255, 106, 163, 0.08);
+}
+
+.song-item.blocked {
+    border-left-color: #ff6aa3;
+    background: rgba(255, 106, 163, 0.08);
+}
+
+.song-item.blocked .song-title {
+    color: #ff7bb3;
+}
+
+.song-item.blocked .song-link {
+    color: rgba(255, 106, 163, 0.85);
 }
 
 .action-btn {
@@ -190,6 +303,51 @@
 .action-btn.delete:hover {
     color: #ff007f;
     background: rgba(255, 0, 127, 0.1);
+}
+
+.action-btn.open-youtube:hover {
+    color: var(--accent-cyan);
+    background: rgba(0, 240, 255, 0.1);
+}
+
+.song-badge {
+    display: inline-flex;
+    align-items: center;
+    margin-left: 10px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.song-badge.blocked {
+    background: rgba(255, 0, 127, 0.16);
+    color: #ff6aa3;
+    border: 1px solid rgba(255, 0, 127, 0.25);
+}
+
+.song-badge.lyrics {
+    background: rgba(0, 171, 157, 0.14);
+    color: #05bfa1;
+    border: 1px solid rgba(0, 171, 157, 0.2);
+}
+
+.lyrics-loading,
+.lyrics-meta {
+    margin-bottom: 1rem;
+    color: var(--text-muted);
+}
+
+.lyrics-heading {
+    margin: 0 0 0.35rem;
+    font-size: 0.95rem;
+    font-weight: 700;
+}
+
+.lyrics-note {
+    margin: 0;
+    font-size: 0.85rem;
 }
 
 .empty-state {
@@ -429,6 +587,8 @@
 /* Embedded Player */
 #embedded-player {
     flex: 0 0 400px;
+    min-height: 260px;
+    height: 260px;
     background: var(--music-bg);
     backdrop-filter: blur(20px);
     border: 1px solid var(--music-border);
@@ -457,10 +617,11 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    background: var(--music-bg);
-    backdrop-filter: blur(20px);
-    border: 1px solid var(--music-border);
-    border-radius: 20px;
+    background: rgba(12, 12, 26, 0.95);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 26px;
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.18);
     overflow: hidden;
 }
 
@@ -468,30 +629,31 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px;
-    border-bottom: 1px solid var(--music-border);
-    background: rgba(0, 0, 0, 0.2);
+    padding: 24px 26px;
+    gap: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.03);
 }
 
 .panel-header h3 {
     margin: 0;
     color: var(--accent-cyan);
-    font-size: 1.4rem;
+    font-size: 1.45rem;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
 }
 
 .panel-header h3 span {
-    font-size: 1.6rem;
+    font-size: 1.75rem;
 }
 
 #refresh-lyrics {
-    background: transparent;
-    border: none;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     color: var(--text-muted);
-    width: 35px;
-    height: 35px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -501,28 +663,50 @@
 }
 
 #refresh-lyrics:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 240, 255, 0.14);
     color: var(--accent-cyan);
-    transform: scale(1.1);
+    transform: translateY(-1px);
 }
 
 .lyrics-content {
     flex: 1;
-    padding: 25px;
+    padding: 28px 26px 30px;
     overflow-y: auto;
-    line-height: 1.8;
-    font-size: 1.1rem;
+    line-height: 1.85;
+    font-size: 1rem;
     color: var(--text-main);
+    display: grid;
+    gap: 14px;
 }
 
 .lyrics-line {
-    margin-bottom: 14px;
-    transition: color 0.2s ease, transform 0.2s ease;
+    position: relative;
+    padding: 14px 18px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: transform 0.25s ease, background 0.25s ease, border-color 0.25s ease;
+}
+
+.lyrics-line::before {
+    content: '♪';
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(0, 240, 255, 0.65);
+    font-size: 0.95rem;
 }
 
 .lyrics-line.active {
     color: #ffffff;
-    transform: scale(1.02);
+    background: rgba(0, 240, 255, 0.14);
+    border-color: rgba(0, 240, 255, 0.25);
+    transform: translateX(4px);
+}
+
+.lyrics-line + .lyrics-line {
+    margin-top: 4px;
 }
 
 #embedded-player iframe {

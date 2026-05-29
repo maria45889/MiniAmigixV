@@ -8,7 +8,7 @@ class CustomPasswordResetForm(PasswordResetForm):
     identifier = forms.CharField(
         label='Correo electrónico o apodo',
         max_length=254,
-        widget=forms.TextInput(attrs={'autocomplete': 'email', 'placeholder': 'Correo electrónico o apodo'})
+        widget=forms.TextInput(attrs={'autocomplete': 'email', 'placeholder': 'Correo electrónico o apodo', 'class': 'pw-input'})
     )
 
     def clean_identifier(self):
