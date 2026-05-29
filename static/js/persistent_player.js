@@ -233,6 +233,13 @@
         playCurrent();
     });
 
+    const toggleVideoBtn = document.getElementById('pp-toggle-video');
+    if (toggleVideoBtn) {
+        toggleVideoBtn.addEventListener('click', () => {
+            playerEl.classList.toggle('show-video');
+        });
+    }
+
     closeBtn.addEventListener('click', ()=>{
         hide();
     });

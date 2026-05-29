@@ -32,7 +32,6 @@
             <div class="song-list-section">
                 <h3>Mi Biblioteca</h3>
                 <div class="song-list" id="song-list">
-                    <!-- Las canciones se cargarán aquí dinámicamente -->
                     <div class="empty-state">
                         <p>No tienes canciones aún. ¡Agrega tu primera canción arriba!</p>
                     </div>
@@ -42,30 +41,75 @@
 
         <!-- Right Panel: Player and Lyrics -->
         <section class="music-player">
-            <!-- Floating Player removed: using persistent player in base template -->
 
             <!-- Main Player Area -->
             <div class="main-player">
                 <div id="main-player-content">
-                    <!-- Current song info -->
-                    <div id="current-song-info" class="current-song-info">
-                        <p class="song-title">Ninguna canción seleccionada</p>
-                        <p class="song-artist">Selecciona una canción para comenzar</p>
-                    </div>
 
-                    <!-- Embedded Player (iframe) -->
-                    <div id="embedded-player">
-                        <div class="player-placeholder">
-                            <span class="material-icons-round">music_note</span>
-                            <p>Selecciona una canción para ver el reproductor aquí</p>
+                    <!-- ═══ TARJETA UNIFICADA DEL REPRODUCTOR ═══ -->
+                    <div class="premium-player-container">
+
+                        <!-- Info canción actual -->
+                        <div id="current-song-info" class="current-song-info">
+                            <p class="song-title">Ninguna canción seleccionada</p>
+                            <p class="song-artist">Selecciona una canción para comenzar</p>
+                        </div>
+
+                        <!-- Video embebido DENTRO de la tarjeta -->
+                        <div id="embedded-player" class="embedded-player-inline">
+                            <div class="player-placeholder">
+                                <span class="material-icons-round">music_note</span>
+                                <p>Selecciona una canción</p>
+                            </div>
+                        </div>
+
+                        <!-- Controles de reproducción -->
+                        <div class="player-controls">
+                            <!-- Botones prev/play/next -->
+                            <div class="playback-buttons">
+                                <button id="prev-btn" class="control-btn" title="Anterior">
+                                    <span class="material-icons-round">skip_previous</span>
+                                </button>
+                                <button id="play-pause-btn" class="control-btn play-btn" title="Reproducir/Pausar">
+                                    <span class="material-icons-round">play_arrow</span>
+                                </button>
+                                <button id="next-btn" class="control-btn" title="Siguiente">
+                                    <span class="material-icons-round">skip_next</span>
+                                </button>
+                            </div>
+
+                            <!-- Barra de progreso -->
+                            <div class="progress-container">
+                                <span id="current-time" class="time-display">0:00</span>
+                                <div class="progress-bar-wrapper">
+                                    <div id="progress-bg" class="progress-bg">
+                                        <div id="progress-fill" class="progress-fill"></div>
+                                        <div id="progress-handle" class="progress-handle"></div>
+                                    </div>
+                                </div>
+                                <span id="total-time" class="time-display">0:00</span>
+                            </div>
+
+                            <!-- Volumen + botón mini player -->
+                            <div class="volume-and-tools">
+                                <div class="volume-control">
+                                    <span class="material-icons-round" id="volume-icon">volume_up</span>
+                                    <input type="range" id="volume-slider" min="0" max="100" value="70">
+                                    <span class="volume-pct" id="volume-pct">70%</span>
+                                </div>
+                                <button id="open-float-btn" class="open-float-btn" title="Abrir Mini Player">
+                                    <span class="material-icons-round">open_in_new</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
-                    
+                    <!-- ══════════════════════════════════════════ -->
+
                     <!-- Lyrics Panel -->
                     <div id="lyrics-panel">
                         <div class="panel-header">
-                            <h3>Letra de la Canción</h3>
-                            <button id="refresh-lyrics" class="btn-icon">
+                            <h3><span class="material-icons-round">lyrics</span> Letra de la Canción</h3>
+                            <button id="refresh-lyrics" class="btn-icon" title="Recargar letra">
                                 <span class="material-icons-round">refresh</span>
                             </button>
                         </div>
@@ -84,9 +128,9 @@
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/musica.css' %}">
+<link rel="stylesheet" href="{% static 'css/musica.css' %}?v=5">
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/musica.js' %}"></script>
+<script src="{% static 'js/musica.js' %}?v=5"></script>
 {% endblock %}
