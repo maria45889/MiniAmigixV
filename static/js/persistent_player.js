@@ -77,10 +77,38 @@
     function timeTotalEl(){ return document.getElementById('pp-time-total'); }
 
     let ytPollInterval = null;
-    function startYTPoll(){ stopYTPoll(); const prog = document.getElementById('pp-progress'); if(prog) prog.style.display='flex'; ytPollInterval = setInterval(()=>{ try{ if(!ytPlayer) return; const cur = ytPlayer.getCurrentTime()||0; const dur = ytPlayer.getDuration()||0; const fill = progressFillEl(); if(fill) fill.style.width = (dur>0? (cur/dur*100) : 0) + '%'; const curEl = timeCurrentEl(); const totEl = timeTotalEl(); if(curEl) curEl.textContent = formatTime(cur); if(totEl) totEl.textContent = formatTime(dur); }catch(e){} }, 500); }
+    function startYTPoll(){ 
+        stopYTPoll(); 
+        const prog = document.getElementById('pp-progress'); 
+        if(prog) prog.style.display='flex'; 
+        ytPollInterval = setInterval(()=>{ 
+            try{ 
+                if(!ytPlayer) return; 
+                const cur = ytPlayer.getCurrentTime()||0; 
+                const dur = ytPlayer.getDuration()||0; 
+                const fill = progressFillEl(); 
+                if(fill) fill.style.width = (dur>0? (cur/dur*100) : 0) + '%'; 
+                const curEl = timeCurrentEl(); 
+                const totEl = timeTotalEl(); 
+                if(curEl) curEl.textContent = formatTime(cur); 
+                if(totEl) totEl.textContent = formatTime(dur); 
+                localStorage.setItem('pp_time', cur);
+            }catch(e){} 
+        }, 500); 
+    }
     function stopYTPoll(){ if(ytPollInterval){ clearInterval(ytPollInterval); ytPollInterval = null; } }
 
-    function updateAudioProgress(){ const cur = audioEl.currentTime || 0; const dur = audioEl.duration || 0; const fill = progressFillEl(); if(fill) fill.style.width = (dur>0? (cur/dur*100) : 0) + '%'; const curEl = timeCurrentEl(); const totEl = timeTotalEl(); if(curEl) curEl.textContent = formatTime(cur); if(totEl) totEl.textContent = formatTime(dur); }
+    function updateAudioProgress(){ 
+        const cur = audioEl.currentTime || 0; 
+        const dur = audioEl.duration || 0; 
+        const fill = progressFillEl(); 
+        if(fill) fill.style.width = (dur>0? (cur/dur*100) : 0) + '%'; 
+        const curEl = timeCurrentEl(); 
+        const totEl = timeTotalEl(); 
+        if(curEl) curEl.textContent = formatTime(cur); 
+        if(totEl) totEl.textContent = formatTime(dur); 
+        localStorage.setItem('pp_time', cur);
+    }
 
     function handleSeekEvent(ev){ const bar = progressBarEl(); if(!bar) return; const rect = bar.getBoundingClientRect(); const x = (ev.touches && ev.touches[0]) ? ev.touches[0].clientX : ev.clientX; const frac = Math.min(1, Math.max(0, (x - rect.left) / rect.width)); if(!isYouTubeLink((songs[currentIndex]||{}).link)){ const dur = audioEl.duration || 0; if(dur>0){ audioEl.currentTime = frac * dur; } } else { if(ytPlayer && typeof ytPlayer.seekTo === 'function'){ const dur = (typeof ytPlayer.getDuration === 'function') ? ytPlayer.getDuration() : 0; if(dur>0){ ytPlayer.seekTo(frac * dur, true); } } } const fill = progressFillEl(); if(fill) fill.style.width = (frac*100)+'%'; }
 
@@ -132,9 +160,14 @@
         show();
     }
 
-    function playCurrent(){
+    function playCurrent(resumeTime = null){
         if(currentIndex===null || !songs[currentIndex]) return;
         const s = songs[currentIndex];
+        localStorage.setItem('pp_playing', '1');
+        
+        if(resumeTime === null) {
+            resumeTime = parseFloat(localStorage.getItem('pp_time') || '0');
+        }
         if(isYouTubeLink(s.link)){
             // Try to embed with IFrame API. If the video is blocked for embedding, show a friendly message.
             const openBtn = document.getElementById('pp-open');
@@ -164,6 +197,9 @@
                         playerVars: {autoplay:1, rel:0, modestbranding:1, playsinline:1},
                         events: {
                             onReady: function(event){
+                                if (resumeTime > 0) {
+                                    event.target.seekTo(resumeTime, true);
+                                }
                                 event.target.playVideo();
                                 playBtn.textContent = '⏸';
                                 // show progress and start polling for time/duration
@@ -172,8 +208,14 @@
                             },
                             onStateChange: function(ev){
                                 // when playing
-                                if(ev.data === YT.PlayerState.PLAYING){ playBtn.textContent = '⏸'; }
-                                if(ev.data === YT.PlayerState.PAUSED || ev.data === YT.PlayerState.ENDED){ playBtn.textContent = '▶'; }
+                                if(ev.data === YT.PlayerState.PLAYING){ 
+                                    playBtn.textContent = '⏸'; 
+                                    localStorage.setItem('pp_playing', '1');
+                                }
+                                if(ev.data === YT.PlayerState.PAUSED || ev.data === YT.PlayerState.ENDED){ 
+                                    playBtn.textContent = '▶'; 
+                                    if(ev.data === YT.PlayerState.PAUSED) localStorage.setItem('pp_playing', '0');
+                                }
                             },
                             onError: function(err){
                                 // error codes 101/150 indicate embedding disabled
@@ -195,10 +237,15 @@
             return;
         }
         audioEl.src = s.link;
+        if (resumeTime > 0) {
+            audioEl.currentTime = resumeTime;
+        }
         audioEl.play().then(()=>{
             playBtn.textContent = '⏸';
+            localStorage.setItem('pp_playing', '1');
         }).catch(()=>{
             playBtn.textContent = '▶';
+            localStorage.setItem('pp_playing', '0');
         });
     }
 
@@ -206,15 +253,19 @@
         if(audioEl && !audioEl.paused){
             audioEl.pause();
         }
-        // nothing special to pause for YouTube embeds (we don't embed)
+        if(ytPlayer && typeof ytPlayer.pauseVideo === 'function') {
+            ytPlayer.pauseVideo();
+        }
         playBtn.textContent = '▶';
+        localStorage.setItem('pp_playing', '0');
     }
 
     playBtn.addEventListener('click', ()=>{
-        if(audioEl.src && !audioEl.paused){
+        const isPlaying = playBtn.textContent === '⏸';
+        if(isPlaying){
             pauseCurrent();
         } else {
-            playCurrent();
+            playCurrent(null);
         }
     });
 
@@ -252,10 +303,23 @@
         }
     });
 
-    // Initialize
+        // Initialize
     document.addEventListener('DOMContentLoaded', ()=>{
         loadState();
         updateUI();
+
+        // Auto-resume playback if it was playing before page navigation
+        if (localStorage.getItem('pp_playing') === '1' && currentIndex !== null) {
+            // Un pequeño retraso para asegurar que los elementos estén listos
+            setTimeout(() => {
+                const pp = document.getElementById('persistent-player');
+                if (pp) {
+                    pp.setAttribute('aria-hidden', 'false');
+                    pp.style.display = 'block';
+                }
+                playCurrent(null);
+            }, 500);
+        }
 
         // If user navigates within SPA (if implemented), try to keep popup alive.
 

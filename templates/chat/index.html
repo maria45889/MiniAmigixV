@@ -2,14 +2,18 @@
 
 {% block title %}MiniAmigixV - Chat{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/chat.css' %}?v=4">
+{% endblock %}
+
 {% block content %}
 <div class="chat-container">
     <aside class="chat-sidebar" aria-label="Historial de conversaciones">
         <div class="chat-sidebar-header">
             <div>
                 <span class="eyebrow">Historial</span>
-                <h2>Chats</h2>
-                <p class="sidebar-subtitle" id="conversation-count">0 conversaciones</p>
+                <h2>Conversaciones</h2>
+                <p class="sidebar-subtitle" id="conversation-count">0 chats</p>
             </div>
             <button type="button" id="new-chat-btn" class="icon-btn" title="Nuevo chat" aria-label="Nuevo chat">
                 <span class="material-icons-round">add</span>
@@ -24,17 +28,20 @@
             <div class="chat-topbar-left">
                 <div>
                     <span class="eyebrow">MiniAmigixV</span>
-                    <h1>Chat</h1>
+                    <h1>Chat IA</h1>
                 </div>
-                <p class="chat-description">Escribe mensajes, copia respuestas y mantén tus conversaciones ordenadas. Crea un chat nuevo de un clic.</p>
+                <p class="chat-description">Tu asistente inteligente. Escribe, pregunta y organiza todo desde aquí.</p>
             </div>
             <button type="button" id="clear-chat-btn" class="secondary-btn">
-                <span class="material-icons-round">restart_alt</span>
+                <span class="material-icons-round" style="font-size:1.1rem;">add_comment</span>
                 Nuevo chat
             </button>
         </header>
         <div class="chat-topbar-meta">
-            <span class="chat-stat" id="chat-stats">1 conversación · 1 mensaje</span>
+            <span class="chat-stat" id="chat-stats">
+                <span class="material-icons-round" style="font-size:0.9rem;">forum</span>
+                1 conversación · 1 mensaje
+            </span>
         </div>
 
         <div class="chat-window" id="chat-window">
@@ -61,10 +68,6 @@
 </div>
 {% endblock %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/chat.css' %}">
-{% endblock %}
-
 {% block extra_js %}
-<script src="{% static 'js/chat.js' %}?v=2" charset="utf-8"></script>
+<script src="{% static 'js/chat.js' %}?v=3" charset="utf-8"></script>
 {% endblock %}

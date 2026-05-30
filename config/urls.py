@@ -16,6 +16,7 @@ urlpatterns = [
     path("api/", include("apps.chat.urls")),
     path("api/mongo/", include("mongodb_app.urls")),
     path("blog/", include("apps.blog_app.urls")),
+    path("", include("apps.musica.urls")),
     path("chat/ia/", chat_view, name="chat"),
     path("oauth/", include("social_django.urls", namespace="social")),
     path("", RedirectView.as_view(url="/home/", permanent=True)),

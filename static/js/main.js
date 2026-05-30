@@ -304,22 +304,35 @@ document.addEventListener('DOMContentLoaded', () => {
             });
     }
 
-    // Exponer switchView globalmente para evitar errores de "switchView no definido".
-    // Si algún fragmento usa inline onclick="switchView('chat')", esto lo resuelve.
-    window.switchView = function(viewName) {
-        // Ocultar vistas
-        document.querySelectorAll('.view').forEach(view => {
-            view.classList.remove('active');
-        });
-
-        // Mostrar vista seleccionada (convención: id="view-<nombre>" )
-        const selectedView = document.getElementById(`view-${viewName}`);
-        if (selectedView) {
-            selectedView.classList.add('active');
-        } else {
-            console.error('switchView: vista no encontrada:', viewName);
-        }
-    };
+    // Reforzar switchView dentro de DOMContentLoaded con la versión completa
+    // (la versión básica ya está definida en el <head> del template)
+    if (typeof window._switchViewFull !== 'function') {
+        window._switchViewFull = function(viewName, el) {
+            document.querySelectorAll('.view-section, .view').forEach(function(s) {
+                s.classList.remove('active');
+                s.style.display = 'none';
+            });
+            document.querySelectorAll('.nav-item').forEach(function(n) {
+                n.classList.remove('active');
+            });
+            if (el) {
+                el.classList.add('active');
+            } else {
+                var navItem = document.querySelector('[data-view="' + viewName + '"]');
+                if (navItem) navItem.classList.add('active');
+            }
+            var target = document.getElementById('view-' + viewName);
+            if (target) {
+                target.style.display = viewName === 'home' ? 'flex' : 'block';
+                target.classList.add('active');
+            } else {
+                console.warn('switchView: vista no encontrada:', viewName);
+                window.location.href = '/' + viewName + '/';
+            }
+        };
+        window.switchView = window._switchViewFull;
+        if (typeof switchView !== 'undefined') { switchView = window._switchViewFull; }
+    }
 
     // Función para ocultar/mostrar el reloj basada en preferencias
     function toggleTimeVisibility() {
