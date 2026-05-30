@@ -1,6 +1,38 @@
 /* Sugerencias Module Styles */
 
+/* Navbar button style (Sugerencias) */
+.suggestion-btn-nav{
+    background:linear-gradient(90deg,#00e5ff,#8a2be2) !important;
+    color:#fff !important;
+    border:none !important;
+    border-radius:999px !important;
+    padding:10px 12px !important;
+    cursor:pointer !important;
+    display:flex !important;
+    align-items:center !important;
+    justify-content:center !important;
+    box-shadow: 0 10px 25px rgba(138, 43, 226, 0.25), 0 0 18px rgba(0, 229, 255, 0.18);
+    transition: transform .15s ease, box-shadow .15s ease;
+}
+
+.suggestion-btn-nav:hover{
+    transform: translateY(-1px);
+    box-shadow: 0 14px 30px rgba(138, 43, 226, 0.35), 0 0 24px rgba(0, 229, 255, 0.25);
+}
+
+.suggestion-btn-nav-icon{
+    font-size:20px !important;
+    color:#fff !important;
+    filter: drop-shadow(0 0 8px rgba(255,255,255,0.25));
+}
+
+/* Keep active state consistent */
+.suggestion-btn-nav.active{
+    box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.25), 0 14px 30px rgba(138, 43, 226, 0.35);
+}
+
 .sugerencias-container {
+
     display: flex;
     flex-direction: column;
     gap: 30px;
@@ -16,6 +48,14 @@
 .sugerencias-header h1 {
     color: var(--neon-cyan);
     font-size: 2rem;
+    font-weight: 800;
+}
+
+.sugerencias-header .sugerencias-icon {
+    display: inline-block;
+    transform: translateY(1px);
+    filter: drop-shadow(0 0 8px rgba(0, 240, 255, 0.35));
+
     margin-bottom: 10px;
     display: flex;
     align-items: center;
@@ -320,43 +360,43 @@
     .sugerencias-container {
         padding: 10px;
     }
-    
+
     .sugerencias-header h1 {
         font-size: 1.5rem;
     }
-    
+
     .sugerencias-stats {
         flex-direction: column;
         gap: 10px;
     }
-    
+
     .stat-item {
         min-width: 120px;
     }
-    
+
     .send-sugerencia-card,
     .your-sugerencias-card {
         padding: 20px;
     }
-    
+
     .sugerencia-item {
         flex-direction: column;
         align-items: flex-start;
     }
-    
+
     .sugerencia-header {
         flex-direction: column;
         align-items: flex-start;
     }
-    
+
     .sugerencia-content {
         margin-bottom: 15px;
     }
-    
+
     .sugerencia-meta {
         flex-wrap: wrap;
     }
-    
+
     .sugerencia-respuesta {
         margin-top: 15px;
     }
@@ -366,28 +406,29 @@
     .sugerencias-container {
         padding: 5px;
     }
-    
+
     .sugerencias-header h1 {
         font-size: 1.2rem;
     }
-    
+
     .send-sugerencia-card,
     .your-sugerencias-card {
         padding: 15px;
     }
-    
+
     .form-group input,
     .form-group textarea,
     .form-group select {
         padding: 10px;
         font-size: 0.9rem;
     }
-    
+
     .sugerencia-item {
         padding: 15px;
     }
-    
+
     .sugerencia-content h3 {
         font-size: 1.1rem;
     }
 }
+

@@ -74,6 +74,17 @@
                 <span class="material-icons-round">settings</span>
                 <span>Config.</span>
             </a>
+
+<!-- Sugerencias (botón tipo icono) -->
+            <a href="/sugerencias/" class="nav-item suggestion-btn-nav {% if request.path|startswith:'/sugerencias/' %}active{% endif %}" title="Enviar sugerencia" aria-label="Sugerencias">
+                <span class="material-icons-round suggestion-btn-nav-icon">lightbulb</span>
+            </a>
+
+
+
+
+
+
             {% if request.user.is_authenticated and request.user.is_staff %}
             <a href="/perfil/" class="nav-item {% if request.path|startswith:'/perfil/' %}active{% endif %}">
                 <span class="material-icons-round">person</span>
@@ -135,3 +146,4 @@
         </div>
     </div>
 </div>
+

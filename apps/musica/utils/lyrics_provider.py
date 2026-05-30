@@ -177,52 +177,170 @@ def get_lyrics(titulo: str, artista: str = '', force_refresh: bool = False) -> d
     if not titulo:
         return _not_found(titulo, artista)
 
-    # ── Layer 1: DB cache (skip if force_refresh) ────────────────
-    if not force_refresh:
-        cancion = get_cached_lyrics(titulo, artista)
-        if cancion:
+    # Generate multiple artist/title attempts using heuristics
+    attempts = _generate_artist_title_attempts(titulo, artista)
+    
+    # If no attempts were generated, fall back to original inputs
+    if not attempts:
+        attempts = [(artista, titulo)]
+
+    # Try each attempt in order
+    for attempt_artista, attempt_titulo in attempts:
+        # Skip if both are empty
+        if not attempt_artista and not attempt_titulo:
+            continue
+            
+        # ── Layer 1: DB cache (skip if force_refresh) ────────────────
+        if not force_refresh:
+            cancion = get_cached_lyrics(attempt_titulo, attempt_artista)
+            if cancion:
+                return {
+                    "success": True,
+                    "lyrics": cancion.letra,
+                    "synced": cancion.synced_lyrics or '',
+                    "cached": True,
+                    "source": "cache",
+                    "status": "ok",
+                    "fallback_url": None,
+                }
+
+        # ── Layer 2: LRCLIB ─────────────────────────────────────────
+        result = fetch_lrclib(attempt_titulo, attempt_artista)
+        source = "api_primary"
+
+        # ── Layer 3: Lyrics.ovh ──────────────────────────────────────
+        if not result:
+            result = fetch_lyrics_ovh(attempt_titulo, attempt_artista)
+            source = "api_fallback"
+
+        # ── Persist to DB ────────────────────────────────────────────
+        if result:
+            cancion, _ = Cancion.objects.get_or_create(
+                titulo__iexact=attempt_titulo,
+                artista__iexact=attempt_artista,
+                defaults={'titulo': attempt_titulo, 'artista': attempt_artista},
+            )
+            cancion.letra = result.get('lyrics', '')
+            cancion.synced_lyrics = result.get('synced', '')
+            cancion.save(update_fields=['letra', 'synced_lyrics', 'actualizado_en'])
+
             return {
                 "success": True,
                 "lyrics": cancion.letra,
                 "synced": cancion.synced_lyrics or '',
-                "cached": True,
-                "source": "cache",
+                "cached": False,
+                "source": source,
                 "status": "ok",
                 "fallback_url": None,
             }
 
-    # ── Layer 2: LRCLIB ─────────────────────────────────────────
-    result = fetch_lrclib(titulo, artista)
-    source = "api_primary"
-
-    # ── Layer 3: Lyrics.ovh ──────────────────────────────────────
-    if not result:
-        result = fetch_lyrics_ovh(titulo, artista)
-        source = "api_fallback"
-
-    # ── Persist to DB ────────────────────────────────────────────
-    if result:
-        cancion, _ = Cancion.objects.get_or_create(
-            titulo__iexact=titulo,
-            artista__iexact=artista,
-            defaults={'titulo': titulo, 'artista': artista},
-        )
-        cancion.letra = result.get('lyrics', '')
-        cancion.synced_lyrics = result.get('synced', '')
-        cancion.save(update_fields=['letra', 'synced_lyrics', 'actualizado_en'])
-
-        return {
-            "success": True,
-            "lyrics": cancion.letra,
-            "synced": cancion.synced_lyrics or '',
-            "cached": False,
-            "source": source,
-            "status": "ok",
-            "fallback_url": None,
-        }
-
-    # ── Layer 4: Google fallback ─────────────────────────────────
+    # If all attempts failed, return not found with the original inputs
     return _not_found(titulo, artista)
+
+
+def _normalize_search_string(raw: str) -> str:
+    """
+    Normalize a search string by removing common YouTube noise and decorative symbols.
+    
+    Removes:
+    - Parentheses and brackets content
+    - Words like Letra, Lyrics, Official Video, Audio Oficial, HD
+    - Decorative symbols like ♡ ♥ ♪ ✨ | •
+    - Extra whitespace
+    """
+    if not raw:
+        return ""
+    
+    # Start with the raw string
+    cleaned = str(raw)
+    
+    # Remove content inside parentheses and brackets
+    cleaned = re.sub(r'\([^)]*\)', '', cleaned)
+    cleaned = re.sub(r'\[[^\]]*\]', '', cleaned)
+    
+    # Remove common noise words (case insensitive)
+    noise_words = [
+        r'\bletra\b', r'\blyrics\b', r'\bofficial\s+video\b', 
+        r'\baudio\s+oficial\b', r'\bhd\b', r'\b4k\b'
+    ]
+    for pattern in noise_words:
+        cleaned = re.sub(pattern, '', cleaned, flags=re.IGNORECASE)
+    
+    # Remove decorative symbols
+    cleaned = re.sub(r'[♡♥♪✨|•]', '', cleaned)
+    
+    # Clean up extra spaces and normalize
+    cleaned = re.sub(r'\s+', ' ', cleaned)  # Multiple spaces to single
+    cleaned = cleaned.strip()
+    
+    return cleaned
+
+
+def _generate_artist_title_attempts(titulo: str, artista: str = '') -> list:
+    """
+    Generate multiple (artist, title) attempts based on heuristics for dirty YouTube titles.
+    
+    Returns a list of (artist, title) tuples to try in order of preference.
+    """
+    attempts = []
+    
+    # Clean inputs
+    titulo_clean = titulo.strip()
+    artista_clean = artista.strip() if artista else ''
+    
+    # If we already have artist and title, try them first
+    if artista_clean and titulo_clean:
+        attempts.append((artista_clean, titulo_clean))
+    
+    # Work with the title if we don't have a separate artist
+    if not artista_clean:
+        # Normalize the title first
+        normalized = _normalize_search_string(titulo_clean)
+        
+        # Attempt 1: Try splitting by common separators (including //)
+        separators = ['//', ' - ', ' – ', ' — ', ' | ', '/', '\\\\']
+        for sep in separators:
+            if sep in normalized:
+                parts = normalized.split(sep, 1)
+                if len(parts) == 2:
+                    artist_attempt = parts[0].strip()
+                    title_attempt = parts[1].strip()
+                    # Only add if both parts are meaningful
+                    if artist_attempt and title_attempt and len(artist_attempt) > 1 and len(title_attempt) > 1:
+                        attempts.append((artist_attempt, title_attempt))
+                break  # Only use the first matching separator
+        
+        # Attempt 2: Try the normalized string as title with empty artist
+        if normalized:
+            attempts.append(("", normalized))
+        
+        # Attempt 3: Try original title as title with empty artist
+        if titulo_clean and titulo_clean != normalized:
+            attempts.append(("", titulo_clean))
+        
+        # Attempt 4: If we have multiple // separators, try first and middle parts
+        if '//' in titulo_clean:
+            parts = [p.strip() for p in titulo_clean.split('//') if p.strip()]
+            if len(parts) >= 3:
+                # Try first as artist, second as title
+                attempts.append((parts[0], parts[1]))
+                # Try first as artist, rest joined as title
+                if len(parts) > 2:
+                    attempts.append((parts[0], ' '.join(parts[1:])))
+            elif len(parts) == 2:
+                # Try both parts as artist/title and title/artist
+                attempts.append((parts[0], parts[1]))
+                attempts.append((parts[1], parts[0]))
+    
+    # Remove duplicates while preserving order
+    seen = set()
+    unique_attempts = []
+    for attempt in attempts:
+        if attempt not in seen:
+            seen.add(attempt)
+            unique_attempts.append(attempt)
+    
+    return unique_attempts
 
 
 def _not_found(titulo: str, artista: str) -> dict:

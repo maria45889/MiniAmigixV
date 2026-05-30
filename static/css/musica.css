@@ -281,7 +281,7 @@
     height: 240px;
     border-radius: 16px;
     overflow: hidden;
-    background: #000;
+    background: #fff;
     box-shadow: 0 10px 30px rgba(0,0,0,0.3);
 }
 
@@ -562,18 +562,19 @@
     padding: 7px 14px;
     margin-bottom: 2px;
     border-radius: 10px;
-    color: rgba(220, 255, 255, 0.45);
+    color: #dff;
     font-size: 0.98rem;
     line-height: 1.7;
-    transition: all 0.3s ease;
+    transition: all 0.35s ease;
     border-left: 2px solid transparent;
 }
 .lyrics-line.active {
-    color: #dff;
-    font-weight: 700;
-    background: rgba(0, 255, 255, 0.07);
-    border-left-color: rgba(0, 255, 255, 0.5);
-    transform: translateX(4px);
+    color: #ffffff;
+    text-shadow:
+        0 0 8px #fff,
+        0 0 16px #fff,
+        0 0 28px rgba(255,255,255,.9);
+    transform: scale(1.03);
 }
 .lyrics-line:hover {
     color: rgba(220,255,255,0.75);
