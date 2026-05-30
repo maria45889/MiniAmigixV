@@ -5,9 +5,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}MiniAmigixV{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{% static 'logo.png' %}">
+    <link rel="apple-touch-icon" href="{% static 'logo.png' %}">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
     {% block extra_css %}{% endblock %}
+    <script>
+        var switchView = function(viewName, el) {
+            document.querySelectorAll('.view-section, .view').forEach(function(s) {
+                s.classList.remove('active'); s.style.display = 'none';
+            });
+            document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+            if (el) { el.classList.add('active'); }
+            else {
+                var navItem = document.querySelector('[data-view="' + viewName + '"]');
+                if (navItem) navItem.classList.add('active');
+            }
+            var target = document.getElementById('view-' + viewName);
+            if (target) {
+                target.style.display = viewName === 'home' ? 'flex' : 'block';
+                target.classList.add('active');
+            } else {
+                window.location.href = '/' + viewName + '/';
+            }
+        };
+        window.switchView = switchView;
+    </script>
 </head>
 <body>
     <div class="app-shell">

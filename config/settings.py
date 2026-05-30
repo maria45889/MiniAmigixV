@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'apps.users',
     'apps.chat',
     'apps.blog_app',
+    'apps.musica',
 ]
 
 MIDDLEWARE = [

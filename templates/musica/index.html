@@ -97,7 +97,7 @@
                                     <input type="range" id="volume-slider" min="0" max="100" value="70">
                                     <span class="volume-pct" id="volume-pct">70%</span>
                                 </div>
-                                <button id="open-float-btn" class="open-float-btn" title="Abrir Mini Player">
+                                <button id="open-float-btn" class="control-btn open-float-btn" title="Abrir Mini Player">
                                     <span class="material-icons-round">open_in_new</span>
                                 </button>
                             </div>
@@ -108,11 +108,12 @@
                     <!-- Lyrics Panel -->
                     <div id="lyrics-panel">
                         <div class="panel-header">
-                            <h3><span class="material-icons-round">lyrics</span> Letra de la Canción</h3>
+                            <h3><span class="material-icons-round">lyrics</span> ● TRANSMISIÓN LÍRICA</h3>
                             <button id="refresh-lyrics" class="btn-icon" title="Recargar letra">
                                 <span class="material-icons-round">refresh</span>
                             </button>
                         </div>
+                        <div id="lyrics-status" class="lyrics-status"></div>
                         <div class="lyrics-content" id="lyrics-content">
                             <p class="lyrics-placeholder">Selecciona una canción para ver su letra aquí</p>
                         </div>
@@ -128,9 +129,9 @@
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/musica.css' %}?v=5">
+<link rel="stylesheet" href="{% static 'css/musica.css' %}?v=18">
 {% endblock %}
 
 {% block extra_js %}
-<script src="{% static 'js/musica.js' %}?v=5"></script>
+<script src="{% static 'js/musica.js' %}?v=18"></script>
 {% endblock %}

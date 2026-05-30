@@ -1,0 +1,19 @@
+warning: in the working copy of 'static/css/chat.css', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'static/css/musica.css', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'templates/chat/index.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'templates/home.html', LF will be replaced by CRLF the next time Git touches it
+warning: in the working copy of 'templates/musica/index.html', LF will be replaced by CRLF the next time Git touches it
+ config/settings.py             |    1 [32m+[m
+ config/urls.py                 |    1 [32m+[m
+ static/css/chat.css            |  728 [32m+++++++++++[m[31m-----------[m
+ static/css/musica.css          | 1338 [32m+++++++++++++[m[31m---------------------------[m
+ static/images/player-logo.svg  |   11 [31m-[m
+ static/js/main.js              |   45 [32m+[m[31m-[m
+ static/js/musica.js            |  237 [32m++++[m[31m---[m
+ static/js/persistent_player.js |   82 [32m++[m[31m-[m
+ templates/base.html            |   24 [32m+[m
+ templates/base/base.html       |   32 [32m+[m[31m-[m
+ templates/chat/index.html      |   25 [32m+[m[31m-[m
+ templates/home.html            |  707 [32m++++++++++++++++++[m[31m---[m
+ templates/musica/index.html    |    9 [32m+[m[31m-[m
+ 13 files changed, 1737 insertions(+), 1503 deletions(-)
