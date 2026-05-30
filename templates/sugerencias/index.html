@@ -6,7 +6,7 @@
 <div class="sugerencias-container">
     <!-- Header -->
     <header class="sugerencias-header">
-        <h1>Sugerencias</h1>
+        <h1><span class="sugerencias-icon">💡</span> Sugerencias</h1>
         <p>Envíanos tus ideas, comentarios y reportes para mejorar MiniAmigixV</p>
     </header>
 
@@ -28,6 +28,7 @@
         <div class="send-sugerencia-card">
             <h2>Enviar una Sugerencia</h2>
             <form id="send-sugerencia-form" class="send-sugerencia-form">
+                {% csrf_token %}
                 <div class="form-group">
                     <label for="sugerencia-titulo">Título:</label>
                     <input type="text" id="sugerencia-titulo" placeholder="Ej: Nueva función de recordatorios" required>

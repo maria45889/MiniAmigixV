@@ -20,7 +20,45 @@ class Profile(models.Model):
         super().save(*args, **kwargs)
 
 
+class Sugerencia(models.Model):
+    TIPO_CHOICES = [
+        ('idea', 'Idea'),
+        ('mejora', 'Mejora'),
+        ('reporte', 'Reporte de Error'),
+        ('pregunta', 'Pregunta'),
+        ('elogio', 'Elogio'),
+        ('otro', 'Otro'),
+    ]
+
+    ESTADO_CHOICES = [
+        ('pendiente', 'Pendiente'),
+        ('en_revision', 'En Revisión'),
+        ('respuesta', 'Respondida'),
+        ('resuelta', 'Resuelta'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sugerencias')
+    titulo = models.CharField(max_length=180)
+    descripcion = models.TextField()
+    tipo = models.CharField(max_length=20, choices=TIPO_CHOICES, default='idea')
+    estado = models.CharField(max_length=20, choices=ESTADO_CHOICES, default='pendiente')
+
+    respuesta = models.TextField(blank=True)
+    respondido_en = models.DateTimeField(null=True, blank=True)
+    respondido_por = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='sugerencias_respuestas')
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f'Sugerencia #{self.id} - {self.titulo}'
+
+
 class SupportTicket(models.Model):
+
     TIPO_CHOICES = [
         ('ayuda', 'Ayuda'),
         ('consulta', 'Consulta'),

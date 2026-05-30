@@ -5,7 +5,11 @@ import os
 from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
-load_dotenv(BASE_DIR / ".env")
+# Cargar variables desde .env en la raíz del proyecto
+# (forzar carga incluso si python se ejecuta desde otra carpeta)
+load_dotenv(dotenv_path=BASE_DIR / ".env", override=True)
+
+
 
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-fg$f(*q-bmieyk$v%-_!b8kkbnl!l()feib+i=ewh^rts@@$4s")
 DEBUG = os.getenv("DEBUG", "1") == "1"
@@ -152,19 +156,29 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
+# ---- Email (SMTP) ----
+# Por defecto usamos console backend para no romper en dev.
 EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+
+# Remitente usado como From:
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'MiniAmigixV <noreply@miniamigixv.local>')
 SERVER_EMAIL = os.getenv('SERVER_EMAIL', DEFAULT_FROM_EMAIL)
+
 ADMINS = [
     ('Admin', os.getenv('ADMIN_EMAIL', 'admin@miniamigixv.local')),
 ]
+
+# Destino/host SMTP
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'localhost')
-EMAIL_PORT = int(os.getenv('EMAIL_PORT', '1025'))
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
-EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'False') == 'True'
+
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
 EMAIL_USE_SSL = os.getenv('EMAIL_USE_SSL', 'False') == 'True'
+
 EMAIL_TIMEOUT = int(os.getenv('EMAIL_TIMEOUT', '10'))
+
 
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'

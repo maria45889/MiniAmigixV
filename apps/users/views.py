@@ -16,7 +16,8 @@ from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 import json
 import os
-from .models import Profile, SupportTicket
+from .models import Profile, SupportTicket, Sugerencia
+
 
 def login_view(request):
     google_auth_enabled = bool(
@@ -261,6 +262,63 @@ def profile_view(request):
         'user': request.user,
         'profile': profile
     })
+
+
+@login_required
+@require_POST
+def crear_sugerencia(request):
+    titulo = (request.POST.get('titulo') or '').strip()
+    descripcion = (request.POST.get('descripcion') or '').strip()
+    tipo = (request.POST.get('tipo') or 'idea').strip()
+
+    if not titulo or not descripcion:
+        return JsonResponse({'success': False, 'error': 'Título y descripción son requeridos.'}, status=400)
+
+    if tipo not in dict(Sugerencia.TIPO_CHOICES):
+        # fallback seguro
+        tipo = 'idea'
+
+    sugerencia = Sugerencia.objects.create(
+        user=request.user,
+        titulo=titulo,
+        descripcion=descripcion,
+        tipo=tipo,
+        estado='pendiente',
+    )
+
+    # Email siempre al admin destino (servidor -> tu correo)
+    destino = ['miniamigixv@gmail.com']
+    remitente = settings.DEFAULT_FROM_EMAIL
+
+    now = timezone.localtime(timezone.now())
+    autor_nombre = request.user.get_full_name() or request.user.username
+    autor_email = request.user.email or '(sin email)'
+
+    subject = f"[MiniAmigixV] Nueva sugerencia: {sugerencia.titulo}"
+    message = (
+        "Se ha enviado una nueva sugerencia desde la web de MiniAmigixV.\n\n"
+        f"Autor: {autor_nombre}\n"
+        f"Email autor: {autor_email}\n"
+        f"Fecha/hora: {now.strftime('%d/%m/%Y %H:%M')}\n\n"
+        f"Tipo: {sugerencia.get_tipo_display()}\n"
+        f"Estado: {sugerencia.get_estado_display()}\n\n"
+        "Descripción:\n"
+        f"{sugerencia.descripcion}\n"
+    )
+
+    try:
+        send_mail(
+            subject,
+            message,
+            remitente,
+            destino,
+            fail_silently=False,
+        )
+    except Exception:
+        # Guardamos igual la sugerencia; fallar el email no debe romper el flujo
+        pass
+
+    return JsonResponse({'success': True})
 
 
 @login_required

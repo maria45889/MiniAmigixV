@@ -55,55 +55,70 @@ document.addEventListener('DOMContentLoaded', () => {
     
     function enviarSugerencia(e) {
         e.preventDefault();
-        
+
         const titulo = document.getElementById('sugerencia-titulo').value.trim();
         const descripcion = document.getElementById('sugerencia-descripcion').value.trim();
         const tipo = document.getElementById('sugerencia-tipo').value;
-        
+
         if (!titulo || !descripcion) {
             showNotification('Por favor completa todos los campos', 'warning');
             return;
         }
-        
-        // Show loading state
+
         const submitBtn = sugerenciaForm.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
         submitBtn.textContent = 'Enviando...';
         submitBtn.disabled = true;
-        
-        // Simulate API call
-        setTimeout(() => {
-            // In a real app, this would send to /sugerencias/crear/
+
+        const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]')?.value;
+
+        fetch('/sugerencias/crear/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                ...(csrftoken ? { 'X-CSRFToken': csrftoken } : {})
+            },
+            body: new URLSearchParams({
+                titulo: titulo,
+                descripcion: descripcion,
+                tipo: tipo
+            }).toString()
+        })
+        .then(async (res) => {
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok || !data.success) {
+                throw new Error(data.error || 'Error al enviar la sugerencia');
+            }
+            return data;
+        })
+        .then(() => {
+            // Reset form
+            sugerenciaForm.reset();
+
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+
+            showNotification('¡Tu sugerencia ha sido enviada correctamente! Nuestro equipo la revisará pronto.', 'success');
+
+            // Mantener UX: actualizar lista local con el envío (simulación visual)
             const nuevaSugerencia = {
-                id: Date.now(), // Temporary ID
+                id: Date.now(),
                 titulo: titulo,
                 descripcion: descripcion,
                 tipo: tipo,
                 creado_en: new Date().toISOString().split('T')[0],
                 estado: 'pendiente'
             };
-            
-            // Add to list (in real app, would come from server response)
             renderSugerencias([nuevaSugerencia, ...getExistingSugerencias()]);
-            
-            // Reset form
-            sugerenciaForm.reset();
-            
-            // Reset button
+        })
+        .catch((err) => {
+            console.error(err);
             submitBtn.textContent = originalText;
             submitBtn.disabled = false;
-            
-            showNotification('¡Tu sugerencia ha sido enviada correctamente! Nuestro equipo la revisará pronto.', 'success');
-            
-            // In a real app, this would trigger an email to admin
-            console.log('[Email Simulation] Sending suggestion to admin:', {
-                titulo: titulo,
-                descripcion: descripcion,
-                tipo: tipo,
-                timestamp: new Date().toISOString()
-            });
-        }, 1000);
+            showNotification(err.message || 'No se pudo enviar. Intenta de nuevo.', 'warning');
+        });
     }
+
     
     function getExistingSugerencias() {
         // Get existing suggestions from the DOM

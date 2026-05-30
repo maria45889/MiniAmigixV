@@ -1,7 +1,8 @@
 from django.urls import include, path, reverse_lazy
 from django.contrib.auth import views as auth_views
 from .forms import CustomPasswordResetForm
-from .views import login_view, register_view, home_view, profile_view, update_profile, logout_view, google_auth_view, support_view, admin_support_view
+from .views import login_view, register_view, home_view, profile_view, update_profile, logout_view, google_auth_view, support_view, admin_support_view, crear_sugerencia
+
 from django.views.generic import TemplateView
 
 from django.shortcuts import redirect
@@ -43,6 +44,8 @@ urlpatterns = [
 
     path('notificaciones/', TemplateView.as_view(template_name='notificaciones/index.html'), name='notificaciones'),
     path('sugerencias/', TemplateView.as_view(template_name='sugerencias/index.html'), name='sugerencias'),
+    path('sugerencias/crear/', crear_sugerencia, name='crear_sugerencia'),
+
     path('soporte/', support_view, name='soporte'),
     path('admin-soporte/', admin_support_view, name='admin_soporte'),
     path('traductor/', TemplateView.as_view(template_name='traductor/index.html'), name='traductor'),
