@@ -8,15 +8,18 @@ from django.urls import reverse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
-from django.core.mail import mail_admins, send_mail
+from django.core.mail import EmailMultiAlternatives, mail_admins, send_mail
 from django.contrib.admin.views.decorators import staff_member_required
 from .admin_utils import admin_owner_required
+from django.db.models import Count, Q
+from django.core.paginator import Paginator
+from django.template.loader import render_to_string
 
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 import json
 import os
-from .models import Profile, SupportTicket, Sugerencia
+from .models import Profile, SupportTicket, Sugerencia, Notification
 
 
 def login_view(request):
@@ -133,41 +136,122 @@ def support_view(request):
             prioridad=prioridad,
         )
 
-        subject = f"[Soporte MiniAmigixV] Nuevo ticket: {ticket.title}"
-        message = (
-            f"Usuario: {request.user.get_full_name() or request.user.username} <{request.user.email}>\n"
-            f"Tipo: {ticket.get_tipo_display()}\n"
-            f"Prioridad: {ticket.get_prioridad_display()}\n"
-            f"Creado en: {ticket.created_at.strftime('%d/%m/%Y %H:%M')}\n\n"
-            f"Descripción:\n{ticket.description}\n"
-        )
+        # Prepare context for HTML emails
+        now = timezone.localtime(timezone.now())
+        autor_nombre = request.user.get_full_name() or request.user.username
+        autor_email = request.user.email or '(sin email)'
+
+        # Function to send HTML email for new support ticket notification to admins
+        def enviar_notificacion_nuevo_soporte(ticket):
+            subject = f"[Soporte MiniAmigixV] Nuevo ticket: {ticket.title}"
+            context = {
+                'usuario_nombre': autor_nombre,
+                'usuario_email': autor_email,
+                'fecha_hora': now.strftime('%d/%m/%Y %H:%M'),
+                'tipo_display': ticket.get_tipo_display(),
+                'tipo_clase': ticket.tipo.lower(),
+                'prioridad_display': ticket.get_prioridad_display(),
+                'prioridad_clase': ticket.prioridad.lower(),
+                'estado_display': ticket.get_estado_display(),
+                'estado_clase': ticket.estado.lower(),
+                'descripcion': ticket.description,
+                'ticket_id': ticket.id,
+                'año': now.year,
+            }
+
+            try:
+                html_content = render_to_string('emails/nuevo_soporte.html', context)
+                
+                # Send to admins
+                admin_emails = [admin[1] for admin in settings.ADMINS] if settings.ADMINS else [settings.ADMIN_EMAIL]
+                if not admin_emails:
+                    admin_emails = [settings.DEFAULT_FROM_EMAIL.split('<')[1].strip('>') if '<' in settings.DEFAULT_FROM_EMAIL else settings.DEFAULT_FROM_EMAIL]
+                
+                msg = EmailMultiAlternatives(
+                    subject,
+                    '',  # Versión de texto plano (vacía, solo usamos HTML)
+                    settings.DEFAULT_FROM_EMAIL,
+                    admin_emails
+                )
+                msg.attach_alternative(html_content, "text/html")
+                msg.send()
+            except Exception as e:
+                # Fallback to plain text if HTML fails
+                message = (
+                    "Se ha creado un nuevo ticket de soporte desde la plataforma MiniAmigixV.\n\n"
+                    f"Usuario: {autor_nombre} <{autor_email}>\n"
+                    f"Tipo: {ticket.get_tipo_display()}\n"
+                    f"Prioridad: {ticket.get_prioridad_display()}\n"
+                    f"Estado: {ticket.get_estado_display()}\n"
+                    f"Fecha y hora: {now.strftime('%d/%m/%Y %H:%M')}\n\n"
+                    f"Descripción:\n{ticket.description}\n"
+                )
+                try:
+                    mail_admins(subject, message, fail_silently=False)
+                except Exception:
+                    pass  # Silently fail to not break the flow
+
+        # Function to send HTML email for support ticket confirmation to user
+        def enviar_confirmacion_soporte_usuario(ticket):
+            user_subject = f"[MiniAmigixV] Confirmación de tu ticket: {ticket.title}"
+            context = {
+                'autor_nombre': autor_nombre,
+                'autor_email': autor_email,
+                'ticket_titulo': ticket.title,
+                'tipo_display': ticket.get_tipo_display(),
+                'tipo_clase': ticket.tipo.lower(),
+                'prioridad_display': ticket.get_prioridad_display(),
+                'prioridad_clase': ticket.prioridad.lower(),
+                'estado_display': ticket.get_estado_display(),
+                'estado_clase': ticket.estado.lower(),
+                'fecha_envio': now.strftime('%d/%m/%Y %H:%M'),
+                'descripcion': ticket.description,
+                'soporte_url': request.build_absolute_uri(reverse('soporte')),
+                'año': now.year,
+            }
+
+            try:
+                html_content = render_to_string('emails/nuevo_soporte.html', context)
+                
+                if request.user.email:
+                    msg = EmailMultiAlternatives(
+                        user_subject,
+                        '',  # Versión de texto plano (vacía, solo usamos HTML)
+                        settings.DEFAULT_FROM_EMAIL,
+                        [request.user.email]
+                    )
+                    msg.attach_alternative(html_content, "text/html")
+                    msg.send()
+            except Exception as e:
+                # Fallback to plain text if HTML fails
+                user_message = (
+                    f"Hola {autor_nombre},\n\n"
+                    "Recibimos tu solicitud de soporte y el equipo de MiniAmigixV ya fue notificado.\n\n"
+                    f"Título: {ticket.title}\n"
+                    f"Tipo: {ticket.get_tipo_display()}\n"
+                    f"Prioridad: {ticket.get_prioridad_display()}\n"
+                    f"Creado en: {now.strftime('%d/%m/%Y %H:%M')}\n\n"
+                    "Cuando el administrador responda, también recibirás un correo con la respuesta.\n\n"
+                    "Gracias por usar MiniAmigixV."
+                )
+                try:
+                    if request.user.email:
+                        send_mail(
+                            user_subject,
+                            user_message,
+                            settings.DEFAULT_FROM_EMAIL,
+                            [request.user.email],
+                            fail_silently=False,
+                        )
+                except Exception:
+                    pass  # Silently fail to not break the flow
 
         try:
-            # 1) Notificar al admin
-            mail_admins(subject, message, fail_silently=False)
+            # 1) Notificar al admin (HTML)
+            enviar_notificacion_nuevo_soporte(ticket)
 
-            # 2) Acuse/confirmación al usuario por correo
-            # (opción B solicitada)
-            user_subject = f"[MiniAmigixV] Confirmación de tu ticket: {ticket.title}"
-            user_message = (
-                f"Hola {request.user.get_full_name() or request.user.username},\n\n"
-                "Recibimos tu solicitud de soporte y el equipo de MiniAmigixV ya fue notificado.\n\n"
-                f"Título: {ticket.title}\n"
-                f"Tipo: {ticket.get_tipo_display()}\n"
-                f"Prioridad: {ticket.get_prioridad_display()}\n"
-                f"Creado en: {ticket.created_at.strftime('%d/%m/%Y %H:%M')}\n\n"
-                "Cuando el administrador responda, también recibirás un correo con la respuesta.\n\n"
-                "Gracias por usar MiniAmigixV."
-            )
-
-            if request.user.email:
-                send_mail(
-                    user_subject,
-                    user_message,
-                    settings.DEFAULT_FROM_EMAIL,
-                    [request.user.email],
-                    fail_silently=False,
-                )
+            # 2) Acuse/confirmación al usuario por correo (HTML)
+            enviar_confirmacion_soporte_usuario(ticket)
 
             messages.success(
                 request,
@@ -175,7 +259,6 @@ def support_view(request):
             )
         except Exception as error:
             messages.error(request, f'No se pudo enviar el correo de notificación/acuse: {error}')
-
 
         return redirect('soporte')
 
@@ -213,27 +296,65 @@ def admin_support_view(request):
         ticket.save()
 
         if ticket.user.email:
+            # Send HTML email for support ticket response
+            now = timezone.localtime(timezone.now())
+            autor_nombre = ticket.user.get_full_name() or ticket.user.username
+            
             subject = f"Respuesta a tu ticket de soporte: {ticket.title}"
-            message = (
-                f"Hola {ticket.user.get_full_name() or ticket.user.username},\n\n"
-                f"Tu solicitud de soporte ha recibido una respuesta del administrador.\n\n"
-                f"Título: {ticket.title}\n"
-                f"Tipo: {ticket.get_tipo_display()}\n"
-                f"Prioridad: {ticket.get_prioridad_display()}\n"
-                f"Estado: {ticket.get_estado_display()}\n\n"
-                f"Respuesta:\n{ticket.respuesta}\n\n"
-                "Gracias por usar MiniAmigixV."
-            )
+            context = {
+                'autor_nombre': autor_nombre,
+                'autor_email': ticket.user.email or '(sin email)',
+                'ticket_titulo': ticket.title,
+                'tipo_display': ticket.get_tipo_display(),
+                'tipo_clase': ticket.tipo.lower(),
+                'prioridad_display': ticket.get_prioridad_display(),
+                'prioridad_clase': ticket.prioridad.lower(),
+                'estado_original_display': ticket.get_estado_display(),  # Before change
+                'estado_original_clase': ticket.estado.lower(),  # Before change (will update after)
+                'fecha_envio': ticket.created_at.strftime('%d/%m/%Y %H:%M'),
+                'respuesta': ticket.respuesta,
+                'respondido_por': request.user.get_full_name() or request.user.username,
+                'fecha_respuesta': now.strftime('%d/%m/%Y %H:%M'),
+                'estado_actual_display': estado,  # The new estado being set
+                'estado_actual_clase': estado.lower(),
+                'ticket_id': ticket.id,
+                'soporte_url': request.build_absolute_uri(reverse('soporte')),
+                'año': now.year,
+            }
+
             try:
-                send_mail(
+                html_content = render_to_string('emails/respuesta_soporte.html', context)
+                
+                msg = EmailMultiAlternatives(
                     subject,
-                    message,
+                    '',  # Versión de texto plano (vacía, solo usamos HTML)
                     settings.DEFAULT_FROM_EMAIL,
-                    [ticket.user.email],
-                    fail_silently=True,
+                    [ticket.user.email]
                 )
-            except Exception:
-                pass
+                msg.attach_alternative(html_content, "text/html")
+                msg.send()
+            except Exception as e:
+                # Fallback to plain text if HTML fails
+                message = (
+                    f"Hola {autor_nombre},\n\n"
+                    f"Tu solicitud de soporte ha recibido una respuesta del administrador.\n\n"
+                    f"Título: {ticket.title}\n"
+                    f"Tipo: {ticket.get_tipo_display()}\n"
+                    f"Prioridad: {ticket.get_prioridad_display()}\n"
+                    f"Estado: {estado}\n\n"
+                    f"Respuesta:\n{ticket.respuesta}\n\n"
+                    "Gracias por usar MiniAmigixV."
+                )
+                try:
+                    send_mail(
+                        subject,
+                        message,
+                        settings.DEFAULT_FROM_EMAIL,
+                        [ticket.user.email],
+                        fail_silently=True,
+                    )
+                except Exception:
+                    pass  # Silently fail to not break the flow
 
         messages.success(request, f'Respuesta enviada al ticket #{ticket.id}.')
         return redirect('admin_soporte')
@@ -295,28 +416,63 @@ def crear_sugerencia(request):
     autor_email = request.user.email or '(sin email)'
 
     subject = f"[MiniAmigixV] Nueva sugerencia: {sugerencia.titulo}"
-    message = (
-        "Se ha enviado una nueva sugerencia desde la web de MiniAmigixV.\n\n"
-        f"Autor: {autor_nombre}\n"
-        f"Email autor: {autor_email}\n"
-        f"Fecha/hora: {now.strftime('%d/%m/%Y %H:%M')}\n\n"
-        f"Tipo: {sugerencia.get_tipo_display()}\n"
-        f"Estado: {sugerencia.get_estado_display()}\n\n"
-        "Descripción:\n"
-        f"{sugerencia.descripcion}\n"
-    )
+    
+    # Preparar contexto para el template HTML
+    admin_url = request.build_absolute_uri(f'/admin/users/sugerencia/{sugerencia.id}/change/')
+
+    context = {
+        'autor_nombre': autor_nombre,
+        'autor_email': autor_email,
+        'fecha_hora': now.strftime('%d/%m/%Y %H:%M'),
+        'tipo_display': sugerencia.get_tipo_display(),
+        'tipo_clase': sugerencia.tipo.lower(),  # Para las clases CSS
+        'estado_display': sugerencia.get_estado_display(),
+        'estado_clase': sugerencia.estado.lower(),  # Para las clases CSS
+        'descripcion': sugerencia.descripcion,
+        'sugerencia_id': sugerencia.id,
+        'admin_url': admin_url,
+        'año': now.year,
+    }
 
     try:
-        send_mail(
+        # Intentar enviar correo HTML
+        from django.core.mail import EmailMultiAlternatives
+        from django.template.loader import render_to_string
+        
+        html_content = render_to_string('emails/nueva_sugerencia.html', context)
+        
+        msg = EmailMultiAlternatives(
             subject,
-            message,
+            'Nueva sugerencia recibida en MiniAmigixV. Abre este correo en un cliente con soporte HTML para ver el mensaje completo.',
             remitente,
-            destino,
-            fail_silently=False,
+            destino
         )
-    except Exception:
-        # Guardamos igual la sugerencia; fallar el email no debe romper el flujo
-        pass
+        msg.attach_alternative(html_content, "text/html")
+        msg.send()
+    except Exception as e:
+        # Fallback a texto plano si falla el HTML
+        message = (
+            "Se ha enviado una nueva sugerencia desde la web de MiniAmigixV.\n\n"
+            f"Autor: {autor_nombre}\n"
+            f"Email autor: {autor_email}\n"
+            f"Fecha/hora: {now.strftime('%d/%m/%Y %H:%M')}\n\n"
+            f"Tipo: {sugerencia.get_tipo_display()}\n"
+            f"Estado: {sugerencia.get_estado_display()}\n\n"
+            "Descripción:\n"
+            f"{sugerencia.descripcion}\n"
+        )
+        
+        try:
+            send_mail(
+                subject,
+                message,
+                remitente,
+                destino,
+                fail_silently=False,
+            )
+        except Exception:
+            # Guardamos igual la sugerencia; fallar el email no debe romper el flujo
+            pass
 
     return JsonResponse({'success': True})
 
@@ -403,4 +559,353 @@ def logout_view(request):
     logout(request)
     messages.success(request, 'Has cerrado sesión correctamente.')
     return redirect('login')
+
+
+@login_required
+def notificaciones_view(request):
+    """View notifications with pagination"""
+    # Get user notifications
+    notificaciones = Notification.objects.filter(user=request.user).order_by('-created_at')
+    unread_count = notificaciones.filter(is_read=False).count()
+    
+    # Pagination
+    paginator = Paginator(notificaciones, 15)  # 15 notificaciones por página
+    page_number = request.GET.get('page')
+    notifications = paginator.get_page(page_number)
+    
+    context = {
+        'notifications': notifications,
+        'unread_count': unread_count,
+    }
+    return render(request, 'notificaciones/index.html', context)
+
+
+def panel_dashboard(request):
+    """Custom helpdesk dashboard panel"""
+    # Restrict to staff/admin users only
+    if not request.user.is_staff:
+        messages.error(request, 'No tienes permiso para acceder al panel de administración.')
+        return redirect('home')
+    
+    # Get statistics
+    total_sugerencias = Sugerencia.objects.count()
+    sugerencias_pendientes = Sugerencia.objects.filter(estado='pendiente').count()
+    sugerencias_en_revision = Sugerencia.objects.filter(estado='en_revision').count()
+    sugerencias_resueltas = Sugerencia.objects.filter(estado__in=['respuesta', 'resuelta']).count()
+    
+    total_soportes = SupportTicket.objects.count()
+    soportes_abiertos = SupportTicket.objects.filter(estado='abierto').count()
+    soportes_en_revision = SupportTicket.objects.filter(estado='en_revision').count()
+    soportes_resueltos = SupportTicket.objects.filter(estado='resuelto').count()
+    
+    # Recent items (last 10)
+    recent_sugerencias = Sugerencia.objects.select_related('user').order_by('-created_at')[:10]
+    recent_soportes = SupportTicket.objects.select_related('user').order_by('-created_at')[:10]
+    
+    # Tipo distribution for charts
+    sugerencia_tipos = Sugerencia.objects.values('tipo').annotate(count=Count('tipo')).order_by('-count')
+    soporte_tipos = SupportTicket.objects.values('tipo').annotate(count=Count('tipo')).order_by('-count')
+    
+    # Prioridad distribution for soporte tickets
+    soporte_prioridades = SupportTicket.objects.values('prioridad').annotate(count=Count('prioridad')).order_by('-count')
+    
+    context = {
+        'total_sugerencias': total_sugerencias,
+        'sugerencias_pendientes': sugerencias_pendientes,
+        'sugerencias_en_revision': sugerencias_en_revision,
+        'sugerencias_resueltas': sugerencias_resueltas,
+        'total_soportes': total_soportes,
+        'soportes_abiertos': soportes_abiertos,
+        'soportes_en_revision': soportes_en_revision,
+        'soportes_resueltos': soportes_resueltos,
+        'recent_sugerencias': recent_sugerencias,
+        'recent_soportes': recent_soportes,
+        'sugerencia_tipos': list(sugerencia_tipos),
+        'soporte_tipos': list(soporte_tipos),
+        'soporte_prioridades': list(soporte_prioridades),
+    }
+    
+    return render(request, 'panel/dashboard.html', context)
+
+
+def bandeja_sugerencias(request):
+    """Inbox-style view for managing suggestions"""
+    # Restrict to staff/admin users only
+    if not request.user.is_staff:
+        messages.error(request, 'No tienes permiso para acceder al panel de administración.')
+        return redirect('home')
+    
+    # Get filter parameters
+    estado_filtro = request.GET.get('estado', '')
+    tipo_filtro = request.GET.get('tipo', '')
+    busqueda = request.GET.get('q', '')
+    
+    # Base queryset
+    sugerencias = Sugerencia.objects.select_related('user', 'respondido_por').all()
+    
+    # Apply filters
+    if estado_filtro:
+        sugerencias = sugerencias.filter(estado=estado_filtro)
+    if tipo_filtro:
+        sugerencias = sugerencias.filter(tipo=tipo_filtro)
+    if busqueda:
+        sugerencias = sugerencias.filter(
+            Q(titulo__icontains=busqueda) |
+            Q(descripcion__icontains=busqueda) |
+            Q(user__username__icontains=busqueda) |
+            Q(user__email__icontains=busqueda)
+        )
+    
+    # Order by most recent first
+    sugerencias = sugerencias.order_by('-created_at')
+    
+    # Get statistics for the filter badges
+    stats = {
+        'total': Sugerencia.objects.count(),
+        'pendiente': Sugerencia.objects.filter(estado='pendiente').count(),
+        'en_revision': Sugerencia.objects.filter(estado='en_revision').count(),
+        'respuesta': Sugerencia.objects.filter(estado='respuesta').count(),
+        'resuelta': Sugerencia.objects.filter(estado='resuelta').count(),
+    }
+    
+    # Get filter options
+    tipo_choices = Sugerencia.TIPO_CHOICES
+    estado_choices = Sugerencia.ESTADO_CHOICES
+    
+    context = {
+        'sugerencias': sugerencias,
+        'stats': stats,
+        'tipo_choices': tipo_choices,
+        'estado_choices': estado_choices,
+        'current_estado': estado_filtro,
+        'current_tipo': tipo_filtro,
+        'current_busqueda': busqueda,
+    }
+    
+    return render(request, 'panel/bandeja_sugerencias.html', context)
+
+
+def bandeja_soporte(request):
+    """Inbox-style view for managing support tickets"""
+    # Restrict to staff/admin users only
+    if not request.user.is_staff:
+        messages.error(request, 'No tienes permiso para acceder al panel de administración.')
+        return redirect('home')
+    
+    # Get filter parameters
+    estado_filtro = request.GET.get('estado', '')
+    tipo_filtro = request.GET.get('tipo', '')
+    prioridad_filtro = request.GET.get('prioridad', '')
+    busqueda = request.GET.get('q', '')
+    
+    # Base queryset
+    tickets = SupportTicket.objects.select_related('user', 'respondido_por').all()
+    
+    # Apply filters
+    if estado_filtro:
+        tickets = tickets.filter(estado=estado_filtro)
+    if tipo_filtro:
+        tickets = tickets.filter(tipo=tipo_filtro)
+    if prioridad_filtro:
+        tickets = tickets.filter(prioridad=prioridad_filtro)
+    if busqueda:
+        tickets = tickets.filter(
+            Q(title__icontains=busqueda) |
+            Q(description__icontains=busqueda) |
+            Q(user__username__icontains=busqueda) |
+            Q(user__email__icontains=busqueda)
+        )
+    
+    # Order by most recent first
+    tickets = tickets.order_by('-created_at')
+    
+    # Get statistics for the filter badges
+    stats = {
+        'total': SupportTicket.objects.count(),
+        'abierto': SupportTicket.objects.filter(estado='abierto').count(),
+        'en_revision': SupportTicket.objects.filter(estado='en_revision').count(),
+        'resuelto': SupportTicket.objects.filter(estado='resuelto').count(),
+    }
+    
+    # Get filter options
+    tipo_choices = SupportTicket.TIPO_CHOICES
+    estado_choices = SupportTicket.ESTADO_CHOICES
+    prioridad_choices = SupportTicket.PRIORIDAD_CHOICES
+    
+    context = {
+        'tickets': tickets,
+        'stats': stats,
+        'tipo_choices': tipo_choices,
+        'estado_choices': estado_choices,
+        'prioridad_choices': prioridad_choices,
+        'current_estado': estado_filtro,
+        'current_tipo': tipo_filtro,
+        'current_prioridad': prioridad_filtro,
+        'current_busqueda': busqueda,
+    }
+    
+    return render(request, 'panel/bandeja_soporte.html', context)
+
+
+def responder_sugerencia(request, sugerencia_id):
+    """Handle AJAX response to a suggestion from the inbox view"""
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'error': 'Permission denied'}, status=403)
+    
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
+    
+    try:
+        sugerencia = Sugerencia.objects.get(id=sugerencia_id)
+    except Sugerencia.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Suggestion not found'}, status=404)
+    
+    respuesta_text = request.POST.get('respuesta', '').strip()
+    nuevo_estado = request.POST.get('nuevo_estado', sugerencia.estado)
+    
+    if not respuesta_text:
+        return JsonResponse({'success': False, 'error': 'Response text is required'}, status=400)
+    
+    # Update the suggestion
+    sugerencia.respuesta = respuesta_text
+    sugerencia.respondido_por = request.user
+    sugerencia.respondido_en = timezone.now()
+    if nuevo_estado in dict(Sugerencia.ESTADO_CHOICES):
+        sugerencia.estado = nuevo_estado
+    sugerencia.save()
+    
+    # Create notification for user
+    Notification.objects.create(
+        user=sugerencia.user,
+        title=f"Respuesta a tu sugerencia: {sugerencia.titulo[:100]}",
+        message=respuesta_text[:200],
+        notification_type='sugerencia_respuesta',
+        related_url=f'/sugerencias/',
+        related_object_id=sugerencia.id
+    )
+    
+    # Send email notification to the user
+    try:
+        # Reuse the email sending logic from admin
+        now = timezone.localtime(timezone.now())
+        autor_nombre = sugerencia.user.get_full_name() or sugerencia.user.username
+        autor_email = sugerencia.user.email or '(sin email)'
+        
+        subject = f"[MiniAmigixV] Respuesta a tu sugerencia: {sugerencia.titulo}"
+        context = {
+            'autor_nombre': autor_nombre,
+            'autor_email': autor_email,
+            'sugerencia_titulo': sugerencia.titulo,
+            'tipo_display': sugerencia.get_tipo_display(),
+            'tipo_clase': sugerencia.tipo.lower(),
+            'estado_original_display': sugerencia.get_estado_display(),
+            'estado_original_clase': sugerencia.estado.lower(),
+            'fecha_envio': sugerencia.created_at.strftime('%d/%m/%Y %H:%M'),
+            'respuesta': sugerencia.respuesta,
+            'respondido_por': sugerencia.respondido_por.get_full_name() or sugerencia.respondido_por.username if sugerencia.respondido_por else 'Equipo',
+            'fecha_respuesta': now.strftime('%d/%m/%Y %H:%M'),
+            'estado_actual_display': sugerencia.get_estado_display(),
+            'estado_actual_clase': sugerencia.estado.lower(),
+            'sugerencia_id': sugerencia.id,
+            'sugerencias_url': request.build_absolute_uri(reverse('sugerencias')),
+            'año': now.year,
+        }
+
+        html_content = render_to_string('emails/respuesta_sugerencia.html', context)
+        
+        msg = EmailMultiAlternatives(
+            subject,
+            'Tu sugerencia ha sido respondida. Abre este correo en un cliente con soporte HTML para ver el mensaje completo.',
+            settings.DEFAULT_FROM_EMAIL,
+            [sugerencia.user.email] if sugerencia.user.email else []
+        )
+        if sugerencia.user.email:
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+    except Exception:
+        # Silently fail to not break the response if email fails
+        pass
+    
+    return JsonResponse({'success': True, 'message': 'Response sent successfully'})
+
+
+def responder_soporte(request, ticket_id):
+    """Handle AJAX response to a support ticket from the inbox view"""
+    if not request.user.is_staff:
+        return JsonResponse({'success': False, 'error': 'Permission denied'}, status=403)
+    
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
+    
+    try:
+        ticket = SupportTicket.objects.get(id=ticket_id)
+    except SupportTicket.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Ticket not found'}, status=404)
+    
+    respuesta_text = request.POST.get('respuesta', '').strip()
+    nuevo_estado = request.POST.get('nuevo_estado', ticket.estado)
+    
+    if not respuesta_text:
+        return JsonResponse({'success': False, 'error': 'Response text is required'}, status=400)
+    
+    # Update the ticket
+    ticket.respuesta = respuesta_text
+    ticket.respondido_por = request.user
+    ticket.respondido_en = timezone.now()
+    if nuevo_estado in dict(SupportTicket.ESTADO_CHOICES):
+        ticket.estado = nuevo_estado
+    ticket.save()
+    
+    # Create notification for user
+    Notification.objects.create(
+        user=ticket.user,
+        title=f"Respuesta a tu ticket de soporte: {ticket.title[:100]}",
+        message=respuesta_text[:200],
+        notification_type='soporte_respuesta',
+        related_url=f'/soporte/',
+        related_object_id=ticket.id
+    )
+    
+    # Send email notification to the user
+    try:
+        now = timezone.localtime(timezone.now())
+        autor_nombre = ticket.user.get_full_name() or ticket.user.username
+        
+        subject = f"Respuesta a tu ticket de soporte: {ticket.title}"
+        context = {
+            'autor_nombre': autor_nombre,
+            'autor_email': ticket.user.email or '(sin email)',
+            'ticket_titulo': ticket.title,
+            'tipo_display': ticket.get_tipo_display(),
+            'tipo_clase': ticket.tipo.lower(),
+            'prioridad_display': ticket.get_prioridad_display(),
+            'prioridad_clase': ticket.prioridad.lower(),
+            'estado_original_display': ticket.get_estado_display(),
+            'estado_original_clase': ticket.estado.lower(),
+            'fecha_envio': ticket.created_at.strftime('%d/%m/%Y %H:%M'),
+            'respuesta': ticket.respuesta,
+            'respondido_por': request.user.get_full_name() or request.user.username,
+            'fecha_respuesta': now.strftime('%d/%m/%Y %H:%M'),
+            'estado_actual_display': nuevo_estado,
+            'estado_actual_clase': nuevo_estado.lower(),
+            'ticket_id': ticket.id,
+            'año': now.year,
+        }
+
+        html_content = render_to_string('emails/respuesta_soporte.html', context)
+        
+        msg = EmailMultiAlternatives(
+            subject,
+            '',  # Versión de texto plano (vacía, solo usamos HTML)
+            settings.DEFAULT_FROM_EMAIL,
+            [ticket.user.email] if ticket.user.email else []
+        )
+        if ticket.user.email:
+            msg.attach_alternative(html_content, "text/html")
+            msg.send()
+    except Exception:
+        # Silently fail to not break the response if email fails
+        pass
+    
+    return JsonResponse({'success': True, 'message': 'Response sent successfully'})
 

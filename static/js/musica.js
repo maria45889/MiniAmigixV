@@ -87,12 +87,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }));
     }
 
-    function setYouTubeBlockedState(blocked, link = '') {
-        isYouTubeBlocked = blocked;
-        blockedYouTubeLink = blocked ? link : '';
-
-    }
-
     // Centraliza el render del panel de canción actual
     function updateCurrentSongDisplay(song) {
         if (!song) return;
@@ -130,99 +124,113 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 function startYouTubeSync() {
-         // YouTube sync now handled by onTimeUpdate event
-         // This function is kept for compatibility but does nothing
+     if (!youtubePlayer || typeof youtubePlayer.getCurrentTime !== 'function') return;
+     
+     // Clear any existing interval
+     if (youTubeProgressTimer) clearInterval(youTubeProgressTimer);
+     
+     // Poll YouTube player position and sync lyrics every 100ms
+     youTubeProgressTimer = setInterval(() => {
+         try {
+             const currentTime = youtubePlayer.getCurrentTime();
+             const duration = youtubePlayer.getDuration();
+             syncLyrics(currentTime, duration);
+         } catch (e) {
+             // Ignore errors from destroyed player or API issues
+         }
+     }, 100);
+ }
+
+ function stopYouTubeSync() {
+     if (youTubeProgressTimer) {
+         clearInterval(youTubeProgressTimer);
+         youTubeProgressTimer = null;
      }
+ }
 
-     function stopYouTubeSync() {
-         // YouTube sync now handled by onTimeUpdate event
-         // This function is kept for compatibility but does nothing
-     }
+ function updateYouTubeProgress() {
+     // This function is kept for compatibility but does nothing
+     // Actual updates happen via onTimeUpdate event in the player
+ }
 
-     // updateYouTubeProgress is now handled by onTimeUpdate event
-     function updateYouTubeProgress() {
-         // This function is kept for compatibility but does nothing
-         // Actual updates happen via onTimeUpdate event in the player
-     }
+ function renderBlockedYouTubeMessage(videoID, message) {
+     if (!embeddedPlayer) return;
+     const link = blockedYouTubeLink || `https://www.youtube.com/watch?v=${videoID}`;
+     embeddedPlayer.innerHTML = `
+         <div class="alert alert-warning youtube-blocked-message">
+             <div class="blocked-header">
+                 <span class="material-icons-round">block</span>
+                 <div>
+                     <p class="blocked-title">Este video no se puede reproducir aquí.</p>
+                     <p class="blocked-subtitle">YouTube bloquea este video para reproducción embebida.</p>
+                 </div>
+             </div>
+             <p>${escapeHtml(message)}</p>
+             <a href="${link}" target="_blank" rel="noopener noreferrer" class="btn-neon youtube-open-button">
+                 Abrir directamente en YouTube
+             </a>
+         </div>
+     `;
+ }
 
-    function renderBlockedYouTubeMessage(videoID, message) {
-    if (!embeddedPlayer) return;
-        const link = blockedYouTubeLink || `https://www.youtube.com/watch?v=${videoID}`;
-        embeddedPlayer.innerHTML = `
-            <div class="alert alert-warning youtube-blocked-message">
-                <div class="blocked-header">
-                    <span class="material-icons-round">block</span>
-                    <div>
-                        <p class="blocked-title">Este video no se puede reproducir aquí.</p>
-                        <p class="blocked-subtitle">YouTube bloquea este video para reproducción embebida.</p>
-                    </div>
-                </div>
-                <p>${escapeHtml(message)}</p>
-                <a href="${link}" target="_blank" rel="noopener noreferrer" class="btn-neon youtube-open-button">
-                    Abrir directamente en YouTube
-                </a>
-            </div>
-        `;
-    }
-    
-    function startInlineEdit(index, songItem) {
-        if (!songItem || index < 0 || index >= songs.length) return;
-        if (songItem.classList.contains('editing')) return;
+ function startInlineEdit(index, songItem) {
+     if (!songItem || index < 0 || index >= songs.length) return;
+     if (songItem.classList.contains('editing')) return;
 
-        const song = songs[index];
-        const songInfo = songItem.querySelector('.song-info');
-        if (!songInfo) return;
+     const song = songs[index];
+     const songInfo = songItem.querySelector('.song-info');
+     if (!songInfo) return;
 
-        songItem.classList.add('editing');
-        songInfo.style.display = 'none';
+     songItem.classList.add('editing');
+     songInfo.style.display = 'none';
 
-        const editForm = document.createElement('form');
-        editForm.className = 'song-edit-form';
-        editForm.innerHTML = `
-            <input type="text" name="songName" class="song-edit-name" value="${escapeHtml(song.name)}" placeholder="Nombre de la canción" required />
-            <input type="url" name="songLink" class="song-edit-link" value="${escapeHtml(song.link)}" placeholder="Enlace de la canción" required />
-            <div class="edit-buttons">
-                <button type="submit" class="edit-save">Guardar</button>
-                <button type="button" class="edit-cancel">Cancelar</button>
-            </div>
-        `;
+     const editForm = document.createElement('form');
+     editForm.className = 'song-edit-form';
+     editForm.innerHTML = `
+         <input type="text" name="songName" class="song-edit-name" value="${escapeHtml(song.name)}" placeholder="Nombre de la canción" required />
+         <input type="url" name="songLink" class="song-edit-link" value="${escapeHtml(song.link)}" placeholder="Enlace de la canción" required />
+         <div class="edit-buttons">
+             <button type="submit" class="edit-save">Guardar</button>
+             <button type="button" class="edit-cancel">Cancelar</button>
+         </div>
+     `;
 
-        editForm.addEventListener('click', (e) => e.stopPropagation());
-        editForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const updatedName = editForm.elements.songName.value.trim();
-            const updatedLink = editForm.elements.songLink.value.trim();
+     editForm.addEventListener('click', (e) => e.stopPropagation());
+     editForm.addEventListener('submit', (e) => {
+         e.preventDefault();
+         const updatedName = editForm.elements.songName.value.trim();
+         const updatedLink = editForm.elements.songLink.value.trim();
 
-            if (!updatedName || !updatedLink) {
-                alert('El nombre y el enlace son obligatorios.');
-                return;
-            }
+         if (!updatedName || !updatedLink) {
+             alert('El nombre y el enlace son obligatorios.');
+             return;
+         }
 
-            songs[index] = {
-                ...song,
-                name: updatedName,
-                link: updatedLink
-            };
+         songs[index] = {
+             ...song,
+             name: updatedName,
+             link: updatedLink
+         };
 
-            localStorage.setItem('miniamigixv_songs', JSON.stringify(songs));
-            renderSongList();
+         localStorage.setItem('miniamigixv_songs', JSON.stringify(songs));
+         renderSongList();
 
-            if (index === currentSongIndex) {
-                selectSong(index, false);
-            }
-        });
+         if (index === currentSongIndex) {
+             selectSong(index, false);
+         }
+     });
 
-        editForm.querySelector('.edit-cancel').addEventListener('click', (e) => {
-            e.preventDefault();
-            songItem.classList.remove('editing');
-            songInfo.style.display = '';
-            editForm.remove();
-        });
+     editForm.querySelector('.edit-cancel').addEventListener('click', (e) => {
+         e.preventDefault();
+         songItem.classList.remove('editing');
+         songInfo.style.display = '';
+         editForm.remove();
+     });
 
-        songItem.insertBefore(editForm, songItem.querySelector('.song-actions'));
-    };
+     songItem.insertBefore(editForm, songItem.querySelector('.song-actions'));
+ }
 
-    function renderSongList() {
+ function renderSongList() {
         if (!songList) return;
         songList.innerHTML = '';
         
@@ -342,9 +350,12 @@ function startYouTubeSync() {
     }
     
     function loadSongMedia(link, autoPlay = false, songIndex = null) {
-    if (!embeddedPlayer) return;
-        // Clear previous content
-        embeddedPlayer.innerHTML = '';
+        if (!embeddedPlayer) return;
+
+        // Destroy any previous YouTube player instance before replacing the iframe.
+        if (youtubePlayer && typeof youtubePlayer.destroy === 'function') {
+            try { youtubePlayer.destroy(); } catch (e) { console.warn('[musica] youtubePlayer destroy failed', e); }
+        }
         youtubePlayerIframe = null;
         youtubePlayer = null;
         isYouTubePlaying = false;
@@ -354,14 +365,14 @@ function startYouTubeSync() {
             audioPlayer.pause();
             audioPlayer.src = '';
         }
+        embeddedPlayer.innerHTML = '';
 
         const currentSong = songIndex !== null ? songs[songIndex] : null;
         if (currentSong?.blockedEmbed && isYouTubeLink(link)) {
-            const videoId = extractYouTubeVideoId(link);
-            blockedYouTubeLink = link;
-            renderBlockedYouTubeMessage(videoId, 'Este video está marcado como bloqueado para reproducción embebida.');
-            setYouTubeBlockedState(true, blockedYouTubeLink);
-            return;
+            // Clear stale blocked status and retry the embed.
+            currentSong.blockedEmbed = false;
+            localStorage.setItem('miniamigixv_songs', JSON.stringify(songs));
+            renderSongList();
         }
 
         if (!link) {
@@ -525,16 +536,33 @@ function loadYouTubeIframeApi() {
 }
 
 function getYouTubeEmbedParams(link, autoPlay = false) {
+    const origin = (() => {
+        try {
+            const url = new URL(window.location.href);
+            return `${url.protocol}//${url.host}`;
+        } catch (error) {
+            return window.location.origin || '';
+        }
+    })();
+    const normalizedOrigin = String(origin || '').replace(/\/\/+$/g, '');
+    console.log('[musica] getYouTubeEmbedParams origin', { origin, normalizedOrigin });
+
     const params = {
         rel: 0,
         playsinline: 1,
         enablejsapi: 1,
-        origin: window.location.origin,
         modestbranding: 1
     };
 
+    // El parámetro origin puede causar problemas de postMessage si no coincide exactamente,
+    // así que lo dejamos fuera para que YouTube use el origen detectado automáticamente.
+    // if (normalizedOrigin) {
+    //     params.origin = normalizedOrigin;
+    // }
+
     if (autoPlay) {
         params.autoplay = 1;
+        params.mute = 1;
     }
 
     return params;
@@ -567,8 +595,19 @@ async function crearPlayer(videoID, contenedor, autoPlay = false) {
                          autoPlay
                      });
                      if (autoPlay) {
-                         event.target.playVideo();
-                         console.log('[musica] onReady autoplay triggered');
+                         setTimeout(() => {
+                             try {
+                                 if (youtubePlayer) {
+                                     if (typeof event.target.mute === 'function') {
+                                         event.target.mute();
+                                     }
+                                     event.target.playVideo();
+                                     console.log('[musica] onReady autoplay triggered (muted)');
+                                 }
+                             } catch (e) {
+                                 console.warn('[musica] autoplay failed', e);
+                             }
+                         }, 150);
                      }
                      // Update song info display when ready
                      updateCurrentSongDisplay(songs[currentSongIndex]);
@@ -593,7 +632,11 @@ async function crearPlayer(videoID, contenedor, autoPlay = false) {
                      const code = event?.data;
                      console.error('[musica] onError', { videoID, sourceUrl: contenedor.dataset.sourceUrl, errorCode: code, event });
                      let message = 'No se pudo cargar el video.';
-                     if (code === 100) {
+                     if (code === 2) {
+                         message = 'Se envió un parámetro inválido a YouTube. Verifica el enlace.';
+                     } else if (code === 5) {
+                         message = 'Este video no se puede reproducir en el reproductor embebido de YouTube.';
+                     } else if (code === 100) {
                          message = 'El video no está disponible.';
                      } else if (code === 101 || code === 150 || code === 153) {
                          message = 'La reproducción está bloqueada para este video en sitios externos.';
@@ -659,7 +702,7 @@ function sendYouTubeCommand(command) {
     }
 
     function parseLRC(lrcText) {
-        const lines = lrcText.split(/\r?\n/);
+        const lines = String(lrcText || '').split(/\r?\n/);
         const parsed = [];
         const timeRegex = /\[(\d{2}):(\d{2}(?:\.\d{2,3})?)\]/;
         
@@ -681,6 +724,73 @@ function sendYouTubeCommand(command) {
         return parsed;
     }
 
+    function hasValidSyncedLyrics(lyrics) {
+        if (!lyrics || !String(lyrics).trim()) return false;
+        try {
+            return parseLRC(lyrics).some(line => line.timestamp !== null && line.text);
+        } catch (error) {
+            console.warn('[lyrics] invalid synced lyrics:', error);
+            return false;
+        }
+    }
+
+    function getPlainLyricsFallback(data, song) {
+        const candidates = [
+            data?.lyrics,
+            data?.lyricsFallback,
+            song?.customLyrics,
+            song?._lyricsPlain,
+            song?.lyrics,
+            song?.letra
+        ];
+
+        for (const value of candidates) {
+            if (value && String(value).trim()) {
+                return String(value).trim();
+            }
+        }
+
+        return '';
+    }
+
+    function buildLyricsSearchUrl(song, data = {}) {
+        if (data?.fallback_url) return data.fallback_url;
+        const query = `${song?.artist || ''} ${song?.name || ''} letra lyrics`.trim();
+        return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+    }
+
+    function renderLyricsSearchFallback(song, data = {}, message = 'No se encontró una letra automática para esta canción.') {
+        if (!lyricsContent) return;
+        currentLyrics = [];
+        const fallbackUrl = buildLyricsSearchUrl(song, data);
+        lyricsContent.innerHTML = `
+            <p class="lyrics-placeholder">${escapeHtml(message)}</p>
+            <a href="${fallbackUrl}" target="_blank" rel="noopener" class="lyrics-fallback-link">Buscar letra en Google</a>
+            <button type="button" class="lyrics-paste-button">Pegar letra y sincronizar</button>
+        `;
+        const pasteButton = lyricsContent.querySelector('.lyrics-paste-button');
+        if (pasteButton) {
+            pasteButton.addEventListener('click', () => promptForCustomLyrics(song));
+        }
+    }
+
+    function promptForCustomLyrics(song) {
+        if (!song) return;
+        const pastedLyrics = window.prompt('Pega la letra completa de la canción. Se sincronizará automáticamente con el video:');
+        if (!pastedLyrics || !pastedLyrics.trim()) return;
+
+        song.customLyrics = pastedLyrics.trim();
+        song._lyricsPlain = song.customLyrics;
+        if (currentSongIndex >= 0 && songs[currentSongIndex]) {
+            songs[currentSongIndex] = { ...songs[currentSongIndex], customLyrics: song.customLyrics, _lyricsPlain: song.customLyrics };
+            localStorage.setItem('miniamigixv_songs', JSON.stringify(songs));
+            renderSongList();
+        }
+
+        setLyricsStatus('Letra pegada y sincronizada automáticamente', 'notes');
+        renderLyrics(song.customLyrics, song);
+    }
+
     function renderLyrics(lyrics, song) {
         if (!lyricsContent) return;
         
@@ -690,7 +800,7 @@ function sendYouTubeCommand(command) {
         if (hasTimestamps) {
             currentLyrics = parsed.filter(p => p.text);
         } else {
-            const displayLines = lyrics.split(/\r?\n/).filter(line => line.trim());
+            const displayLines = String(lyrics || '').split(/\r?\n/).filter(line => line.trim());
             currentLyrics = displayLines.map(line => ({
                 text: line,
                 timestamp: null
@@ -699,7 +809,7 @@ function sendYouTubeCommand(command) {
 
         lyricsContent.innerHTML = `
             ${currentLyrics.map((line, index) => `
-                <p class="lyrics-line" data-index="${index}">${escapeHtml(line.text)}</p>
+                <p class="lyrics-line karaoke-line" data-index="${index}">${escapeHtml(line.text)}</p>
             `).join('')}
         `;
 
@@ -760,82 +870,117 @@ function sendYouTubeCommand(command) {
                     setLyricsStatus('🌐 Obtenido desde red (fallback)', 'cloud_done');
                 }
 
-                    // Prefer synced LRC if available
-                    const lyricsText = data.synced && data.synced.trim() ? data.synced : data.lyrics;
+                    const syncedLyrics = data.synced && data.synced.trim() ? data.synced : '';
+                    const plainLyrics = getPlainLyricsFallback(data, song);
+                    song._lyricsPlain = plainLyrics;
 
-                    // If we don't have timestamps, try YouTube captions (backend fallback)
-                    const hasTimestampInText = (() => {
-                        if (!lyricsText) return false;
-                        const lines = String(lyricsText).split(/\r?\n/);
-                        const timeRegex = /\[\d{2}:\d{2}(?:\.\d{2,3})?\]/;
-                        return lines.some(l => timeRegex.test(l));
-                    })();
+                    if (hasValidSyncedLyrics(syncedLyrics)) {
+                        renderLyrics(syncedLyrics, song);
+                        return;
+                    }
 
-                    if (!hasTimestampInText && isYouTubeLink(song.link)) {
+                    if (plainLyrics) {
+                        setLyricsStatus('Letra sin sincronía disponible', 'notes');
+                        renderLyrics(plainLyrics, song);
+                    }
+
+                    if (isYouTubeLink(song.link)) {
                         const videoId = extractYouTubeVideoId(song.link);
                         if (videoId) {
-                            tryFetchYouTubeCaptions(videoId, song);
+                            tryFetchYouTubeCaptions(videoId, song, plainLyrics, data.fallback_url);
                             return;
                         }
                     }
 
-                    renderLyrics(lyricsText, song);
+                    if (!plainLyrics) {
+                        setLyricsStatus('⚠ Letra no encontrada', 'warning');
+                        renderLyricsSearchFallback(song, data);
+                    }
              } else {
-                 // Not found – show fallback
-                 setLyricsStatus('⚠ Letra no encontrada', 'warning');
-                 if (lyricsContent) {
-                     lyricsContent.innerHTML = '<p class="lyrics-placeholder">Lyrics not available. </p>';
-                     if (data.fallback_url) {
-                         const googleLink = document.createElement('a');
-                         googleLink.href = data.fallback_url;
-                         googleLink.target = '_blank';
-                         googleLink.rel = 'noopener';
-                         googleLink.className = 'lyrics-fallback-link';
-                         googleLink.textContent = '🔍 Buscar en Google';
-                         lyricsContent.appendChild(googleLink);
+                 const plainLyrics = getPlainLyricsFallback(data, song);
+                 if (plainLyrics) {
+                     setLyricsStatus('Letra sin sincronía disponible', 'notes');
+                     renderLyrics(plainLyrics, song);
+                     return;
+                 }
+                 if (isYouTubeLink(song.link)) {
+                     const videoId = extractYouTubeVideoId(song.link);
+                     if (videoId) {
+                         tryFetchYouTubeCaptions(videoId, song, '', data.fallback_url);
+                         return;
                      }
                  }
+                 // Not found – show fallback
+                 setLyricsStatus('⚠ Letra no encontrada', 'warning');
+                 renderLyricsSearchFallback(song, data);
              }
         } catch (err) {
             console.warn('[loadLyrics] fetch error:', err);
-            setLyricsStatus('⚠ Error al buscar letra', 'error_outline');
-            if (lyricsContent) {
-                lyricsContent.innerHTML = `<p class="lyrics-placeholder">Lyrics not available.</p>`;
+            const plainLyrics = getPlainLyricsFallback({}, song);
+            if (plainLyrics) {
+                setLyricsStatus('Letra sin sincronía disponible', 'notes');
+                renderLyrics(plainLyrics, song);
+                return;
             }
+            setLyricsStatus('⚠ Error al buscar letra', 'error_outline');
+            renderLyricsSearchFallback(song, {}, 'No se pudo buscar la letra automáticamente.');
         } finally {
             // Guarantee spinner is hidden after a short display so user sees the status message
             setTimeout(hideLyricsSpinner, 3000);
         }
     }
 
-    function tryFetchYouTubeCaptions(videoId, song) {
+    function tryFetchYouTubeCaptions(videoId, song, plainLyricsFallback = '', fallbackUrl = '') {
         // Captions are fetched server-side to avoid iframe/CORS restrictions
         setLyricsStatus('🌐 Sincronizando con captions de YouTube…', 'cloud_download', true);
 
         const params = new URLSearchParams({ video_id: videoId });
-        fetch(`/music/youtube_captions/?${params.toString()}`)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+        fetch(`/music/youtube_captions/?${params.toString()}`, { signal: controller.signal })
             .then(r => {
                 if (!r.ok) throw new Error(`HTTP ${r.status}`);
                 return r.json();
             })
             .then(data => {
-                if (data && data.success && data.synced && data.synced.trim()) {
+                if (data && data.success && hasValidSyncedLyrics(data.synced)) {
                     setLyricsStatus('🎵 Captions sincronizadas', 'cloud_done');
                     renderLyrics(data.synced, song);
                 } else {
                     // Fallback: show plain lyrics without sync (existing behavior)
                     setLyricsStatus('⚠ Captions no disponibles, mostrando letra sin sincronía', 'warning');
-                    const fallbackText = song?.letra || (song && song.name ? data?.lyricsFallback : null);
-                    const lyricsText = data?.lyricsFallback && data.lyricsFallback.trim() ? data.lyricsFallback : (song._lyricsPlain || '');
-                    if (lyricsText) renderLyrics(lyricsText, song);
+                    const lyricsText = getPlainLyricsFallback({
+                        lyrics: plainLyricsFallback,
+                        lyricsFallback: data?.lyricsFallback
+                    }, song);
+                    if (lyricsText) {
+                        renderLyrics(lyricsText, song);
+                    } else {
+                        renderLyricsSearchFallback(
+                            song,
+                            { fallback_url: fallbackUrl },
+                            'No se encontraron captions ni letra automática para esta canción.'
+                        );
+                    }
                 }
             })
             .catch(err => {
                 console.warn('[tryFetchYouTubeCaptions] error:', err);
+                const lyricsText = getPlainLyricsFallback({ lyrics: plainLyricsFallback }, song);
+                if (lyricsText) renderLyrics(lyricsText, song);
+                else renderLyricsSearchFallback(
+                    song,
+                    { fallback_url: fallbackUrl },
+                    'No se pudieron cargar captions ni letra automática para esta canción.'
+                );
                 // Keep existing plain lyrics rendering
                 setLyricsStatus('⚠ Error captions, mostrando letra sin sincronía', 'error_outline');
             })
-            .finally(() => setTimeout(hideLyricsSpinner, 2000));
+            .finally(() => {
+                clearTimeout(timeoutId);
+                setTimeout(hideLyricsSpinner, 2000);
+            });
     }
 
     function syncLyrics(currentTime, duration) {
@@ -863,7 +1008,11 @@ function sendYouTubeCommand(command) {
         }
 
         document.querySelectorAll('.lyrics-line').forEach((node) => {
-            const isMatch = Number(node.dataset.index) === activeIndex;
+            const index = Number(node.dataset.index);
+            const isMatch = index === activeIndex;
+            node.classList.toggle('played', index < activeIndex);
+            node.classList.toggle('upcoming', index > activeIndex);
+
             if (isMatch && !node.classList.contains('active')) {
                 node.classList.add('active');
                 node.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -878,9 +1027,22 @@ function sendYouTubeCommand(command) {
         if (!currentSong) return;
 
         if (isYouTubeLink(currentSong.link)) {
+            console.log('[musica] playSong youtube', {
+                currentSongLink: currentSong.link,
+                hasYoutubePlayer: !!youtubePlayer,
+                isYouTubeBlocked,
+                isYouTubePlaying
+            });
             if (isYouTubeBlocked) {
                 alert('Este video no se puede reproducir embebido. Usa el enlace directo que se muestra en el reproductor.');
                 return;
+            }
+            if (youtubePlayer && typeof youtubePlayer.unMute === 'function') {
+                try {
+                    youtubePlayer.unMute();
+                } catch (e) {
+                    console.warn('[musica] unMute failed', e);
+                }
             }
             if (youtubePlayer && typeof youtubePlayer.playVideo === 'function') {
                 youtubePlayer.playVideo();
@@ -907,6 +1069,12 @@ function sendYouTubeCommand(command) {
         if (!currentSong) return;
 
         if (isYouTubeLink(currentSong.link)) {
+            console.log('[musica] pauseSong youtube', {
+                currentSongLink: currentSong.link,
+                hasYoutubePlayer: !!youtubePlayer,
+                isYouTubeBlocked,
+                isYouTubePlaying
+            });
             if (isYouTubeBlocked) {
                 return;
             }
@@ -1075,7 +1243,7 @@ function updateProgress() {
         
         // Audio player events
         if(audioPlayer) audioPlayer.addEventListener('timeupdate', updateProgress);
-        if(audioPlayer) audioPlayer.addEventListener('timeupdate', syncLyrics);
+        if(audioPlayer) audioPlayer.addEventListener('timeupdate', () => syncLyrics(audioPlayer.currentTime, audioPlayer.duration));
         if(audioPlayer) audioPlayer.addEventListener('ended', () => {
             // Auto-play next song
             nextSong();

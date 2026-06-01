@@ -43,7 +43,13 @@
             <div class="notification-item notification-{{ notification.notification_type }} {% if not notification.is_read %}unread{% endif %}">
                 <div class="notification-header">
                     <div class="notification-icon">
-                        <span class="material-icons-round">notifications</span>
+                        {% if notification.notification_type == 'sugerencia_respuesta' %}
+                            <span class="material-icons-round">lightbulb</span>
+                        {% elif notification.notification_type == 'soporte_respuesta' %}
+                            <span class="material-icons-round">support_agent</span>
+                        {% else %}
+                            <span class="material-icons-round">notifications</span>
+                        {% endif %}
                     </div>
                     <div class="notification-content">
                         <h3>{{ notification.title }}</h3>

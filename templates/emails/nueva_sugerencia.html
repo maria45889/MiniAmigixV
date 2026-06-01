@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Nueva Sugerencia - MiniAmigixV</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #070b19;
+      color: #f4f7ff;
+    }
+    .page {
+      width: 100%;
+      padding: 24px 12px;
+      background: radial-gradient(circle at top left, rgba(0, 229, 255, 0.12), transparent 28%),
+                  radial-gradient(circle at bottom right, rgba(138, 43, 226, 0.12), transparent 30%),
+                  #070b19;
+    }
+    .shell {
+      max-width: 680px;
+      margin: 0 auto;
+      background: rgba(8, 14, 31, 0.95);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 28px 60px rgba(0, 0, 0, 0.35);
+    }
+    .header {
+      padding: 32px 28px;
+      background: linear-gradient(135deg, rgba(0,229,255,0.16), rgba(138,43,226,0.18));
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 28px;
+      color: #00e5ff;
+      letter-spacing: -0.03em;
+    }
+    .header p {
+      margin: 14px auto 0;
+      max-width: 560px;
+      color: rgba(255,255,255,0.8);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+    .body {
+      padding: 28px;
+    }
+    .card {
+      border-radius: 24px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 22px;
+      margin-bottom: 22px;
+    }
+    .card h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
+      color: #d7e1ff;
+    }
+    .details {
+      display: grid;
+      gap: 14px;
+    }
+    .detail-item {
+      display: grid;
+      gap: 6px;
+    }
+    .detail-label {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+    }
+    .detail-value {
+      font-size: 15px;
+      color: #f4f7ff;
+      line-height: 1.7;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .badge-idea { background: rgba(76,175,80,0.18); color: #d8f8d9; }
+    .badge-mejora { background: rgba(33,150,243,0.18); color: #d7ecff; }
+    .badge-reporte { background: rgba(244,67,54,0.18); color: #ffd7d5; }
+    .badge-pregunta { background: rgba(255,152,0,0.18); color: #fff0cc; }
+    .badge-elogio { background: rgba(156,39,176,0.18); color: #eed8ff; }
+    .badge-otro { background: rgba(96,125,139,0.18); color: #dfe6eb; }
+    .badge-pendiente { background: rgba(255,152,0,0.18); color: #fff0cc; }
+    .badge-en_revision { background: rgba(33,150,243,0.18); color: #d7ecff; }
+    .badge-respuesta { background: rgba(156,39,176,0.18); color: #eed8ff; }
+    .badge-resuelta { background: rgba(76,175,80,0.18); color: #d8f8d9; }
+    .description {
+      border-radius: 20px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 18px;
+      color: rgba(255,255,255,0.88);
+      white-space: pre-line;
+      line-height: 1.7;
+    }
+    .button-wrap {
+      margin-top: 10px;
+      text-align: center;
+    }
+    .button {
+      display: inline-block;
+      padding: 14px 28px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #00e5ff, #8a2be2);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      box-shadow: 0 14px 30px rgba(138,43,226,0.28), 0 0 18px rgba(0,229,255,0.16);
+    }
+    .footer {
+      padding: 22px 28px 28px;
+      text-align: center;
+      color: rgba(255,255,255,0.55);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+    @media screen and (max-width: 640px) {
+      .page { padding: 18px 10px; }
+      .body { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="shell">
+      <div class="header">
+        <h1>💡 Nueva Sugerencia Recibida</h1>
+        <p>Se ha enviado una nueva sugerencia desde la plataforma MiniAmigixV.</p>
+      </div>
+      <div class="body">
+        <div class="card">
+          <h2>Información de la sugerencia</h2>
+          <div class="details">
+            <div class="detail-item">
+              <span class="detail-label">Autor</span>
+              <span class="detail-value">{{ autor_nombre }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Email</span>
+              <span class="detail-value">{{ autor_email }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Fecha y hora</span>
+              <span class="detail-value">{{ fecha_hora }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Tipo</span>
+              <span class="detail-value"><span class="badge badge-{{ tipo_clase }}">{{ tipo_display }}</span></span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Estado</span>
+              <span class="detail-value"><span class="badge badge-{{ estado_clase }}">{{ estado_display }}</span></span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Descripción</h2>
+          <div class="description">{{ descripcion }}</div>
+        </div>
+        {% if admin_url %}
+        <div class="button-wrap">
+          <a href="{{ admin_url }}" class="button">Ver en panel de administración</a>
+        </div>
+        {% endif %}
+      </div>
+      <div class="footer">
+        <p>Este es un mensaje automático de MiniAmigixV.</p>
+        <p>© {{ año }} MiniAmigixV. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

@@ -242,6 +242,38 @@
     display: block;
 }
 
+/* Notification Badge in Navbar */
+.notification-btn-nav {
+    position: relative;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ff4fa0;
+    color: white;
+    border-radius: 50%;
+    width: 22px;
+    height: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(255, 79, 160, 0.4);
+    animation: pulse-badge 2s infinite;
+}
+
+@keyframes pulse-badge {
+    0%, 100% {
+        box-shadow: 0 2px 8px rgba(255, 79, 160, 0.4);
+    }
+    50% {
+        box-shadow: 0 2px 16px rgba(255, 79, 160, 0.8);
+    }
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .notificaciones-container {

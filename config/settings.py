@@ -64,6 +64,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'social_django.context_processors.backends',
                 'social_django.context_processors.login_redirect',
+                'apps.users.context_processors.notifications_context',
             ],
         },
     },
@@ -157,8 +158,9 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # ---- Email (SMTP) ----
-# Por defecto usamos console backend para no romper en dev.
-EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+# En desarrollo podemos usar filebased para revisar el correo desde archivos.
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.filebased.EmailBackend')
+EMAIL_FILE_PATH = BASE_DIR / 'sent_emails'
 
 # Remitente usado como From:
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'MiniAmigixV <noreply@miniamigixv.local>')
