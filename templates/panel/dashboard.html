@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - MiniAmigixV</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .sidebar {
+            background-color: #2c3e50;
+            color: white;
+            height: 100vh;
+            position: fixed;
+            width: 250px;
+            padding-top: 20px;
+        }
+        .sidebar a {
+            color: #ecf0f1;
+            text-decoration: none;
+            padding: 10px 15px;
+            display: block;
+        }
+        .sidebar a:hover {
+            background-color: #34495e;
+        }
+        .sidebar .header {
+            padding: 0 15px 20px 15px;
+            border-bottom: 1px solid #34495e;
+        }
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+        }
+        .stats-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .stats-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .stats-label {
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            color: #7f8c8d;
+            letter-spacing: 1px;
+        }
+        .chart-container {
+            position: relative;
+            height: 300px;
+            margin: 20px 0;
+        }
+        .recent-items {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .item-row:last-child {
+            border-bottom: none;
+        }
+        .badge-pill {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+        }
+        .badge-pendiente { background-color: #fff3cd; color: #856404; }
+        .badge-en_revision { background-color: #d1ecf1; color: #0c5460; }
+        .badge-respuesta { background-color: #e2e3e5; color: #383d41; }
+        .badge-resuelta { background-color: #d4edda; color: #155724; }
+        .badge-abierto { background-color: #d1ecf1; color: #0c5460; }
+        .badge-resuelto { background-color: #d4edda; color: #155724; }
+        .nav-link.active {
+            background-color: #3498db;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="header">
+            <h3>MiniAmigixV</h3>
+            <p>Panel de Administración</p>
+        </div>
+        <a href="{% url 'home' %}" class="nav-link">Inicio</a>
+        <a href="{% url 'panel_dashboard' %}" class="nav-link active">Panel de Control</a>
+        <a href="{% url 'sugerencias' %}" class="nav-link">Sugerencias</a>
+        <a href="{% url 'soporte' %}" class="nav-link">Soporte</a>
+        <a href="/admin/" class="nav-link">Django Admin</a>
+        <a href="{% url 'logout' %}" class="nav-link">Cerrar Sesión</a>
+    </div>
+    
+    <div class="content">
+        <div class="row mb-4">
+            <div class="col-12">
+                <h2>Panel de Administración</h2>
+                <p class="text-muted">Resumen general del sistema MiniAmigixV</p>
+            </div>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <div class="stats-label">Total Sugerencias</div>
+                    <div class="stats-number">{{ total_sugerencias }}</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <div class="stats-label">Pendientes</div>
+                    <div class="stats-number text-warning">{{ sugerencias_pendientes }}</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <div class="stats-label">En Revisión</div>
+                    <div class="stats-number text-info">{{ sugerencias_en_revision }}</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <div class="stats-label">Resueltas</div>
+                    <div class="stats-number text-success">{{ sugerencias_resueltas }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <div class="stats-label">Total Soporte</div>
+                    <div class="stats-number">{{ total_soportes }}</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <div class="stats-label">Abiertos</div>
+                    <div class="stats-number text-info">{{ soportes_abiertos }}</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <div class="stats-label">En Revisión</div>
+                    <div class="stats-number text-warning">{{ soportes_en_revision }}</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stats-card text-center">
+                    <div class="stats-label">Resueltos</div>
+                    <div class="stats-number text-success">{{ soportes_resueltos }}</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row">
+            <div class="col-md-6">
+                <div class="stats-card">
+                    <h5>Sugerencias por Tipo</h5>
+                    <div class="chart-container">
+                        <canvas id="sugerenciaChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="stats-card">
+                    <h5>Soporte por Prioridad</h5>
+                    <div class="chart-container">
+                        <canvas id="soporteChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="stats-card">
+                    <h5>Sugerencias Recientes</h5>
+                    <div class="recent-items">
+                        {% for sugerencia in recent_sugerencias %}
+                        <div class="item-row">
+                            <div>
+                                <strong>{{ sugerencia.titulo|truncatechars:30 }}</strong><br>
+                                <small class="text-muted">{{ sugerencia.user.username }}</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge badge-pill badge-{{ sugerencia.estado }}">{{ sugerencia.get_estado_display }}</span>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted">No hay sugerencias recientes</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="stats-card">
+                    <h5>Soporte Reciente</h5>
+                    <div class="recent-items">
+                        {% for soporte in recent_soportes %}
+                        <div class="item-row">
+                            <div>
+                                <strong>{{ soporte.title|truncatechars:30 }}</strong><br>
+                                <small class="text-muted">{{ soporte.user.username }}</small>
+                            </div>
+                            <div class="text-end">
+                                <span class="badge badge-pill badge-{{ soporte.estado }}">{{ soporte.get_estado_display }}</span>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <p class="text-muted">No hay tickets de soporte recientes</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sugerencias by Tipo Chart
+        const sugerenciaCtx = document.getElementById('sugerenciaChart').getContext('2d');
+        const sugerenciaChart = new Chart(sugerenciaCtx, {
+            type: 'doughnut',
+            data: {
+                labels: [{% for item in sugerencia_tipos %}'{{ item.tipo|capfirst }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+                datasets: [{
+                    data: [{% for item in sugerencia_tipos %}{{ item.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                    backgroundColor: [
+                        '#28a745', // idea - green
+                        '#17a2b8', // mejora - blue
+                        '#dc3545', // reporte - red
+                        '#ffc107', // pregunta - yellow
+                        '#6f42c1', // elogio - purple
+                        '#6c757d'  // otro - gray
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                    }
+                }
+            }
+        });
+        
+        // Soporte by Prioridad Chart
+        const soporteCtx = document.getElementById('soporteChart').getContext('2d');
+        const soporteChart = new Chart(soporteCtx, {
+            type: 'bar',
+            data: {
+                labels: [{% for item in soporte_prioridades %}'{{ item.prioridad|capfirst }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+                datasets: [{
+                    label: 'Cantidad de Tickets',
+                    data: [{% for item in soporte_prioridades %}{{ item.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+                    backgroundColor: [
+                        '#ffc107', // baja - yellow
+                        '#fd7e14', // media - orange
+                        '#dc3545', // alta - red
+                        '#6f42c1'  // urgente - purple
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

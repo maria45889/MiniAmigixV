@@ -1,0 +1,204 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Confirmación de tu ticket de soporte - MiniAmigixV</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #070b19;
+      color: #f4f7ff;
+    }
+    .page {
+      width: 100%;
+      padding: 24px 12px;
+      background: radial-gradient(circle at top left, rgba(0, 229, 255, 0.12), transparent 28%),
+                  radial-gradient(circle at bottom right, rgba(138, 43, 226, 0.12), transparent 30%),
+                  #070b19;
+    }
+    .shell {
+      max-width: 680px;
+      margin: 0 auto;
+      background: rgba(8, 14, 31, 0.95);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 28px 60px rgba(0, 0, 0, 0.35);
+    }
+    .header {
+      padding: 32px 28px;
+      background: linear-gradient(135deg, rgba(0,229,255,0.16), rgba(138,43,226,0.18));
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      text-align: center;
+    }
+    .header h1 {
+      margin: 0;
+      font-size: 28px;
+      color: #00e5ff;
+      letter-spacing: -0.03em;
+    }
+    .header p {
+      margin: 14px auto 0;
+      max-width: 560px;
+      color: rgba(255,255,255,0.8);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+    .body {
+      padding: 28px;
+    }
+    .card {
+      border-radius: 24px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 22px;
+      margin-bottom: 22px;
+    }
+    .card h2 {
+      margin: 0 0 14px;
+      font-size: 18px;
+      color: #d7e1ff;
+    }
+    .details {
+      display: grid;
+      gap: 14px;
+    }
+    .detail-item {
+      display: grid;
+      gap: 6px;
+    }
+    .detail-label {
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+    }
+    .detail-value {
+      font-size: 15px;
+      color: #f4f7ff;
+      line-height: 1.7;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .badge-ayuda { background: rgba(0,229,255,0.18); color: #c8f4ff; }
+    .badge-consulta { background: rgba(138,43,226,0.18); color: #ddcbff; }
+    .badge-sugerencia { background: rgba(255,158,48,0.18); color: #ffe6c6; }
+    .badge-problema { background: rgba(255,80,127,0.18); color: #ffcdd9; }
+    .badge-solicitud { background: rgba(94,255,203,0.18); color: #ccfff2; }
+    .badge-informacion { background: rgba(156,163,175,0.18); color: #e4e8f5; }
+    .badge-baja { background: rgba(255,213,99,0.18); color: #fff5c4; }
+    .badge-media { background: rgba(255,142,64,0.18); color: #ffe6cc; }
+    .badge-alta { background: rgba(255,80,127,0.18); color: #ffccd9; }
+    .badge-urgente { background: rgba(107,75,255,0.18); color: #e8deff; }
+    .badge-abierto { background: rgba(0,229,255,0.18); color: #c8f4ff; }
+    .badge-en_revision { background: rgba(255,142,64,0.18); color: #ffe9d7; }
+    .badge-resuelto { background: rgba(94,255,203,0.18); color: #ccfff2; }
+    .description {
+      border-radius: 20px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 18px;
+      color: rgba(255,255,255,0.88);
+      white-space: pre-line;
+      line-height: 1.7;
+    }
+    .button-wrap {
+      margin-top: 10px;
+      text-align: center;
+    }
+    .button {
+      display: inline-block;
+      padding: 14px 28px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #00e5ff, #8a2be2);
+      color: #fff;
+      text-decoration: none;
+      font-weight: 700;
+      box-shadow: 0 14px 30px rgba(138,43,226,0.28), 0 0 18px rgba(0,229,255,0.16);
+    }
+    .footer {
+      padding: 22px 28px 28px;
+      text-align: center;
+      color: rgba(255,255,255,0.55);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+    @media screen and (max-width: 640px) {
+      .page { padding: 18px 10px; }
+      .body { padding: 22px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="shell">
+      <div class="header">
+        <h1>💡 Confirmación de soporte</h1>
+        <p>Tu ticket ha sido recibido correctamente. Nuestro equipo revisará tu solicitud y responderá lo antes posible.</p>
+      </div>
+      <div class="body">
+        <div class="card">
+          <h2>Resumen del ticket</h2>
+          <div class="details">
+            <div class="detail-item">
+              <span class="detail-label">Título</span>
+              <span class="detail-value">{{ ticket_titulo }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Tipo</span>
+              <span class="detail-value"><span class="badge badge-{{ tipo_clase }}">{{ tipo_display }}</span></span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Prioridad</span>
+              <span class="detail-value"><span class="badge badge-{{ prioridad_clase }}">{{ prioridad_display }}</span></span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Estado</span>
+              <span class="detail-value"><span class="badge badge-{{ estado_clase }}">{{ estado_display }}</span></span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Fecha de envío</span>
+              <span class="detail-value">{{ fecha_envio }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Más información</h2>
+          <div class="details">
+            <div class="detail-item">
+              <span class="detail-label">Usuario</span>
+              <span class="detail-value">{{ autor_nombre }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Email</span>
+              <span class="detail-value">{{ autor_email }}</span>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Descripción</h2>
+          <div class="description">{{ descripcion }}</div>
+        </div>
+        <div class="button-wrap">
+          <a href="{{ soporte_url }}" class="button">Ver estado de soporte</a>
+        </div>
+      </div>
+      <div class="footer">
+        <p>Este correo es una confirmación automática de MiniAmigixV.</p>
+        <p>© {{ año }} MiniAmigixV. Todos los derechos reservados.</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

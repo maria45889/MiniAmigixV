@@ -1,7 +1,7 @@
 from django.urls import include, path, reverse_lazy
 from django.contrib.auth import views as auth_views
 from .forms import CustomPasswordResetForm
-from .views import login_view, register_view, home_view, profile_view, update_profile, logout_view, google_auth_view, support_view, admin_support_view, crear_sugerencia
+from .views import login_view, register_view, home_view, profile_view, update_profile, logout_view, google_auth_view, support_view, admin_support_view, crear_sugerencia, panel_dashboard, bandeja_sugerencias, bandeja_soporte, responder_sugerencia, responder_soporte, notificaciones_view
 
 from django.views.generic import TemplateView
 
@@ -17,6 +17,7 @@ urlpatterns = [
         template_name='users/password_reset_form.html',
         form_class=CustomPasswordResetForm,
         email_template_name='users/password_reset_email.html',
+        html_email_template_name='users/password_reset_email_html.html',
         subject_template_name='users/password_reset_subject.txt',
         success_url=reverse_lazy('password_reset_done')
     ), name='password_reset'),
@@ -38,16 +39,19 @@ urlpatterns = [
     path('entretenimiento/', TemplateView.as_view(template_name='entretenimiento/index.html'), name='entretenimiento'),
     # Antiestrés / Juegos
     path('antistres/', TemplateView.as_view(template_name='antistres/index.html'), name='antistres'),
-    path('antiestres/', TemplateView.as_view(template_name='antistres/index.html'), name='antiestres'),
     path('juegos/', TemplateView.as_view(template_name='antistres/index.html'), name='juegos'),
-    path('juegos/arena-zen/', TemplateView.as_view(template_name='antistres/index.html'), name='arena_zen'),
-
-    path('notificaciones/', TemplateView.as_view(template_name='notificaciones/index.html'), name='notificaciones'),
+   
+    path('notificaciones/', notificaciones_view, name='notificaciones'),
     path('sugerencias/', TemplateView.as_view(template_name='sugerencias/index.html'), name='sugerencias'),
     path('sugerencias/crear/', crear_sugerencia, name='crear_sugerencia'),
-
+   
     path('soporte/', support_view, name='soporte'),
     path('admin-soporte/', admin_support_view, name='admin_soporte'),
+    path('panel/', panel_dashboard, name='panel_dashboard'),
+    path('panel/sugerencias/', bandeja_sugerencias, name='bandeja_sugerencias'),
+    path('panel/soporte/', bandeja_soporte, name='bandeja_soporte'),
+    path('panel/sugerencias/<int:sugerencia_id>/responder/', responder_sugerencia, name='responder_sugerencia'),
+    path('panel/soporte/<int:ticket_id>/responder/', responder_soporte, name='responder_soporte'),
     path('traductor/', TemplateView.as_view(template_name='traductor/index.html'), name='traductor'),
     path('tutorial/', TemplateView.as_view(template_name='tutorial/index.html'), name='tutorial'),
     path('configuraciones/', TemplateView.as_view(template_name='configuraciones/index.html'), name='configuraciones'),

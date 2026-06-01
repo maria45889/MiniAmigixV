@@ -3,34 +3,50 @@
 {% block title %}MiniAmigixV - Soporte{% endblock %}
 
 {% block content %}
-<div class="soporte-container">
-    <!-- Header -->
-    <header class="soporte-header">
-        <h1>Soporte Técnico</h1>
-        <p>Envíanos tus consultas, problemas o solicitudes de ayuda</p>
-    </header>
+<div class="soporte-page">
+    <section class="soporte-hero">
+        <div class="hero-copy">
+            <span class="hero-eyebrow">Soporte Técnico</span>
+            <h1>¿Necesitas ayuda? Estamos aquí para ti.</h1>
+            <p>Envía tu consulta o problema desde este panel y recibe una respuesta clara y directa de nuestro equipo.</p>
+        </div>
+        <div class="hero-card">
+            <h2>Asistencia personalizada</h2>
+            <p>Gestión rápida de tickets, seguimiento y soporte con prioridad según tu necesidad.</p>
+            <div class="hero-stats">
+                <div class="stat-card">
+                    <span>{{ soportes|length }}</span>
+                    <small>Tickets enviados</small>
+                </div>
+                <div class="stat-card">
+                    <span>{% if soportes %}{{ soportes|length }}{% else %}0{% endif %}</span>
+                    <small>Seguimiento activo</small>
+                </div>
+            </div>
+        </div>
+    </section>
 
-    <!-- Main Content -->
-    <div class="soporte-main">
-        <!-- Institutional Information -->
-        <div class="institutional-info">
-            <h2>Acerca de MiniAmigixV</h2>
-            
-            <div class="info-section">
-                <h3>Misión</h3>
-                <p>{{ institutional_info.misión }}</p>
+    <section class="soporte-grid">
+        <div class="support-overview">
+            <div class="section-heading">
+                <span class="section-badge">Acerca del soporte</span>
+                <h2>Cómo funciona</h2>
             </div>
-            
-            <div class="info-section">
-                <h3>Visión</h3>
-                <p>{{ institutional_info.visión }}</p>
+            <p>MiniAmigixV te permite enviar solicitudes de soporte desde la misma plataforma. Describe tu problema, elige el tipo y la prioridad, y nuestro equipo te responderá.</p>
+            <div class="feature-cards">
+                <div class="feature-card">
+                    <h3>Rápido</h3>
+                    <p>Recibe confirmación inmediata y seguimiento de tu ticket.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Organizado</h3>
+                    <p>Todos tus tickets quedan guardados con estado y respuesta.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>Seguro</h3>
+                    <p>Tu consulta llegará directo al equipo de soporte y se mantendrá privada.</p>
+                </div>
             </div>
-            
-            <div class="info-section">
-                <h3>Descripción</h3>
-                <p>{{ institutional_info.descripción }}</p>
-            </div>
-            
             <div class="info-section">
                 <h3>Objetivos</h3>
                 <ul class="objetivos-list">
@@ -39,17 +55,16 @@
                     {% endfor %}
                 </ul>
             </div>
-            
-            <div class="info-section">
-                <h3>Nuestro Apoyo</h3>
-                <p>{{ institutional_info.apoyo }}</p>
-            </div>
         </div>
 
-        <!-- Support Ticket Form -->
         <div class="soporte-form-card">
-            <h2>Contacto y Soporte</h2>
-            <p class="support-intro">Envía correo o mensajes de ayuda, sugerencias o consultas directamente desde esta página. Nuestro equipo puede responderte de forma privada a través del sistema.</p>
+            <div class="card-header">
+                <div>
+                    <span class="section-badge">Enviar solicitud</span>
+                    <h2>Tu ticket de soporte</h2>
+                </div>
+                <span class="pill">Prioridad visible</span>
+            </div>
             {% if messages %}
             <div class="soporte-alerts">
                 {% for message in messages %}
@@ -60,92 +75,95 @@
             <form id="soporte-form" class="soporte-form" method="post" action="{% url 'soporte' %}">
                 {% csrf_token %}
                 <div class="form-group">
-                    <label for="soporte-titulo">Título:</label>
-                    <input type="text" id="soporte-titulo" name="title" placeholder="Ej: Problema con el traductor, Sugerencia de nueva función..." required>
+                    <label for="soporte-titulo">Título</label>
+                    <input type="text" id="soporte-titulo" name="title" placeholder="Ej: No funciona el traductor" required>
                 </div>
                 <div class="form-group">
-                    <label for="soporte-descripcion">Descripción:</label>
-                    <textarea id="soporte-descripcion" name="description" placeholder="Describe detalladamente tu consulta, problema o solicitud..." rows="6" required></textarea>
+                    <label for="soporte-descripcion">Descripción</label>
+                    <textarea id="soporte-descripcion" name="description" placeholder="Cuéntanos qué sucedió y cómo podemos ayudarte..." rows="6" required></textarea>
                 </div>
-                <div class="form-group">
-                    <label for="soporte-tipo">Tipo:</label>
-                    <select id="soporte-tipo" name="tipo">
-                        <option value="ayuda">Ayuda</option>
-                        <option value="consulta">Consulta</option>
-                        <option value="sugerencia">Sugerencia</option>
-                        <option value="problema">Problema Técnico</option>
-                        <option value="solicitud">Solicitud de Funcionalidad</option>
-                        <option value="reporte">Reporte de Error</option>
-                        <option value="informacion">Solicitud de Información</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="soporte-prioridad">Prioridad:</label>
-                    <select id="soporte-prioridad" name="prioridad">
-                        <option value="baja">Baja</option>
-                        <option value="media" selected>Media</option>
-                        <option value="alta">Alta</option>
-                        <option value="urgente">Urgente</option>
-                    </select>
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="soporte-tipo">Tipo</label>
+                        <select id="soporte-tipo" name="tipo">
+                            <option value="ayuda">Ayuda</option>
+                            <option value="consulta">Consulta</option>
+                            <option value="sugerencia">Sugerencia</option>
+                            <option value="problema">Problema Técnico</option>
+                            <option value="solicitud">Solicitud de Funcionalidad</option>
+                            <option value="reporte">Reporte de Error</option>
+                            <option value="informacion">Solicitud de Información</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="soporte-prioridad">Prioridad</label>
+                        <select id="soporte-prioridad" name="prioridad">
+                            <option value="baja">Baja</option>
+                            <option value="media" selected>Media</option>
+                            <option value="alta">Alta</option>
+                            <option value="urgente">Urgente</option>
+                        </select>
+                    </div>
                 </div>
                 <button type="submit" class="btn-neon">Enviar Soporte</button>
             </form>
         </div>
+    </section>
 
-        <!-- Your Support Tickets -->
-        <div class="tickets-card">
-            <h2>Tus Tickets de Soporte</h2>
-            <div class="tickets-list" id="tickets-list">
-                {% if soportes %}
-                {% for soporte in soportes %}
-                <div class="ticket-item ticket-{{ soporte.tipo }} prioridad-{{ soporte.prioridad }} estado-{{ soporte.estado }}">
-                    <div class="ticket-header">
-                        <div class="ticket-icon">
-                            <span class="material-icons-round">headset_mic</span>
-                        </div>
-                        <div class="ticket-content">
-                            <h3>{{ soporte.title }}</h3>
-                            <p>{{ soporte.description|truncatewords:10 }}</p>
-                        </div>
-                        <div class="ticket-meta">
-                            <span class="tipo-tag">{{ soporte.get_tipo_display }}</span>
-                            <span class="prioridad-tag prioridad-{{ soporte.prioridad }}">{{ soporte.get_prioridad_display }}</span>
-                            <span class="estado-tag estado-{{ soporte.estado }}">{{ soporte.get_estado_display }}</span>
-                            <small>{{ soporte.created_at|date:"d/m H:i" }}</small>
-                        </div>
+    <section class="tickets-card">
+        <div class="section-heading">
+            <span class="section-badge section-badge-secondary">Tickets recientes</span>
+            <h2>Tus tickets de soporte</h2>
+        </div>
+        <div class="tickets-list" id="tickets-list">
+            {% if soportes %}
+            {% for soporte in soportes %}
+            <div class="ticket-item ticket-{{ soporte.tipo }} prioridad-{{ soporte.prioridad }} estado-{{ soporte.estado }}">
+                <div class="ticket-header">
+                    <div class="ticket-icon">
+                        <span class="material-icons-round">headset_mic</span>
                     </div>
-                    {% if soporte.respuesta %}
-                    <div class="ticket-respuesta">
-                        <div class="respuesta-header">
-                            <span class="material-icons-round">reply</span>
-                            <h4>Respuesta del soporte:</h4>
-                        </div>
-                        <div class="respuesta-content">
-                            <p>{{ soporte.respuesta }}</p>
-                        </div>
-                        <div class="respuesta-footer">
-                            <small>Respondido el {{ soporte.respondido_en|date:"d/m H:i" }} por {{ soporte.respondido_por.username|default:'Equipo de Soporte' }}</small>
-                        </div>
+                    <div class="ticket-content">
+                        <h3>{{ soporte.title }}</h3>
+                        <p>{{ soporte.description|truncatewords:12 }}</p>
                     </div>
-                    {% endif %}
+                    <div class="ticket-meta">
+                        <span class="ticket-chip ticket-chip-type">{{ soporte.get_tipo_display }}</span>
+                        <span class="ticket-chip ticket-chip-priority prioridad-{{ soporte.prioridad }}">{{ soporte.get_prioridad_display }}</span>
+                        <span class="ticket-chip ticket-chip-status estado-{{ soporte.estado }}">{{ soporte.get_estado_display }}</span>
+                        <small>{{ soporte.created_at|date:"d/m H:i" }}</small>
+                    </div>
                 </div>
-                {% endfor %}
-                {% else %}
-                <div class="empty-state">
-                    <span class="material-icons-round">headset_mic</span>
-                    <h2>Aún no tienes tickets de soporte</h2>
-                    <p>¡Sé el primero en enviar una consulta de soporte si necesitas ayuda!</p>
+                {% if soporte.respuesta %}
+                <div class="ticket-respuesta">
+                    <div class="respuesta-header">
+                        <span class="material-icons-round">reply</span>
+                        <h4>Respuesta del soporte</h4>
+                    </div>
+                    <div class="respuesta-content">
+                        <p>{{ soporte.respuesta }}</p>
+                    </div>
+                    <div class="respuesta-footer">
+                        <small>Respondido el {{ soporte.respondido_en|date:"d/m H:i" }} por {{ soporte.respondido_por.username|default:'Equipo de Soporte' }}</small>
+                    </div>
                 </div>
                 {% endif %}
             </div>
+            {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <span class="material-icons-round">headset_mic</span>
+                <h2>Aún no tienes tickets de soporte</h2>
+                <p>Envía tu primera consulta y podrás ver el seguimiento aquí.</p>
+            </div>
+            {% endif %}
         </div>
-    </div>
+    </section>
 </div>
-
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/soporte.css' %}">
+<link rel="stylesheet" href="{% static 'css/soporte.css' %}?v=2">
 {% endblock %}
 
 {% block extra_js %}

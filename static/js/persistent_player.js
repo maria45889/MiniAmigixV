@@ -64,7 +64,9 @@
             const blockedOpen = document.getElementById('pp-blocked-open');
             if(blockedOpen){ blockedOpen.addEventListener('click',(ev)=>{ ev.preventDefault(); const s=songs[currentIndex]; if(s) window.open(s.link,'_blank','noopener'); }); }
         }
-        if(openBtn) openBtn.style.display = 'none';
+        if(openBtn) {
+            openBtn.style.display = withLink ? '' : 'none';
+        }
     }
 
     function clearBlockedMessage(){ const el = document.getElementById('pp-blocked-msg'); if(el) el.style.display='none'; }
@@ -169,6 +171,13 @@
             resumeTime = parseFloat(localStorage.getItem('pp_time') || '0');
         }
         if(isYouTubeLink(s.link)){
+            // If the video was already detected as blocked for embedding, skip the YT player and show fallback immediately.
+            if (s.blockedEmbed) {
+                blockedYouTubeLink = s.link;
+                showBlockedMessage('El video no permite reproducción dentro de otras páginas.', true);
+                playBtn.textContent = '▶';
+                return;
+            }
             // Try to embed with IFrame API. If the video is blocked for embedding, show a friendly message.
             const openBtn = document.getElementById('pp-open');
             const embedContainer = document.getElementById('pp-embed');
@@ -192,9 +201,24 @@
                     // ensure container visible
                     if(embedContainer) embedContainer.style.display = '';
 
+                    const ytOrigin = (() => {
+                        try {
+                            const url = new URL(window.location.href);
+                            return `${url.protocol}//${url.host}`;
+                        } catch {
+                            return window.location.origin || '';
+                        }
+                    })();
+                    const normalizedYtOrigin = ytOrigin.replace(/\/+$/g, '');
+
+                    const playerVars = {autoplay:1, rel:0, modestbranding:1, playsinline:1};
+                    if (normalizedYtOrigin) {
+                        playerVars.origin = normalizedYtOrigin;
+                    }
+
                     ytPlayer = new YT.Player('pp-yt-player', {
                         height: '170', width: '100%', videoId: ytId,
-                        playerVars: {autoplay:1, rel:0, modestbranding:1, playsinline:1},
+                        playerVars,
                         events: {
                             onReady: function(event){
                                 if (resumeTime > 0) {
@@ -222,7 +246,7 @@
                                 console.warn('YouTube player error', err);
                                 if(embedContainer) embedContainer.style.display = 'none';
                                 stopYTPoll();
-                                showBlockedMessage('El video no permite reproducción dentro de otras páginas.');
+                                showBlockedMessage('El video no permite reproducción dentro de otras páginas.', true);
                                 playBtn.textContent = '▶';
                             }
                         }

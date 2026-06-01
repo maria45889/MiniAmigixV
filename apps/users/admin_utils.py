@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.http import HttpResponseForbidden
+from django.shortcuts import redirect
 
 
 def is_admin_owner(request):
@@ -13,14 +13,14 @@ def is_admin_owner(request):
     if admin_username is None:
         return False
 
-    return user.username == admin_username
+    return user.username.startswith(admin_username)
 
 
 def admin_owner_required(view_func):
-    """Decorador simple para responder 403 Forbidden si no es TU usuario."""
+    """Decorador simple para redirigir al soporte si no es TU usuario."""
     def _wrapped_view(request, *args, **kwargs):
         if not is_admin_owner(request):
-            return HttpResponseForbidden("403 Forbidden")
+            return redirect('soporte')
         return view_func(request, *args, **kwargs)
 
     _wrapped_view.__name__ = getattr(view_func, "__name__", "admin_owner_required")

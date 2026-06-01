@@ -97,3 +97,31 @@ class SupportTicket(models.Model):
 
     def __str__(self):
         return f'Support ticket #{self.id} - {self.title}'
+
+
+class Notification(models.Model):
+    """Modelo para notificaciones del sistema"""
+    NOTIFICATION_TYPES = [
+        ('sugerencia_respuesta', 'Respuesta a Sugerencia'),
+        ('soporte_respuesta', 'Respuesta de Soporte'),
+        ('info', 'Información'),
+        ('alerta', 'Alerta'),
+        ('exito', 'Éxito'),
+    ]
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    notification_type = models.CharField(max_length=20, choices=NOTIFICATION_TYPES, default='info')
+    is_read = models.BooleanField(default=False)
+    related_url = models.URLField(blank=True, null=True)
+    related_object_id = models.IntegerField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name_plural = 'Notifications'
+    
+    def __str__(self):
+        return f'{self.title} - {self.user.username}'

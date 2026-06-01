@@ -558,23 +558,50 @@
     color: #0ff;
 }
 
+.lyrics-paste-button {
+    font-size: 0.82rem;
+    color: #fff;
+    background: linear-gradient(135deg, rgba(216, 70, 169, 0.95), rgba(145, 82, 255, 0.95));
+    border: 1px solid rgba(255,255,255,0.12);
+    padding: 7px 16px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-weight: 700;
+}
+
+.lyrics-paste-button:hover {
+    filter: brightness(1.08);
+}
+
 .lyrics-line {
-    padding: 7px 14px;
-    margin-bottom: 2px;
-    border-radius: 10px;
-    color: #dff;
-    font-size: 0.98rem;
+    padding: 8px 14px;
+    margin-bottom: 4px;
+    border-radius: 8px;
+    color: rgba(220,255,255,0.72);
+    font-size: 1rem;
     line-height: 1.7;
-    transition: all 0.35s ease;
+    transition: color 0.25s ease, opacity 0.25s ease, transform 0.25s ease, background 0.25s ease;
     border-left: 2px solid transparent;
+    text-align: center;
+}
+.lyrics-line.played {
+    color: rgba(220,255,255,0.32);
+    opacity: 0.62;
+}
+.lyrics-line.upcoming {
+    opacity: 0.82;
 }
 .lyrics-line.active {
     color: #ffffff;
+    background: linear-gradient(90deg, rgba(0,255,255,0.08), rgba(216,70,169,0.12));
+    border-left-color: rgba(0,255,255,0.65);
+    font-size: 1.18rem;
+    font-weight: 800;
     text-shadow:
         0 0 8px #fff,
         0 0 16px #fff,
         0 0 28px rgba(255,255,255,.9);
-    transform: scale(1.03);
+    transform: scale(1.04);
 }
 .lyrics-line:hover {
     color: rgba(220,255,255,0.75);

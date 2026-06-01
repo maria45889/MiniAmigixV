@@ -75,48 +75,56 @@
                 <span>Config.</span>
             </a>
 
-<!-- Sugerencias (botón tipo icono) -->
-            <a href="/sugerencias/" class="nav-item suggestion-btn-nav {% if request.path|startswith:'/sugerencias/' %}active{% endif %}" title="Enviar sugerencia" aria-label="Sugerencias">
-                <span class="material-icons-round suggestion-btn-nav-icon">lightbulb</span>
+            <!-- Notificaciones para usuarios autenticados -->
+            {% if request.user.is_authenticated %}
+            <a href="/notificaciones/" class="nav-item notification-btn-nav {% if request.path|startswith:'/notificaciones/' %}active{% endif %}" title="Notificaciones" aria-label="Notificaciones">
+                <span class="material-icons-round">notifications</span>
+                {% if unread_notifications_count %}
+                <span class="notification-badge">{{ unread_notifications_count }}</span>
+                {% endif %}
+            </a>
+            {% endif %}
+
+            <!-- Sugerencias para todos -->
+            <a href="/sugerencias/" class="nav-item {% if request.path|startswith:'/sugerencias/' %}active{% endif %}" title="Enviar sugerencia">
+                <span class="material-icons-round">lightbulb</span>
+                <span>Sugerencias</span>
             </a>
 
+            <!-- Soporte para usuarios autenticados -->
+            {% if request.user.is_authenticated and request.user.username|slice:":17" != 'mariajosetacoc2005' %}
+            <a href="/soporte/" class="nav-item {% if request.path|startswith:'/soporte/' %}active{% endif %}" title="Soporte técnico">
+                <span class="material-icons-round">support_agent</span>
+                <span>Soporte</span>
+            </a>
+            {% endif %}
 
-
-
-
-
-            {% if request.user.is_authenticated and request.user.is_staff %}
+            {% if request.user.is_staff or request.user.username|slice:":17" == 'mariajosetacoc2005' %}
             <a href="/perfil/" class="nav-item {% if request.path|startswith:'/perfil/' %}active{% endif %}">
                 <span class="material-icons-round">person</span>
                 <span>Perfil</span>
             </a>
-            <a href="/soporte/" class="nav-item {% if request.path|startswith:'/soporte/' %}active{% endif %}">
-                <span class="material-icons-round">support_agent</span>
-                <span>Soporte</span>
-            </a>
-            <a href="{% url 'admin_soporte' %}" class="nav-item {% if request.path|startswith:'/admin-soporte/' %}active{% endif %}">
-                <span class="material-icons-round">manage_accounts</span>
+            <a href="{% url 'admin_soporte' %}" class="nav-item {% if request.path|startswith:'/admin-soporte/' %}active{% endif %}" title="Gestionar soporte">
+                <span class="material-icons-round">dashboard</span>
                 <span>Panel Soporte</span>
             </a>
-            {% endif %}
-        </div>
-
-        {% if request.user.is_authenticated %}
-        <div class="nav-section auth-section">
-            <p class="section-label">Administración</p>
+            <a href="{% url 'bandeja_sugerencias' %}" class="nav-item {% if request.path|startswith:'/panel/sugerencias/' %}active{% endif %}" title="Gestionar sugerencias">
+                <span class="material-icons-round">inbox</span>
+                <span>Bandeja Sugerencias</span>
+            </a>
             {% if request.user.is_staff %}
             <a href="/admin/" class="nav-item auth-item">
                 <span class="material-icons-round">admin_panel_settings</span>
-                <span>Panel admin</span>
+                <span>Panel Admin Django</span>
             </a>
             {% endif %}
+            {% endif %}
         </div>
-        {% endif %}
     </nav>
 
-    <!-- Enlace persistente de inicio/cerrar sesión (siempre visible) -->
+    <!-- Enlace de logout (siempre visible) -->
     <div class="nav-section auth-always">
-        <a href="{% url 'login' %}" class="nav-item auth-item" {% if request.user.is_authenticated %} onclick="document.getElementById('logout-modal').style.display='flex'; return false;" {% endif %}>
+        <a href="{% url 'login' %}" class="nav-item auth-item" {% if request.user.is_authenticated %}onclick="document.getElementById('logout-modal').style.display='flex'; return false;"{% endif %}>
             <span class="material-icons-round">logout</span>
             {% if request.user.is_authenticated %}
                 <span>Cerrar sesión</span>
@@ -146,4 +154,3 @@
         </div>
     </div>
 </div>
-
