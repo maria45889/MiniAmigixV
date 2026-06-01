@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const notificationsList = document.querySelector('.notificaciones-list');
     const markAllReadBtn = document.getElementById('mark-all-read');
     const clearNotificationsBtn = document.getElementById('clear-notifications');
+    const enableBrowserNotificationsBtn = document.getElementById('enable-browser-notifications');
     const notificationContainer = document.getElementById('notification-container');
     
     // Initialize
@@ -22,6 +23,11 @@ document.addEventListener('DOMContentLoaded', () => {
         // Clear notifications
         if (clearNotificationsBtn) {
             clearNotificationsBtn.addEventListener('click', clearNotifications);
+        }
+
+        if (enableBrowserNotificationsBtn) {
+            enableBrowserNotificationsBtn.addEventListener('click', enableBrowserNotifications);
+            updateBrowserNotificationsButton();
         }
         
         // Individual mark as read buttons
@@ -184,6 +190,39 @@ document.addEventListener('DOMContentLoaded', () => {
             'update': 'system_update'
         };
         return icons[type] || 'notifications';
+    }
+
+    async function enableBrowserNotifications() {
+        if (!window.MiniAmigixVNotifications) {
+            showNotification('Tu navegador no permite activar avisos en este momento.', 'warning');
+            return;
+        }
+
+        const permission = await window.MiniAmigixVNotifications.requestPermission();
+        updateBrowserNotificationsButton();
+
+        if (permission === 'granted') {
+            window.MiniAmigixVNotifications.show('MiniAmigixV', {
+                body: 'Avisos activados correctamente.',
+                url: '/notificaciones/',
+                tag: 'miniamigixv-enabled'
+            });
+        } else if (permission === 'denied') {
+            showNotification('Los avisos estan bloqueados. Activalos desde permisos del navegador.', 'warning');
+        } else {
+            showNotification('No se activaron los avisos del navegador.', 'info');
+        }
+    }
+
+    function updateBrowserNotificationsButton() {
+        if (!enableBrowserNotificationsBtn || !('Notification' in window)) return;
+
+        if (Notification.permission === 'granted') {
+            enableBrowserNotificationsBtn.innerHTML = '<span class="material-icons-round">notifications_active</span>Avisos activos';
+            enableBrowserNotificationsBtn.disabled = true;
+        } else if (Notification.permission === 'denied') {
+            enableBrowserNotificationsBtn.innerHTML = '<span class="material-icons-round">notifications_off</span>Avisos bloqueados';
+        }
     }
     
     function showNotification(message, type = 'info') {

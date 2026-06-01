@@ -1,6 +1,53 @@
 document.addEventListener('DOMContentLoaded', () => {
     console.log("⚡ MiniAmigixV System: Online");
 
+    const appNotificationIcon = '/static/icons/icon-192.png';
+
+    async function requestMiniAmigixNotifications() {
+        if (!('Notification' in window)) {
+            return 'unsupported';
+        }
+
+        if (Notification.permission === 'granted') {
+            return 'granted';
+        }
+
+        if (Notification.permission === 'denied') {
+            return 'denied';
+        }
+
+        return Notification.requestPermission();
+    }
+
+    function showMiniAmigixNotification(title, options = {}) {
+        if (!('Notification' in window) || Notification.permission !== 'granted') {
+            return false;
+        }
+
+        const notification = new Notification(title || 'MiniAmigixV', {
+            body: options.body || 'Tienes una nueva notificacion.',
+            icon: options.icon || appNotificationIcon,
+            badge: options.badge || appNotificationIcon,
+            tag: options.tag || 'miniamigixv',
+            requireInteraction: Boolean(options.requireInteraction),
+        });
+
+        notification.onclick = () => {
+            window.focus();
+            if (options.url) {
+                window.location.href = options.url;
+            }
+            notification.close();
+        };
+
+        return true;
+    }
+
+    window.MiniAmigixVNotifications = {
+        requestPermission: requestMiniAmigixNotifications,
+        show: showMiniAmigixNotification,
+    };
+
     // Funcionalidad de modo oscuro
     const darkModeToggles = Array.from(document.querySelectorAll('.toggle-dark-mode'));
     const updateDarkModeButtons = (isDark) => {
