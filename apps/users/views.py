@@ -10,15 +10,20 @@ from django.views.decorators.csrf import csrf_exempt
 from django.conf import settings
 from django.core.mail import EmailMultiAlternatives, mail_admins, send_mail
 from django.contrib.admin.views.decorators import staff_member_required
+from urllib.parse import urlencode
+from urllib.request import Request, urlopen
+from urllib.error import HTTPError, URLError
 from .admin_utils import admin_owner_required
 from django.db.models import Count, Q
 from django.core.paginator import Paginator
 from django.template.loader import render_to_string
 
+from datetime import datetime
 from django.utils import timezone
 from django.utils.http import url_has_allowed_host_and_scheme
 import json
 import os
+import re
 from .models import Profile, SupportTicket, Sugerencia, Notification
 
 
@@ -100,6 +105,138 @@ def register_view(request):
 
 def home_view(request):
     return render(request, "home.html")
+
+
+def clima_api_view(request):
+    q = request.GET.get('q', '').strip()
+    if not q:
+        return JsonResponse({'error': 'Debe proporcionar una ubicación'}, status=400)
+
+    api_key = getattr(settings, 'OPENWEATHER_API_KEY', '')
+    if not api_key:
+        return JsonResponse({'error': 'OpenWeather API key no está configurada'}, status=500)
+
+    try:
+        geo_url = 'https://api.openweathermap.org/geo/1.0/direct?' + urlencode({'q': q, 'limit': 1, 'appid': api_key})
+        req = Request(geo_url, headers={'User-Agent': 'MiniAmigixV/1.0'})
+        with urlopen(req, timeout=10) as resp:
+            geo_data = json.loads(resp.read().decode('utf-8'))
+
+        if not geo_data:
+            return JsonResponse({'error': 'Ubicación no encontrada'}, status=404)
+
+        loc = geo_data[0]
+        lat, lon = loc.get('lat'), loc.get('lon')
+
+        weather_url = 'https://api.openweathermap.org/data/2.5/weather?' + urlencode({
+            'lat': lat,
+            'lon': lon,
+            'units': 'metric',
+            'lang': 'es',
+            'appid': api_key,
+        })
+        req = Request(weather_url, headers={'User-Agent': 'MiniAmigixV/1.0'})
+        with urlopen(req, timeout=10) as resp:
+            weather_json = json.loads(resp.read().decode('utf-8'))
+
+        forecast_url = 'https://api.openweathermap.org/data/2.5/forecast?' + urlencode({
+            'lat': lat,
+            'lon': lon,
+            'units': 'metric',
+            'lang': 'es',
+            'appid': api_key,
+        })
+        req = Request(forecast_url, headers={'User-Agent': 'MiniAmigixV/1.0'})
+        with urlopen(req, timeout=10) as resp:
+            forecast_json = json.loads(resp.read().decode('utf-8'))
+
+        data = {
+            'name': loc.get('name') or q,
+            'country': loc.get('country') or '--',
+            'temp': round(weather_json['main']['temp']),
+            'feels_like': round(weather_json['main']['feels_like']),
+            'humidity': weather_json['main']['humidity'],
+            'pressure': weather_json['main']['pressure'],
+            'wind_speed': weather_json['wind']['speed'],
+            'visibility': weather_json.get('visibility', 10000),
+            'description': weather_json['weather'][0]['description'],
+            'icon': weather_json['weather'][0]['icon'],
+            'rain': (weather_json.get('rain', {}).get('1h', 0) or weather_json.get('rain', {}).get('3h', 0) or 0)
+                + (weather_json.get('snow', {}).get('1h', 0) or weather_json.get('snow', {}).get('3h', 0) or 0),
+            'sunrise': weather_json['sys']['sunrise'],
+            'sunset': weather_json['sys']['sunset'],
+            'forecast': [],
+        }
+
+        if forecast_json and forecast_json.get('list'):
+            by_day = {}
+            for item in forecast_json['list']:
+                day = datetime.fromtimestamp(item['dt']).strftime('%d/%m/%Y')
+                by_day.setdefault(day, []).append(item)
+
+            days = list(by_day.keys())[:5]
+            for d in days:
+                items = by_day[d]
+                temps = [i['main']['temp'] for i in items]
+                min_temp = int(min(temps))
+                max_temp = int(max(temps))
+                desc = items[0]['weather'][0]['description']
+                icon = items[0]['weather'][0]['icon']
+                rain_volume = sum(
+                    (i.get('rain', {}).get('3h', 0) or 0) + (i.get('snow', {}).get('3h', 0) or 0)
+                    for i in items
+                )
+                data['forecast'].append({
+                    'day': datetime.fromtimestamp(items[0]['dt']).strftime('%a'),
+                    'date': d,
+                    'temp_min': min_temp,
+                    'temp_max': max_temp,
+                    'description': desc,
+                    'icon': icon,
+                    'rain': rain_volume,
+                })
+
+        return JsonResponse(data)
+
+    except HTTPError as err:
+        return JsonResponse({'error': 'Error de OpenWeather: ' + str(err)}, status=502)
+    except URLError as err:
+        return JsonResponse({'error': 'No se pudo conectar con OpenWeather', 'details': str(err)}, status=502)
+    except Exception as err:
+        return JsonResponse({'error': 'Error interno al obtener el clima', 'details': str(err)}, status=500)
+
+
+@require_POST
+def traductor_translate(request):
+    try:
+        payload = json.loads(request.body.decode('utf-8'))
+    except Exception:
+        return JsonResponse({'success': False, 'error': 'Solicitud inválida'}, status=400)
+
+    text = payload.get('text', '').strip()
+    source = payload.get('source', 'auto')
+    target = payload.get('target', 'es')
+
+    if not text:
+        return JsonResponse({'success': False, 'error': 'Texto vacío'}, status=400)
+
+    detected_source = source
+    if source == 'auto':
+        spanish_clues = ['que', 'cómo', 'por qué', 'dónde', 'hola', 'gracias', 'usted', 'está', 'muy', 'sí', 'adiós']
+        lower_text = text.lower()
+        if re.search(r'[áéíóúñ¿¡]', text, re.IGNORECASE) or any(clue in lower_text for clue in spanish_clues):
+            detected_source = 'es'
+        else:
+            detected_source = 'en'
+
+    translated_text = f"[Traducción simulada de {detected_source} a {target}]\n\n{text}"
+
+    return JsonResponse({
+        'success': True,
+        'translated_text': translated_text,
+        'source': detected_source,
+        'mock': True
+    })
 
 
 @login_required

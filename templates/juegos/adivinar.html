@@ -1,0 +1,151 @@
+{% extends 'base/base.html' %} {% load static %}
+
+{% block title %}MiniAmigixV - Adivina{% endblock %}
+
+{% block content %}
+<div class="entretenimiento-container guess-container">
+    <header class="entretenimiento-header">
+        <h1>Adivina cualquier cosa</h1>
+        <p>Una experiencia relajada para entretenerte con pistas y descubrir la respuesta correcta.</p>
+    </header>
+
+    <main class="guess-game-card">
+        <div class="guess-card-header">
+            <span class="material-icons-round">help_outline</span>
+            <div>
+                <h2>¿Qué estoy describiendo?</h2>
+                <p>Lee la pista y escribe tu respuesta. ¡Puedes intentarlo tantas veces como quieras!</p>
+            </div>
+        </div>
+
+        <div class="guess-panel">
+            <p id="guess-clue" class="guess-clue">Cargando adivinanza...</p>
+            <form id="guess-form" class="guess-form">
+                <input id="guess-answer" type="text" placeholder="Escribe tu respuesta aquí" autocomplete="off" />
+                <button id="guess-submit" class="play-btn">Probar</button>
+            </form>
+            <div id="guess-result" class="guess-result"></div>
+            <button id="guess-new" class="play-btn">Nueva adivinanza</button>
+        </div>
+    </main>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/entretenimiento.css' %}">
+<style>
+    .guess-container {
+        padding-bottom: 20px;
+    }
+
+    .guess-game-card {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 28px;
+        border: 1px solid rgba(255,255,255,0.08);
+        background: rgba(10, 16, 28, 0.82);
+        border-radius: 24px;
+        box-shadow: 0 16px 40px rgba(0,0,0,0.45);
+        backdrop-filter: blur(18px);
+    }
+
+    .guess-card-header {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        margin-bottom: 24px;
+    }
+
+    .guess-card-header .material-icons-round {
+        font-size: 3rem;
+        color: var(--neon-green);
+        background: rgba(30, 255, 175, 0.08);
+        border-radius: 16px;
+        padding: 14px;
+        box-shadow: inset 0 0 10px rgba(30, 255, 175, 0.08);
+    }
+
+    .guess-card-header h2 {
+        margin: 0;
+        font-size: 1.6rem;
+        color: var(--neon-cyan);
+    }
+
+    .guess-card-header p {
+        margin: 6px 0 0;
+        color: var(--text-muted);
+        line-height: 1.6;
+    }
+
+    .guess-panel {
+        display: grid;
+        gap: 18px;
+    }
+
+    .guess-clue {
+        font-size: 1.15rem;
+        color: #d8f2ff;
+        padding: 18px 20px;
+        border: 1px dashed rgba(255,255,255,0.16);
+        border-radius: 18px;
+        background: rgba(255,255,255,0.03);
+        line-height: 1.7;
+    }
+
+    .guess-form {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        align-items: center;
+    }
+
+    .guess-form input {
+        width: 100%;
+        padding: 16px 18px;
+        border-radius: 16px;
+        border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(255,255,255,0.04);
+        color: #f2faff;
+        font-size: 1rem;
+        outline: none;
+    }
+
+    .guess-form input:focus {
+        border-color: rgba(102, 204, 255, 0.55);
+        box-shadow: 0 0 0 4px rgba(35, 172, 255, 0.08);
+    }
+
+    .guess-result {
+        min-height: 36px;
+        color: #f2faff;
+        font-weight: 600;
+        letter-spacing: 0.01em;
+    }
+
+    .guess-success {
+        color: #7bff96;
+    }
+
+    .guess-fail {
+        color: #ff8fb5;
+    }
+
+    .guess-panel .play-btn {
+        width: fit-content;
+    }
+
+    @media (max-width: 620px) {
+        .guess-form {
+            grid-template-columns: 1fr;
+        }
+
+        .guess-panel .play-btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/juegos-adivinar.js' %}"></script>
+{% endblock %}

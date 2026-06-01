@@ -65,6 +65,28 @@
             </div>
         </form>
     </section>
+
+    <aside class="chat-help" aria-label="Ayuda rápida">
+        <div class="help-panel">
+            <div class="help-panel-header">
+                <span class="eyebrow">Ayuda rápida</span>
+                <h2>¿No sabes qué preguntar?</h2>
+                <p>Usa estos temas para iniciar la conversación o encontrar ideas útiles.</p>
+            </div>
+            <div class="help-search-wrap">
+                <input id="help-search-input" type="search" placeholder="Buscar ayuda..." aria-label="Buscar temas de ayuda" />
+            </div>
+            <div id="help-buttons" class="help-buttons"></div>
+        </div>
+
+        <div class="help-panel help-panel-faq">
+            <div class="help-panel-header">
+                <span class="eyebrow">Preguntas</span>
+                <h3>Consejos rápidos</h3>
+            </div>
+            <ul id="help-faq-list" class="help-faq-list"></ul>
+        </div>
+    </aside>
 </div>
 {% endblock %}
 

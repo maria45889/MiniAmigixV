@@ -14,6 +14,7 @@ load_dotenv(dotenv_path=BASE_DIR / ".env", override=True)
 SECRET_KEY = os.getenv("SECRET_KEY", "django-insecure-fg$f(*q-bmieyk$v%-_!b8kkbnl!l()feib+i=ewh^rts@@$4s")
 DEBUG = os.getenv("DEBUG", "1") == "1"
 ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "*").split(",")
+OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY", "")
 
 INSTALLED_APPS = [
     'django.contrib.admin',

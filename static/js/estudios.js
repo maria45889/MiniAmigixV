@@ -24,9 +24,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const notesContent = document.getElementById('notes-content');
     const addNoteBtn = document.getElementById('add-note');
     const clearNotesBtn = document.getElementById('clear-notes');
+    const studyGameClue = document.getElementById('study-game-clue');
+    const studyGameAnswerInput = document.getElementById('study-game-answer');
+    const studyGameCheckBtn = document.getElementById('study-game-check');
+    const studyGameNewBtn = document.getElementById('study-game-new');
+    const studyGameFeedback = document.getElementById('study-game-feedback');
     
     // State
     let timerInterval = null;
+    let currentGameQuestion = null;
     let timeLeft = 25 * 60; // 25 minutes in seconds
     let isTimerRunning = false;
     let currentMode = 'focus'; // focus or relax
@@ -48,6 +54,7 @@ document.addEventListener('DOMContentLoaded', () => {
     loadNotes();
     renderStudyCalendar();
     startClock();
+    loadStudyGame();
     
     // Event Listeners
     startTimerBtn.addEventListener('click', startTimer);
@@ -65,6 +72,8 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     addNoteBtn.addEventListener('click', addNote);
     clearNotesBtn.addEventListener('click', clearNotes);
+    studyGameCheckBtn.addEventListener('click', checkStudyAnswer);
+    studyGameNewBtn.addEventListener('click', chooseStudyQuestion);
     
     // Functions
     function startTimer() {
@@ -355,6 +364,66 @@ document.addEventListener('DOMContentLoaded', () => {
     function loadNotes() {
         notes = JSON.parse(localStorage.getItem('miniAmigixNotes') || '[]');
         renderNotes();
+    }
+    
+    const studyQuestions = [
+        {
+            clue: '¿Qué técnica de estudio usa períodos cortos de trabajo con pausas frecuentes?',
+            answer: 'pomodoro'
+        },
+        {
+            clue: '¿Cómo se llama la técnica de repasar información usando tarjetas con preguntas y respuestas?',
+            answer: 'flashcards'
+        },
+        {
+            clue: '¿Qué palabra describe un esquema que agrupa ideas principales y secundarias de un tema?',
+            answer: 'mapa mental'
+        },
+        {
+            clue: '¿Qué herramienta te ayuda a memorizar conceptos haciendo preguntas en voz alta?',
+            answer: 'autoevaluación'
+        },
+        {
+            clue: '¿Qué práctica consiste en explicar el material con tus propias palabras?',
+            answer: 'enseñar'
+        }
+    ];
+    
+    function normalizeText(text) {
+        return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();
+    }
+    
+    function chooseStudyQuestion() {
+        currentGameQuestion = studyQuestions[Math.floor(Math.random() * studyQuestions.length)];
+        studyGameClue.textContent = currentGameQuestion.clue;
+        studyGameAnswerInput.value = '';
+        studyGameFeedback.textContent = '';
+        studyGameFeedback.className = 'game-feedback';
+        studyGameAnswerInput.focus();
+    }
+    
+    function checkStudyAnswer() {
+        if (!currentGameQuestion) {
+            showNotification('Presiona "Nueva pregunta" para iniciar el reto.', 'warning');
+            return;
+        }
+
+        const userAnswer = normalizeText(studyGameAnswerInput.value);
+        const expectedAnswer = normalizeText(currentGameQuestion.answer);
+
+        if (userAnswer === expectedAnswer) {
+            studyGameFeedback.textContent = '¡Correcto! Excelente memoria de estudio.';
+            studyGameFeedback.className = 'game-feedback success';
+            showNotification('Respuesta correcta. ¡Buen trabajo!', 'success');
+        } else {
+            studyGameFeedback.textContent = `La respuesta correcta era: ${currentGameQuestion.answer}`;
+            studyGameFeedback.className = 'game-feedback error';
+            showNotification('Sigue intentando. ¡Puedes con ello!', 'info');
+        }
+    }
+    
+    function loadStudyGame() {
+        chooseStudyQuestion();
     }
     
     function renderStudyCalendar() {

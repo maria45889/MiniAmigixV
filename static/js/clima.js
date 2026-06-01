@@ -18,12 +18,75 @@ document.addEventListener('DOMContentLoaded', () => {
     const forecastContainer = document.getElementById('forecast-container');
     const citySuggestions = document.getElementById('city-suggestions');
     const weatherAlertsContainer = document.getElementById('weather-alerts');
-    
-    // API Key (in a real app, this would be stored securely on the backend)
-    const API_KEY = 'your_openweathermap_api_key_here'; // Replace with actual key or use backend proxy
-    
+    const radarVisual = document.getElementById('radar-visual');
+    const radarStatus = document.getElementById('radar-status');
+    const radarInfo = document.getElementById('radar-info');
+    const WEATHER_PROXY_URL = '/api/clima/';
+
+    // Simulated data definitions for offline demo mode
+    const mockData = {
+        'quito': {
+            name: 'Quito',
+            country: 'EC',
+            temp: 15,
+            feels_like: 14,
+            humidity: 78,
+            pressure: 1015,
+            wind_speed: 3.2,
+            visibility: 10000,
+            description: 'parcialmente nublado',
+            icon: '02d',
+            sunrise: 1622505600,
+            sunset: 1622548800
+        },
+        'guayaquil': {
+            name: 'Guayaquil',
+            country: 'EC',
+            temp: 28,
+            feels_like: 31,
+            humidity: 82,
+            pressure: 1010,
+            wind_speed: 4.5,
+            visibility: 8000,
+            description: 'lluvioso',
+            icon: '09d',
+            sunrise: 1622505600,
+            sunset: 1622548800
+        },
+        'madrid': {
+            name: 'Madrid',
+            country: 'ES',
+            temp: 24,
+            feels_like: 25,
+            humidity: 45,
+            pressure: 1018,
+            wind_speed: 2.1,
+            visibility: 15000,
+            description: 'despejado',
+            icon: '01d',
+            sunrise: 1622505600,
+            sunset: 1622548800
+        },
+        'london': {
+            name: 'London',
+            country: 'GB',
+            temp: 18,
+            feels_like: 17,
+            humidity: 72,
+            pressure: 1012,
+            wind_speed: 5.3,
+            visibility: 12000,
+            description: 'nublado',
+            icon: '04d',
+            sunrise: 1622505600,
+            sunset: 1622548800
+        }
+    };
+
     // Initialize
-    weatherResults.style.display = 'none';
+    if (weatherResults) {
+        weatherResults.style.display = 'none';
+    }
     
     // Event Listeners
     weatherForm.addEventListener('submit', (e) => {
@@ -62,23 +125,20 @@ document.addEventListener('DOMContentLoaded', () => {
         showLoading();
         
         try {
-            // Prefer a real API call if API_KEY is provided; otherwise fall back to simulated data
             let weatherData = null;
-            if (API_KEY && API_KEY !== 'your_openweathermap_api_key_here') {
-                try {
-                    weatherData = await fetchWeatherFromOpenWeather(city);
-                } catch (e) {
-                    console.warn('OpenWeather failed, falling back to simulated data', e);
-                    weatherData = await fetchSimulatedWeatherData(city);
-                }
-            } else {
+            try {
+                weatherData = await fetchWeatherProxy(city);
+            } catch (e) {
+                console.warn('Proxy weather fetch failed, falling back to simulated data', e);
                 weatherData = await fetchSimulatedWeatherData(city);
             }
             
             if (weatherData) {
                 displayWeatherData(weatherData);
                 displayForecast(weatherData.forecast);
-                weatherResults.style.display = 'block';
+                if (weatherResults) {
+                    weatherResults.style.display = 'block';
+                }
             } else {
                 showError('No se pudo obtener el clima para esa ubicación. Por favor, inténtelo de nuevo.');
             }
@@ -90,132 +150,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Fetch from OpenWeatherMap (requires API_KEY). This function performs geocoding + weather calls.
-    async function fetchWeatherFromOpenWeather(query) {
-        // 1) Geocoding
-        const geoUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(query)}&limit=1&appid=${API_KEY}`;
-        const geoResp = await fetch(geoUrl);
-        if (!geoResp.ok) throw new Error('Geocoding failed');
-        const geoJson = await geoResp.json();
-        if (!geoJson || geoJson.length === 0) throw new Error('Location not found');
-        const loc = geoJson[0];
-
-        // 2) Current weather
-        const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${loc.lat}&lon=${loc.lon}&units=metric&lang=es&appid=${API_KEY}`;
-        const weatherResp = await fetch(weatherUrl);
-        if (!weatherResp.ok) throw new Error('Weather fetch failed');
-        const w = await weatherResp.json();
-
-        // 3) Forecast (5-day / 3-hour -> simplify to daily 5)
-        const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${loc.lat}&lon=${loc.lon}&units=metric&lang=es&appid=${API_KEY}`;
-        const fResp = await fetch(forecastUrl);
-        const fdata = fResp.ok ? await fResp.json() : null;
-
-        // Map to our internal structure
-        const data = {
-            name: loc.name || query,
-            country: loc.country || '--',
-            temp: Math.round(w.main.temp),
-            feels_like: Math.round(w.main.feels_like),
-            humidity: w.main.humidity,
-            pressure: w.main.pressure,
-            wind_speed: w.wind.speed,
-            visibility: w.visibility || 10000,
-            description: w.weather[0].description,
-            icon: w.weather[0].icon,
-            sunrise: w.sys.sunrise,
-            sunset: w.sys.sunset,
-            alerts: w.alerts || null,
-            forecast: []
-        };
-
-        if (fdata && fdata.list) {
-            // choose one entry per next 5 days roughly
-            const byDay = {};
-            fdata.list.forEach(item => {
-                const day = new Date(item.dt * 1000).toLocaleDateString('es-ES');
-                if (!byDay[day]) byDay[day] = [];
-                byDay[day].push(item);
-            });
-            const days = Object.keys(byDay).slice(0, 5);
-            data.forecast = days.map(d => {
-                const items = byDay[d];
-                const temps = items.map(i => i.main.temp);
-                const min = Math.floor(Math.min(...temps));
-                const max = Math.ceil(Math.max(...temps));
-                const desc = items[0].weather[0].description;
-                const icon = items[0].weather[0].icon;
-                return { day: new Date(items[0].dt * 1000).toLocaleDateString('es-ES', { weekday: 'short' }), date: d, temp_min: min, temp_max: max, description: desc, icon };
-            });
+    async function fetchWeatherProxy(query) {
+        const url = `${WEATHER_PROXY_URL}?q=${encodeURIComponent(query)}`;
+        const response = await fetch(url);
+        if (!response.ok) {
+            const body = await response.json().catch(() => ({}));
+            throw new Error(body.error || 'Proxy request failed');
         }
-
+        const data = await response.json();
+        if (data.error) {
+            throw new Error(data.error);
+        }
         return data;
     }
-    
+
     // Simulated weather data function (replace with actual API call in production)
     async function fetchSimulatedWeatherData(city) {
         // Simulate network delay
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        // Mock data based on common weather patterns
-        const mockData = {
-            'quito': {
-                name: 'Quito',
-                country: 'EC',
-                temp: 15,
-                feels_like: 14,
-                humidity: 78,
-                pressure: 1015,
-                wind_speed: 3.2,
-                visibility: 10000,
-                description: 'parcialmente nublado',
-                icon: '02d',
-                sunrise: 1622505600,
-                sunset: 1622548800
-            },
-            'guayaquil': {
-                name: 'Guayaquil',
-                country: 'EC',
-                temp: 28,
-                feels_like: 31,
-                humidity: 82,
-                pressure: 1010,
-                wind_speed: 4.5,
-                visibility: 8000,
-                description: 'lluvioso',
-                icon: '09d',
-                sunrise: 1622505600,
-                sunset: 1622548800
-            },
-            'madrid': {
-                name: 'Madrid',
-                country: 'ES',
-                temp: 24,
-                feels_like: 25,
-                humidity: 45,
-                pressure: 1018,
-                wind_speed: 2.1,
-                visibility: 15000,
-                description: 'despejado',
-                icon: '01d',
-                sunrise: 1622505600,
-                sunset: 1622548800
-            },
-            'london': {
-                name: 'London',
-                country: 'GB',
-                temp: 18,
-                feels_like: 17,
-                humidity: 72,
-                pressure: 1012,
-                wind_speed: 5.3,
-                visibility: 12000,
-                description: 'nublado',
-                icon: '04d',
-                sunrise: 1622505600,
-                sunset: 1622548800
-            }
-        };
         
         // Try to find exact match first
         const cityKey = city.toLowerCase().trim();
@@ -237,13 +189,15 @@ document.addEventListener('DOMContentLoaded', () => {
         
         for (let i = 0; i < 5; i++) {
             const dayTemp = baseTemp + (Math.random() - 0.5) * 5; // ±2.5°C variation
+            const description = getRandomDescription();
             forecast.push({
                 day: getDayName(i),
                 date: getDateString(i),
                 temp_min: Math.floor(dayTemp - 3),
                 temp_max: Math.ceil(dayTemp + 3),
-                description: getRandomDescription(),
-                icon: getRandomIcon()
+                description,
+                icon: getRandomIcon(),
+                rain: description.includes('lluv') || description.includes('tormenta') ? Math.floor(Math.random() * 15) + 5 : 0
             });
         }
         return forecast;
@@ -266,6 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
             visibility: Math.floor(Math.random() * 10) + 5, // 5-15 km * 1000
             description: description,
             icon: getIconFromDescription(description),
+            rain: description.includes('lluv') || description.includes('tormenta') ? Math.floor(Math.random() * 15) + 5 : 0,
             sunrise: Date.now() / 1000 - 3600,
             sunset: Date.now() / 1000 + 3600,
             forecast: generateForecastData('')
@@ -308,6 +263,11 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Display weather data
     function displayWeatherData(data) {
+        // Reset any previous error style
+        if (recommendationText) {
+            recommendationText.style.color = '';
+        }
+
         // Location
         weatherLocation.textContent = `${data.name}, ${data.country}`;
         
@@ -319,6 +279,8 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Icon
         weatherIcon.innerHTML = getWeatherIconHTML(data.icon, data.description);
+
+        updateRadar(data);
         
         // Details
         humidityValue.textContent = `${data.humidity}%`;
@@ -342,6 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="day-name">${day.day}</div>
                 <div class="day-date">${day.date}</div>
                 <div class="forecast-icon">${getWeatherIconHTML(day.icon, day.description)}</div>
+                <div class="forecast-desc">${capitalizeFirstLetter(day.description)}</div>
                 <div class="forecast-temp">
                     <span>${day.temp_min}°</span>
                     <span>${day.temp_max}°</span>
@@ -352,23 +315,58 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // City suggestions via OpenWeatherMap geocoding (or simulated suggestions)
+    // Update simulated radar values based on current weather
+    function updateRadar(data) {
+        if (!radarStatus || !radarInfo) return;
+
+        const anomaly = calculateAnomalyScore(data);
+        radarStatus.textContent = `${anomaly.toFixed(2)}%`;
+
+        if (anomaly > 0.12) {
+            radarInfo.textContent = 'Riesgo alto: lluvia y tormentas en el pronóstico';
+        } else if (anomaly > 0.08) {
+            radarInfo.textContent = 'Anomalía detectada: condiciones inestables';
+        } else {
+            radarInfo.textContent = 'Sistema estable';
+        }
+
+        if (radarVisual) {
+            radarVisual.classList.toggle('radar-alert', anomaly > 0.08);
+        }
+    }
+
+    function calculateAnomalyScore(data) {
+        if (!data) return 0.04;
+
+        let score = 0.03;
+        if (data.temp >= 30) score += 0.02;
+        if (data.humidity >= 70) score += 0.015;
+        if (data.wind_speed >= 6) score += 0.01;
+        if (/(lluv|tormenta|nublado|nieve)/i.test(data.description)) score += 0.02;
+        if (data.rain > 0) score += Math.min(0.02, data.rain / 10);
+
+        const forecast = data.forecast || [];
+        forecast.forEach(day => {
+            if (day.rain > 0) {
+                score += 0.015 + Math.min(0.02, day.rain / 10);
+            }
+            if (/(lluv|tormenta|nieve)/i.test(day.description)) {
+                score += 0.01;
+            }
+            if (day.temp_max >= 30) {
+                score += 0.008;
+            }
+        });
+
+        score += Math.random() * 0.01;
+        return Math.min(0.25, Math.max(0.03, score));
+    }
+
+    // City suggestions via simple common cities fallback
     async function fetchCitySuggestions(query) {
         citySuggestions.setAttribute('aria-hidden', 'false');
         citySuggestions.innerHTML = '<div class="suggesting">Buscando...</div>';
-        if (API_KEY && API_KEY !== 'your_openweathermap_api_key_here') {
-            try {
-                const url = `https://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(query)}&limit=6&appid=${API_KEY}`;
-                const resp = await fetch(url);
-                const json = await resp.json();
-                renderCitySuggestions(json.map(i => ({ name: i.name, state: i.state, country: i.country })), query);
-                return;
-            } catch (e) {
-                console.warn('Geocoding failed', e);
-            }
-        }
 
-        // Fallback: create simple matches from common cities and the typed query
         const common = ['Quito, EC','Guayaquil, EC','Cuenca, EC','Madrid, ES','Paris, FR','London, GB','New York, US','Tokyo, JP','Sydney, AU'];
         const filtered = common.filter(c => c.toLowerCase().includes(query.toLowerCase())).slice(0,6);
         renderCitySuggestions(filtered.map(c => ({ name: c.split(',')[0], country: c.split(',')[1] })), query);
@@ -473,32 +471,48 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Show loading indicator
     function showLoading() {
-        loadingIndicator.style.display = 'flex';
-        weatherResults.style.display = 'none';
-        cityInput.disabled = true;
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'flex';
+        }
+        if (weatherResults) {
+            weatherResults.style.display = 'none';
+        }
+        if (cityInput) {
+            cityInput.disabled = true;
+        }
     }
     
     // Hide loading indicator
     function hideLoading() {
-        loadingIndicator.style.display = 'none';
-        cityInput.disabled = false;
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'none';
+        }
+        if (cityInput) {
+            cityInput.disabled = false;
+        }
     }
     
     // Show error message
     function showError(message) {
-        recommendationText.textContent = message;
-        recommendationText.style.color = '#ff5722';
+        if (recommendationText) {
+            recommendationText.textContent = message;
+            recommendationText.style.color = '#ff5722';
+        }
         // Clear other data
-        weatherLocation.textContent = '--';
-        weatherTemperature.textContent = '--°C';
-        weatherDescription.textContent = '--';
-        weatherIcon.innerHTML = '<span class="material-icons-round">error</span>';
-        humidityValue.textContent = '--%';
-        windValue.textContent = '-- km/h';
-        pressureValue.textContent = '-- hPa';
-        visibilityValue.textContent = '-- km';
-        forecastContainer.innerHTML = '<div class="forecast-placeholder"><p>Error al cargar el pronóstico</p></div>';
-        weatherResults.style.display = 'block';
+        if (weatherLocation) weatherLocation.textContent = '--';
+        if (weatherTemperature) weatherTemperature.textContent = '--°C';
+        if (weatherDescription) weatherDescription.textContent = '--';
+        if (weatherIcon) weatherIcon.innerHTML = '<span class="material-icons-round">error</span>';
+        if (humidityValue) humidityValue.textContent = '--%';
+        if (windValue) windValue.textContent = '-- km/h';
+        if (pressureValue) pressureValue.textContent = '-- hPa';
+        if (visibilityValue) visibilityValue.textContent = '-- km';
+        if (forecastContainer) forecastContainer.innerHTML = '<div class="forecast-placeholder"><p>Error al cargar el pronóstico</p></div>';
+        if (weatherResults) {
+            weatherResults.style.display = 'block';
+        }
+
+        updateRadar(null);
     }
     
     // Helper function to capitalize first letter

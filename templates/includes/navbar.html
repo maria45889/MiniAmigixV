@@ -2,7 +2,7 @@
 <aside class="sidebar" aria-label="Navegación principal">
     <div class="sidebar-header">
         <a class="navbar-brand" href="/home/" title="Inicio">
-            <img src="{% static 'logo.png' %}" alt="MiniAmigixV Logo" class="navbar-logo-img">
+            <img src="{% static 'icons/icon-192.png' %}" alt="MiniAmigixV Logo" class="navbar-logo-img">
         </a>
         <div class="brand-meta">
             <span class="brand-title">MiniAmigixV</span>
@@ -79,6 +79,7 @@
             {% if request.user.is_authenticated %}
             <a href="/notificaciones/" class="nav-item notification-btn-nav {% if request.path|startswith:'/notificaciones/' %}active{% endif %}" title="Notificaciones" aria-label="Notificaciones">
                 <span class="material-icons-round">notifications</span>
+                <span>Notificaciones</span>
                 {% if unread_notifications_count %}
                 <span class="notification-badge">{{ unread_notifications_count }}</span>
                 {% endif %}
@@ -91,13 +92,15 @@
                 <span>Sugerencias</span>
             </a>
 
-            <!-- Soporte para usuarios autenticados -->
+            <!-- Soporte: visible siempre; redirige a login si no autenticado -->
             {% if request.user.is_authenticated and request.user.username|slice:":17" != 'mariajosetacoc2005' %}
             <a href="/soporte/" class="nav-item {% if request.path|startswith:'/soporte/' %}active{% endif %}" title="Soporte técnico">
+            {% else %}
+            <a href="{% url 'login' %}?next=/soporte/" class="nav-item {% if request.path|startswith:'/soporte/' %}active{% endif %}" title="Soporte técnico">
+            {% endif %}
                 <span class="material-icons-round">support_agent</span>
                 <span>Soporte</span>
             </a>
-            {% endif %}
 
             {% if request.user.is_staff or request.user.username|slice:":17" == 'mariajosetacoc2005' %}
             <a href="/perfil/" class="nav-item {% if request.path|startswith:'/perfil/' %}active{% endif %}">

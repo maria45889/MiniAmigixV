@@ -13,42 +13,36 @@
 
   .home-root {
     min-height: 100vh;
-    padding: 28px 32px 48px;
+    width: 100%;
+    padding: 24px clamp(18px, 3vw, 44px) 48px;
     box-sizing: border-box;
     font-family: 'Sora', sans-serif;
     background:
-      radial-gradient(ellipse at 10% 0%, rgba(139, 92, 246, 0.18) 0%, transparent 45%),
-      radial-gradient(ellipse at 90% 20%, rgba(236, 72, 153, 0.14) 0%, transparent 40%),
-      radial-gradient(ellipse at 50% 100%, rgba(6, 182, 212, 0.10) 0%, transparent 50%),
-      #050510;
+      radial-gradient(circle farthest-corner at 10% 15%, rgba(99, 102, 241, 0.2), transparent 22%),
+      radial-gradient(circle farthest-corner at 90% 15%, rgba(236, 72, 153, 0.2), transparent 18%),
+      linear-gradient(180deg, rgba(4, 5, 18, 0.98), rgba(9, 12, 32, 0.99) 45%, rgba(11, 15, 40, 1));
     position: relative;
     overflow: hidden;
   }
 
-  /* Orbs de fondo animados */
+  /* Fondo suave */
   .home-root::before {
     content: '';
-    position: fixed;
-    width: 500px; height: 500px;
-    top: -150px; left: -150px;
-    background: radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 70%);
-    border-radius: 50%;
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px),
+      linear-gradient(180deg, rgba(255,255,255,0.028) 1px, transparent 1px);
+    background-size: 72px 72px;
+    opacity: 0.18;
     pointer-events: none;
-    animation: orbDrift 14s ease-in-out infinite alternate;
   }
   .home-root::after {
     content: '';
-    position: fixed;
-    width: 400px; height: 400px;
-    bottom: -120px; right: -100px;
-    background: radial-gradient(circle, rgba(236,72,153,0.10) 0%, transparent 70%);
-    border-radius: 50%;
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(120deg, transparent 0%, rgba(0,240,255,0.05) 34%, transparent 60%, rgba(255,42,116,0.06) 100%);
     pointer-events: none;
-    animation: orbDrift 18s ease-in-out infinite alternate-reverse;
-  }
-  @keyframes orbDrift {
-    from { transform: translate(0,0) scale(1); }
-    to   { transform: translate(40px, 30px) scale(1.12); }
   }
 
   /* ── HERO ── */
@@ -56,41 +50,44 @@
     display: grid;
     grid-template-columns: 1fr auto;
     align-items: center;
-    gap: 24px;
-    padding: 36px 40px;
-    border-radius: 28px;
-    border: 1px solid rgba(255,255,255,0.07);
-    background: linear-gradient(135deg,
-      rgba(139,92,246,0.12) 0%,
-      rgba(236,72,153,0.08) 50%,
-      rgba(6,182,212,0.08) 100%);
-    backdrop-filter: blur(20px);
+    gap: 28px;
+    padding: clamp(34px, 4vw, 64px);
+    border-radius: 34px;
+    border: 1px solid rgba(255,255,255,0.14);
+    background: rgba(12, 16, 46, 0.92);
+    backdrop-filter: blur(26px);
     position: relative;
     overflow: hidden;
-    margin-bottom: 28px;
+    margin: 0 auto 32px;
+    max-width: 1420px;
+    box-shadow: 0 34px 110px rgba(0,0,0,0.35);
   }
   .home-hero::before {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(139,92,246,0.06), transparent 60%);
+    background:
+      radial-gradient(circle at 22% 18%, rgba(88, 95, 255, 0.15), transparent 22%),
+      radial-gradient(circle at 84% 24%, rgba(244, 114, 182, 0.15), transparent 20%);
     pointer-events: none;
+    mix-blend-mode: screen;
   }
 
   .hero-badge {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
-    padding: 6px 14px;
+    gap: 10px;
+    padding: 10px 18px;
     border-radius: 999px;
-    background: rgba(139,92,246,0.15);
-    border: 1px solid rgba(139,92,246,0.35);
-    color: #c4b5fd;
+    background: rgba(124, 58, 237, 0.18);
+    border: 1px solid rgba(124, 58, 237, 0.55);
+    color: #ede9fe;
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    margin-bottom: 14px;
+    margin-bottom: 16px;
+    box-shadow: 0 10px 30px rgba(124,58,237,0.12);
   }
   .hero-badge-dot {
     width: 7px; height: 7px;
@@ -105,48 +102,49 @@
   }
 
   .hero-title {
-    font-size: clamp(2rem, 3.5vw, 3rem);
-    font-weight: 800;
-    line-height: 1.1;
-    margin: 0 0 12px;
+    font-size: clamp(2.6rem, 5vw, 5.6rem);
+    font-weight: 900;
+    line-height: 1.02;
+    margin: 0 0 18px;
     color: #fff;
-    letter-spacing: -0.5px;
+    letter-spacing: -0.04em;
+    text-shadow: 0 14px 40px rgba(124,58,237,0.22);
   }
   .hero-title .accent {
-    background: linear-gradient(135deg, #a78bfa, #f472b6, #38bdf8);
+    background: linear-gradient(135deg, #7c3aed, #ec4899, #06b6d4);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
   .hero-sub {
-    color: rgba(255,255,255,0.5);
-    font-size: 0.95rem;
-    line-height: 1.7;
-    max-width: 520px;
-    margin: 0 0 24px;
+    color: rgba(255,255,255,0.78);
+    font-size: clamp(1rem, 1.1vw, 1.15rem);
+    line-height: 1.72;
+    max-width: 720px;
+    margin: 0 0 28px;
   }
 
   .hero-actions {
     display: flex;
-    gap: 12px;
+    gap: 14px;
     flex-wrap: wrap;
   }
   .btn-hero-primary {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    padding: 13px 24px;
+    padding: 14px 26px;
     border-radius: 14px;
     background: linear-gradient(135deg, #7c3aed, #ec4899);
     color: #fff;
     font-weight: 700;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     border: none;
     cursor: pointer;
     text-decoration: none;
-    transition: all 0.25s ease;
-    box-shadow: 0 8px 24px rgba(124,58,237,0.35);
+    transition: all 0.22s ease;
+    box-shadow: 0 12px 28px rgba(124,58,237,0.35);
   }
   .btn-hero-primary:hover {
     transform: translateY(-2px);
@@ -158,26 +156,27 @@
     gap: 8px;
     padding: 13px 22px;
     border-radius: 14px;
-    background: rgba(255,255,255,0.06);
-    border: 1px solid rgba(255,255,255,0.12);
-    color: rgba(255,255,255,0.8);
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: rgba(255,255,255,0.85);
     font-weight: 600;
     font-size: 0.9rem;
     cursor: pointer;
     text-decoration: none;
-    transition: all 0.25s ease;
+    transition: all 0.22s ease;
   }
   .btn-hero-secondary:hover {
-    background: rgba(255,255,255,0.10);
-    border-color: rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.12);
+    border-color: rgba(255,255,255,0.24);
     color: #fff;
+    transform: translateY(-1px);
   }
 
   /* Reloj grande en el hero */
   .hero-clock-block {
     text-align: center;
     padding: 28px 36px;
-    border-radius: 22px;
+    border-radius: 18px;
     background: rgba(255,255,255,0.04);
     border: 1px solid rgba(255,255,255,0.08);
     flex-shrink: 0;
@@ -208,17 +207,18 @@
   /* ── STATS ROW ── */
   .home-stats-row {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(170px, 1fr));
     gap: 16px;
-    margin-bottom: 28px;
+    max-width: 1420px;
+    margin: 0 auto 18px;
   }
   .stat-card {
-    padding: 22px 20px;
-    border-radius: 20px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.07);
-    backdrop-filter: blur(12px);
-    transition: all 0.25s ease;
+    padding: 26px 24px;
+    border-radius: 22px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.10);
+    backdrop-filter: blur(18px);
+    transition: all 0.25s ease, transform 0.25s ease;
     cursor: default;
     position: relative;
     overflow: hidden;
@@ -234,16 +234,16 @@
   .stat-card.c-pink::before   { background: linear-gradient(90deg,#db2777,#f472b6); }
   .stat-card.c-cyan::before   { background: linear-gradient(90deg,#0891b2,#22d3ee); }
   .stat-card.c-green::before  { background: linear-gradient(90deg,#059669,#34d399); }
-  .stat-card:hover { transform: translateY(-3px); border-color: rgba(255,255,255,0.14); }
+  .stat-card:hover { transform: translateY(-5px); border-color: rgba(255,255,255,0.18); box-shadow: 0 20px 50px rgba(0,0,0,0.18); }
 
   .stat-icon {
-    width: 40px; height: 40px;
+    width: 44px; height: 44px;
     border-radius: 12px;
     display: grid;
     place-items: center;
-    font-size: 1.2rem;
     margin-bottom: 14px;
   }
+  .stat-icon .material-icons-round { font-size: 1.35rem; }
   .c-purple .stat-icon { background: rgba(124,58,237,0.18); }
   .c-pink   .stat-icon { background: rgba(219,39,119,0.18); }
   .c-cyan   .stat-icon { background: rgba(8,145,178,0.18); }
@@ -267,24 +267,26 @@
   /* ── MAIN GRID ── */
   .home-main-grid {
     display: grid;
-    grid-template-columns: 1fr 340px;
+    grid-template-columns: minmax(0, 1fr) minmax(300px, 380px);
     gap: 20px;
-    margin-bottom: 24px;
+    max-width: 1420px;
+    margin: 0 auto 24px;
   }
 
   /* Accesos rápidos */
   .quick-access-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 14px;
+    grid-template-columns: repeat(3, minmax(180px, 1fr));
+    gap: 16px;
   }
   .qa-card {
-    padding: 22px 18px;
-    border-radius: 20px;
-    border: 1px solid rgba(255,255,255,0.07);
-    background: rgba(255,255,255,0.04);
+    min-height: 160px;
+    padding: 26px 24px;
+    border-radius: 22px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.05);
     cursor: pointer;
-    transition: all 0.25s ease;
+    transition: all 0.3s ease;
     text-decoration: none;
     display: block;
     position: relative;
@@ -298,20 +300,30 @@
     opacity: 0;
     transition: opacity 0.3s;
   }
-  .qa-card:hover { transform: translateY(-4px); border-color: rgba(255,255,255,0.15); }
+  .qa-card:hover { transform: translateY(-8px); border-color: rgba(255,255,255,0.22); box-shadow: 0 20px 60px rgba(0,0,0,0.25); }
   .qa-card:hover::after { opacity: 1; }
 
-  .qa-emoji { font-size: 2rem; margin-bottom: 10px; display: block; }
+  .qa-icon {
+    width: 46px;
+    height: 46px;
+    border-radius: 14px;
+    display: grid;
+    place-items: center;
+    margin-bottom: 14px;
+    background: rgba(255,255,255,0.07);
+    color: #67e8f9;
+  }
+  .qa-icon .material-icons-round { font-size: 1.45rem; }
   .qa-title {
-    font-size: 0.9rem;
+    font-size: 1rem;
     font-weight: 700;
     color: #fff;
     margin-bottom: 4px;
   }
   .qa-desc {
-    font-size: 0.75rem;
-    color: rgba(255,255,255,0.38);
-    line-height: 1.45;
+    font-size: 0.82rem;
+    color: rgba(255,255,255,0.52);
+    line-height: 1.55;
   }
 
   /* Columna derecha */
@@ -324,7 +336,7 @@
   /* Frase del día */
   .quote-card {
     padding: 24px;
-    border-radius: 20px;
+    border-radius: 16px;
     background: linear-gradient(135deg, rgba(139,92,246,0.12), rgba(236,72,153,0.08));
     border: 1px solid rgba(139,92,246,0.2);
     flex-shrink: 0;
@@ -353,7 +365,7 @@
   /* Próximos eventos mini */
   .mini-events-card {
     padding: 22px;
-    border-radius: 20px;
+    border-radius: 16px;
     background: rgba(255,255,255,0.04);
     border: 1px solid rgba(255,255,255,0.07);
     flex: 1;
@@ -395,11 +407,13 @@
 
   /* Barra de progreso diario */
   .progress-card {
-    padding: 22px 24px;
-    border-radius: 20px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.07);
-    margin-bottom: 24px;
+    padding: 26px 28px;
+    border-radius: 22px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    max-width: 1420px;
+    margin: 0 auto 24px;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 24px 65px rgba(0,0,0,0.18);
   }
   .progress-header {
     display: flex;
@@ -438,13 +452,17 @@
     .home-main-grid { grid-template-columns: 1fr; }
     .home-sidebar-col { flex-direction: row; flex-wrap: wrap; }
     .quote-card, .mini-events-card { flex: 1; min-width: 240px; }
+    .home-stats-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
   @media (max-width: 768px) {
     .home-root { padding: 16px; }
     .home-hero { grid-template-columns: 1fr; padding: 24px; }
-    .home-stats-row { grid-template-columns: repeat(2,1fr); }
-    .quick-access-grid { grid-template-columns: repeat(2,1fr); }
+    .quick-access-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
     .hero-clock-block { display: none; }
+  }
+  @media (max-width: 520px) {
+    .home-stats-row,
+    .quick-access-grid { grid-template-columns: 1fr; }
   }
 </style>
 {% endblock %}
@@ -466,7 +484,7 @@
         Bienvenida de nuevo a MiniAmigixV. Aquí tienes todo lo que necesitas para organizar, crear y disfrutar tu día.
       </p>
       <div class="hero-actions">
-        <a href="/chat/" class="btn-hero-primary">
+        <a href="/chat/ia/" class="btn-hero-primary">
           <span class="material-icons-round" style="font-size:1rem;">smart_toy</span>
           Abrir Chat IA
         </a>
@@ -528,7 +546,7 @@
 
     <!-- Accesos rápidos -->
     <div class="quick-access-grid">
-      <a href="/chat/" class="qa-card" style="border-color:rgba(124,58,237,0.2)">
+      <a href="/chat/ia/" class="qa-card" style="border-color:rgba(124,58,237,0.2)">
         <span class="qa-emoji">🤖</span>
         <div class="qa-title">Chat IA</div>
         <div class="qa-desc">Pregunta, crea, organiza con inteligencia artificial.</div>

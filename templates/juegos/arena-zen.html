@@ -1,0 +1,104 @@
+{% extends 'base/base.html' %} {% load static %}
+
+{% block title %}MiniAmigixV - Arena Zen{% endblock %}
+
+{% block content %}
+<div class="entretenimiento-container">
+    <header class="entretenimiento-header">
+        <h1>Arena Zen</h1>
+        <p>Un espacio tranquilo para respirar, relajarte y reiniciar tu mente.</p>
+    </header>
+
+    <div class="entertainment-zen-card">
+        <div class="zen-intro">
+            <h2>Bienvenido a la Arena Zen</h2>
+            <p>Disfruta de un breve momento de calma con esta experiencia visual y sonora diseñada para ayudarte a despejar la mente.</p>
+        </div>
+
+        <div class="zen-actions">
+            <a href="/juegos/" class="btn-neon">Volver a Juegos</a>
+            <button id="start-zen-session" class="btn-neon btn-secondary">Iniciar sesión zen</button>
+        </div>
+
+        <div class="zen-panel" id="zen-panel">
+            <p>Relájate y respira profundamente mientras el ambiente se prepara.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/entretenimiento.css' %}">
+<style>
+    .entertainment-zen-card {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 28px;
+        background: rgba(10, 16, 28, 0.82);
+        border-radius: 24px;
+        border: 1px solid rgba(255,255,255,0.08);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.32);
+        backdrop-filter: blur(18px);
+        display: grid;
+        gap: 20px;
+    }
+
+    .zen-intro h2 {
+        margin: 0;
+        color: var(--neon-cyan);
+        font-size: 2rem;
+    }
+
+    .zen-intro p {
+        color: var(--text-soft);
+        line-height: 1.8;
+        margin: 0;
+    }
+
+    .zen-actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+    }
+
+    .zen-panel {
+        min-height: 220px;
+        padding: 24px;
+        border-radius: 20px;
+        background: rgba(255,255,255,0.03);
+        border: 1px dashed rgba(255,255,255,0.10);
+        color: var(--text);
+        font-size: 1.05rem;
+        line-height: 1.7;
+    }
+
+    .btn-secondary {
+        background: rgba(255,255,255,0.08);
+        color: var(--text);
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    @media (max-width: 720px) {
+        .zen-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const zenButton = document.getElementById('start-zen-session');
+        const zenPanel = document.getElementById('zen-panel');
+
+        if (!zenButton || !zenPanel) return;
+
+        zenButton.addEventListener('click', () => {
+            zenPanel.innerHTML = '<p>Encuentra tu centro...<br>Respira despacio y deja que la tranquilidad te envuelva.</p>';
+            zenPanel.style.animation = 'pulseGlow 4s ease-in-out infinite';
+        });
+    });
+</script>
+{% endblock %}

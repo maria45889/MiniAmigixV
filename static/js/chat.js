@@ -25,6 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentChatId = state.currentChatId;
 
     renderEmojiPicker();
+    renderHelpPanel();
     renderHistory();
     renderMessages();
 

@@ -10,6 +10,33 @@
         <p>Aprende a usar MiniAmigixV paso a paso</p>
     </header>
 
+    <!-- Diagnostic banner (temporal): muestra si la plantilla se carga -->
+    <div id="tutorial-diagnostic" style="background:#ffea7f;color:#111;text-align:center;padding:8px;border-radius:6px;margin-bottom:12px;">
+        Diagnóstico: plantilla tutorial/index.html cargada.
+    </div>
+
+    <div class="tutorial-intro">
+        <p>Elige un módulo para recibir una guía rápida y práctica. Si quieres, comienza el tutorial completo para recorrer todas las funciones del sitio.</p>
+    </div>
+
+    <section class="tutorial-banner">
+        <div>
+            <h2>Aprende MiniAmigixV paso a paso</h2>
+            <p>El tutorial interactivo te ayuda a conocer cada módulo del sitio sin salir de la pantalla. Usa los botones para arrancar rápido o recorre todo el camino completo.</p>
+        </div>
+        <div class="tutorial-quickstart">
+            <div>
+                <strong>1.</strong> Selecciona un módulo.
+            </div>
+            <div>
+                <strong>2.</strong> Sigue los pasos en pantalla.
+            </div>
+            <div>
+                <strong>3.</strong> Regresa cuando quieras y continua el tutorial.
+            </div>
+        </div>
+    </section>
+
     <!-- Tutorial Content -->
     <div class="tutorial-main">
         {% if tutorial_completed %}
@@ -147,9 +174,10 @@
 {% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/tutorial.css' %}">
+<link rel="stylesheet" href="{% static 'css/tutorial.css' %}?v=4">
 {% endblock %}
 
 {% block extra_js %}
 <script src="{% static 'js/tutorial.js' %}"></script>
+<script>console.log('DEBUG: tutorial page script block executed');</script>
 {% endblock %}

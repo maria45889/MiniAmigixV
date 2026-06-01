@@ -179,11 +179,11 @@ document.addEventListener('DOMContentLoaded', () => {
                             languageInfo.textContent += ' (traducción simulada)';
                             languageInfo.style.color = '#ff9800';
                         } else {
-                            languageInfo.style.color = var(--neon-pink);
+                            languageInfo.style.color = '#ff52c0';
                         }
                     } else {
                         languageInfo.textContent = `Traducción completada`;
-                        languageInfo.style.color = var(--neon-pink);
+                        languageInfo.style.color = '#ff52c0';
                     }
                     
                     showNotification('Traducción completada', 'success');
@@ -234,7 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     function mockTranslate(text, source, target) {
-        """Mock translation function for demo purposes"""
+        // Mock translation function for demo purposes
         // Simple mock: just return the text with language markers
         if (source === target) {
             return text;
