@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import include, path
-from django.views.generic import RedirectView
+from django.views.generic import RedirectView, TemplateView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
 from apps.chat.views import chat_view
@@ -19,6 +19,14 @@ urlpatterns = [
     path("", include("apps.musica.urls")),
     path("chat/ia/", chat_view, name="chat"),
     path("oauth/", include("social_django.urls", namespace="social")),
+    path(
+        "sw.js",
+        TemplateView.as_view(
+            template_name="sw.js",
+            content_type="application/javascript",
+        ),
+        name="service_worker",
+    ),
     path("", RedirectView.as_view(url="/home/", permanent=True)),
     path("", include("apps.users.urls")),
 ]

@@ -4,9 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#ff4fa3">
+    <meta name="application-name" content="MiniAmigixV">
+    <meta name="apple-mobile-web-app-title" content="MiniAmigixV">
+    <meta name="apple-mobile-web-app-capable" content="yes">
     <title>{% block title %}MiniAmigixV{% endblock %}</title>
     <link rel="icon" type="image/png" href="{% static 'logo.png' %}">
     <link rel="apple-touch-icon" href="{% static 'logo.png' %}">
+    <link rel="manifest" href="{% static 'manifest.webmanifest' %}">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
@@ -42,6 +47,13 @@
     </div>
 
     <script src="{% static 'js/main.js' %}?v=3" charset="utf-8"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js').catch(function() {});
+            });
+        }
+    </script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>
