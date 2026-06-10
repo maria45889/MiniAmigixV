@@ -1,0 +1,114 @@
+:root {
+    --bg-dark: #0f172a;
+    --panel-dark: #111c2e;
+    --border-color: rgba(255, 255, 255, 0.08);
+    --text-main: #e2e8f0;
+    --text-muted: #94a3b8;
+    --accent-gradient: linear-gradient(135deg, #7c3aed, #06b6d4);
+    --font-ui: 'Inter', sans-serif;
+    --font-title: 'Syne', sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+    font-family: var(--font-ui);
+    height: 100vh;
+    overflow: hidden;
+}
+
+.app-layout { display: flex; height: 100vh; }
+
+/* Sidebar Estilo Discord/ChatGPT */
+.sidebar {
+    width: 260px;
+    background-color: var(--panel-dark);
+    border-right: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 1rem;
+}
+
+.sidebar-header h1 {
+    font-family: var(--font-title);
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-align: center;
+}
+
+.nav-group {
+    margin-bottom: 1.5rem;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    color: var(--text-muted);
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.2s;
+    margin-bottom: 4px;
+}
+
+.nav-item i { width: 18px; height: 18px; }
+
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+
+.nav-item.active {
+    background: var(--accent-gradient);
+    color: #fff;
+    font-weight: 500;
+}
+
+.sidebar-footer {
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+    display: flex;
+    justify-content: space-around;
+}
+
+/* Área de Contenido */
+.main-content { flex: 1; display: flex; flex-direction: column; }
+
+.navbar {
+    height: 64px;
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    padding: 0 2rem;
+    background-color: var(--bg-dark);
+}
+
+.page-content {
+    padding: 2rem;
+    flex: 1;
+    overflow-y: auto;
+    background-color: var(--bg-dark);
+}
+
+/* --- Modo Claro --- */
+body.light {
+    --bg-dark: #f8fafc;
+    --panel-dark: #ffffff;
+    --border-color: rgba(0, 0, 0, 0.06);
+    --text-main: #1e293b;
+    --text-muted: #64748b;
+    background-color: var(--bg-dark);
+    color: var(--text-main);
+}
+
+body.light .navbar, body.light .page-content {
+    background-color: var(--bg-dark);
+}

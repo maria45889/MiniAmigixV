@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>🧠 Quiz</h2>
+
+<p>{{ pregunta }}</p>
+
+<form method="POST">
+    {% csrf_token %}
+    <input name="respuesta" placeholder="Tu respuesta">
+    <button>Responder</button>
+</form>
+
+{% if resultado %}
+<p>{{ resultado }}</p>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Crear Sugerencia{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/sugerencias.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="sugerencias-container">
+    <h1>💡 Nueva Sugerencia</h1>
+    
+    <form method="POST" class="sugerencia-form">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="titulo">Título</label>
+            <input type="text" id="titulo" name="titulo" required placeholder="Ej: Agregar modo oscuro">
+        </div>
+        
+        <div class="form-group">
+            <label for="categoria">Categoría</label>
+            <select id="categoria" name="categoria">
+                <option value="mejora">Mejora</option>
+                <option value="bug">Error/bug</option>
+                <option value="nueva_funcionalidad">Nueva funcionalidad</option>
+                <option value="otro">Otro</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="descripcion">Descripción detallada</label>
+            <textarea id="descripcion" name="descripcion" rows="6" required placeholder="Describe tu sugerencia en detalle..."></textarea>
+        </div>
+        
+        <div class="form-actions">
+            <a href="{% url 'lista_sugerencias' %}" class="btn-secondary">Cancelar</a>
+            <button type="submit" class="btn-primary">Enviar Sugerencia</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

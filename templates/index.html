@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Tutorial{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/tutorial.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<h1>❓ Tutorial MiniAmigixV</h1>
+
+<p style="color: var(--text-muted); margin-bottom: 20px;">Bienvenido 👋 aquí aprenderás a usar la app de forma interactiva.</p>
+
+<button onclick="startTour()" class="btn-start">🚀 Iniciar guía</button>
+
+<hr style="border: 0; border-top: 1px solid var(--border-color); margin: 30px 0;">
+
+<h2>📌 Módulos principales</h2>
+
+<ul class="tutorial-list">
+    <li id="step1">🏠 <strong>Inicio:</strong> Explora el dashboard y accesos rápidos.</li>
+    <li id="step2">💬 <strong>Chat IA:</strong> Conversa con nuestra inteligencia artificial.</li>
+    <li id="step3">🎵 <strong>Música:</strong> Gestiona y reproduce tus listas de YouTube.</li>
+    <li id="step4">🎮 <strong>Juegos:</strong> Diviértete con mini arcade integrados.</li>
+    <li id="step5">📚 <strong>Estudio:</strong> Crea notas y resúmenes inteligentes.</li>
+</ul>
+
+<script>
+function startTour() {
+    // Guía básica secuencial con alertas
+    alert("👋 Bienvenido a MiniAmigixV. Vamos a darte un paseo rápido.");
+
+    setTimeout(() => {
+        alert("🏠 Inicio: En el dashboard verás el reloj y tus herramientas principales.");
+    }, 500);
+
+    setTimeout(() => {
+        alert("💬 Chat IA: Puedes preguntar lo que quieras, MiniAmigix está para ayudarte.");
+    }, 2000);
+
+    setTimeout(() => {
+        alert("🎉 ¡Eso es todo! El resto de funciones te esperan en el sidebar lateral.");
+    }, 3500);
+}
+</script>
+
+{% endblock %}

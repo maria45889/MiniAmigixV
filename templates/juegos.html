@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Juegos{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/juegos.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h1 style="font-family: var(--font-title); margin-bottom: 2rem;">🎮 Juegos</h1>
+    
+    <div class="game-grid">
+        <a href="#" class="game-card">
+            <div style="font-size: 3rem; margin-bottom: 10px;">🧩</div>
+            <h3>Adivinanza</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Adivina la palabra oculta</p>
+        </a>
+        
+        <a href="#" class="game-card">
+            <div style="font-size: 3rem; margin-bottom: 10px;">❓</div>
+            <h3>Quiz</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Pon a prueba tus conocimientos</p>
+        </a>
+        
+        <a href="#" class="game-card">
+            <div style="font-size: 3rem; margin-bottom: 10px;">🎯</div>
+            <h3>Memoria</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Encuentra las parejas</p>
+        </a>
+        
+        <a href="#" class="game-card">
+            <div style="font-size: 3rem; margin-bottom: 10px;">🔢</div>
+            <h3>Matemáticas</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">Resuelve operaciones rápidas</p>
+        </a>
+    </div>
+</div>
+{% endblock %}

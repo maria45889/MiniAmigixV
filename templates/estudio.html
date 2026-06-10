@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Estudio{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/estudios.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h1 style="font-family: var(--font-title); margin-bottom: 2rem;">📚 Estudio</h1>
+    
+    <div class="nota-card">
+        <h3>📝 Resumen de Texto</h3>
+        <p style="color: var(--text-muted);">Pega tu texto aquí para obtener un resumen automático.</p>
+        <textarea id="textoInput" rows="6" placeholder="Escribe o pega el texto que quieres resumir..."></textarea>
+        <button onclick="resumirTexto()" style="margin-top: 10px; padding: 10px 20px; background: var(--accent-gradient); color: white; border: none; border-radius: 8px; cursor: pointer;">Resumir</button>
+        <div id="resumenOutput" class="resumen-output" style="display: none;"></div>
+    </div>
+    
+    <div class="nota-card">
+        <h3>💡 Notas Rápidas</h3>
+        <input type="text" id="notaInput" placeholder="Escribe una nota rápida...">
+        <button onclick="guardarNota()" style="margin-top: 10px; padding: 10px 20px; background: var(--accent-gradient); color: white; border: none; border-radius: 8px; cursor: pointer;">Guardar</button>
+        <div id="notasGuardadas" style="margin-top: 15px;"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function resumirTexto() {
+    const texto = document.getElementById('textoInput').value;
+    const output = document.getElementById('resumenOutput');
+    
+    if (texto.trim() === '') return;
+    
+    output.style.display = 'block';
+    output.textContent = 'Resumen: ' + texto.substring(0, 100) + '...';
+}
+
+function guardarNota() {
+    const nota = document.getElementById('notaInput').value;
+    const container = document.getElementById('notasGuardadas');
+    
+    if (nota.trim() === '') return;
+    
+    const notaDiv = document.createElement('div');
+    notaDiv.className = 'nota-card';
+    notaDiv.style.marginTop = '10px';
+    notaDiv.style.padding = '15px';
+    notaDiv.innerHTML = `<p>${nota}</p><small>${new Date().toLocaleString()}</small>`;
+    
+    container.appendChild(notaDiv);
+    document.getElementById('notaInput').value = '';
+}
+</script>
+{% endblock %}

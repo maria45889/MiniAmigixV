@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Editar Perfil{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1>✏️ Editar Perfil</h1>
+
+<div class="perfil-card">
+    <form method="POST" enctype="multipart/form-data" class="edit-form">
+        {% csrf_token %}
+        <label>Biografía:</label>
+        <textarea name="bio" placeholder="Cuéntanos sobre ti...">{{ perfil.bio }}</textarea>
+        <label>Avatar:</label>
+        <input type="file" name="avatar" accept="image/*">
+        <button type="submit" class="btn-save">Guardar cambios</button>
+    </form>
+</div>
+{% endblock %}

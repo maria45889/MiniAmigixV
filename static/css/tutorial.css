@@ -1,0 +1,28 @@
+.tutorial-list {
+    list-style: none;
+    padding: 0;
+}
+
+.tutorial-list li {
+    background: var(--panel-dark);
+    padding: 15px;
+    margin: 10px 0;
+    border-radius: 10px;
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    transition: transform 0.2s ease;
+}
+
+.tutorial-list li:hover {
+    transform: translateX(5px);
+}
+
+.btn-start {
+    padding: 12px 25px;
+    border-radius: 10px;
+    background: var(--accent-gradient);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+}

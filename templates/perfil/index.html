@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mi Perfil{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="perfil-container">
+    <h1>👤 Mi Perfil</h1>
+    
+    <div class="perfil-card">
+        {% if perfil.avatar %}
+        <img src="{{ perfil.avatar.url }}" width="120" height="120">
+        {% else %}
+        <div class="avatar-placeholder">👤</div>
+        {% endif %}
+        
+        <h2>{{ perfil.usuario.username }}</h2>
+        <p>{{ perfil.bio|default:"Sin biografía" }}</p>
+        
+        <div class="perfil-meta">
+            <span>📅 Miembro desde: {{ perfil.creado|date:"d M Y" }}</span>
+            <span>🌙 Tema: {{ perfil.get_tema_display }}</span>
+            <span>🌐 Idioma: {{ perfil.idioma|upper }}</span>
+        </div>
+        
+        <a href="{% url 'editar_perfil' %}" class="btn-edit">✏️ Editar perfil</a>
+    </div>
+    
+    <div class="perfil-stats">
+        <div class="stat-card">
+            <span class="stat-number">0</span>
+            <span class="stat-label">Eventos</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">0</span>
+            <span class="stat-label">Notificaciones</span>
+        </div>
+        <div class="stat-card">
+            <span class="stat-number">0</span>
+            <span class="stat-label">Días activo</span>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Chat IA{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/chat.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="chat-wrapper">
+    <div class="chat-box" id="chatBox">
+        <div class="msg bot">¡Hola! Soy tu asistente IA. ¿En qué puedo ayudarte hoy?</div>
+    </div>
+    <div class="chat-input">
+        <input type="text" id="userInput" placeholder="Escribe tu mensaje..." autocomplete="off">
+        <button onclick="sendMessage()">Enviar</button>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+async function sendMessage() {
+    const input = document.getElementById('userInput');
+    const message = input.value.trim();
+    
+    if (message === '') return;
+    
+    const chatBox = document.getElementById('chatBox');
+    
+    // Add user message
+    const userMsg = document.createElement('div');
+    userMsg.className = 'msg user';
+    userMsg.textContent = message;
+    chatBox.appendChild(userMsg);
+    
+    input.value = '';
+    chatBox.scrollTop = chatBox.scrollHeight;
+    
+    // Show loading indicator
+    const loadingMsg = document.createElement('div');
+    loadingMsg.className = 'msg bot';
+    loadingMsg.textContent = 'Escribiendo...';
+    loadingMsg.id = 'loadingMsg';
+    chatBox.appendChild(loadingMsg);
+    chatBox.scrollTop = chatBox.scrollHeight;
+    
+    try {
+        const response = await fetch('/api/chat/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ message: message })
+        });
+        
+        const data = await response.json();
+        
+        // Remove loading message
+        const loadingElement = document.getElementById('loadingMsg');
+        if (loadingElement) {
+            loadingElement.remove();
+        }
+        
+        if (data.response) {
+            const botMsg = document.createElement('div');
+            botMsg.className = 'msg bot';
+            botMsg.textContent = data.response;
+            chatBox.appendChild(botMsg);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        } else if (data.error) {
+            const errorMsg = document.createElement('div');
+            errorMsg.className = 'msg bot';
+            errorMsg.textContent = 'Error: ' + data.error;
+            chatBox.appendChild(errorMsg);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+    } catch (error) {
+        const loadingElement = document.getElementById('loadingMsg');
+        if (loadingElement) {
+            loadingElement.remove();
+        }
+        
+        const errorMsg = document.createElement('div');
+        errorMsg.className = 'msg bot';
+        errorMsg.textContent = 'Error de conexión. Por favor, verifica tu API key de OpenAI.';
+        chatBox.appendChild(errorMsg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+document.getElementById('userInput').addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        sendMessage();
+    }
+});
+</script>
+{% endblock %}

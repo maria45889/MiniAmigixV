@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h2>🎲 Adivina el número (1-10)</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    <input type="number" name="numero" min="1" max="10">
+    <button>Probar</button>
+</form>
+
+{% if resultado %}
+<p>{{ resultado }}</p>
+{% endif %}
+
+{% endblock %}

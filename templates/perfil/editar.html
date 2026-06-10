@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Editar Perfil{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="perfil-container">
+    <h1>✏️ Editar Perfil</h1>
+    
+    <form method="POST" enctype="multipart/form-data" class="perfil-form">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="bio">Biografía</label>
+            <textarea id="bio" name="bio" rows="4" placeholder="Cuéntanos sobre ti...">{{ perfil.bio }}</textarea>
+        </div>
+        
+        <div class="form-group">
+            <label for="avatar">Avatar</label>
+            <input type="file" id="avatar" name="avatar" accept="image/*">
+            {% if perfil.avatar %}
+            <img src="{{ perfil.avatar.url }}" alt="Avatar actual" class="avatar-preview">
+            {% endif %}
+        </div>
+        
+        <div class="form-group">
+            <label for="tema">Tema</label>
+            <select id="tema" name="tema">
+                <option value="dark" {% if perfil.tema == 'dark' %}selected{% endif %}>Oscuro</option>
+                <option value="light" {% if perfil.tema == 'light' %}selected{% endif %}>Claro</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="idioma">Idioma</label>
+            <select id="idioma" name="idioma">
+                <option value="es" {% if perfil.idioma == 'es' %}selected{% endif %}>Español</option>
+                <option value="en" {% if perfil.idioma == 'en' %}selected{% endif %}>English</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="fecha_nacimiento">Fecha de Nacimiento</label>
+            <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" value="{% if perfil.fecha_nacimiento %}{{ perfil.fecha_nacimiento|date:'Y-m-d' }}{% endif %}">
+        </div>
+        
+        <div class="form-actions">
+            <a href="{% url 'perfil' %}" class="btn-secondary">Cancelar</a>
+            <button type="submit" class="btn-primary">Guardar cambios</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

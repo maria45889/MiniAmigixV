@@ -1,0 +1,31 @@
+.auth-container {
+    max-width: 400px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: var(--panel-dark);
+    border-radius: 16px;
+    border: 1px solid var(--border-color);
+}
+
+input {
+    display: block;
+    width: 100%;
+    margin: 10px 0;
+    padding: 12px;
+    border-radius: 10px;
+    background: var(--bg-dark);
+    color: white;
+    border: 1px solid var(--border-color);
+}
+
+button {
+    background: var(--accent-gradient);
+    color: white;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-top: 10px;
+}

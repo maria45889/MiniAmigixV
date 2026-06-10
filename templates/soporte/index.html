@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Soporte{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/soporte.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="soporte-container">
+    <h1>🛟 Soporte MiniAmigixV</h1>
+    
+    <hr>
+    
+    <div class="info-section">
+        <h2>ℹ️ ¿Qué es MiniAmigixV?</h2>
+        <p>
+            MiniAmigixV es una plataforma todo en uno con Chat IA, música, juegos, estudio,
+            eventos, herramientas inteligentes y más. Una aplicación moderna diseñada para
+            simplificar tu vida digital.
+        </p>
+    </div>
+    
+    <div class="info-section">
+        <h2>🎯 Misión</h2>
+        <p>
+            Crear una app moderna, inteligente y accesible que unifique herramientas útiles
+            en un solo sistema digital, facilitando la productividad y el entretenimiento.
+        </p>
+    </div>
+    
+    <div class="info-section">
+        <h2>🌟 Visión</h2>
+        <p>
+            Ser una plataforma global tipo "super app" educativa, social e inteligente que
+            transforme la manera en que las personas interactúan con la tecnología.
+        </p>
+    </div>
+    
+    <hr>
+    
+    <h2>📩 Contacto con soporte</h2>
+    
+    {% if enviado %}
+    <div class="success-message">
+        ✅ Mensaje enviado correctamente. Te responderemos pronto.
+    </div>
+    {% endif %}
+    
+    {% if error %}
+    <div class="error-message">
+        ❌ Error al enviar el mensaje. Por favor intenta nuevamente.
+    </div>
+    {% endif %}
+    
+    <form method="POST" class="contact-form">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="nombre">Tu nombre</label>
+            <input type="text" id="nombre" name="nombre" placeholder="Ej: Juan Pérez" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Tu correo</label>
+            <input type="email" id="email" name="email" placeholder="ejemplo@correo.com" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="mensaje">Mensaje</label>
+            <textarea id="mensaje" name="mensaje" rows="6" placeholder="Escribe tu problema o mensaje..." required></textarea>
+        </div>
+        
+        <button type="submit" class="btn-submit">Enviar mensaje</button>
+    </form>
+    
+    <div class="contact-info">
+        <p>📧 Email: miniamigixv@gmail.com</p>
+        <p>🌐 Web: miniamigixv.com</p>
+    </div>
+</div>
+{% endblock %}

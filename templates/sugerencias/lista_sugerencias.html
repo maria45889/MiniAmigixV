@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Sugerencias{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/sugerencias.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="sugerencias-container">
+    <h1>💡 Sugerencias</h1>
+    
+    <div class="sugerencias-header">
+        <a href="{% url 'crear_sugerencia' %}" class="btn-primary">+ Nueva Sugerencia</a>
+    </div>
+    
+    <div class="sugerencias-list">
+        {% for sugerencia in sugerencias %}
+        <div class="sugerencia-card" data-estado="{{ sugerencia.estado }}">
+            <div class="sugerencia-header">
+                <h3>{{ sugerencia.titulo }}</h3>
+                <span class="estado-badge estado-{{ sugerencia.estado }}">{{ sugerencia.get_estado_display }}</span>
+            </div>
+            <p>{{ sugerencia.descripcion }}</p>
+            <div class="sugerencia-meta">
+                <span class="categoria">{{ sugerencia.get_categoria_display }}</span>
+                <span class="fecha">{{ sugerencia.fecha_creacion|date:"d M Y" }}</span>
+                {% if sugerencia.usuario %}
+                <span class="usuario">@{{ sugerencia.usuario.username }}</span>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="no-sugerencias">
+            <p>No hay sugerencias aún. ¡Sé el primero en compartir una idea!</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

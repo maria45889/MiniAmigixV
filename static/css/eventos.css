@@ -1,0 +1,25 @@
+.evento-card {
+    background: var(--panel-dark);
+    padding: 20px;
+    margin-top: 15px;
+    border-radius: 12px;
+    color: white;
+    border-left: 4px solid #7c3aed;
+    border-top: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.evento-card h3 {
+    color: #7c3aed;
+    margin-bottom: 8px;
+}
+
+.fecha-badge {
+    margin-top: 12px;
+    display: inline-block;
+    padding: 4px 10px;
+    background: rgba(124, 58, 237, 0.1);
+    border-radius: 6px;
+    font-size: 0.9rem;
+}

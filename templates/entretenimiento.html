@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Entretenimiento{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/entretenimiento.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h1 style="font-family: var(--font-title); margin-bottom: 2rem;">✨ Entretenimiento</h1>
+    
+    <div class="cards">
+        <div class="card-entertainment">
+            <div style="font-size: 3rem; margin-bottom: 15px;">🎬</div>
+            <h3>Películas</h3>
+            <p style="color: var(--text-muted); margin-top: 10px;">Descubre recomendaciones de películas</p>
+            <button onclick="mostrarInfo('películas')">Ver más</button>
+        </div>
+        
+        <div class="card-entertainment">
+            <div style="font-size: 3rem; margin-bottom: 15px;">📺</div>
+            <h3>Series</h3>
+            <p style="color: var(--text-muted); margin-top: 10px;">Las mejores series para ver</p>
+            <button onclick="mostrarInfo('series')">Ver más</button>
+        </div>
+        
+        <div class="card-entertainment">
+            <div style="font-size: 3rem; margin-bottom: 15px;">📚</div>
+            <h3>Libros</h3>
+            <p style="color: var(--text-muted); margin-top: 10px;">Recomendaciones de lectura</p>
+            <button onclick="mostrarInfo('libros')">Ver más</button>
+        </div>
+        
+        <div class="card-entertainment">
+            <div style="font-size: 3rem; margin-bottom: 15px;">🎭</div>
+            <h3>Teatro</h3>
+            <p style="color: var(--text-muted); margin-top: 10px;">Obras de teatro recomendadas</p>
+            <button onclick="mostrarInfo('teatro')">Ver más</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function mostrarInfo(categoria) {
+    alert('Sección de ' + categoria + ' en desarrollo');
+}
+</script>
+{% endblock %}

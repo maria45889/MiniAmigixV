@@ -1,0 +1,101 @@
+.config-card {
+    background: var(--panel-dark);
+    padding: 30px;
+    border-radius: 16px;
+    color: var(--text-main);
+    border: 1px solid var(--border-color);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.config-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.config-option:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.config-option h3 {
+    font-size: 1.1rem;
+    color: var(--text-main);
+}
+
+select {
+    padding: 10px;
+    border-radius: 8px;
+    background: var(--bg-dark);
+    border: 1px solid var(--border-color);
+    color: var(--text-main);
+    font-family: var(--font-ui);
+    cursor: pointer;
+}
+
+button {
+    display: block;
+    width: 100%;
+    padding: 12px 25px;
+    border-radius: 10px;
+    background: var(--accent-gradient);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    transition: transform 0.2s;
+    margin-top: 30px;
+}
+
+button:active { transform: scale(0.98); }
+
+/* Estilo para el switch (toggle) */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 40px;
+  height: 24px;
+}
+
+.switch input { opacity: 0; width: 0; height: 0; }
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 24px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: #7c3aed;
+}
+
+input:focus + .slider {
+  box-shadow: 0 0 1px #7c3aed;
+}
+
+input:checked + .slider:before {
+  transform: translateX(16px);
+}

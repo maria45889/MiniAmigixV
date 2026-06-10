@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Soporte{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/soporte.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="soporte-container">
+    <h1>🛟 Soporte</h1>
+    
+    <div class="soporte-header">
+        <a href="{% url 'crear_ticket' %}" class="btn-primary">+ Nuevo Ticket</a>
+    </div>
+    
+    <div class="tickets-list">
+        {% for ticket in tickets %}
+        <div class="ticket-card" data-estado="{{ ticket.estado }}" data-prioridad="{{ ticket.prioridad }}">
+            <div class="ticket-header">
+                <h3>{{ ticket.asunto }}</h3>
+                <div class="ticket-badges">
+                    <span class="prioridad-badge prioridad-{{ ticket.prioridad }}">{{ ticket.get_prioridad_display }}</span>
+                    <span class="estado-badge estado-{{ ticket.estado }}">{{ ticket.get_estado_display }}</span>
+                </div>
+            </div>
+            <p>{{ ticket.descripcion }}</p>
+            <div class="ticket-meta">
+                <span class="fecha">{{ ticket.fecha_creacion|date:"d M Y, H:i" }}</span>
+                {% if ticket.usuario %}
+                <span class="usuario">@{{ ticket.usuario.username }}</span>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="no-tickets">
+            <p>No hay tickets de soporte. ¡Crea el primero si necesitas ayuda!</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

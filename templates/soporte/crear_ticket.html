@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Crear Ticket{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/soporte.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="soporte-container">
+    <h1>🛟 Nuevo Ticket de Soporte</h1>
+    
+    <form method="POST" class="ticket-form">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="asunto">Asunto</label>
+            <input type="text" id="asunto" name="asunto" required placeholder="Ej: Error al iniciar sesión">
+        </div>
+        
+        <div class="form-group">
+            <label for="prioridad">Prioridad</label>
+            <select id="prioridad" name="prioridad">
+                <option value="baja">Baja</option>
+                <option value="media" selected>Media</option>
+                <option value="alta">Alta</option>
+                <option value="urgente">Urgente</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="descripcion">Descripción detallada</label>
+            <textarea id="descripcion" name="descripcion" rows="6" required placeholder="Describe el problema en detalle..."></textarea>
+        </div>
+        
+        <div class="form-actions">
+            <a href="{% url 'lista_tickets' %}" class="btn-secondary">Cancelar</a>
+            <button type="submit" class="btn-primary">Enviar Ticket</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

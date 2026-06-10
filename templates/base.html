@@ -1,0 +1,42 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MiniAmigixV - {% block title %}Bienvenido{% endblock %}</title>
+    <!-- Fuentes: Syne para títulos, Inter para UI -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syne:wght@700&display=swap" rel="stylesheet">
+    <!-- Iconos: Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- CSS Principal -->
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="app-layout">
+        {% include "includes/sidebar.html" %}
+        <main class="main-content">
+            {% include "includes/navbar.html" %}
+            <div class="page-content">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+    <!-- Inicializar Iconos -->
+    <script>lucide.createIcons();</script>
+    <script>
+        function toggleTheme() {
+            document.body.classList.toggle("light");
+            const isLight = document.body.classList.contains("light");
+            localStorage.setItem("theme", isLight ? "light" : "dark");
+            lucide.createIcons();
+        }
+
+        if (localStorage.getItem("theme") === "light") {
+            document.body.classList.add("light");
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

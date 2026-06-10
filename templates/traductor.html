@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Traductor{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/traductor.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h1 style="font-family: var(--font-title); margin-bottom: 2rem;">🌐 Traductor</h1>
+    
+    <div class="selector-container">
+        <select id="idiomaOrigen">
+            <option value="es">Español</option>
+            <option value="en">Inglés</option>
+            <option value="fr">Francés</option>
+            <option value="de">Alemán</option>
+            <option value="pt">Portugués</option>
+            <option value="it">Italiano</option>
+        </select>
+        
+        <button onclick="intercambiarIdiomas()" style="background: var(--panel-dark); border: 1px solid var(--border-color);">⇄</button>
+        
+        <select id="idiomaDestino">
+            <option value="en">Inglés</option>
+            <option value="es">Español</option>
+            <option value="fr">Francés</option>
+            <option value="de">Alemán</option>
+            <option value="pt">Portugués</option>
+            <option value="it">Italiano</option>
+        </select>
+    </div>
+    
+    <textarea id="textoOriginal" placeholder="Escribe el texto que quieres traducir..."></textarea>
+    
+    <button onclick="traducir()">Traducir</button>
+    
+    <div id="resultado"></div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function intercambiarIdiomas() {
+    const origen = document.getElementById('idiomaOrigen');
+    const destino = document.getElementById('idiomaDestino');
+    const temp = origen.value;
+    origen.value = destino.value;
+    destino.value = temp;
+}
+
+function traducir() {
+    const texto = document.getElementById('textoOriginal').value;
+    const origen = document.getElementById('idiomaOrigen').value;
+    const destino = document.getElementById('idiomaDestino').value;
+    const resultado = document.getElementById('resultado');
+    
+    if (texto.trim() === '') {
+        resultado.textContent = 'Por favor, escribe algún texto para traducir.';
+        return;
+    }
+    
+    resultado.textContent = 'Traducción en desarrollo...';
+    
+    // Simulación de traducción
+    setTimeout(() => {
+        resultado.textContent = `[${origen} → ${destino}] Traducción de: "${texto}"`;
+    }, 500);
+}
+</script>
+{% endblock %}

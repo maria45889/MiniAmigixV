@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Inicio{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h1 style="font-family: var(--font-title); margin-bottom: 0.5rem;">🏠 Bienvenido a MiniAmigixV</h1>
+    <p id="clock" style="font-size: 1.2rem; color: var(--text-muted); margin-bottom: 2.5rem; font-weight: 500;"></p>
+
+    <div class="cards">
+        <a href="{% url 'chat' %}" class="card">
+            <div class="card-icon">💬</div>
+            <div class="card-title">Chat IA</div>
+        </a>
+        <div class="card"><div class="card-icon">🎵</div>Música</div>
+        <div class="card"><div class="card-icon">🎮</div>Juegos</div>
+        <div class="card"><div class="card-icon">📚</div>Estudio</div>
+        <div class="card"><div class="card-icon">🌤️</div>Clima</div>
+        <div class="card"><div class="card-icon">📝</div>Blog</div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateClock() {
+    const now = new Date();
+    document.getElementById("clock").innerText = now.toLocaleTimeString();
+}
+setInterval(updateClock, 1000);
+updateClock();
+</script>
+{% endblock %}

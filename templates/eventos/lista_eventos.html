@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Eventos{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/eventos.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="eventos-container">
+    <h1>📅 Mis Eventos</h1>
+    
+    <div class="eventos-header">
+        <a href="{% url 'crear_evento' %}" class="btn-primary">+ Nuevo Evento</a>
+    </div>
+    
+    <div class="eventos-list">
+        {% for evento in eventos %}
+        <div class="evento-card">
+            <div class="evento-date">
+                <span class="date-day">{{ evento.fecha|date:"d" }}</span>
+                <span class="date-month">{{ evento.fecha|date:"M" }}</span>
+            </div>
+            <div class="evento-info">
+                <h3>{{ evento.titulo }}</h3>
+                <p>{{ evento.descripcion|default:"Sin descripción" }}</p>
+                <span class="evento-time">{{ evento.fecha|date:"H:i" }}</span>
+            </div>
+        </div>
+        {% empty %}
+        <div class="no-eventos">
+            <p>No tienes eventos aún. ¡Crea el primero!</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

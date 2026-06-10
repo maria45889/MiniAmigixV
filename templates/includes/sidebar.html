@@ -1,0 +1,32 @@
+<aside class="sidebar">
+    <div class="sidebar-header">
+        <h1>MiniAmigixV</h1>
+    </div>
+    <nav class="nav-group">
+        <a href="/" class="nav-item active"><i data-lucide="home"></i> Inicio</a>
+        <a href="{% url 'chat' %}" class="nav-item"><i data-lucide="message-square"></i> Chat IA</a>
+        <a href="{% url 'musica' %}" class="nav-item"><i data-lucide="music"></i> Música</a>
+        <a href="{% url 'juegos' %}" class="nav-item"><i data-lucide="gamepad-2"></i> Juegos</a>
+        <a href="{% url 'estudio' %}" class="nav-item"><i data-lucide="book-open"></i> Estudio</a>
+        <a href="{% url 'lista_eventos' %}" class="nav-item"><i data-lucide="calendar"></i> Eventos</a>
+        <a href="{% url 'clima' %}" class="nav-item"><i data-lucide="cloud-sun"></i> Clima</a>
+        <a href="{% url 'traductor' %}" class="nav-item"><i data-lucide="languages"></i> Traductor</a>
+        <a href="{% url 'entretenimiento' %}" class="nav-item"><i data-lucide="sparkles"></i> Entretenimiento</a>
+        <a href="{% url 'blog' %}" class="nav-item"><i data-lucide="file-text"></i> Blog</a>
+        <a href="{% url 'soporte' %}" class="nav-item"><i data-lucide="life-buoy"></i> Soporte</a>
+    </nav>
+    <div class="sidebar-footer">
+        {% if user.is_staff %}
+        <a href="/admin/" class="nav-item" title="Administración"><i data-lucide="shield"></i></a>
+        {% endif %}
+        <a href="{% url 'lista_notificaciones' %}" class="nav-item" title="Notificaciones"><i data-lucide="bell"></i></a>
+        <a href="{% url 'perfil' %}" class="nav-item" title="Perfil"><i data-lucide="user"></i></a>
+        <a href="{% url 'tutorial_home' %}" class="nav-item" title="Tutorial"><i data-lucide="help-circle"></i></a>
+        <a href="{% url 'configuracion_view' %}" class="nav-item" title="Configuración"><i data-lucide="settings"></i></a>
+        {% if user.is_authenticated %}
+        <a href="{% url 'logout' %}" class="nav-item" title="Cerrar sesión"><i data-lucide="log-out"></i></a>
+        {% else %}
+        <a href="{% url 'login' %}" class="nav-item" title="Iniciar sesión"><i data-lucide="log-in"></i></a>
+        {% endif %}
+    </div>
+</aside>

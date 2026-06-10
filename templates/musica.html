@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Música{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/musica.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <h1 style="font-family: var(--font-title); margin-bottom: 2rem;">🎵 Música</h1>
+    
+    <div class="cards">
+        <div class="music-card">
+            <h3>🎤 Letras de Canciones</h3>
+            <p style="color: var(--text-muted);">Busca y encuentra letras de tus canciones favoritas.</p>
+        </div>
+        
+        <div class="music-card">
+            <h3>🎧 Recomendaciones</h3>
+            <p style="color: var(--text-muted);">Descubre nueva música basada en tus gustos.</p>
+        </div>
+        
+        <div class="music-card">
+            <h3>🎹 Información de Artistas</h3>
+            <p style="color: var(--text-muted);">Conoce más sobre tus artistas favoritos.</p>
+        </div>
+        
+        <div class="music-card">
+            <h3>📀 Álbumes</h3>
+            <p style="color: var(--text-muted);">Explora álbumes completos y discografías.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}
