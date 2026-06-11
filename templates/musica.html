@@ -8,29 +8,502 @@
 {% endblock %}
 
 {% block content %}
-<div class="dashboard">
+<div class="music-wrapper">
     <h1 style="font-family: var(--font-title); margin-bottom: 2rem;">🎵 Música</h1>
     
-    <div class="cards">
-        <div class="music-card">
-            <h3>🎤 Letras de Canciones</h3>
-            <p style="color: var(--text-muted);">Busca y encuentra letras de tus canciones favoritas.</p>
+    <div class="music-sections">
+        <!-- Transmisión Lírica -->
+        <div class="music-section">
+            <h2>🎤 Transmisión Lírica</h2>
+            <div id="lyrics-container">
+                <p style="color: var(--text-muted);">Selecciona una canción para ver la letra</p>
+            </div>
         </div>
         
-        <div class="music-card">
-            <h3>🎧 Recomendaciones</h3>
-            <p style="color: var(--text-muted);">Descubre nueva música basada en tus gustos.</p>
+        <!-- Reproductor de YouTube -->
+        <div class="music-section">
+            <h2>🎵 Reproductor</h2>
+            <div class="player-controls">
+                <button class="btn-control" onclick="toggleVideoVisibility()">👁️ Mostrar/Ocultar Video</button>
+                <button class="btn-control" onclick="togglePause()">⏸️ Pausar/Reanudar</button>
+            </div>
+            <div id="youtube-iframe" class="youtube-iframe-container">
+                <p style="color: var(--text-muted);">Selecciona una canción para reproducir</p>
+            </div>
+            <div id="youtube-open-btn" style="display: none; margin-top: 10px; text-align: center;">
+                <button class="btn-primary" onclick="openCurrentInYouTube()">🎬 Ver en YouTube</button>
+            </div>
         </div>
         
-        <div class="music-card">
-            <h3>🎹 Información de Artistas</h3>
-            <p style="color: var(--text-muted);">Conoce más sobre tus artistas favoritos.</p>
+        <!-- Tu Matriz Sonora -->
+        <div class="music-section">
+            <h2>🎧 Tu Matriz Sonora</h2>
+            <div class="playlist-container">
+                <div class="playlist-header">
+                    <span>Playlist</span>
+                    <button class="btn-add" onclick="showAddSongForm()">➕ Añadir Canción</button>
+                </div>
+                
+                <div id="add-song-form" class="add-song-form" style="display: none;">
+                    <input type="text" id="song-name" placeholder="Nombre de la canción" class="music-input">
+                    <input type="text" id="song-artist" placeholder="Artista (opcional)" class="music-input">
+                    <input type="url" id="song-url" placeholder="URL de YouTube (opcional)" class="music-input">
+                    <button class="btn-primary" onclick="addSong()">Añadir</button>
+                    <button class="btn-secondary" onclick="hideAddSongForm()">Cancelar</button>
+                </div>
+                
+                <div class="playlist-items">
+                    {% if request.user.is_authenticated %}
+                        {% for cancion in canciones %}
+                        <div class="playlist-item" data-id="{{ cancion.id }}" data-youtube-id="{{ cancion.youtube_id }}" data-name="{{ cancion.nombre }}" data-artist="{{ cancion.artista|default:"" }}">
+                            <div class="song-info" onclick="playSongFromItem({{ cancion.id }})">
+                                <span class="song-name">{{ cancion.nombre }}</span>
+                                {% if cancion.artista %}
+                                <span class="song-artist">{{ cancion.artista }}</span>
+                                {% endif %}
+                            </div>
+                            <button class="btn-delete" onclick="deleteSong({{ cancion.id }})">🗑️</button>
+                        </div>
+                        {% empty %}
+                        <p style="color: var(--text-muted);">No hay canciones en tu playlist</p>
+                        {% endfor %}
+                    {% else %}
+                        <p style="color: var(--text-muted);">
+                            <a href="{% url 'login' %}">Inicia sesión</a> para gestionar tu playlist
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
         </div>
         
-        <div class="music-card">
-            <h3>📀 Álbumes</h3>
-            <p style="color: var(--text-muted);">Explora álbumes completos y discografías.</p>
+        <!-- Descargador de Música -->
+        <div class="music-section">
+            <h2>📥 Descargador de Música</h2>
+            <div class="downloader-container">
+                <input type="url" id="download-url" placeholder="URL de YouTube" class="music-input">
+                <select id="download-format" class="music-input">
+                    <option value="mp3">MP3 (Audio)</option>
+                    <option value="mp4">MP4 (Video)</option>
+                </select>
+                <button class="btn-primary" onclick="downloadMusic()">📥 Descargar</button>
+                <div id="download-status" style="margin-top: 10px; color: var(--text-muted);"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Chat Flotante -->
+    <div id="chat-float" class="chat-float">
+        <div class="chat-header" onclick="toggleChat()">
+            <span>💬 Chat</span>
+            <span id="chat-toggle">▲</span>
+        </div>
+        <div id="chat-body" class="chat-body" style="display: none;">
+            <div id="chat-messages" class="chat-messages"></div>
+            <div class="chat-input">
+                <input type="text" id="chat-message" placeholder="Escribe un mensaje..." class="music-input">
+                <button class="btn-primary" onclick="sendChatMessage()">Enviar</button>
+            </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Cargar YouTube IFrame API
+var tag = document.createElement('script');
+tag.src = "https://www.youtube.com/iframe_api";
+var firstScriptTag = document.getElementsByTagName('script')[0];
+firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+let currentYoutubeId = null;
+let player = null;
+let isVideoVisible = true;
+let isPaused = false;
+
+function onYouTubeIframeAPIReady() {
+    // La API de YouTube está lista
+    console.log('YouTube IFrame API lista');
+}
+
+function onPlayerError(event) {
+    console.error('Error del reproductor de YouTube:', event.data);
+    // Error 153: No se puede reproducir incrustado
+    if (event.data === 150 || event.data === 153) {
+        const iframeContainer = document.getElementById('youtube-iframe');
+        iframeContainer.innerHTML = `
+            <div style="text-align: center; padding: 20px;">
+                <p style="color: var(--text-muted); margin-bottom: 10px;">Este video no se puede reproducir incrustado debido a restricciones de YouTube.</p>
+                <button class="btn-primary" onclick="openCurrentInYouTube()">🎬 Ver en YouTube</button>
+            </div>
+        `;
+    }
+}
+
+function onPlayerStateChange(event) {
+    // Puedes manejar cambios de estado del reproductor aquí
+}
+
+// ==================== CONTROLES DEL REPRODUCTOR ====================
+function toggleVideoVisibility() {
+    if (!player) {
+        alert('No hay video reproduciéndose');
+        return;
+    }
+    
+    isVideoVisible = !isVideoVisible;
+    const iframeContainer = document.getElementById('youtube-iframe');
+    
+    if (isVideoVisible) {
+        iframeContainer.style.display = 'block';
+    } else {
+        iframeContainer.style.display = 'none';
+    }
+}
+
+function togglePause() {
+    if (!player) {
+        alert('No hay video reproduciéndose');
+        return;
+    }
+    
+    if (isPaused) {
+        player.playVideo();
+        isPaused = false;
+    } else {
+        player.pauseVideo();
+        isPaused = true;
+    }
+}
+
+// ==================== DESCARGADOR DE MÚSICA ====================
+function downloadMusic() {
+    const url = document.getElementById('download-url').value;
+    const format = document.getElementById('download-format').value;
+    const statusDiv = document.getElementById('download-status');
+    
+    if (!url) {
+        alert('Por favor ingresa una URL de YouTube');
+        return;
+    }
+    
+    // Extraer YouTube ID
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s?]+)/);
+    if (!match) {
+        alert('URL de YouTube inválida');
+        return;
+    }
+    
+    const youtubeId = match[1];
+    statusDiv.textContent = 'Preparando descarga...';
+    
+    // Simular descarga (en producción, usarías una API real como yt-dlp)
+    setTimeout(() => {
+        statusDiv.innerHTML = `
+            <p style="color: #22c55e;">✓ Descarga iniciada</p>
+            <p style="font-size: 12px; color: var(--text-muted);">Formato: ${format.toUpperCase()}</p>
+            <p style="font-size: 12px; color: var(--text-muted);">Video ID: ${youtubeId}</p>
+            <p style="font-size: 12px; color: var(--text-muted);">Nota: Esta es una simulación. En producción, se usaría una API real como yt-dlp.</p>
+        `;
+    }, 2000);
+}
+
+// ==================== CHAT FLOTANTE ====================
+function toggleChat() {
+    const chatBody = document.getElementById('chat-body');
+    const chatToggle = document.getElementById('chat-toggle');
+    
+    if (chatBody.style.display === 'none') {
+        chatBody.style.display = 'block';
+        chatToggle.textContent = '▼';
+    } else {
+        chatBody.style.display = 'none';
+        chatToggle.textContent = '▲';
+    }
+}
+
+function sendChatMessage() {
+    const messageInput = document.getElementById('chat-message');
+    const message = messageInput.value.trim();
+    const messagesDiv = document.getElementById('chat-messages');
+    
+    if (!message) {
+        return;
+    }
+    
+    // Agregar mensaje del usuario
+    const userMessage = document.createElement('div');
+    userMessage.className = 'chat-message user';
+    userMessage.textContent = message;
+    messagesDiv.appendChild(userMessage);
+    
+    // Limpiar input
+    messageInput.value = '';
+    
+    // Simular respuesta del sistema
+    setTimeout(() => {
+        const systemMessage = document.createElement('div');
+        systemMessage.className = 'chat-message system';
+        systemMessage.textContent = '¡Gracias por tu mensaje! Este es un chat simulado.';
+        messagesDiv.appendChild(systemMessage);
+        
+        // Scroll al final
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }, 1000);
+    
+    // Scroll al final
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+function searchLyrics() {
+    const container = document.getElementById('lyrics-container');
+    container.innerHTML = '<p style="color: var(--text-muted);">Buscando letra...</p>';
+    // Aquí puedes implementar la búsqueda de letras
+    setTimeout(() => {
+        container.innerHTML = '<p style="color: var(--text-muted);">No se encontró la letra. Prueba con otra canción.</p><button class="btn-primary" onclick="searchLyrics()">🔍 Buscar Letra</button>';
+    }, 1000);
+}
+
+function showAddSongForm() {
+    document.getElementById('add-song-form').style.display = 'block';
+}
+
+function hideAddSongForm() {
+    document.getElementById('add-song-form').style.display = 'none';
+    document.getElementById('song-name').value = '';
+    document.getElementById('song-artist').value = '';
+    document.getElementById('song-url').value = '';
+}
+
+function addSong() {
+    const name = document.getElementById('song-name').value;
+    const artist = document.getElementById('song-artist').value;
+    const url = document.getElementById('song-url').value;
+    
+    if (!name) {
+        alert('Por favor ingresa el nombre de la canción');
+        return;
+    }
+    
+    // Extraer YouTube ID si se proporciona URL
+    let youtubeId = null;
+    if (url) {
+        const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s?]+)/);
+        if (match) {
+            youtubeId = match[1];
+        }
+    }
+    
+    fetch('/api/add-song/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            nombre: name,
+            artista: artist,
+            youtube_url: url,
+            youtube_id: youtubeId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error al añadir la canción: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al añadir la canción');
+    });
+}
+
+function deleteSong(songId) {
+    if (!confirm('¿Estás seguro de eliminar esta canción?')) {
+        return;
+    }
+    
+    fetch(`/api/delete-song/${songId}/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error al eliminar la canción: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al eliminar la canción');
+    });
+}
+
+function playSongFromItem(songId) {
+    const item = document.querySelector(`.playlist-item[data-id="${songId}"]`);
+    const youtubeId = item.dataset.youtubeId;
+    const songName = item.dataset.name;
+    const artist = item.dataset.artist;
+    
+    if (!youtubeId) {
+        alert('Esta canción no tiene video de YouTube');
+        return;
+    }
+    
+    // Guardar el ID de YouTube actual
+    currentYoutubeId = youtubeId;
+    
+    // Mostrar el botón de YouTube
+    document.getElementById('youtube-open-btn').style.display = 'block';
+    
+    // Crear nuevo reproductor con YouTube IFrame API
+    if (player) {
+        player.destroy();
+    }
+    
+    player = new YT.Player('youtube-iframe', {
+        height: '400',
+        width: '100%',
+        videoId: youtubeId,
+        playerVars: {
+            'autoplay': 1,
+            'rel': 0,
+            'modestbranding': 1,
+            'iv_load_policy': 3,
+            'disablekb': 1,
+            'fs': 0,
+            'origin': window.location.origin
+        },
+        events: {
+            'onError': onPlayerError,
+            'onStateChange': onPlayerStateChange
+        }
+    });
+    
+    // Buscar letra automáticamente
+    searchLyricsForSong(songName, artist);
+}
+
+function playSong(youtubeId) {
+    if (!youtubeId) {
+        alert('Esta canción no tiene video de YouTube');
+        return;
+    }
+    
+    // Guardar el ID de YouTube actual
+    currentYoutubeId = youtubeId;
+    
+    // Mostrar el botón de YouTube
+    document.getElementById('youtube-open-btn').style.display = 'block';
+    
+    // Crear nuevo reproductor con YouTube IFrame API
+    if (player) {
+        player.destroy();
+    }
+    
+    player = new YT.Player('youtube-iframe', {
+        height: '400',
+        width: '100%',
+        videoId: youtubeId,
+        playerVars: {
+            'autoplay': 1,
+            'rel': 0,
+            'modestbranding': 1,
+            'iv_load_policy': 3,
+            'disablekb': 1,
+            'fs': 0,
+            'origin': window.location.origin
+        },
+        events: {
+            'onError': onPlayerError,
+            'onStateChange': onPlayerStateChange
+        }
+    });
+}
+
+function openCurrentInYouTube() {
+    if (currentYoutubeId) {
+        window.open(`https://www.youtube.com/watch?v=${currentYoutubeId}`, '_blank');
+    }
+}
+
+function openInYouTube(youtubeId) {
+    window.open(`https://www.youtube.com/watch?v=${youtubeId}`, '_blank');
+}
+
+function closePlayer() {
+    if (player) {
+        player.destroy();
+        player = null;
+    }
+    document.getElementById('youtube-open-btn').style.display = 'none';
+    currentYoutubeId = null;
+    document.getElementById('youtube-iframe').innerHTML = '<p style="color: var(--text-muted);">Selecciona una canción para reproducir</p>';
+}
+
+function searchLyricsForSong(songName, artist) {
+    const lyricsContainer = document.getElementById('lyrics-container');
+    lyricsContainer.innerHTML = '<p style="color: var(--text-muted);">Buscando letra...</p>';
+    
+    const searchTerm = artist ? `${songName} - ${artist}` : songName;
+    
+    // Simular búsqueda de letras (puedes integrar con una API real)
+    setTimeout(() => {
+        lyricsContainer.innerHTML = `
+            <p style="color: var(--text-muted);">Letra no disponible automáticamente para "${searchTerm}".</p>
+            <button class="btn-primary" onclick="searchLyricsManually('${searchTerm}')">🔍 Buscar letra manualmente</button>
+        `;
+    }, 1500);
+}
+
+function searchLyricsManually(searchTerm = '') {
+    const lyricsContainer = document.getElementById('lyrics-container');
+    lyricsContainer.innerHTML = `
+        <input type="text" id="manual-lyrics-search" placeholder="Canción - Artista" class="music-input" style="width: 100%; margin-bottom: 10px;" value="${searchTerm}">
+        <button class="btn-primary" onclick="performManualSearch()">🔍 Buscar</button>
+    `;
+}
+
+function performManualSearch() {
+    const searchTerm = document.getElementById('manual-lyrics-search').value;
+    const lyricsContainer = document.getElementById('lyrics-container');
+    
+    if (!searchTerm) {
+        alert('Por favor ingresa el nombre de la canción');
+        return;
+    }
+    
+    lyricsContainer.innerHTML = '<p style="color: var(--text-muted);">Buscando letra...</p>';
+    
+    // Simular búsqueda (puedes integrar con API de letras como Genius)
+    setTimeout(() => {
+        lyricsContainer.innerHTML = `
+            <p style="color: var(--text-muted);">No se encontró la letra para "${searchTerm}".</p>
+            <button class="btn-primary" onclick="searchLyricsManually('${searchTerm}')">🔍 Intentar otra búsqueda</button>
+        `;
+    }, 1500);
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(name + "=")) {
+                cookieValue = decodeURIComponent(cookie.split("=")[1]);
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
 {% endblock %}

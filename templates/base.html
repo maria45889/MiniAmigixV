@@ -5,10 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MiniAmigixV - {% block title %}Bienvenido{% endblock %}</title>
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
     <!-- Fuentes: Syne para títulos, Inter para UI -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syne:wght@700&display=swap" rel="stylesheet">
-    <!-- Iconos: Lucide -->
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Iconos: Lucide (Se recomienda descargar y servir localmente para evitar 'Tracking Prevention') -->
+    <script src="https://unpkg.com/lucide@0.400.0/dist/umd/lucide.min.js"></script>
+    <!-- Iconos: Tabler (Nuevo diseño) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
     <!-- CSS Principal -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     {% block extra_css %}{% endblock %}

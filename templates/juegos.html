@@ -9,31 +9,90 @@
 
 {% block content %}
 <div class="dashboard">
-    <h1 style="font-family: var(--font-title); margin-bottom: 2rem;">🎮 Juegos</h1>
+    <div class="games-header" style="margin-bottom: 3rem; text-align: center;">
+        <h1 style="font-family: var(--font-title); font-size: 3rem; margin-bottom: 0.5rem;">🎮 Juegos</h1>
+        <p style="color: var(--text-muted); font-size: 1.1rem;">Selecciona un desafío y pon a prueba tus habilidades</p>
+    </div>
     
     <div class="game-grid">
-        <a href="#" class="game-card">
-            <div style="font-size: 3rem; margin-bottom: 10px;">🧩</div>
-            <h3>Adivinanza</h3>
-            <p style="color: var(--text-muted); font-size: 0.9rem;">Adivina la palabra oculta</p>
+        <!-- Adivinanza -->
+        <a href="{% url 'estudio' %}?game=adivinanza" class="game-card">
+            <div class="game-icon-wrapper" style="background: rgba(124, 58, 237, 0.1); border-radius: 20px; padding: 20px; margin-bottom: 15px;">
+                <div style="font-size: 3.5rem;">🧩</div>
+            </div>
+            <h3 style="font-size: 1.5rem; margin-bottom: 8px;">Adivinanza</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">Resuelve los acertijos más difíciles.</p>
+            <div class="game-tag" style="margin-top: 15px; font-size: 0.8rem; font-weight: bold; color: #7c3aed; text-transform: uppercase; letter-spacing: 1px;">Lógica</div>
         </a>
         
-        <a href="#" class="game-card">
-            <div style="font-size: 3rem; margin-bottom: 10px;">❓</div>
-            <h3>Quiz</h3>
-            <p style="color: var(--text-muted); font-size: 0.9rem;">Pon a prueba tus conocimientos</p>
+        <!-- Quiz -->
+        <a href="{% url 'estudio' %}?game=quiz" class="game-card">
+            <div class="game-icon-wrapper" style="background: rgba(59, 130, 246, 0.1); border-radius: 20px; padding: 20px; margin-bottom: 15px;">
+                <div style="font-size: 3.5rem;">❓</div>
+            </div>
+            <h3 style="font-size: 1.5rem; margin-bottom: 8px;">Quiz Master</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">¿Qué tanto sabes del mundo?</p>
+            <div class="game-tag" style="margin-top: 15px; font-size: 0.8rem; font-weight: bold; color: #3b82f6; text-transform: uppercase; letter-spacing: 1px;">Cultura</div>
         </a>
         
-        <a href="#" class="game-card">
-            <div style="font-size: 3rem; margin-bottom: 10px;">🎯</div>
-            <h3>Memoria</h3>
-            <p style="color: var(--text-muted); font-size: 0.9rem;">Encuentra las parejas</p>
+        <!-- Memoria -->
+        <a href="{% url 'estudio' %}?game=memoria" class="game-card">
+            <div class="game-icon-wrapper" style="background: rgba(236, 72, 153, 0.1); border-radius: 20px; padding: 20px; margin-bottom: 15px;">
+                <div style="font-size: 3.5rem;">🎯</div>
+            </div>
+            <h3 style="font-size: 1.5rem; margin-bottom: 8px;">Memoria</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">Encuentra los pares idénticos.</p>
+            <div class="game-tag" style="margin-top: 15px; font-size: 0.8rem; font-weight: bold; color: #ec4899; text-transform: uppercase; letter-spacing: 1px;">Agilidad</div>
         </a>
         
-        <a href="#" class="game-card">
-            <div style="font-size: 3rem; margin-bottom: 10px;">🔢</div>
-            <h3>Matemáticas</h3>
-            <p style="color: var(--text-muted); font-size: 0.9rem;">Resuelve operaciones rápidas</p>
+        <!-- Matemáticas -->
+        <a href="{% url 'estudio' %}?game=matematicas" class="game-card">
+            <div class="game-icon-wrapper" style="background: rgba(34, 197, 94, 0.1); border-radius: 20px; padding: 20px; margin-bottom: 15px;">
+                <div style="font-size: 3.5rem;">🔢</div>
+            </div>
+            <h3 style="font-size: 1.5rem; margin-bottom: 8px;">Mente Rápida</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">Cálculos mentales veloces.</p>
+            <div class="game-tag" style="margin-top: 15px; font-size: 0.8rem; font-weight: bold; color: #22c55e; text-transform: uppercase; letter-spacing: 1px;">Números</div>
+        </a>
+
+        <!-- Reflejos (Nuevo) -->
+        <a href="{% url 'estudio' %}?game=reflejos" class="game-card">
+            <div class="game-icon-wrapper" style="background: rgba(245, 158, 11, 0.1); border-radius: 20px; padding: 20px; margin-bottom: 15px;">
+                <div style="font-size: 3.5rem;">⚡</div>
+            </div>
+            <h3 style="font-size: 1.5rem; margin-bottom: 8px;">Reflejos</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">Haz clic lo más rápido posible.</p>
+            <div class="game-tag" style="margin-top: 15px; font-size: 0.8rem; font-weight: bold; color: #f59e0b; text-transform: uppercase; letter-spacing: 1px;">Velocidad</div>
+        </a>
+
+        <!-- Fidget Spinner (Nuevo) -->
+        <a href="{% url 'estudio' %}?game=fidget" class="game-card">
+            <div class="game-icon-wrapper" style="background: rgba(6, 182, 212, 0.1); border-radius: 20px; padding: 20px; margin-bottom: 15px;">
+                <div style="font-size: 3.5rem;">🌀</div>
+            </div>
+            <h3 style="font-size: 1.5rem; margin-bottom: 8px;">Fidget</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">Relájate girando el spinner.</p>
+            <div class="game-tag" style="margin-top: 15px; font-size: 0.8rem; font-weight: bold; color: #06b6d4; text-transform: uppercase; letter-spacing: 1px;">Relax</div>
+        </a>
+
+        <!-- Snake (Nuevo Extra) -->
+        <a href="{% url 'estudio' %}?game=snake" class="game-card">
+            <div class="game-icon-wrapper" style="background: rgba(139, 92, 246, 0.1); border-radius: 20px; padding: 20px; margin-bottom: 15px;">
+                <div style="font-size: 3.5rem;">🐍</div>
+            </div>
+            <h3 style="font-size: 1.5rem; margin-bottom: 8px;">Snake</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">El clásico juego de la serpiente.</p>
+            <div class="game-tag" style="margin-top: 15px; font-size: 0.8rem; font-weight: bold; color: #8b5cf6; text-transform: uppercase; letter-spacing: 1px;">Retro</div>
+        </a>
+
+        <!-- Respiración (Nuevo para Relax) -->
+        <a href="{% url 'estudio' %}?game=respiracion" class="game-card">
+            <div class="game-icon-wrapper" style="background: rgba(45, 212, 191, 0.1); border-radius: 20px; padding: 20px; margin-bottom: 15px;">
+                <div style="font-size: 3.5rem;">🌬️</div>
+            </div>
+            <h3 style="font-size: 1.5rem; margin-bottom: 8px;">Respiración</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem;">Relájate y encuentra tu centro.</p>
+            <div class="game-tag" style="margin-top: 15px; font-size: 0.8rem; font-weight: bold; color: #2dd4bf; text-transform: uppercase; letter-spacing: 1px;">Mindfulness</div>
         </a>
     </div>
 </div>

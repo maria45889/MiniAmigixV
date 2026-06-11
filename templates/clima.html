@@ -11,48 +11,42 @@
 <div class="dashboard">
     <h1 style="font-family: var(--font-title); margin-bottom: 2rem;">🌤️ Clima</h1>
     
-    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-        <div class="weather-card">
-            <div style="font-size: 4rem; margin-bottom: 10px;">☀️</div>
-            <h2 style="color: #fbbf24; margin: 0;">25°C</h2>
-            <p style="color: var(--text-muted); margin: 10px 0;">Soleado</p>
-            <p style="font-size: 0.9rem; color: var(--text-muted);">Humedad: 45%</p>
-            <p style="font-size: 0.9rem; color: var(--text-muted);">Viento: 12 km/h</p>
-        </div>
-        
-        <div class="weather-card">
-            <div style="font-size: 4rem; margin-bottom: 10px;">🌧️</div>
-            <h2 style="color: #06b6d4; margin: 0;">18°C</h2>
-            <p style="color: var(--text-muted); margin: 10px 0;">Lluvia</p>
-            <p style="font-size: 0.9rem; color: var(--text-muted);">Humedad: 80%</p>
-            <p style="font-size: 0.9rem; color: var(--text-muted);">Viento: 8 km/h</p>
-        </div>
-        
-        <div class="weather-card">
-            <div style="font-size: 4rem; margin-bottom: 10px;">⛅</div>
-            <h2 style="color: #94a3b8; margin: 0;">22°C</h2>
-            <p style="color: var(--text-muted); margin: 10px 0;">Parcialmente nublado</p>
-            <p style="font-size: 0.9rem; color: var(--text-muted);">Humedad: 60%</p>
-            <p style="font-size: 0.9rem; color: var(--text-muted);">Viento: 15 km/h</p>
+    {% if datos_clima %}
+    <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 2rem;">
+        <div class="weather-card" style="min-width: 300px;">
+            <div style="font-size: 4rem; margin-bottom: 10px;">
+                {% if "rain" in datos_clima.weather.0.main.lower %}🌧️
+                {% elif "cloud" in datos_clima.weather.0.main.lower %}☁️
+                {% else %}☀️{% endif %}
+            </div>
+            <h2 style="color: #fbbf24; margin: 0;">{{ datos_clima.main.temp }}°C</h2>
+            <p style="color: var(--text-main); font-weight: bold; margin: 10px 0; text-transform: capitalize;">
+                {{ datos_clima.name }}: {{ datos_clima.weather.0.description }}
+            </p>
+            <p style="font-size: 0.9rem; color: var(--text-muted);">Humedad: {{ datos_clima.main.humidity }}%</p>
+            <p style="font-size: 0.9rem; color: var(--text-muted);">Viento: {{ datos_clima.wind.speed }} km/h</p>
         </div>
     </div>
+    {% elif error %}
+    <div style="padding: 15px; background: rgba(239, 68, 68, 0.1); border-radius: 8px; color: #ef4444; margin-bottom: 2rem;">
+        {{ error }}
+    </div>
+    {% else %}
+    <p style="color: var(--text-muted); margin-bottom: 2rem;">Ingresa una ciudad abajo para obtener el reporte meteorológico en tiempo real.</p>
+    {% endif %}
     
     <div style="margin-top: 30px; background: #111c2e; padding: 20px; border-radius: 12px; color: white;">
         <h3 style="color: #7c3aed; margin-top: 0;">Buscar clima de otra ciudad</h3>
-        <div style="display: flex; gap: 10px; margin-top: 15px;">
-            <input type="text" id="ciudadInput" placeholder="Nombre de la ciudad..." style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: #0f172a; color: white;">
-            <button onclick="buscarClima()" style="padding: 10px 20px; background: var(--accent-gradient); color: white; border: none; border-radius: 8px; cursor: pointer;">Buscar</button>
-        </div>
+        <form method="GET" action="{% url 'clima' %}" style="display: flex; gap: 10px; margin-top: 15px;"> 
+            <input type="text" name="ciudad" value="{{ ciudad }}" placeholder="Ej: Quito, Madrid, New York..." style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: #0f172a; color: white;" required>
+            <button type="submit" style="padding: 10px 20px; background: var(--accent-gradient); color: white; border: none; border-radius: 8px; cursor: pointer;">Buscar</button>
+        </form>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-function buscarClima() {
-    const ciudad = document.getElementById('ciudadInput').value;
-    if (ciudad.trim() === '') return;
-    alert('Función de clima en desarrollo. Ciudad: ' + ciudad);
-}
+// Eliminamos la alerta anterior para que el formulario funcione correctamente
 </script>
 {% endblock %}

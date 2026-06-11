@@ -11,49 +11,893 @@
 <div class="dashboard">
     <h1 style="font-family: var(--font-title); margin-bottom: 2rem;">📚 Estudio</h1>
     
-    <div class="nota-card">
-        <h3>📝 Resumen de Texto</h3>
-        <p style="color: var(--text-muted);">Pega tu texto aquí para obtener un resumen automático.</p>
-        <textarea id="textoInput" rows="6" placeholder="Escribe o pega el texto que quieres resumir..."></textarea>
-        <button onclick="resumirTexto()" style="margin-top: 10px; padding: 10px 20px; background: var(--accent-gradient); color: white; border: none; border-radius: 8px; cursor: pointer;">Resumir</button>
-        <div id="resumenOutput" class="resumen-output" style="display: none;"></div>
-    </div>
-    
-    <div class="nota-card">
-        <h3>💡 Notas Rápidas</h3>
-        <input type="text" id="notaInput" placeholder="Escribe una nota rápida...">
-        <button onclick="guardarNota()" style="margin-top: 10px; padding: 10px 20px; background: var(--accent-gradient); color: white; border: none; border-radius: 8px; cursor: pointer;">Guardar</button>
-        <div id="notasGuardadas" style="margin-top: 15px;"></div>
+    <div class="study-grid">
+        <!-- Resumen de Texto -->
+        <div class="nota-card">
+            <h3>📝 Resumen de Texto</h3>
+            <p style="color: var(--text-muted);">Pega tu texto aquí para obtener un resumen automático usando IA.</p>
+            <textarea id="textoInput" rows="6" placeholder="Escribe o pega el texto que quieres resumir..."></textarea>
+            <button onclick="resumirTexto()" style="margin-top: 10px; padding: 10px 20px; background: var(--accent-gradient); color: white; border: none; border-radius: 8px; cursor: pointer;">🤖 Resumir con IA</button>
+            <div id="resumenOutput" class="resumen-output" style="display: none;"></div>
+        </div>
+        
+        <!-- Mini Calendario -->
+        <div class="nota-card">
+            <h3>� Mini Calendario</h3>
+            <div id="mini-calendario" class="mini-calendario">
+                <div class="calendar-header">
+                    <button onclick="cambiarMes(-1)" class="calendar-nav">◀</button>
+                    <span id="calendar-mes-ano"></span>
+                    <button onclick="cambiarMes(1)" class="calendar-nav">▶</button>
+                </div>
+                <div class="calendar-dias-semana">
+                    <span>Dom</span><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span>
+                </div>
+                <div id="calendar-dias" class="calendar-dias"></div>
+            </div>
+        </div>
+        
+        <!-- Notas Rápidas -->
+        <div class="nota-card">
+            <h3>�💡 Notas Rápidas</h3>
+            <input type="text" id="notaInput" placeholder="Escribe una nota rápida...">
+            <button onclick="guardarNota()" style="margin-top: 10px; padding: 10px 20px; background: var(--accent-gradient); color: white; border: none; border-radius: 8px; cursor: pointer;">💾 Guardar</button>
+            <div id="notasGuardadas" style="margin-top: 15px;"></div>
+        </div>
+        
+        <!-- Mini Juegos Educativos -->
+        <div class="nota-card">
+            <h3>🎮 Juegos Psicológicos</h3>
+            <div class="juegos-container">
+                <button onclick="iniciarJuegoAdivinanza()" class="juego-btn">🧩 Adivinanza</button>
+                <button onclick="iniciarJuegoQuiz()" class="juego-btn">❓ Quiz</button>
+                <button onclick="iniciarJuegoMemoria()" class="juego-btn">🎯 Memoria</button>
+                <button onclick="iniciarJuegoMatematicas()" class="juego-btn">🔢 Matemáticas</button>
+                <button onclick="iniciarJuegoReflejos()" class="juego-btn">⚡ Reflejos</button>
+                <button onclick="iniciarJuegoFidget()" class="juego-btn">🌀 Fidget</button>
+                <button onclick="iniciarJuegoRespiracion()" class="juego-btn" style="background: #2dd4bf; color: white;">🌬️ Respirar</button>
+            </div>
+            <div id="juego-container" style="display: none; margin-top: 15px;"></div>
+        </div>
+        
+        <!-- Historial de Resúmenes -->
+        <div class="nota-card">
+            <h3>📋 Historial de Resúmenes</h3>
+            <div id="resumenesGuardados" style="margin-top: 15px;"></div>
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
+// Variables del calendario
+let fechaActual = new Date();
+let mesActual = fechaActual.getMonth();
+let anoActual = fechaActual.getFullYear();
+
+// Cargar notas, resúmenes y calendario al iniciar
+document.addEventListener('DOMContentLoaded', function() {
+    cargarNotas();
+    cargarResumenes();
+    renderizarCalendario();
+});
+
+// ==================== CALENDARIO ====================
+function renderizarCalendario() {
+    const primerDia = new Date(anoActual, mesActual, 1);
+    const ultimoDia = new Date(anoActual, mesActual + 1, 0);
+    const diasMes = ultimoDia.getDate();
+    const diaSemana = primerDia.getDay();
+    
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    
+    document.getElementById('calendar-mes-ano').textContent = `${meses[mesActual]} ${anoActual}`;
+    
+    let html = '';
+    
+    // Días vacíos antes del primer día del mes
+    for (let i = 0; i < diaSemana; i++) {
+        html += '<div class="calendar-dia empty"></div>';
+    }
+    
+    // Días del mes
+    const hoy = new Date();
+    for (let dia = 1; dia <= diasMes; dia++) {
+        const esHoy = dia === hoy.getDate() && mesActual === hoy.getMonth() && anoActual === hoy.getFullYear();
+        html += `<div class="calendar-dia ${esHoy ? 'hoy' : ''}">${dia}</div>`;
+    }
+    
+    document.getElementById('calendar-dias').innerHTML = html;
+}
+
+function cambiarMes(delta) {
+    mesActual += delta;
+    if (mesActual > 11) {
+        mesActual = 0;
+        anoActual++;
+    } else if (mesActual < 0) {
+        mesActual = 11;
+        anoActual--;
+    }
+    renderizarCalendario();
+}
+
+// ==================== JUEGOS PSICOLÓGICOS ====================
+function iniciarJuegoAdivinanza() {
+    const container = document.getElementById('juego-container');
+    container.style.display = 'block';
+    
+    const adivinanzas = [
+        { pregunta: "¿Qué es lo que cuanto más quitas más grande es?", respuesta: "agujero" },
+        { pregunta: "¿Qué tiene cuello pero no cabeza?", respuesta: "botella" },
+        { pregunta: "¿Qué tiene dientes pero no come?", respuesta: "peine" },
+        { pregunta: "¿Qué sube pero nunca baja?", respuesta: "edad" },
+        { pregunta: "¿Qué tiene llaves pero no abre puertas?", respuesta: "piano" },
+        { pregunta: "¿Qué tiene ojos pero no ve?", respuesta: "aguja" },
+        { pregunta: "¿Qué tiene patas pero no camina?", respuesta: "mesa" },
+        { pregunta: "¿Qué tiene cara pero no ojos?", respuesta: "reloj" }
+    ];
+    
+    const adivinanza = adivinanzas[Math.floor(Math.random() * adivinanzas.length)];
+    window.adivinanzaActual = adivinanza;
+    window.adivinanzasIntentos = 3;
+    
+    container.innerHTML = `
+        <h4>🧩 Juego de Adivinanzas</h4>
+        <p>¡Adivina la respuesta!</p>
+        <div style="background: rgba(124, 58, 237, 0.1); padding: 20px; border-radius: 8px; margin: 15px 0; font-size: 18px; font-weight: 600;">${adivinanza.pregunta}</div>
+        <input type="text" id="adivinanza-respuesta" placeholder="Tu respuesta" style="padding: 10px; width: 100%; margin-bottom: 10px; background: var(--bg-dark); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 8px;">
+        <button onclick="verificarAdivinanza()" style="padding: 10px 20px; background: var(--accent-gradient); color: white; border: none; border-radius: 8px; cursor: pointer;">Verificar</button>
+        <p style="margin-top: 10px;">Intentos restantes: <span id="adivinanza-intentos">${window.adivinanzasIntentos}</span></p>
+        <button onclick="cerrarJuego()" style="margin-top: 10px; padding: 8px 16px; background: var(--border-color); color: var(--text-main); border: none; border-radius: 8px; cursor: pointer;">Cerrar</button>
+    `;
+}
+
+function verificarAdivinanza() {
+    const respuesta = document.getElementById('adivinanza-respuesta').value.toLowerCase().trim();
+    
+    if (respuesta === window.adivinanzaActual.respuesta.toLowerCase()) {
+        alert('¡Correcto! ¡Felicidades!');
+        iniciarJuegoAdivinanza();
+    } else {
+        window.adivinanzasIntentos--;
+        document.getElementById('adivinanza-intentos').textContent = window.adivinanzasIntentos;
+        
+        if (window.adivinanzasIntentos <= 0) {
+            alert(`Se acabaron los intentos. La respuesta era: ${window.adivinanzaActual.respuesta}`);
+            iniciarJuegoAdivinanza();
+        } else {
+            alert('Incorrecto. Intenta de nuevo.');
+            document.getElementById('adivinanza-respuesta').value = '';
+        }
+    }
+}
+
+function iniciarJuegoQuiz() {
+    const container = document.getElementById('juego-container');
+    container.style.display = 'block';
+    
+    const preguntas = [
+        { pregunta: "¿Cuál es el planeta más grande del sistema solar?", opciones: ["Tierra", "Júpiter", "Saturno", "Marte"], correcta: 1 },
+        { pregunta: "¿Cuántos continentes hay en el mundo?", opciones: ["5", "6", "7", "8"], correcta: 2 },
+        { pregunta: "¿Cuál es el océano más grande?", opciones: ["Atlántico", "Índico", "Pacífico", "Ártico"], correcta: 2 },
+        { pregunta: "¿En qué año llegó el hombre a la luna?", opciones: ["1965", "1969", "1972", "1975"], correcta: 1 },
+        { pregunta: "¿Cuál es el animal más rápido del mundo?", opciones: ["León", "Guepardo", "Caballo", "Águila"], correcta: 1 },
+        { pregunta: "¿Cuántos huesos tiene el cuerpo humano adulto?", opciones: ["186", "206", "226", "246"], correcta: 1 },
+        { pregunta: "¿Cuál es el elemento más abundante en la Tierra?", opciones: ["Carbono", "Oxígeno", "Hierro", "Silicio"], correcta: 1 },
+        { pregunta: "¿Quién pintó la Mona Lisa?", opciones: ["Van Gogh", "Picasso", "Da Vinci", "Miguel Ángel"], correcta: 2 }
+    ];
+    
+    window.quizPreguntas = preguntas.sort(() => Math.random() - 0.5).slice(0, 5);
+    window.quizIndice = 0;
+    window.quizPuntuacion = 0;
+    
+    mostrarPreguntaQuiz();
+}
+
+function mostrarPreguntaQuiz() {
+    const container = document.getElementById('juego-container');
+    const pregunta = window.quizPreguntas[window.quizIndice];
+    
+    container.innerHTML = `
+        <h4>❓ Juego de Quiz</h4>
+        <p>Pregunta ${window.quizIndice + 1} de ${window.quizPreguntas.length}</p>
+        <p style="font-size: 18px; font-weight: 600; margin: 15px 0;">${pregunta.pregunta}</p>
+        <div id="quiz-opciones" style="display: flex; flex-direction: column; gap: 10px;"></div>
+        <p style="margin-top: 10px;">Puntuación: <span id="quiz-puntuacion">${window.quizPuntuacion}</span></p>
+        <button onclick="cerrarJuego()" style="margin-top: 10px; padding: 8px 16px; background: var(--border-color); color: var(--text-main); border: none; border-radius: 8px; cursor: pointer;">Cerrar</button>
+    `;
+    
+    const opcionesContainer = document.getElementById('quiz-opciones');
+    pregunta.opciones.forEach((opcion, index) => {
+        const boton = document.createElement('button');
+        boton.textContent = opcion;
+        boton.style.cssText = 'padding: 12px 20px; background: var(--bg-dark); color: var(--text-main); border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: background 0.2s;';
+        boton.onclick = () => verificarRespuestaQuiz(index);
+        boton.onmouseover = () => boton.style.background = 'rgba(124, 58, 237, 0.2)';
+        boton.onmouseout = () => boton.style.background = 'var(--bg-dark)';
+        opcionesContainer.appendChild(boton);
+    });
+}
+
+function verificarRespuestaQuiz(indice) {
+    const pregunta = window.quizPreguntas[window.quizIndice];
+    
+    if (indice === pregunta.correcta) {
+        window.quizPuntuacion += 20;
+        alert('¡Correcto! +20 puntos');
+    } else {
+        alert(`Incorrecto. La respuesta correcta era: ${pregunta.opciones[pregunta.correcta]}`);
+    }
+    
+    window.quizIndice++;
+    document.getElementById('quiz-puntuacion').textContent = window.quizPuntuacion;
+    
+    if (window.quizIndice < window.quizPreguntas.length) {
+        mostrarPreguntaQuiz();
+    } else {
+        alert(`¡Quiz completado! Tu puntuación final: ${window.quizPuntuacion} puntos`);
+        iniciarJuegoQuiz();
+    }
+}
+
+function iniciarJuegoMemoria() {
+    const container = document.getElementById('juego-container');
+    container.style.display = 'block';
+    container.innerHTML = `
+        <h4>🎯 Juego de Memoria</h4>
+        <p>Encuentra los pares de cartas iguales.</p>
+        <div id="memoria-grid" class="memoria-grid"></div>
+        <p style="margin-top: 10px;">Movimientos: <span id="memoria-movimientos">0</span></p>
+        <button onclick="cerrarJuego()" style="margin-top: 10px; padding: 8px 16px; background: var(--border-color); color: var(--text-main); border: none; border-radius: 8px; cursor: pointer;">Cerrar</button>
+    `;
+    
+    const emojis = ['🎮', '🎯', '🎲', '🎪', '🎨', '🎭', '🚀', '⭐'];
+    const cartas = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+    
+    let movimientos = 0;
+    let primeraCarta = null;
+    let segundaCarta = null;
+    let bloqueado = false;
+    
+    const grid = document.getElementById('memoria-grid');
+    cartas.forEach((emoji, index) => {
+        const carta = document.createElement('div');
+        carta.className = 'memoria-carta';
+        carta.dataset.emoji = emoji;
+        carta.dataset.index = index;
+        carta.innerHTML = '?';
+        carta.onclick = () => voltearCarta(carta);
+        grid.appendChild(carta);
+    });
+    
+    function voltearCarta(carta) {
+        if (bloqueado || carta.classList.contains('volteada') || carta.classList.contains('encontrada')) return;
+        
+        carta.innerHTML = carta.dataset.emoji;
+        carta.classList.add('volteada');
+        
+        if (!primeraCarta) {
+            primeraCarta = carta;
+        } else {
+            segundaCarta = carta;
+            movimientos++;
+            document.getElementById('memoria-movimientos').textContent = movimientos;
+            
+            if (primeraCarta.dataset.emoji === segundaCarta.dataset.emoji) {
+                primeraCarta.classList.add('encontrada');
+                segundaCarta.classList.add('encontrada');
+                primeraCarta = null;
+                segundaCarta = null;
+                
+                if (document.querySelectorAll('.memoria-carta.encontrada').length === cartas.length) {
+                    setTimeout(() => alert(`¡Felicidades! Completaste el juego en ${movimientos} movimientos.`), 500);
+                }
+            } else {
+                bloqueado = true;
+                setTimeout(() => {
+                    primeraCarta.innerHTML = '?';
+                    segundaCarta.innerHTML = '?';
+                    primeraCarta.classList.remove('volteada');
+                    segundaCarta.classList.remove('volteada');
+                    primeraCarta = null;
+                    segundaCarta = null;
+                    bloqueado = false;
+                }, 1000);
+            }
+        }
+    }
+}
+
+function iniciarJuegoMatematicas() {
+    const container = document.getElementById('juego-container');
+    container.style.display = 'block';
+    
+    generarPreguntaMatematica();
+    
+    container.innerHTML = `
+        <h4>🔢 Juego de Matemáticas</h4>
+        <p>Resuelve las operaciones matemáticas.</p>
+        <div id="matematicas-pregunta" style="font-size: 24px; font-weight: bold; margin: 15px 0;"></div>
+        <input type="number" id="matematicas-respuesta" placeholder="Tu respuesta" style="padding: 10px; width: 100%; margin-bottom: 10px; background: var(--bg-dark); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 8px;">
+        <button onclick="verificarRespuestaMatematicas()" style="padding: 10px 20px; background: var(--accent-gradient); color: white; border: none; border-radius: 8px; cursor: pointer;">Verificar</button>
+        <p style="margin-top: 10px;">Puntuación: <span id="matematicas-puntuacion">0</span></p>
+        <button onclick="cerrarJuego()" style="margin-top: 10px; padding: 8px 16px; background: var(--border-color); color: var(--text-main); border: none; border-radius: 8px; cursor: pointer;">Cerrar</button>
+    `;
+    
+    window.matematicasPuntuacion = 0;
+    window.matematicasRespuestaCorrecta = 0;
+}
+
+function generarPreguntaMatematica() {
+    const operaciones = ['+', '-', '*'];
+    const operacion = operaciones[Math.floor(Math.random() * operaciones.length)];
+    let num1, num2, respuesta;
+    
+    if (operacion === '+') {
+        num1 = Math.floor(Math.random() * 50) + 1;
+        num2 = Math.floor(Math.random() * 50) + 1;
+        respuesta = num1 + num2;
+    } else if (operacion === '-') {
+        num1 = Math.floor(Math.random() * 50) + 10;
+        num2 = Math.floor(Math.random() * num1);
+        respuesta = num1 - num2;
+    } else {
+        num1 = Math.floor(Math.random() * 10) + 1;
+        num2 = Math.floor(Math.random() * 10) + 1;
+        respuesta = num1 * num2;
+    }
+    
+    window.matematicasRespuestaCorrecta = respuesta;
+    document.getElementById('matematicas-pregunta').textContent = `${num1} ${operacion} ${num2} = ?`;
+}
+
+function verificarRespuestaMatematicas() {
+    const respuestaUsuario = parseInt(document.getElementById('matematicas-respuesta').value);
+    
+    if (respuestaUsuario === window.matematicasRespuestaCorrecta) {
+        window.matematicasPuntuacion += 10;
+        document.getElementById('matematicas-puntuacion').textContent = window.matematicasPuntuacion;
+        alert('¡Correcto! +10 puntos');
+    } else {
+        alert(`Incorrecto. La respuesta era ${window.matematicasRespuestaCorrecta}`);
+    }
+    
+    document.getElementById('matematicas-respuesta').value = '';
+    generarPreguntaMatematica();
+}
+
+function iniciarJuegoReflejos() {
+    const container = document.getElementById('juego-container');
+    container.style.display = 'block';
+    
+    window.reflejosPuntuacion = 0;
+    window.reflejosIntentos = 0;
+    window.reflejosTiempoInicio = 0;
+    
+    container.innerHTML = `
+        <h4>⚡ Juego de Reflejos</h4>
+        <p>Haz clic en el círculo verde cuando aparezca.</p>
+        <div id="reflejos-area" style="width: 100%; height: 300px; background: var(--bg-dark); border: 2px solid var(--border-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; position: relative; margin: 15px 0;">
+            <div id="reflejos-circulo" style="width: 80px; height: 80px; background: #ef4444; border-radius: 50%; cursor: pointer; transition: background 0.3s;"></div>
+        </div>
+        <p style="margin-top: 10px;">Puntuación: <span id="reflejos-puntuacion">0</span> | Intentos: <span id="reflejos-intentos">0</span></p>
+        <button onclick="cerrarJuego()" style="margin-top: 10px; padding: 8px 16px; background: var(--border-color); color: var(--text-main); border: none; border-radius: 8px; cursor: pointer;">Cerrar</button>
+    `;
+    
+    const circulo = document.getElementById('reflejos-circulo');
+    circulo.onclick = () => {
+        if (circulo.style.background === 'rgb(34, 197, 94)' || circulo.style.background === '#22c55e') {
+            const tiempo = Date.now() - window.reflejosTiempoInicio;
+            const puntos = Math.max(0, 100 - Math.floor(tiempo / 10));
+            window.reflejosPuntuacion += puntos;
+            document.getElementById('reflejos-puntuacion').textContent = window.reflejosPuntuacion;
+            alert(`¡Excelente! ${puntos} puntos (${tiempo}ms)`);
+            iniciarRondaReflejos();
+        }
+    };
+    
+    iniciarRondaReflejos();
+}
+
+function iniciarRondaReflejos() {
+    const circulo = document.getElementById('reflejos-circulo');
+    circulo.style.background = '#ef4444';
+    
+    const tiempoAleatorio = Math.random() * 3000 + 1000;
+    
+    setTimeout(() => {
+        circulo.style.background = '#22c55e';
+        window.reflejosTiempoInicio = Date.now();
+        window.reflejosIntentos++;
+        document.getElementById('reflejos-intentos').textContent = window.reflejosIntentos;
+        
+        setTimeout(() => {
+            if (circulo.style.background === 'rgb(34, 197, 94)' || circulo.style.background === '#22c55e') {
+                circulo.style.background = '#ef4444';
+                alert('¡Muy lento! Intenta de nuevo.');
+                iniciarRondaReflejos();
+            }
+        }, 2000);
+    }, tiempoAleatorio);
+}
+
+function iniciarJuegoFidget() {
+    const container = document.getElementById('juego-container');
+    container.style.display = 'block';
+    
+    window.fidgetVelocidad = 0;
+    window.fidgetRotacion = 0;
+    window.fidgetAnimacion = null;
+    
+    container.innerHTML = `
+        <h4>🌀 Juego de Fidget Spinner</h4>
+        <p>Haz clic o arrastra para girar el spinner y relajarte.</p>
+        <div id="fidget-area" style="width: 100%; height: 350px; background: var(--bg-dark); border: 2px solid var(--border-color); border-radius: 8px; display: flex; align-items: center; justify-content: center; position: relative; margin: 15px 0; overflow: hidden;">
+            <div id="fidget-spinner" style="width: 150px; height: 150px; position: relative; cursor: pointer; transition: transform 0.1s;">
+                <div style="position: absolute; width: 100%; height: 100%; border: 8px solid #7c3aed; border-radius: 50%;"></div>
+                <div style="position: absolute; width: 40%; height: 40%; background: #a855f7; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%);"></div>
+                <div style="position: absolute; width: 30%; height: 30%; background: #7c3aed; border-radius: 50%; top: 10%; left: 50%; transform: translateX(-50%);"></div>
+                <div style="position: absolute; width: 30%; height: 30%; background: #7c3aed; border-radius: 50%; bottom: 10%; left: 50%; transform: translateX(-50%);"></div>
+                <div style="position: absolute; width: 30%; height: 30%; background: #7c3aed; border-radius: 50%; top: 50%; left: 10%; transform: translateY(-50%);"></div>
+                <div style="position: absolute; width: 30%; height: 30%; background: #7c3aed; border-radius: 50%; top: 50%; right: 10%; transform: translateY(-50%);"></div>
+            </div>
+        </div>
+        <p style="margin-top: 10px;">Velocidad: <span id="fidget-velocidad">0</span> RPM</p>
+        <button onclick="cerrarJuego()" style="margin-top: 10px; padding: 8px 16px; background: var(--border-color); color: var(--text-main); border: none; border-radius: 8px; cursor: pointer;">Cerrar</button>
+    `;
+    
+    const spinner = document.getElementById('fidget-spinner');
+    const area = document.getElementById('fidget-area');
+    
+    let isDragging = false;
+    let lastX = 0;
+    let lastY = 0;
+    
+    const girarSpinner = () => {
+        if (window.fidgetVelocidad > 0) {
+            window.fidgetRotacion += window.fidgetVelocidad;
+            spinner.style.transform = `rotate(${window.fidgetRotacion}deg)`;
+            document.getElementById('fidget-velocidad').textContent = Math.floor(window.fidgetVelocidad * 10);
+            
+            window.fidgetVelocidad *= 0.99; // Fricción
+            
+            if (window.fidgetVelocidad < 0.1) {
+                window.fidgetVelocidad = 0;
+                cancelAnimationFrame(window.fidgetAnimacion);
+            } else {
+                window.fidgetAnimacion = requestAnimationFrame(girarSpinner);
+            }
+        }
+    };
+    
+    spinner.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        lastX = e.clientX;
+        lastY = e.clientY;
+        window.fidgetVelocidad += 5;
+        if (!window.fidgetAnimacion) {
+            window.fidgetAnimacion = requestAnimationFrame(girarSpinner);
+        }
+    });
+    
+    spinner.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            const deltaX = e.clientX - lastX;
+            const deltaY = e.clientY - lastY;
+            const velocidad = Math.sqrt(deltaX * deltaX + deltaY * deltaY) / 10;
+            window.fidgetVelocidad = Math.min(window.fidgetVelocidad + velocidad, 50);
+            lastX = e.clientX;
+            lastY = e.clientY;
+        }
+    });
+    
+    spinner.addEventListener('mouseup', () => {
+        isDragging = false;
+    });
+    
+    spinner.addEventListener('mouseleave', () => {
+        isDragging = false;
+    });
+    
+    // Touch events para móviles
+    spinner.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        lastX = e.touches[0].clientX;
+        lastY = e.touches[0].clientY;
+        window.fidgetVelocidad += 5;
+        if (!window.fidgetAnimacion) {
+            window.fidgetAnimacion = requestAnimationFrame(girarSpinner);
+        }
+        e.preventDefault();
+    });
+    
+    spinner.addEventListener('touchmove', (e) => {
+        if (isDragging) {
+            const deltaX = e.touches[0].clientX - lastX;
+            const deltaY = e.touches[0].clientY - lastY;
+            const velocidad = Math.sqrt(deltaX * deltaX + deltaY * deltaY) / 10;
+            window.fidgetVelocidad = Math.min(window.fidgetVelocidad + velocidad, 50);
+            lastX = e.touches[0].clientX;
+            lastY = e.touches[0].clientY;
+        }
+        e.preventDefault();
+    });
+    
+    spinner.addEventListener('touchend', () => {
+        isDragging = false;
+    });
+}
+
+function iniciarJuegoRespiracion() {
+    const container = document.getElementById('juego-container');
+    container.style.display = 'block';
+    container.innerHTML = `
+        <div style="text-align: center; padding: 20px;">
+            <h4>🌬️ Respiración Guiada</h4>
+            <p style="color: var(--text-muted);">Sigue el ritmo del círculo para calmar tu mente.</p>
+            <div id="respiracion-area" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 300px; background: rgba(0,0,0,0.2); border-radius: 12px; margin: 15px 0;">
+                <div id="breathing-circle" style="width: 60px; height: 60px; background: #2dd4bf; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 4s ease-in-out; box-shadow: 0 0 30px rgba(45, 212, 191, 0.4);">
+                </div>
+                <h2 id="breathing-text" style="margin-top: 40px; color: #2dd4bf; font-family: var(--font-title);">Prepárate...</h2>
+            </div>
+            <button onclick="cerrarJuego()" style="margin-top: 10px; padding: 8px 16px; background: var(--border-color); color: var(--text-main); border: none; border-radius: 8px; cursor: pointer;">Finalizar Sesión</button>
+        </div>
+    `;
+
+    const circle = document.getElementById('breathing-circle');
+    const text = document.getElementById('breathing-text');
+    
+    let step = 0; // 0: inhalar, 1: mantener, 2: exhalar
+
+    function runCycle() {
+        if (!document.getElementById('breathing-circle')) return; // Detener si se cierra el juego
+
+        if (step === 0) {
+            text.innerText = "INHALA...";
+            circle.style.transform = "scale(2.5)";
+            circle.style.opacity = "1";
+            setTimeout(() => { step = 1; runCycle(); }, 4000);
+        } else if (step === 1) {
+            text.innerText = "MANTÉN...";
+            setTimeout(() => { step = 2; runCycle(); }, 2000);
+        } else {
+            text.innerText = "EXHALA...";
+            circle.style.transform = "scale(1)";
+            circle.style.opacity = "0.5";
+            setTimeout(() => { step = 0; runCycle(); }, 4000);
+        }
+    }
+    setTimeout(runCycle, 1000);
+}
+
+function iniciarJuegoSnake() {
+    const container = document.getElementById('juego-container');
+    container.style.display = 'block';
+    container.innerHTML = `
+        <div style="text-align: center; padding: 20px;">
+            <h4 style="font-family: var(--font-title); color: #8b5cf6;">🐍 Neo Snake</h4>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 10px;">Usa las flechas del teclado para moverte</p>
+            <div id="snake-game-area" style="width: 300px; height: 300px; background: #0f172a; border: 3px solid #7c3aed; border-radius: 12px; margin: 15px auto; position: relative; overflow: hidden; box-shadow: 0 0 20px rgba(124, 58, 237, 0.3);">
+                <canvas id="snakeCanvas" width="300" height="300"></canvas>
+                <div id="game-over" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.85); flex-direction: column; align-items: center; justify-content: center; z-index: 10;">
+                    <h2 style="color: #ef4444; margin-bottom: 10px;">GAME OVER</h2>
+                    <button onclick="iniciarJuegoSnake()" style="padding: 10px 20px; background: var(--accent-gradient); color: white; border: none; border-radius: 8px; cursor: pointer;">Reintentar</button>
+                </div>
+            </div>
+            <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 10px;">
+                <p>Puntos: <span id="snake-score" style="font-weight: bold; color: #06b6d4;">0</span></p>
+                <p>Record: <span id="snake-highscore" style="font-weight: bold; color: #a855f7;">0</span></p>
+            </div>
+            <button onclick="cerrarJuego()" style="padding: 8px 16px; background: var(--border-color); color: var(--text-main); border: none; border-radius: 8px; cursor: pointer;">Cerrar</button>
+        </div>
+    `;
+
+    const canvas = document.getElementById('snakeCanvas');
+    const ctx = canvas.getContext('2d');
+    const scoreElement = document.getElementById('snake-score');
+    const highscoreElement = document.getElementById('snake-highscore');
+    const gameOverScreen = document.getElementById('game-over');
+    
+    const gridSize = 15;
+    const tileCount = canvas.width / gridSize;
+    
+    let score = 0;
+    let highscore = localStorage.getItem('snakeHighscore') || 0;
+    highscoreElement.innerText = highscore;
+
+    let snake = [{x: 10, y: 10}];
+    let food = {x: 5, y: 5};
+    let dx = 0;
+    let dy = 0;
+    let nextDx = 0;
+    let nextDy = 0;
+    
+    function drawGame() {
+        // Actualizar dirección
+        dx = nextDx;
+        dy = nextDy;
+
+        // Mover serpiente
+        const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+
+        // Colisiones con bordes o con uno mismo
+        if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount || 
+            snake.some((segment, index) => index !== 0 && segment.x === head.x && segment.y === head.y)) {
+            return endIteration();
+        }
+
+        snake.unshift(head);
+
+        // ¿Comió fruta?
+        if (head.x === food.x && head.y === food.y) {
+            score += 10;
+            scoreElement.innerText = score;
+            if (score > highscore) {
+                highscore = score;
+                highscoreElement.innerText = highscore;
+                localStorage.setItem('snakeHighscore', highscore);
+            }
+            createFood();
+        } else {
+            if (dx !== 0 || dy !== 0) snake.pop();
+        }
+
+        // Dibujar fondo
+        ctx.fillStyle = '#0f172a';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Dibujar comida (Brillo cian)
+        ctx.fillStyle = '#06b6d4';
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#06b6d4';
+        ctx.fillRect(food.x * gridSize + 2, food.y * gridSize + 2, gridSize - 4, gridSize - 4);
+
+        // Dibujar serpiente (Degradado púrpura)
+        snake.forEach((segment, index) => {
+            ctx.fillStyle = index === 0 ? '#7c3aed' : '#a855f7';
+            ctx.shadowBlur = index === 0 ? 15 : 0;
+            ctx.shadowColor = '#7c3aed';
+            ctx.fillRect(segment.x * gridSize + 1, segment.y * gridSize + 1, gridSize - 2, gridSize - 2);
+        });
+        ctx.shadowBlur = 0;
+    }
+
+    function createFood() {
+        food.x = Math.floor(Math.random() * tileCount);
+        food.y = Math.floor(Math.random() * tileCount);
+        // Asegurar que no aparezca sobre la serpiente
+        if (snake.some(segment => segment.x === food.x && segment.y === food.y)) createFood();
+    }
+
+    function handleKeydown(e) {
+        if (e.key === 'ArrowUp' && dy === 0) { nextDx = 0; nextDy = -1; }
+        if (e.key === 'ArrowDown' && dy === 0) { nextDx = 0; nextDy = 1; }
+        if (e.key === 'ArrowLeft' && dx === 0) { nextDx = -1; nextDy = 0; }
+        if (e.key === 'ArrowRight' && dx === 0) { nextDx = 1; nextDy = 0; }
+    }
+
+    function endIteration() {
+        clearInterval(gameLoop);
+        gameOverScreen.style.display = 'flex';
+        window.removeEventListener('keydown', handleKeydown);
+    }
+
+    window.addEventListener('keydown', handleKeydown);
+    const gameLoop = setInterval(drawGame, 100); // 10 FPS aprox
+    
+    // Limpiar intervalo si se cierra el contenedor
+    const checkExist = setInterval(() => {
+        if (!document.getElementById('snakeCanvas')) {
+            clearInterval(gameLoop);
+            clearInterval(checkExist);
+        }
+    }, 500);
+}
+
+// ==================== INICIALIZACIÓN ÚNICA ====================
+document.addEventListener('DOMContentLoaded', function() {
+    // Cargar datos base
+    cargarNotas();
+    cargarResumenes();
+    renderizarCalendario();
+
+    // Detectar juego desde URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const gameToStart = urlParams.get('game');
+
+    if (gameToStart) {
+        const juegos = {
+            'adivinanza': iniciarJuegoAdivinanza,
+            'quiz': iniciarJuegoQuiz,
+            'memoria': iniciarJuegoMemoria,
+            'matematicas': iniciarJuegoMatematicas,
+            'reflejos': iniciarJuegoReflejos,
+            'fidget': iniciarJuegoFidget,
+            'respiracion': iniciarJuegoRespiracion,
+            'snake': iniciarJuegoSnake
+        };
+
+        if (juegos[gameToStart]) {
+            // Pequeña pausa para asegurar que el DOM está listo antes de scrollear
+            setTimeout(() => {
+                juegos[gameToStart]();
+                const container = document.getElementById('juego-container');
+                container.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 100);
+        }
+    }
+});
+
+function cerrarJuego() {
+    document.getElementById('juego-container').style.display = 'none';
+    document.getElementById('juego-container').innerHTML = '';
+}
+
+// ==================== RESUMEN DE TEXTO ====================
 function resumirTexto() {
     const texto = document.getElementById('textoInput').value;
     const output = document.getElementById('resumenOutput');
     
-    if (texto.trim() === '') return;
+    if (texto.trim() === '') {
+        alert('Por favor ingresa un texto para resumir');
+        return;
+    }
     
     output.style.display = 'block';
-    output.textContent = 'Resumen: ' + texto.substring(0, 100) + '...';
+    output.innerHTML = '<p style="color: var(--text-muted);">Generando resumen con IA...</p>';
+    
+    fetch('/estudio/api/resumir-texto/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ texto: texto })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            output.innerHTML = `
+                <h4 style="color: #7c3aed; margin-bottom: 10px;">📝 Resumen:</h4>
+                <p style="color: var(--text-main); line-height: 1.6;">${data.resumen}</p>
+            `;
+            document.getElementById('textoInput').value = '';
+            cargarResumenes();
+        } else {
+            output.innerHTML = `<p style="color: #ff4d4d;">Error: ${data.error}</p>`;
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        output.innerHTML = '<p style="color: #ff4d4d;">Error al generar el resumen</p>';
+    });
 }
 
+// ==================== NOTAS RÁPIDAS ====================
 function guardarNota() {
     const nota = document.getElementById('notaInput').value;
-    const container = document.getElementById('notasGuardadas');
     
-    if (nota.trim() === '') return;
+    if (nota.trim() === '') {
+        alert('Por favor escribe una nota');
+        return;
+    }
     
-    const notaDiv = document.createElement('div');
-    notaDiv.className = 'nota-card';
-    notaDiv.style.marginTop = '10px';
-    notaDiv.style.padding = '15px';
-    notaDiv.innerHTML = `<p>${nota}</p><small>${new Date().toLocaleString()}</small>`;
+    fetch('/estudio/api/guardar-nota/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ contenido: nota })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('notaInput').value = '';
+            cargarNotas();
+        } else {
+            alert('Error al guardar la nota: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al guardar la nota');
+    });
+}
+
+function cargarNotas() {
+    fetch('/estudio/api/obtener-notas/')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const container = document.getElementById('notasGuardadas');
+            if (data.notas.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted);">No hay notas guardadas</p>';
+            } else {
+                container.innerHTML = data.notas.map(nota => `
+                    <div class="nota-item" style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+                        <p style="color: var(--text-main); margin-bottom: 5px;">${nota.contenido}</p>
+                        <small style="color: var(--text-muted);">${nota.fecha_creacion}</small>
+                        <button onclick="eliminarNota('${nota.id}')" style="background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-left: 10px;">🗑️</button>
+                    </div>
+                `).join('');
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+function eliminarNota(notaId) {
+    if (!confirm('¿Estás seguro de eliminar esta nota?')) {
+        return;
+    }
     
-    container.appendChild(notaDiv);
-    document.getElementById('notaInput').value = '';
+    fetch(`/estudio/api/eliminar-nota/${notaId}/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            cargarNotas();
+        } else {
+            alert('Error al eliminar la nota: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al eliminar la nota');
+    });
+}
+
+// ==================== HISTORIAL DE RESÚMENES ====================
+function cargarResumenes() {
+    fetch('/estudio/api/obtener-resumenes/')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const container = document.getElementById('resumenesGuardados');
+            if (data.resumenes.length === 0) {
+                container.innerHTML = '<p style="color: var(--text-muted);">No hay resúmenes guardados</p>';
+            } else {
+                container.innerHTML = data.resumenes.map(resumen => `
+                    <div class="resumen-item" style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+                        <h4 style="color: #7c3aed; margin-bottom: 5px;">Texto original:</h4>
+                        <p style="color: var(--text-muted); font-style: italic; margin-bottom: 10px;">${resumen.texto_original}</p>
+                        <h4 style="color: #7c3aed; margin-bottom: 5px;">Resumen:</h4>
+                        <p style="color: var(--text-main); margin-bottom: 10px;">${resumen.resumen}</p>
+                        <small style="color: var(--text-muted);">${resumen.fecha_creacion}</small>
+                    </div>
+                `).join('');
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+// ==================== UTILIDADES ====================
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(name + "=")) {
+                cookieValue = decodeURIComponent(cookie.split("=")[1]);
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }
 </script>
 {% endblock %}

@@ -8,41 +8,84 @@
 {% endblock %}
 
 {% block content %}
-<div class="dashboard">
+<div class="traductor-container">
     <h1 style="font-family: var(--font-title); margin-bottom: 2rem;">🌐 Traductor</h1>
     
-    <div class="selector-container">
-        <select id="idiomaOrigen">
-            <option value="es">Español</option>
-            <option value="en">Inglés</option>
-            <option value="fr">Francés</option>
-            <option value="de">Alemán</option>
-            <option value="pt">Portugués</option>
-            <option value="it">Italiano</option>
-        </select>
+    <div class="traductor-card">
+        <!-- Selector de idiomas -->
+        <div class="idioma-selector">
+            <div class="idioma-group">
+                <label for="idiomaOrigen">Idioma de origen</label>
+                <select id="idiomaOrigen" class="idioma-select">
+                    <option value="es">🇪🇸 Español</option>
+                    <option value="en">🇬🇧 Inglés</option>
+                    <option value="fr">🇫🇷 Francés</option>
+                    <option value="de">🇩🇪 Alemán</option>
+                    <option value="pt">🇧🇷 Portugués</option>
+                    <option value="it">🇮🇹 Italiano</option>
+                    <option value="ja">🇯🇵 Japonés</option>
+                    <option value="ko">🇰🇷 Coreano</option>
+                    <option value="zh">🇨🇳 Chino</option>
+                </select>
+            </div>
+            
+            <button onclick="intercambiarIdiomas()" class="btn-intercambiar">
+                <span>⇄</span>
+            </button>
+            
+            <div class="idioma-group">
+                <label for="idiomaDestino">Idioma de destino</label>
+                <select id="idiomaDestino" class="idioma-select">
+                    <option value="en">🇬🇧 Inglés</option>
+                    <option value="es">🇪🇸 Español</option>
+                    <option value="fr">🇫🇷 Francés</option>
+                    <option value="de">🇩🇪 Alemán</option>
+                    <option value="pt">🇧🇷 Portugués</option>
+                    <option value="it">🇮🇹 Italiano</option>
+                    <option value="ja">🇯🇵 Japonés</option>
+                    <option value="ko">🇰🇷 Coreano</option>
+                    <option value="zh">🇨🇳 Chino</option>
+                </select>
+            </div>
+        </div>
         
-        <button onclick="intercambiarIdiomas()" style="background: var(--panel-dark); border: 1px solid var(--border-color);">⇄</button>
+        <!-- Área de texto -->
+        <div class="texto-area">
+            <div class="texto-input-group">
+                <textarea id="textoOriginal" placeholder="Escribe el texto que quieres traducir..." class="texto-input"></textarea>
+                <div class="texto-info">
+                    <span id="charCount">0 caracteres</span>
+                    <button onclick="limpiarTexto()" class="btn-limpiar">🗑️ Limpiar</button>
+                </div>
+            </div>
+            
+            <div class="texto-output-group">
+                <textarea id="textoTraducido" placeholder="La traducción aparecerá aquí..." class="texto-output" readonly></textarea>
+                <div class="texto-info">
+                    <span id="traduccionInfo"></span>
+                    <button onclick="copiarTraduccion()" class="btn-copiar">📋 Copiar</button>
+                </div>
+            </div>
+        </div>
         
-        <select id="idiomaDestino">
-            <option value="en">Inglés</option>
-            <option value="es">Español</option>
-            <option value="fr">Francés</option>
-            <option value="de">Alemán</option>
-            <option value="pt">Portugués</option>
-            <option value="it">Italiano</option>
-        </select>
+        <!-- Botón de traducir -->
+        <button onclick="traducir()" class="btn-traducir">🔄 Traducir</button>
     </div>
     
-    <textarea id="textoOriginal" placeholder="Escribe el texto que quieres traducir..."></textarea>
-    
-    <button onclick="traducir()">Traducir</button>
-    
-    <div id="resultado"></div>
+    <!-- Historial de traducciones -->
+    <div class="historial-section">
+        <h3>📋 Historial de traducciones</h3>
+        <div id="historial" class="historial-list">
+            <p style="color: var(--text-muted);">No hay traducciones recientes</p>
+        </div>
+    </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
+let historialTraducciones = [];
+
 function intercambiarIdiomas() {
     const origen = document.getElementById('idiomaOrigen');
     const destino = document.getElementById('idiomaDestino');
@@ -51,23 +94,108 @@ function intercambiarIdiomas() {
     destino.value = temp;
 }
 
+function limpiarTexto() {
+    document.getElementById('textoOriginal').value = '';
+    document.getElementById('textoTraducido').value = '';
+    document.getElementById('charCount').textContent = '0 caracteres';
+    document.getElementById('traduccionInfo').textContent = '';
+}
+
+function copiarTraduccion() {
+    const traduccion = document.getElementById('textoTraducido').value;
+    if (traduccion) {
+        navigator.clipboard.writeText(traduccion);
+        alert('¡Traducción copiada al portapapeles!');
+    }
+}
+
+function actualizarCharCount() {
+    const texto = document.getElementById('textoOriginal').value;
+    document.getElementById('charCount').textContent = `${texto.length} caracteres`;
+}
+
 function traducir() {
     const texto = document.getElementById('textoOriginal').value;
     const origen = document.getElementById('idiomaOrigen').value;
     const destino = document.getElementById('idiomaDestino').value;
-    const resultado = document.getElementById('resultado');
+    const resultado = document.getElementById('textoTraducido');
+    const traduccionInfo = document.getElementById('traduccionInfo');
     
     if (texto.trim() === '') {
-        resultado.textContent = 'Por favor, escribe algún texto para traducir.';
+        alert('Por favor, escribe algún texto para traducir.');
         return;
     }
     
-    resultado.textContent = 'Traducción en desarrollo...';
+    resultado.value = 'Traduciendo...';
+    traduccionInfo.textContent = 'Procesando...';
     
-    // Simulación de traducción
+    // Simulación de traducción (en producción, usarías una API real como Google Translate)
     setTimeout(() => {
-        resultado.textContent = `[${origen} → ${destino}] Traducción de: "${texto}"`;
+        const idiomas = {
+            'es': 'Español',
+            'en': 'Inglés',
+            'fr': 'Francés',
+            'de': 'Alemán',
+            'pt': 'Portugués',
+            'it': 'Italiano',
+            'ja': 'Japonés',
+            'ko': 'Coreano',
+            'zh': 'Chino'
+        };
+        
+        resultado.value = `[${idiomas[origen]} → ${idiomas[destino]}] Traducción de: "${texto}"`;
+        traduccionInfo.textContent = `[${origen} → ${destino}]`;
+        
+        // Agregar al historial
+        agregarAlHistorial(texto, resultado.value, origen, destino);
     }, 500);
 }
+
+function agregarAlHistorial(original, traducido, origen, destino) {
+    const historialItem = {
+        original: original,
+        traducido: traducido,
+        origen: origen,
+        destino: destino,
+        fecha: new Date().toLocaleString()
+    };
+    
+    historialTraducciones.unshift(historialItem);
+    
+    // Mantener solo las últimas 10 traducciones
+    if (historialTraducciones.length > 10) {
+        historialTraducciones.pop();
+    }
+    
+    actualizarHistorialUI();
+}
+
+function actualizarHistorialUI() {
+    const historialDiv = document.getElementById('historial');
+    
+    if (historialTraducciones.length === 0) {
+        historialDiv.innerHTML = '<p style="color: var(--text-muted);">No hay traducciones recientes</p>';
+        return;
+    }
+    
+    let html = '';
+    historialTraducciones.forEach((item, index) => {
+        html += `
+            <div class="historial-item">
+                <div class="historial-header">
+                    <span class="historial-idiomas">[${item.origen} → ${item.destino}]</span>
+                    <span class="historial-fecha">${item.fecha}</span>
+                </div>
+                <p class="historial-original">${item.original.substring(0, 50)}${item.original.length > 50 ? '...' : ''}</p>
+                <p class="historial-traducido">${item.traducido.substring(0, 50)}${item.traducido.length > 50 ? '...' : ''}</p>
+            </div>
+        `;
+    });
+    
+    historialDiv.innerHTML = html;
+}
+
+// Event listener para contador de caracteres
+document.getElementById('textoOriginal').addEventListener('input', actualizarCharCount);
 </script>
 {% endblock %}

@@ -36,3 +36,140 @@ textarea, input {
     border-radius: 8px;
     color: #06b6d4;
 }
+
+/* Grid layout para estudio */
+.study-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+/* Mini Calendario */
+.mini-calendario {
+    background: rgba(0,0,0,0.1);
+    padding: 15px;
+    border-radius: 8px;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.calendar-nav {
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.calendar-dias-semana {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    text-align: center;
+    font-weight: 600;
+    color: #94a3b8;
+    margin-bottom: 10px;
+    font-size: 12px;
+}
+
+.calendar-dias {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+}
+
+.calendar-dia {
+    padding: 8px;
+    text-align: center;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background 0.2s;
+    font-size: 14px;
+}
+
+.calendar-dia:hover {
+    background: rgba(124, 58, 237, 0.2);
+}
+
+.calendar-dia.empty {
+    background: transparent;
+}
+
+.calendar-dia.hoy {
+    background: #7c3aed;
+    color: white;
+    font-weight: 600;
+}
+
+/* Mini Juegos Educativos */
+.juegos-container {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.juego-btn {
+    flex: 1;
+    min-width: 100px;
+    padding: 12px 20px;
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: transform 0.2s;
+}
+
+.juego-btn:hover {
+    transform: scale(1.05);
+}
+
+.memoria-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.memoria-carta {
+    aspect-ratio: 1;
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.3s;
+}
+
+.memoria-carta:hover {
+    transform: scale(1.1);
+}
+
+.memoria-carta.volteada {
+    background: rgba(124, 58, 237, 0.3);
+}
+
+.memoria-carta.encontrada {
+    background: #22c55e;
+    opacity: 0.5;
+}
+
+@media (max-width: 768px) {
+    .study-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .memoria-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}

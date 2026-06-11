@@ -1,25 +1,228 @@
-.evento-card {
+.eventos-container {
+    padding: 20px;
+}
+
+.eventos-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 30px;
+}
+
+/* Calendario */
+.calendar-section {
     background: var(--panel-dark);
     padding: 20px;
-    margin-top: 15px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.calendar-nav {
+    background: var(--accent-gradient);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: transform 0.2s;
+}
+
+.calendar-nav:hover {
+    transform: scale(1.05);
+}
+
+.calendar-dias-semana {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    text-align: center;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.calendar-dias {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+}
+
+.calendar-dia {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.2s;
+    font-size: 16px;
+    font-weight: 500;
+    position: relative;
+    background: rgba(0,0,0,0.2);
+    color: var(--text-main);
+}
+
+.calendar-dia:hover {
+    background: rgba(124, 58, 237, 0.3);
+    transform: scale(1.1);
+}
+
+.calendar-dia.empty {
+    background: transparent;
+    cursor: default;
+}
+
+.calendar-dia.empty:hover {
+    transform: none;
+}
+
+.calendar-dia.hoy {
+    background: #7c3aed;
+    color: white;
+    font-weight: 700;
+}
+
+.calendar-dia.con-evento {
+    background: rgba(124, 58, 237, 0.4);
+    color: white;
+}
+
+.evento-dot {
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    background: #22c55e;
+    border-radius: 50%;
+}
+
+/* Lista de Eventos */
+.eventos-list-section {
+    background: var(--panel-dark);
+    padding: 20px;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.eventos-header {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 20px;
+}
+
+.eventos-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.evento-card {
+    background: rgba(0,0,0,0.2);
+    padding: 20px;
     border-radius: 12px;
     color: white;
     border-left: 4px solid #7c3aed;
-    border-top: 1px solid var(--border-color);
-    border-right: 1px solid var(--border-color);
-    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    gap: 15px;
+    transition: transform 0.2s;
 }
 
-.evento-card h3 {
+.evento-card:hover {
+    transform: translateX(5px);
+}
+
+.evento-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: var(--accent-gradient);
+    padding: 15px;
+    border-radius: 8px;
+    min-width: 60px;
+}
+
+.date-day {
+    font-size: 24px;
+    font-weight: 700;
+    color: white;
+}
+
+.date-month {
+    font-size: 14px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    text-transform: uppercase;
+}
+
+.evento-info {
+    flex: 1;
+}
+
+.evento-info h3 {
     color: #7c3aed;
     margin-bottom: 8px;
+    font-size: 18px;
 }
 
-.fecha-badge {
-    margin-top: 12px;
-    display: inline-block;
-    padding: 4px 10px;
-    background: rgba(124, 58, 237, 0.1);
-    border-radius: 6px;
-    font-size: 0.9rem;
+.evento-info p {
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.evento-time {
+    color: #22c55e;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.no-eventos {
+    text-align: center;
+    padding: 40px;
+    color: var(--text-muted);
+}
+
+.btn-primary {
+    background: var(--accent-gradient);
+    color: white;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: transform 0.2s;
+}
+
+.btn-primary:hover {
+    transform: scale(1.05);
+}
+
+@media (max-width: 1024px) {
+    .eventos-layout {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .eventos-layout {
+        grid-template-columns: 1fr;
+    }
+    
+    .calendar-dias-semana {
+        font-size: 12px;
+    }
+    
+    .calendar-dia {
+        font-size: 14px;
+    }
 }

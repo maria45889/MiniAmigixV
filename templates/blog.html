@@ -3,33 +3,135 @@
 
 {% block title %}Blog{% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/blog.css' %}">
+{% endblock %}
+
 {% block content %}
-<div class="dashboard">
+<div class="blog-container">
     <h1 style="font-family: var(--font-title); margin-bottom: 2rem;">📝 Blog</h1>
     
-    <div style="display: flex; flex-direction: column; gap: 20px;">
-        <div style="background: var(--panel-dark); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color);">
-            <h2 style="color: #7c3aed; margin-top: 0;">Bienvenido al Blog</h2>
-            <p style="color: var(--text-muted);">Aquí encontrarás artículos interesantes sobre tecnología, productividad y más.</p>
+    <div class="blog-layout">
+        <!-- Formulario para crear publicación -->
+        {% if request.user.is_authenticated %}
+        <div class="blog-section">
+            <div class="blog-card">
+                <h2>✍️ Crear Nueva Publicación</h2>
+                <form method="POST" action="{% url 'crear_publicacion' %}" class="blog-form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="titulo">Título</label>
+                        <input type="text" id="titulo" name="titulo" placeholder="Escribe un título atractivo..." required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="categoria">Categoría</label>
+                        <select id="categoria" name="categoria">
+                            <option value="personal">📝 Personal</option>
+                            <option value="noticias">📰 Noticias</option>
+                            <option value="consejos">💡 Consejos</option>
+                            <option value="tutorial">🎯 Tutorial</option>
+                            <option value="anuncios">🚀 Anuncios</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="contenido">Contenido</label>
+                        <textarea id="contenido" name="contenido" placeholder="Escribe tu publicación aquí..." rows="6" required></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn-publicar">📝 Publicar</button>
+                </form>
+            </div>
         </div>
+        {% endif %}
         
-        <div style="background: var(--panel-dark); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color);">
-            <h3 style="color: #06b6d4; margin-top: 0;">🚀 Novedades de MiniAmigixV</h3>
-            <p style="color: var(--text-muted); margin-top: 10px;">Descubre las últimas actualizaciones y características de nuestra plataforma.</p>
-            <small style="color: var(--text-muted); display: block; margin-top: 15px;">Publicado: 9 de junio, 2026</small>
-        </div>
-        
-        <div style="background: var(--panel-dark); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color);">
-            <h3 style="color: #06b6d4; margin-top: 0;">💡 Consejos de Productividad</h3>
-            <p style="color: var(--text-muted); margin-top: 10px;">Aprende a maximizar tu tiempo y ser más eficiente en tus tareas diarias.</p>
-            <small style="color: var(--text-muted); display: block; margin-top: 15px;">Publicado: 8 de junio, 2026</small>
-        </div>
-        
-        <div style="background: var(--panel-dark); padding: 25px; border-radius: 12px; border: 1px solid var(--border-color);">
-            <h3 style="color: #06b6d4; margin-top: 0;">🎯 Guía para Principiantes</h3>
-            <p style="color: var(--text-muted); margin-top: 10px;">Todo lo que necesitas saber para empezar a usar MiniAmigixV.</p>
-            <small style="color: var(--text-muted); display: block; margin-top: 15px;">Publicado: 7 de junio, 2026</small>
+        <!-- Lista de publicaciones -->
+        <div class="blog-section">
+            <div class="blog-header">
+                <h2>📚 Mis Publicaciones</h2>
+                {% if request.user.is_authenticated %}
+                <span class="publicaciones-count">{{ publicaciones|length }} publicaciones</span>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn-login">Inicia sesión para ver tus publicaciones</a>
+                {% endif %}
+            </div>
+            
+            <div class="publicaciones-list">
+                {% if request.user.is_authenticated %}
+                    {% for publicacion in publicaciones %}
+                    <div class="publicacion-card" data-id="{{ publicacion.id }}">
+                        <div class="publicacion-header">
+                            <span class="categoria-badge">{{ publicacion.get_categoria_display }}</span>
+                            <div class="publicacion-actions">
+                                <button onclick="eliminarPublicacion({{ publicacion.id }})" class="btn-eliminar">🗑️</button>
+                            </div>
+                        </div>
+                        <h3 class="publicacion-titulo">{{ publicacion.titulo }}</h3>
+                        <p class="publicacion-contenido">{{ publicacion.contenido }}</p>
+                        <div class="publicacion-footer">
+                            <span class="publicacion-fecha">� {{ publicacion.fecha_publicacion|date:"d M Y, H:i" }}</span>
+                            <span class="publicacion-autor">👤 {{ publicacion.usuario.username }}</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="no-publicaciones">
+                        <p>No tienes publicaciones aún. ¡Crea la primera!</p>
+                        <span>📝</span>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                <div class="no-publicaciones">
+                    <p>Inicia sesión para ver y crear tus publicaciones</p>
+                    <a href="{% url 'login' %}" class="btn-login">Iniciar Sesión</a>
+                </div>
+                {% endif %}
+            </div>
         </div>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function eliminarPublicacion(publicacionId) {
+    if (!confirm('¿Estás seguro de eliminar esta publicación?')) {
+        return;
+    }
+    
+    fetch(`/api/delete-publicacion/${publicacionId}/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error al eliminar la publicación: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al eliminar la publicación');
+    });
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(name + "=")) {
+                cookieValue = decodeURIComponent(cookie.split("=")[1]);
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
 {% endblock %}

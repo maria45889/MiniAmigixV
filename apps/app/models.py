@@ -48,3 +48,40 @@ class EstadoAnimo(models.Model):
 
     class Meta:
         ordering = ['-fecha_registro']
+
+class Cancion(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    nombre = models.CharField(max_length=200)
+    artista = models.CharField(max_length=200, blank=True, null=True)
+    youtube_url = models.URLField(blank=True, null=True)
+    youtube_id = models.CharField(max_length=50, blank=True, null=True)
+    fecha_agregada = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.nombre} - {self.artista or 'Desconocido'}"
+
+    class Meta:
+        ordering = ['-fecha_agregada']
+
+class PublicacionBlog(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    titulo = models.CharField(max_length=200)
+    contenido = models.TextField()
+    categoria = models.CharField(max_length=50, choices=[
+        ('noticias', '📰 Noticias'),
+        ('consejos', '💡 Consejos'),
+        ('tutorial', '🎯 Tutorial'),
+        ('personal', '📝 Personal'),
+        ('anuncios', '🚀 Anuncios'),
+    ], default='personal')
+    fecha_publicacion = models.DateTimeField(auto_now_add=True)
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
+    publicado = models.BooleanField(default=True)
+
+    def __str__(self):
+        return f"{self.titulo} - {self.usuario.username}"
+
+    class Meta:
+        ordering = ['-fecha_publicacion']
+        verbose_name = 'Publicación de Blog'
+        verbose_name_plural = 'Publicaciones de Blog'

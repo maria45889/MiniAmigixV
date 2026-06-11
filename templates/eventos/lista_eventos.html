@@ -9,30 +9,110 @@
 
 {% block content %}
 <div class="eventos-container">
-    <h1>📅 Mis Eventos</h1>
+    <h1 style="font-family: var(--font-title); margin-bottom: 2rem;">📅 Mis Eventos</h1>
     
-    <div class="eventos-header">
-        <a href="{% url 'crear_evento' %}" class="btn-primary">+ Nuevo Evento</a>
-    </div>
-    
-    <div class="eventos-list">
-        {% for evento in eventos %}
-        <div class="evento-card">
-            <div class="evento-date">
-                <span class="date-day">{{ evento.fecha|date:"d" }}</span>
-                <span class="date-month">{{ evento.fecha|date:"M" }}</span>
+    <div class="eventos-layout">
+        <!-- Calendario -->
+        <div class="calendar-section">
+            <div class="calendar-header">
+                <button onclick="cambiarMes(-1)" class="calendar-nav">◀</button>
+                <span id="calendar-mes-ano"></span>
+                <button onclick="cambiarMes(1)" class="calendar-nav">▶</button>
             </div>
-            <div class="evento-info">
-                <h3>{{ evento.titulo }}</h3>
-                <p>{{ evento.descripcion|default:"Sin descripción" }}</p>
-                <span class="evento-time">{{ evento.fecha|date:"H:i" }}</span>
+            <div class="calendar-dias-semana">
+                <span>Dom</span><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span>
+            </div>
+            <div id="calendar-dias" class="calendar-dias"></div>
+        </div>
+        
+        <!-- Lista de Eventos -->
+        <div class="eventos-list-section">
+            <div class="eventos-header">
+                <a href="{% url 'crear_evento' %}" class="btn-primary">+ Nuevo Evento</a>
+            </div>
+            
+            <div class="eventos-list">
+                {% for evento in eventos %}
+                <div class="evento-card" data-fecha="{{ evento.fecha|date:"Y-m-d" }}">
+                    <div class="evento-date">
+                        <span class="date-day">{{ evento.fecha|date:"d" }}</span>
+                        <span class="date-month">{{ evento.fecha|date:"M" }}</span>
+                    </div>
+                    <div class="evento-info">
+                        <h3>{{ evento.titulo }}</h3>
+                        <p>{{ evento.descripcion|default:"Sin descripción" }}</p>
+                        <span class="evento-time">{{ evento.fecha|date:"H:i" }}</span>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="no-eventos">
+                    <p>No tienes eventos aún. ¡Crea el primero!</p>
+                </div>
+                {% endfor %}
             </div>
         </div>
-        {% empty %}
-        <div class="no-eventos">
-            <p>No tienes eventos aún. ¡Crea el primero!</p>
-        </div>
-        {% endfor %}
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let fechaActual = new Date();
+let mesActual = fechaActual.getMonth();
+let anoActual = fechaActual.getFullYear();
+let eventosFechas = [];
+
+// Obtener fechas de eventos
+{% for evento in eventos %}
+eventosFechas.push('{{ evento.fecha|date:"Y-m-d" }}');
+{% endfor %}
+
+function renderizarCalendario() {
+    const primerDia = new Date(anoActual, mesActual, 1);
+    const ultimoDia = new Date(anoActual, mesActual + 1, 0);
+    const diasMes = ultimoDia.getDate();
+    const diaSemana = primerDia.getDay();
+    
+    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
+                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
+    
+    document.getElementById('calendar-mes-ano').textContent = `${meses[mesActual]} ${anoActual}`;
+    
+    let html = '';
+    
+    // Días vacíos antes del primer día del mes
+    for (let i = 0; i < diaSemana; i++) {
+        html += '<div class="calendar-dia empty"></div>';
+    }
+    
+    // Días del mes
+    const hoy = new Date();
+    for (let dia = 1; dia <= diasMes; dia++) {
+        const fechaStr = `${anoActual}-${String(mesActual + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+        const esHoy = dia === hoy.getDate() && mesActual === hoy.getMonth() && anoActual === hoy.getFullYear();
+        const tieneEvento = eventosFechas.includes(fechaStr);
+        
+        html += `<div class="calendar-dia ${esHoy ? 'hoy' : ''} ${tieneEvento ? 'con-evento' : ''}" data-fecha="${fechaStr}">${dia}${tieneEvento ? '<span class="evento-dot"></span>' : ''}</div>`;
+    }
+    
+    document.getElementById('calendar-dias').innerHTML = html;
+}
+
+function cambiarMes(delta) {
+    mesActual += delta;
+    if (mesActual > 11) {
+        mesActual = 0;
+        anoActual++;
+    } else if (mesActual < 0) {
+        mesActual = 11;
+        anoActual--;
+    }
+    renderizarCalendario();
+}
+
+// Inicializar calendario
+document.addEventListener('DOMContentLoaded', function() {
+    renderizarCalendario();
+});
+</script>
 {% endblock %}

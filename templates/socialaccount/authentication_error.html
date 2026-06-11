@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Error de autenticación{% endblock %}
+
+{% block content %}
+<script>
+    // Redirigir automáticamente al login después de 2 segundos
+    setTimeout(function() {
+        window.location.href = "{% url 'login' %}";
+    }, 2000);
+</script>
+
+<div class="dashboard" style="display: flex; justify-content: center; align-items: center; min-height: 80vh;">
+    <div style="background: var(--panel-dark); padding: 40px; border-radius: 16px; border: 1px solid var(--border-color); max-width: 400px; width: 100%; text-align: center;">
+        <h1 style="font-family: var(--font-title); text-align: center; margin-bottom: 2rem;">❌ Error de autenticación</h1>
+        <p style="color: var(--text-muted);">Se produjo un error al intentar iniciar sesión con tu cuenta de terceros. Serás redirigido a la página de login automáticamente.</p>
+        <p style="margin-top: 1rem;">
+            <a href="{% url 'login' %}" style="color: #7c3aed; text-decoration: none; font-weight: 600;">Ir al login ahora</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

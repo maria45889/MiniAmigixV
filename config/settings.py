@@ -13,6 +13,10 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 import os
 import sys
 from pathlib import Path
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv(os.path.join(Path(__file__).resolve().parent.parent, '.env'))
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -24,7 +28,7 @@ sys.path.insert(0, str(BASE_DIR / 'apps'))
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure--(5gn@d--@8zb19hvm4u!%nld_ehy#)z*-$+mtq8@m5lq%4l7r'
+SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-default-dev-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -41,15 +45,24 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Apps del Proyecto
+    # Allauth apps
+    'django.contrib.sites', # Required by allauth
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.microsoft',
+    'allauth.socialaccount.providers.github',
+    # Project Apps
     'app.apps.AppConfig',
+    'configuracion',
     'eventos',
     'notificaciones',
     'perfil',
-    'tutorial',
     'sugerencias',
     'soporte',
-    'configuracion',
+    'tutorial',
+    'estudio.apps.EstudioConfig',
 ]
 
 MIDDLEWARE = [
@@ -58,6 +71,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'allauth.account.middleware.AccountMiddleware', # Allauth middleware
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -93,6 +107,43 @@ DATABASES = {
     }
 }
 
+# Allauth specific settings
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend', # Default Django authentication
+    'allauth.account.auth_backends.AuthenticationBackend', # allauth specific authentication
+]
+
+SITE_ID = 1 # Required by allauth
+
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_USERNAME_REQUIRED = False
+ACCOUNT_SESSION_REMEMBER = True
+ACCOUNT_UNIQUE_EMAIL = True
+
+# Auto-signup para redes sociales (evitar formulario adicional)
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_QUERY_EMAIL = True
+SOCIALACCOUNT_EMAIL_REQUIRED = True
+
+# Adaptador personalizado para generar username automáticamente
+# SOCIALACCOUNT_ADAPTER = 'app.adapters.SocialAccountAdapter'
+
+# Saltar la página de confirmación de inicio de sesión social ("Continuar")
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'OAUTH2_PKCE_ENABLED': False,
+        'VERIFIED_EMAIL': True,
+        'AUTH_PARAMS': {
+            'prompt': 'select_account',
+        },
+    },
+    'github': {},
+    'microsoft': {}
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
@@ -116,7 +167,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es'
 
 TIME_ZONE = 'UTC'
 
@@ -135,17 +186,21 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Configuración de OpenAI
+# Configuración de APIs de IA
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+GOOGLE_API_KEY = os.getenv("GEMINI_API_KEY")
+OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 
 # Configuración de Email para Sugerencias
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_USE_TLS = True
+EMAIL_USE_TLS = True # Consider EMAIL_USE_SSL = True if using port 465
 EMAIL_HOST_USER = 'miniamigixv@gmail.com'
-EMAIL_HOST_PASSWORD = 'TU_PASSWORD_DE_APP'  # Reemplazar con App Password de Google
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD") # Reemplazar con App Password de Google
 
 # Configuración de redirección de Login
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'home'
+LOGIN_REDIRECT_URL = 'home' # Redirige a 'home' después de un login exitoso
+ACCOUNT_LOGOUT_REDIRECT_URL = 'home' # Redirige a 'home' después de un logout

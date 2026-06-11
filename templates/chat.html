@@ -9,107 +9,222 @@
 
 {% block content %}
 <div class="chat-wrapper">
-    <div class="chat-box" id="chatBox">
-        <div class="msg bot">¡Hola! Soy tu asistente IA. ¿En qué puedo ayudarte hoy?</div>
+    <!-- Panel de Chats (Izquierda) -->
+    {% if not request.user.is_authenticated %}
+    <div class="alert-message">
+        <p>⚠️ No has iniciado sesión. El historial de chat no se guardará.</p>
+        <p><a href="{% url 'login' %}">Inicia sesión</a> o <a href="{% url 'register' %}">regístrate</a> para guardar tus conversaciones.</p>
     </div>
-    <div class="chat-input">
-        <input type="text" id="userInput" placeholder="Escribe tu mensaje..." autocomplete="off">
-        <button onclick="sendMessage()">Enviar</button>
+    {% endif %}
+    <div class="chat-list">
+        <div class="chat-list-header">
+            <span>Chats</span>
+            <button class="icon-btn" id="new-chat-btn" title="Nuevo chat"><i class="ti ti-plus"></i></button>
+        </div>
+        <div id="chat-list-items">
+            {% for conv in conversaciones %}
+            <div class="chat-item {% if conv.id == active_id %}active{% endif %}" onclick="location.href='?id={{ conv.id }}'">
+                <div class="chat-item-name">{{ conv.titulo }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Panel de Conversación (Derecha) -->
+    <div class="chat-panel">
+        <div class="chat-topbar">
+            <div>Chat / <span id="active-chat-name">
+                {% if active_id %}
+                    {% for conv in conversaciones %}
+                        {% if conv.id == active_id %}
+                            {{ conv.titulo }}
+                        {% endif %}
+                    {% endfor %}
+                {% else %}
+                    Principal
+                {% endif %}
+            </span></div>
+            <button class="icon-btn" onclick="toggleTheme()"><i class="ti ti-sun"></i></button>
+        </div>
+
+        <div class="chat-area" id="chat-area">
+            {% for msg in mensajes %}
+                <div class="msg {% if msg.es_usuario %}user{% else %}bot{% endif %}">
+                    <div class="avatar {% if msg.es_usuario %}user{% else %}bot{% endif %}">
+                        {% if msg.es_usuario %}{{ request.user.username|slice:":1"|upper }}{% else %}M{% endif %}
+                    </div>
+                    <div class="bubble {% if msg.es_usuario %}user{% else %}bot{% endif %}">
+                        {{ msg.texto }}
+                        <span class="time">{{ msg.fecha_creacion|date:"H:i" }}</span>
+                    </div>
+                </div>
+            {% endfor %}
+            <div id="typing-indicator" class="typing-indicator">
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+                <div class="typing-dot"></div>
+            </div>
+        </div>
+
+        <div class="emoji-picker" id="emoji-picker">
+            <span class="ep-emoji" onclick="insertEmoji('😊')">😊</span>
+            <span class="ep-emoji" onclick="insertEmoji('😂')">😂</span>
+            <span class="ep-emoji" onclick="insertEmoji('❤️')">❤️</span>
+            <span class="ep-emoji" onclick="insertEmoji('👍')">👍</span>
+            <span class="ep-emoji" onclick="insertEmoji('🔥')">🔥</span>
+            <span class="ep-emoji" onclick="insertEmoji('✨')">✨</span>
+            <span class="ep-emoji" onclick="insertEmoji('🎉')">🎉</span>
+            <span class="ep-emoji" onclick="insertEmoji('🤔')">🤔</span>
+            <span class="ep-emoji" onclick="insertEmoji('😢')">😢</span>
+            <span class="ep-emoji" onclick="insertEmoji('😍')">😍</span>
+            <span class="ep-emoji" onclick="insertEmoji('🤣')">🤣</span>
+            <span class="ep-emoji" onclick="insertEmoji('😎')">😎</span>
+            <span class="ep-emoji" onclick="insertEmoji('🙏')">🙏</span>
+            <span class="ep-emoji" onclick="insertEmoji('💪')">💪</span>
+            <span class="ep-emoji" onclick="insertEmoji('🎵')">🎵</span>
+            <span class="ep-emoji" onclick="insertEmoji('🎮')">🎮</span>
+            <span class="ep-emoji" onclick="insertEmoji('📚')">📚</span>
+            <span class="ep-emoji" onclick="insertEmoji('🌟')">🌟</span>
+            <span class="ep-emoji" onclick="insertEmoji('💡')">💡</span>
+            <span class="ep-emoji" onclick="insertEmoji('🚀')">🚀</span>
+            <span class="ep-emoji" onclick="insertEmoji('🎯')">🎯</span>
+            <span class="ep-emoji" onclick="insertEmoji('💯')">💯</span>
+            <span class="ep-emoji" onclick="insertEmoji('⭐')">⭐</span>
+            <span class="ep-emoji" onclick="insertEmoji('🌈')">🌈</span>
+            <span class="ep-emoji" onclick="insertEmoji('🎁')">🎁</span>
+        </div>
+
+        <div class="input-bar">
+            <button class="icon-btn" onclick="toggleEmoji()">😊</button>
+            <input type="text" id="user-input" class="msg-input" placeholder="Escribe un mensaje..." autocomplete="off">
+            <button class="icon-btn" id="voice-btn" title="Silenciar">
+                <i class="ti ti-volume" id="voice-icon"></i>
+            </button>
+            <button class="send-btn" id="send-btn">
+                <i class="ti ti-send"></i>
+            </button>
+        </div>
     </div>
 </div>
 {% endblock %}
-
 {% block extra_js %}
 <script>
-async function sendMessage() {
-    const input = document.getElementById('userInput');
-    const message = input.value.trim();
-    
-    if (message === '') return;
-    
-    const chatBox = document.getElementById('chatBox');
-    
-    // Add user message
-    const userMsg = document.createElement('div');
-    userMsg.className = 'msg user';
-    userMsg.textContent = message;
-    chatBox.appendChild(userMsg);
-    
-    input.value = '';
-    chatBox.scrollTop = chatBox.scrollHeight;
-    
-    // Show loading indicator
-    const loadingMsg = document.createElement('div');
-    loadingMsg.className = 'msg bot';
-    loadingMsg.textContent = 'Escribiendo...';
-    loadingMsg.id = 'loadingMsg';
-    chatBox.appendChild(loadingMsg);
-    chatBox.scrollTop = chatBox.scrollHeight;
-    
-    try {
-        const response = await fetch('/api/chat/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({ message: message })
-        });
-        
-        const data = await response.json();
-        
-        // Remove loading message
-        const loadingElement = document.getElementById('loadingMsg');
-        if (loadingElement) {
-            loadingElement.remove();
-        }
-        
-        if (data.response) {
-            const botMsg = document.createElement('div');
-            botMsg.className = 'msg bot';
-            botMsg.textContent = data.response;
-            chatBox.appendChild(botMsg);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        } else if (data.error) {
-            const errorMsg = document.createElement('div');
-            errorMsg.className = 'msg bot';
-            errorMsg.textContent = 'Error: ' + data.error;
-            chatBox.appendChild(errorMsg);
-            chatBox.scrollTop = chatBox.scrollHeight;
-        }
-    } catch (error) {
-        const loadingElement = document.getElementById('loadingMsg');
-        if (loadingElement) {
-            loadingElement.remove();
-        }
-        
-        const errorMsg = document.createElement('div');
-        errorMsg.className = 'msg bot';
-        errorMsg.textContent = 'Error de conexión. Por favor, verifica tu API key de OpenAI.';
-        chatBox.appendChild(errorMsg);
-        chatBox.scrollTop = chatBox.scrollHeight;
-    }
-}
+    const elements = {
+        history: document.getElementById('chat-area'),
+        input: document.getElementById('user-input'),
+        send: document.getElementById('send-btn'),
+        voice: document.getElementById('voice-btn'),
+        voiceIcon: document.getElementById('voice-icon'),
+        typing: document.getElementById('typing-indicator'),
+        picker: document.getElementById('emoji-picker'),
+        newChat: document.getElementById('new-chat-btn')
+    };
 
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
+    let isVoiceEnabled = true;
+    const activeId = "{{ active_id }}";
+
+    function speak(text) {
+        if (!isVoiceEnabled || !('speechSynthesis' in window)) return;
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'es-ES';
+        window.speechSynthesis.speak(utterance);
+    }
+
+    function toggleEmoji() { elements.picker.classList.toggle('open'); }
+    function insertEmoji(e) { elements.input.value += e; elements.input.focus(); }
+
+    function appendMessage(text, isUser) {
+        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        const msgDiv = document.createElement('div');
+        const role = isUser ? 'user' : 'bot';
+        msgDiv.className = `msg ${role}`;
+        const initial = isUser ? "{{ request.user.username|slice:":1"|upper }}" : "M";
+
+        // Usamos textContent para el mensaje para evitar XSS
+        msgDiv.innerHTML = `
+            <div class="avatar ${role}">${initial}</div>
+            <div class="bubble ${role}">
+                <div class="text-content"></div>
+                <span class="time">${time}</span>
+            </div>
+        `;
+        msgDiv.querySelector('.text-content').textContent = text;
+
+        elements.history.insertBefore(msgDiv, elements.typing);
+        elements.history.scrollTop = elements.history.scrollHeight;
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith(name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.split("=")[1]);
+                    break;
+                }
             }
         }
+        return cookieValue;
     }
-    return cookieValue;
-}
 
-document.getElementById('userInput').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        sendMessage();
+    async function sendMessage() {
+        const text = elements.input.value.trim();
+        if (!text) return;
+
+        appendMessage(text, true);
+        elements.input.value = '';
+        elements.picker.classList.remove('open');
+
+        // Mostrar indicador de escritura
+        elements.typing.style.display = 'flex';
+        elements.history.scrollTop = elements.history.scrollHeight;
+
+        try {
+            const response = await fetch('/api/chat/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                body: JSON.stringify({ message: text, conversation_id: activeId })
+            });
+
+            elements.typing.style.display = 'none'; // Ocultar indicador de escritura
+
+            if (!response.ok) { // Si la respuesta HTTP no es 2xx
+                const errorData = await response.json();
+                appendMessage(`Error del servidor: ${errorData.error || response.statusText} 😕`, false);
+                return;
+            }
+            
+            const data = await response.json(); // Parsear la respuesta JSON
+            elements.typing.style.display = 'none';
+            
+            if (data.response) {
+                appendMessage(data.response, false);
+                speak(data.response);
+            } else if (data.error) { // Si la API devuelve un error en el JSON (ej. 200 OK pero con error lógico)
+                appendMessage(`Error de la IA: ${data.error} 😕`, false);
+            }
+        } catch (error) {
+            elements.typing.style.display = 'none';
+            console.error('Error en la solicitud:', error); // Log the actual network error
+            appendMessage("Lo siento, hubo un problema de conexión con el servidor. 😕", false);
+        }
     }
-});
+
+    elements.send.onclick = sendMessage;
+    elements.input.onkeypress = (e) => { if (e.key === 'Enter') sendMessage(); };
+    elements.voice.onclick = () => {
+        isVoiceEnabled = !isVoiceEnabled;
+        elements.voiceIcon.className = isVoiceEnabled ? 'ti ti-volume' : 'ti ti-volume-off';
+        if (!isVoiceEnabled) window.speechSynthesis.cancel();
+    };
+    
+    elements.newChat.onclick = () => {
+        location.href = '{% url "chat" %}?new=true'; // Crea un nuevo chat con título único
+    };
+
+    elements.history.scrollTop = elements.history.scrollHeight;
 </script>
 {% endblock %}
