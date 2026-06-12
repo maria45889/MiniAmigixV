@@ -49,14 +49,14 @@
             
             <div class="form-group">
                 <label>
-                    <input type="checkbox" checked>
+                    <input type="checkbox" name="notificaciones_email" {% if perfil.notificaciones_email %}checked{% endif %}>
                     Recibir notificaciones por email
                 </label>
             </div>
             
             <div class="form-group">
                 <label>
-                    <input type="checkbox" checked>
+                    <input type="checkbox" name="perfil_publico" {% if perfil.perfil_publico %}checked{% endif %}>
                     Mostrar perfil público
                 </label>
             </div>

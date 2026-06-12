@@ -4,35 +4,62 @@
 {% block title %}Crear Evento{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/eventos.css' %}">
+<link rel="stylesheet" href="{% static 'css/eventos.css' %}?v=2">
 {% endblock %}
 
 {% block content %}
 <div class="eventos-container">
-    <h1>📅 Crear Nuevo Evento</h1>
     
-    <form method="POST" class="evento-form">
-        {% csrf_token %}
+    <div class="glass-panel event-card-form">
+        <h1 class="neon-title">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-plus" width="32" height="32" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M12.5 21h-6.5a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v5"></path>
+                <path d="M16 3v4"></path>
+                <path d="M8 3v4"></path>
+                <path d="M4 11h16"></path>
+                <path d="M16 19h6"></path>
+                <path d="M19 16v6"></path>
+            </svg>
+            Crear Nuevo Evento
+        </h1>
         
-        <div class="form-group">
-            <label for="titulo">Título del Evento</label>
-            <input type="text" id="titulo" name="titulo" required placeholder="Ej: Reunión de trabajo">
-        </div>
-        
-        <div class="form-group">
-            <label for="descripcion">Descripción (opcional)</label>
-            <textarea id="descripcion" name="descripcion" rows="4" placeholder="Detalles del evento..."></textarea>
-        </div>
-        
-        <div class="form-group">
-            <label for="fecha">Fecha y Hora</label>
-            <input type="datetime-local" id="fecha" name="fecha" required>
-        </div>
-        
-        <div class="form-actions">
-            <a href="{% url 'lista_eventos' %}" class="btn-secondary">Cancelar</a>
-            <button type="submit" class="btn-primary">Guardar Evento</button>
-        </div>
-    </form>
+        <form method="POST" class="evento-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="titulo">Título del Evento</label>
+                <div class="input-with-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-typography" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M4 20h3"></path><path d="M14 20h6"></path><path d="M6.9 15h6.9"></path><path d="M10.2 6.3l5.8 13.7"></path><path d="M5 20l6 -16l2 5"></path></svg>
+                    <input type="text" id="titulo" name="titulo" class="form-control" required placeholder="Ej: Reunión de trabajo o Fiesta IA">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="descripcion">Descripción (opcional)</label>
+                <textarea id="descripcion" name="descripcion" class="form-control" rows="4" placeholder="Agrega más detalles sobre lo que sucederá en el evento..."></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="fecha">Fecha y Hora</label>
+                <div class="input-with-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path><path d="M12 7v5l3 3"></path></svg>
+                    <input type="datetime-local" id="fecha" name="fecha" class="form-control" required>
+                </div>
+            </div>
+            
+            <div class="form-actions">
+                <a href="{% url 'lista_eventos' %}" class="btn-secondary">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-arrow-left" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 5px;"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M5 12l14 0"></path><path d="M5 12l6 6"></path><path d="M5 12l6 -6"></path></svg>
+                    Cancelar
+                </a>
+                <button type="submit" class="btn-primary">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-floppy" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M6 4h10l4 4v10a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2"></path><path d="M12 14m-2 0a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"></path><path d="M14 4l0 4l-6 0l0 -4"></path></svg>
+                    Guardar Evento
+                </button>
+            </div>
+        </form>
+    </div>
+
 </div>
 {% endblock %}

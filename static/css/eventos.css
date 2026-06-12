@@ -1,5 +1,12 @@
+/* ==========================================================================
+   EVENTOS CSS - ESTILO NEÓN Y GLASSMORPHISM
+   ========================================================================== */
+
+/* Layout General */
 .eventos-container {
     padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
 
 .eventos-layout {
@@ -8,51 +15,90 @@
     gap: 30px;
 }
 
-/* Calendario */
+/* ==================== COMPONENTES GLASSMORPHISM ==================== */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 25px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+/* Títulos */
+.neon-title {
+    font-family: var(--font-title, 'Inter', sans-serif);
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 25px;
+    background: linear-gradient(to right, #06b6d4, #7c3aed);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ==================== CALENDARIO ==================== */
 .calendar-section {
-    background: var(--panel-dark);
-    padding: 20px;
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
 }
 
 .calendar-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    padding: 0 10px;
 }
 
 .calendar-nav {
-    background: var(--accent-gradient);
+    background: rgba(255, 255, 255, 0.05);
     color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
     cursor: pointer;
-    font-weight: 600;
-    transition: transform 0.2s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
 }
 
 .calendar-nav:hover {
-    transform: scale(1.05);
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.4), rgba(6, 182, 212, 0.4));
+    transform: scale(1.1);
+    border-color: rgba(6, 182, 212, 0.5);
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+}
+
+#calendar-mes-ano {
+    font-size: 20px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 1px;
 }
 
 .calendar-dias-semana {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
+    gap: 10px;
     text-align: center;
     font-weight: 600;
-    color: var(--text-muted);
-    margin-bottom: 10px;
-    font-size: 14px;
+    color: var(--text-muted, #94a3b8);
+    margin-bottom: 15px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .calendar-dias {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
-    gap: 8px;
+    gap: 10px;
 }
 
 .calendar-dia {
@@ -60,23 +106,26 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 8px;
+    border-radius: 12px;
     cursor: pointer;
-    transition: background 0.2s, transform 0.2s;
-    font-size: 16px;
-    font-weight: 500;
+    transition: all 0.3s ease;
+    font-size: 15px;
+    font-weight: 600;
     position: relative;
-    background: rgba(0,0,0,0.2);
-    color: var(--text-main);
+    background: rgba(0, 0, 0, 0.2);
+    color: var(--text-main, #e2e8f0);
+    border: 1px solid rgba(255, 255, 255, 0.02);
 }
 
 .calendar-dia:hover {
-    background: rgba(124, 58, 237, 0.3);
-    transform: scale(1.1);
+    background: rgba(6, 182, 212, 0.15);
+    border-color: rgba(6, 182, 212, 0.3);
+    transform: translateY(-2px);
 }
 
 .calendar-dia.empty {
     background: transparent;
+    border: none;
     cursor: default;
 }
 
@@ -84,34 +133,36 @@
     transform: none;
 }
 
+/* Día Actual */
 .calendar-dia.hoy {
-    background: #7c3aed;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.8), rgba(6, 182, 212, 0.8));
     color: white;
-    font-weight: 700;
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+    border-color: transparent;
 }
 
+/* Días con Eventos */
 .calendar-dia.con-evento {
-    background: rgba(124, 58, 237, 0.4);
-    color: white;
+    background: rgba(124, 58, 237, 0.15);
+    border: 1px solid rgba(124, 58, 237, 0.3);
 }
 
 .evento-dot {
     position: absolute;
-    bottom: 4px;
+    bottom: 6px;
     left: 50%;
     transform: translateX(-50%);
     width: 6px;
     height: 6px;
-    background: #22c55e;
+    background: #06b6d4; /* Cyan neon */
     border-radius: 50%;
+    box-shadow: 0 0 8px #06b6d4;
 }
 
-/* Lista de Eventos */
+/* ==================== LISTA DE EVENTOS ==================== */
 .eventos-list-section {
-    background: var(--panel-dark);
-    padding: 20px;
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
+    display: flex;
+    flex-direction: column;
 }
 
 .eventos-header {
@@ -120,25 +171,84 @@
     margin-bottom: 20px;
 }
 
+.btn-primary {
+    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(6, 182, 212, 0.4);
+}
+
+.btn-secondary {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
 .eventos-list {
     display: flex;
     flex-direction: column;
     gap: 15px;
+    max-height: 500px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+/* Scrollbar para la lista */
+.eventos-list::-webkit-scrollbar {
+    width: 6px;
+}
+.eventos-list::-webkit-scrollbar-track {
+    background: rgba(0,0,0,0.1);
+    border-radius: 4px;
+}
+.eventos-list::-webkit-scrollbar-thumb {
+    background: rgba(124, 58, 237, 0.5);
+    border-radius: 4px;
 }
 
 .evento-card {
-    background: rgba(0,0,0,0.2);
-    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 15px;
     border-radius: 12px;
     color: white;
-    border-left: 4px solid #7c3aed;
+    border-left: 4px solid #06b6d4;
     display: flex;
-    gap: 15px;
-    transition: transform 0.2s;
+    gap: 20px;
+    transition: all 0.3s ease;
+    align-items: center;
 }
 
 .evento-card:hover {
     transform: translateX(5px);
+    background: rgba(255, 255, 255, 0.05);
+    border-left-color: #7c3aed;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
 
 .evento-date {
@@ -146,23 +256,30 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: var(--accent-gradient);
+    background: rgba(255,255,255,0.05);
     padding: 15px;
-    border-radius: 8px;
-    min-width: 60px;
+    border-radius: 10px;
+    min-width: 70px;
+    border: 1px solid rgba(255,255,255,0.05);
 }
 
 .date-day {
-    font-size: 24px;
-    font-weight: 700;
+    font-size: 26px;
+    font-weight: 800;
     color: white;
+    line-height: 1;
+    margin-bottom: 5px;
+    background: linear-gradient(to bottom, #fff, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
 .date-month {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
-    color: rgba(255,255,255,0.9);
+    color: #06b6d4;
     text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .evento-info {
@@ -170,20 +287,28 @@
 }
 
 .evento-info h3 {
-    color: #7c3aed;
-    margin-bottom: 8px;
+    color: white;
+    margin-bottom: 6px;
     font-size: 18px;
+    font-weight: 600;
 }
 
 .evento-info p {
-    color: var(--text-muted);
+    color: var(--text-muted, #94a3b8);
     margin-bottom: 8px;
     font-size: 14px;
+    line-height: 1.4;
 }
 
 .evento-time {
-    color: #22c55e;
-    font-size: 13px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(124, 58, 237, 0.2);
+    color: #c4b5fd;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
     font-weight: 600;
 }
 
@@ -191,22 +316,103 @@
     text-align: center;
     padding: 40px;
     color: var(--text-muted);
+    background: rgba(0,0,0,0.2);
+    border-radius: 12px;
+    border: 1px dashed rgba(255,255,255,0.1);
 }
 
-.btn-primary {
-    background: var(--accent-gradient);
-    color: white;
-    padding: 10px 20px;
-    border-radius: 8px;
-    text-decoration: none;
+/* ==================== FORMULARIO DE EVENTOS ==================== */
+.event-card-form {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.evento-form {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-size: 14px;
     font-weight: 600;
-    transition: transform 0.2s;
+    color: #e2e8f0;
+    margin-left: 4px;
 }
 
-.btn-primary:hover {
-    transform: scale(1.05);
+.input-with-icon {
+    position: relative;
+    display: flex;
+    align-items: center;
 }
 
+.input-with-icon i {
+    position: absolute;
+    left: 16px;
+    color: var(--text-muted, #94a3b8);
+    font-size: 20px;
+    pointer-events: none;
+    transition: color 0.3s;
+}
+
+.form-control {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 14px 16px 14px 45px; /* Espacio para el ícono */
+    color: white;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+textarea.form-control {
+    padding-left: 16px; /* Textarea sin ícono a la izquierda o adaptado */
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: #06b6d4;
+    background: rgba(0, 0, 0, 0.5);
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+}
+
+.form-control:focus + i,
+.input-with-icon:focus-within i {
+    color: #06b6d4;
+}
+
+/* Estilizar el input type="datetime-local" */
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+    opacity: 0.6;
+    transition: 0.2s;
+}
+input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+    opacity: 1;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 15px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ==================== RESPONSIVE ==================== */
 @media (max-width: 1024px) {
     .eventos-layout {
         grid-template-columns: 1fr;
@@ -214,15 +420,44 @@
 }
 
 @media (max-width: 768px) {
-    .eventos-layout {
-        grid-template-columns: 1fr;
+    .eventos-container {
+        padding: 10px;
+    }
+    
+    .glass-panel {
+        padding: 15px;
     }
     
     .calendar-dias-semana {
-        font-size: 12px;
+        font-size: 11px;
     }
     
     .calendar-dia {
-        font-size: 14px;
+        font-size: 13px;
+        border-radius: 8px;
+    }
+    
+    .evento-card {
+        padding: 12px;
+        flex-direction: row;
+        align-items: center;
+    }
+    
+    .evento-date {
+        padding: 10px;
+        min-width: 55px;
+    }
+    
+    .date-day {
+        font-size: 20px;
+    }
+    
+    .form-actions {
+        flex-direction: column-reverse;
+    }
+    
+    .btn-primary, .btn-secondary {
+        width: 100%;
+        justify-content: center;
     }
 }

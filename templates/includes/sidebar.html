@@ -19,7 +19,12 @@
         {% if user.is_staff %}
         <a href="/admin/" class="nav-item" title="Administración"><i data-lucide="shield"></i></a>
         {% endif %}
-        <a href="{% url 'lista_notificaciones' %}" class="nav-item" title="Notificaciones"><i data-lucide="bell"></i></a>
+        <a href="{% url 'lista_notificaciones' %}" class="nav-item" title="Notificaciones" id="notif-sidebar-link">
+            <i data-lucide="bell"></i>
+            {% if user.is_authenticated and notificaciones_sin_leer > 0 %}
+            <span class="notif-badge">{{ notificaciones_sin_leer }}</span>
+            {% endif %}
+        </a>
         <a href="{% url 'perfil' %}" class="nav-item" title="Perfil"><i data-lucide="user"></i></a>
         <a href="{% url 'tutorial_home' %}" class="nav-item" title="Tutorial"><i data-lucide="help-circle"></i></a>
         <a href="{% url 'configuracion_view' %}" class="nav-item" title="Configuración"><i data-lucide="settings"></i></a>

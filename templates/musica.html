@@ -4,110 +4,129 @@
 {% block title %}Música{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/musica.css' %}">
+<link rel="stylesheet" href="{% static 'css/musica.css' %}?v=2">
 {% endblock %}
 
 {% block content %}
 <div class="music-wrapper">
-    <h1 style="font-family: var(--font-title); margin-bottom: 2rem;">🎵 Música</h1>
-    
-    <div class="music-sections">
-        <!-- Transmisión Lírica -->
-        <div class="music-section">
-            <h2>🎤 Transmisión Lírica</h2>
-            <div id="lyrics-container">
-                <p style="color: var(--text-muted);">Selecciona una canción para ver la letra</p>
+    <div class="main-layout">
+        <!-- Columna Izquierda (Principal) -->
+        <div class="left-column">
+            <!-- Reproduciendo (Disco + Info) -->
+            <div class="music-section now-playing-section">
+                <div class="vinyl-container">
+                    <div class="vinyl-record" id="vinyl-record">
+                        <div class="vinyl-center"></div>
+                    </div>
+                </div>
+                <div class="now-playing-info">
+                    <div class="now-playing-label">REPRODUCIENDO 🎶</div>
+                    <h2 id="current-song-title">Selecciona una pista</h2>
+                    <div class="quantum-label">SISTEMA DE AUDIO CUÁNTICO ACTIVO</div>
+                </div>
             </div>
-        </div>
-        
-        <!-- Reproductor de YouTube -->
-        <div class="music-section">
-            <h2>🎵 Reproductor</h2>
-            <div class="player-controls">
-                <button class="btn-control" onclick="toggleVideoVisibility()">👁️ Mostrar/Ocultar Video</button>
-                <button class="btn-control" onclick="togglePause()">⏸️ Pausar/Reanudar</button>
-            </div>
-            <div id="youtube-iframe" class="youtube-iframe-container">
-                <p style="color: var(--text-muted);">Selecciona una canción para reproducir</p>
-            </div>
-            <div id="youtube-open-btn" style="display: none; margin-top: 10px; text-align: center;">
-                <button class="btn-primary" onclick="openCurrentInYouTube()">🎬 Ver en YouTube</button>
-            </div>
-        </div>
-        
-        <!-- Tu Matriz Sonora -->
-        <div class="music-section">
-            <h2>🎧 Tu Matriz Sonora</h2>
-            <div class="playlist-container">
-                <div class="playlist-header">
-                    <span>Playlist</span>
-                    <button class="btn-add" onclick="showAddSongForm()">➕ Añadir Canción</button>
+            
+            <!-- Video y Letra (Sub-grid) -->
+            <div class="video-lyrics-grid">
+                <!-- Video Player -->
+                <div class="music-section video-section">
+                    <div id="player-wrapper" class="youtube-iframe-container">
+                        <div id="youtube-iframe">
+                            <p style="color: var(--text-muted);">El reproductor aparecerá aquí</p>
+                        </div>
+                    </div>
+                    <div class="player-controls-futuristic">
+                        <button class="btn-icon" onclick="toggleMute()">🔊</button>
+                        <button class="btn-icon" onclick="playPrevious()">⏮</button>
+                        <button class="btn-play-pause" onclick="togglePause()">⏸</button>
+                        <button class="btn-icon" onclick="playNext()">⏭</button>
+                        <button class="btn-icon" onclick="toggleVideoVisibility()" title="Mostrar/Ocultar Video">👁️</button>
+                        <button class="btn-icon" onclick="toggleMiniPlayer()" title="Modo Flotante">🪟</button>
+                    </div>
+                    <div id="youtube-open-btn" style="display: none; margin-top: 10px; text-align: center;">
+                        <button class="btn-primary" onclick="openCurrentInYouTube()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);">🎬 Ver en YouTube</button>
+                    </div>
                 </div>
                 
-                <div id="add-song-form" class="add-song-form" style="display: none;">
+                <!-- Transmisión Lírica -->
+                <div class="music-section lyrics-section">
+                    <div class="lyrics-header">
+                        <div class="lyrics-title"><span class="dot"></span> TRANSMISIÓN LÍRICA</div>
+                        <button class="btn-lang">A ESPAÑOL 🔄</button>
+                    </div>
+                    <div id="lyrics-container" class="lyrics-content">
+                        <p style="color: var(--text-muted); font-size: 24px; margin-bottom: 10px;">✍️</p>
+                        <p style="color: var(--text-muted); margin-bottom: 20px;">No encontré esta letra en la base de datos.</p>
+                        <button class="btn-search-google" onclick="searchLyricsManually()">BUSCAR EN GOOGLE 🔍</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Columna Derecha (Sidebar) -->
+        <div class="right-column">
+            <!-- Añadir Pista -->
+            <div class="music-section add-track-section">
+                <h3 class="neon-title">AÑADIR PISTA</h3>
+                <div class="add-song-form" style="display: flex;">
                     <input type="text" id="song-name" placeholder="Nombre de la canción" class="music-input">
-                    <input type="text" id="song-artist" placeholder="Artista (opcional)" class="music-input">
-                    <input type="url" id="song-url" placeholder="URL de YouTube (opcional)" class="music-input">
-                    <button class="btn-primary" onclick="addSong()">Añadir</button>
-                    <button class="btn-secondary" onclick="hideAddSongForm()">Cancelar</button>
+                    <input type="text" id="song-artist" placeholder="Artista (opcional)" class="music-input" style="display: none;">
+                    <input type="url" id="song-url" placeholder="YouTube Link..." class="music-input">
+                    <button class="btn-gradient" onclick="addSong()">VINCULAR A LA MATRIZ</button>
                 </div>
-                
-                <div class="playlist-items">
+            </div>
+            
+            <!-- Tu Matriz Sonora -->
+            <div class="music-section playlist-section">
+                <div class="playlist-header-neon">
+                    <h3 class="neon-title">TU MATRIZ SONORA</h3>
+                    <span class="playlist-count">{{ canciones|length }}</span>
+                </div>
+                <div class="playlist-items custom-scrollbar">
                     {% if request.user.is_authenticated %}
                         {% for cancion in canciones %}
                         <div class="playlist-item" data-id="{{ cancion.id }}" data-youtube-id="{{ cancion.youtube_id }}" data-name="{{ cancion.nombre }}" data-artist="{{ cancion.artista|default:"" }}">
                             <div class="song-info" onclick="playSongFromItem({{ cancion.id }})">
-                                <span class="song-name">{{ cancion.nombre }}</span>
-                                {% if cancion.artista %}
-                                <span class="song-artist">{{ cancion.artista }}</span>
-                                {% endif %}
+                                <div class="song-icon">💿</div>
+                                <div class="song-details">
+                                    <span class="song-name">{{ cancion.nombre }}{% if cancion.artista %} - {{ cancion.artista }}{% endif %}</span>
+                                    <span class="song-freq">NEURAL FREQUENCY</span>
+                                </div>
                             </div>
-                            <button class="btn-delete" onclick="deleteSong({{ cancion.id }})">🗑️</button>
+                            <div style="display: flex; gap: 5px;">
+                                <button class="btn-delete" style="background: none; border: none; font-size: 16px; cursor: pointer; opacity: 0.6; transition: 0.3s;" onclick="editSong({{ cancion.id }}, '{{ cancion.nombre|escapejs }}', '{{ cancion.artista|default:""|escapejs }}')">✏️</button>
+                                <button class="btn-delete" onclick="deleteSong({{ cancion.id }})">🗑️</button>
+                            </div>
                         </div>
                         {% empty %}
-                        <p style="color: var(--text-muted);">No hay canciones en tu playlist</p>
+                        <p style="color: var(--text-muted); text-align: center; padding: 20px;">Matriz vacía</p>
                         {% endfor %}
                     {% else %}
-                        <p style="color: var(--text-muted);">
-                            <a href="{% url 'login' %}">Inicia sesión</a> para gestionar tu playlist
+                        <p style="color: var(--text-muted); text-align: center; padding: 20px;">
+                            <a href="{% url 'login' %}">Inicia sesión</a> para acceder a la matriz
                         </p>
                     {% endif %}
                 </div>
             </div>
         </div>
-        
-        <!-- Descargador de Música -->
-        <div class="music-section">
-            <h2>📥 Descargador de Música</h2>
-            <div class="downloader-container">
-                <input type="url" id="download-url" placeholder="URL de YouTube" class="music-input">
-                <select id="download-format" class="music-input">
-                    <option value="mp3">MP3 (Audio)</option>
-                    <option value="mp4">MP4 (Video)</option>
-                </select>
-                <button class="btn-primary" onclick="downloadMusic()">📥 Descargar</button>
-                <div id="download-status" style="margin-top: 10px; color: var(--text-muted);"></div>
-            </div>
+    </div>
+
+    <!-- Descargador de Música (Secundario) -->
+    <div class="music-section secondary-section" style="margin-top: 30px;">
+        <h2>📥 Descargador de Música</h2>
+        <div class="downloader-container" style="flex-direction: row; align-items: center; justify-content: flex-start; flex-wrap: wrap;">
+            <input type="url" id="download-url" placeholder="URL de YouTube" class="music-input" style="max-width: 400px;">
+            <select id="download-format" class="music-input" style="max-width: 150px;">
+                <option value="mp3">MP3 (Audio)</option>
+                <option value="mp4">MP4 (Video)</option>
+            </select>
+            <button class="btn-primary" onclick="downloadMusic()">📥 Descargar</button>
+            <div id="download-status" style="width: 100%; margin-top: 10px; color: var(--text-muted);"></div>
         </div>
     </div>
-    
-    <!-- Chat Flotante -->
-    <div id="chat-float" class="chat-float">
-        <div class="chat-header" onclick="toggleChat()">
-            <span>💬 Chat</span>
-            <span id="chat-toggle">▲</span>
-        </div>
-        <div id="chat-body" class="chat-body" style="display: none;">
-            <div id="chat-messages" class="chat-messages"></div>
-            <div class="chat-input">
-                <input type="text" id="chat-message" placeholder="Escribe un mensaje..." class="music-input">
-                <button class="btn-primary" onclick="sendChatMessage()">Enviar</button>
-            </div>
-        </div>
-    </div>
+
 </div>
 {% endblock %}
-
 {% block extra_js %}
 <script>
 // Cargar YouTube IFrame API
@@ -128,51 +147,101 @@ function onYouTubeIframeAPIReady() {
 
 function onPlayerError(event) {
     console.error('Error del reproductor de YouTube:', event.data);
-    // Error 153: No se puede reproducir incrustado
+    // Error 150/153: El video no se puede incrustar debido a restricciones del autor.
     if (event.data === 150 || event.data === 153) {
-        const iframeContainer = document.getElementById('youtube-iframe');
+        const iframeContainer = document.getElementById('player-wrapper');
         iframeContainer.innerHTML = `
             <div style="text-align: center; padding: 20px;">
-                <p style="color: var(--text-muted); margin-bottom: 10px;">Este video no se puede reproducir incrustado debido a restricciones de YouTube.</p>
-                <button class="btn-primary" onclick="openCurrentInYouTube()">🎬 Ver en YouTube</button>
+                <p style="color: var(--text-muted); margin-bottom: 10px;">El creador bloqueó este video en otras webs.</p>
+                <p style="color: #06b6d4; font-weight: 600; font-size: 14px; animation: pulse 1.5s infinite;">
+                    🔄 Extrayendo audio directo para evadir el bloqueo...
+                </p>
             </div>
         `;
+        
+        fetch(`/api/stream-audio/${currentYoutubeId}/`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.url) {
+                    iframeContainer.innerHTML = `
+                        <div style="text-align: center; padding: 20px; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+                            <p style="color: #06b6d4; margin-bottom: 20px; font-weight: 600;">🎶 ¡Audio Extraído con Éxito!</p>
+                            <audio controls autoplay style="width: 90%; border-radius: 20px; background: rgba(0,0,0,0.5);">
+                                <source src="${data.url}" type="audio/mp4">
+                                Tu navegador no soporta audio.
+                            </audio>
+                        </div>
+                    `;
+                } else {
+                    iframeContainer.innerHTML = `
+                        <div style="text-align: center; padding: 20px;">
+                            <p style="color: #ef4444; margin-bottom: 10px;">No se pudo extraer el audio (Error interno).</p>
+                            <button class="btn-primary" onclick="openCurrentInYouTube()">🎬 Ver en YouTube</button>
+                        </div>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error("Error obteniendo audio:", error);
+                iframeContainer.innerHTML = `
+                    <div style="text-align: center; padding: 20px;">
+                        <p style="color: #ef4444; margin-bottom: 10px;">Fallo de conexión al extraer el audio.</p>
+                        <button class="btn-primary" onclick="openCurrentInYouTube()">🎬 Ver en YouTube</button>
+                    </div>
+                `;
+            });
     }
 }
 
 function onPlayerStateChange(event) {
-    // Puedes manejar cambios de estado del reproductor aquí
+    const vinyl = document.getElementById('vinyl-record');
+    if (!vinyl) return;
+    
+    if (event.data === YT.PlayerState.PLAYING) {
+        vinyl.style.animationPlayState = 'running';
+        vinyl.classList.add('spinning');
+    } else {
+        vinyl.style.animationPlayState = 'paused';
+    }
 }
 
 // ==================== CONTROLES DEL REPRODUCTOR ====================
 function toggleVideoVisibility() {
-    if (!player) {
-        alert('No hay video reproduciéndose');
-        return;
-    }
+    const wrapper = document.getElementById('player-wrapper');
+    if (!wrapper) return;
     
     isVideoVisible = !isVideoVisible;
-    const iframeContainer = document.getElementById('youtube-iframe');
-    
     if (isVideoVisible) {
-        iframeContainer.style.display = 'block';
+        wrapper.style.display = 'block';
     } else {
-        iframeContainer.style.display = 'none';
+        wrapper.style.display = 'none';
     }
 }
 
 function togglePause() {
-    if (!player) {
-        alert('No hay video reproduciéndose');
+    const fallbackAudio = document.querySelector('#player-wrapper audio');
+    if (fallbackAudio) {
+        if (fallbackAudio.paused) {
+            fallbackAudio.play();
+        } else {
+            fallbackAudio.pause();
+        }
         return;
     }
     
-    if (isPaused) {
-        player.playVideo();
-        isPaused = false;
-    } else {
-        player.pauseVideo();
-        isPaused = true;
+    if (!player || typeof player.getPlayerState !== 'function') {
+        alert('No hay video reproduciéndose o hubo un error');
+        return;
+    }
+    
+    try {
+        if (player.getPlayerState() !== YT.PlayerState.PLAYING) {
+            player.playVideo();
+        } else {
+            player.pauseVideo();
+        }
+    } catch (e) {
+        console.error("Error al pausar/reproducir", e);
     }
 }
 
@@ -209,51 +278,7 @@ function downloadMusic() {
 }
 
 // ==================== CHAT FLOTANTE ====================
-function toggleChat() {
-    const chatBody = document.getElementById('chat-body');
-    const chatToggle = document.getElementById('chat-toggle');
-    
-    if (chatBody.style.display === 'none') {
-        chatBody.style.display = 'block';
-        chatToggle.textContent = '▼';
-    } else {
-        chatBody.style.display = 'none';
-        chatToggle.textContent = '▲';
-    }
-}
-
-function sendChatMessage() {
-    const messageInput = document.getElementById('chat-message');
-    const message = messageInput.value.trim();
-    const messagesDiv = document.getElementById('chat-messages');
-    
-    if (!message) {
-        return;
-    }
-    
-    // Agregar mensaje del usuario
-    const userMessage = document.createElement('div');
-    userMessage.className = 'chat-message user';
-    userMessage.textContent = message;
-    messagesDiv.appendChild(userMessage);
-    
-    // Limpiar input
-    messageInput.value = '';
-    
-    // Simular respuesta del sistema
-    setTimeout(() => {
-        const systemMessage = document.createElement('div');
-        systemMessage.className = 'chat-message system';
-        systemMessage.textContent = '¡Gracias por tu mensaje! Este es un chat simulado.';
-        messagesDiv.appendChild(systemMessage);
-        
-        // Scroll al final
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-    }, 1000);
-    
-    // Scroll al final
-    messagesDiv.scrollTop = messagesDiv.scrollHeight;
-}
+// El chat flotante ha sido eliminado a petición del usuario.
 
 function searchLyrics() {
     const container = document.getElementById('lyrics-container');
@@ -346,6 +371,43 @@ function deleteSong(songId) {
     });
 }
 
+function editSong(songId, currentName, currentArtist) {
+    const newName = prompt("Editar nombre de la canción:", currentName);
+    if (newName === null) return; // Cancelado
+    
+    const newArtist = prompt("Editar nombre del artista (opcional):", currentArtist);
+    if (newArtist === null) return; // Cancelado
+    
+    if (!newName.trim()) {
+        alert("El nombre de la canción es requerido");
+        return;
+    }
+    
+    fetch(`/api/edit-song/${songId}/`, {
+        method: 'PATCH',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            nombre: newName.trim(),
+            artista: newArtist.trim()
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error al editar la canción: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al editar la canción');
+    });
+}
+
 function playSongFromItem(songId) {
     const item = document.querySelector(`.playlist-item[data-id="${songId}"]`);
     const youtubeId = item.dataset.youtubeId;
@@ -363,9 +425,26 @@ function playSongFromItem(songId) {
     // Mostrar el botón de YouTube
     document.getElementById('youtube-open-btn').style.display = 'block';
     
+    // Actualizar UI del Reproductor
+    document.getElementById('current-song-title').textContent = `${songName} ${artist ? '- ' + artist : ''}`;
+    document.getElementById('mini-player-title').textContent = `${songName} ${artist ? '- ' + artist : ''}`;
+    
+    // Animar vinilo
+    const vinyl = document.getElementById('vinyl-record');
+    if (vinyl) {
+        vinyl.style.animationPlayState = 'running';
+        vinyl.classList.add('spinning');
+    }
+    
     // Crear nuevo reproductor con YouTube IFrame API
     if (player) {
         player.destroy();
+    }
+    
+    // Asegurar que el contenedor existe (pudo haber sido borrado por el fallback)
+    const wrapper1 = document.getElementById('player-wrapper');
+    if (wrapper1) {
+        wrapper1.innerHTML = '<div id="youtube-iframe"><p style="color: var(--text-muted);">El reproductor aparecerá aquí</p></div>';
     }
     
     player = new YT.Player('youtube-iframe', {
@@ -408,6 +487,12 @@ function playSong(youtubeId) {
         player.destroy();
     }
     
+    // Asegurar que el contenedor existe
+    const wrapper2 = document.getElementById('player-wrapper');
+    if (wrapper2) {
+        wrapper2.innerHTML = '<div id="youtube-iframe"><p style="color: var(--text-muted);">El reproductor aparecerá aquí</p></div>';
+    }
+    
     player = new YT.Player('youtube-iframe', {
         height: '400',
         width: '100%',
@@ -426,6 +511,48 @@ function playSong(youtubeId) {
             'onStateChange': onPlayerStateChange
         }
     });
+}
+
+// ==================== NUEVOS CONTROLES FUTURISTAS ====================
+function toggleMute() {
+    const fallbackAudio = document.querySelector('#player-wrapper audio');
+    if (fallbackAudio) {
+        fallbackAudio.muted = !fallbackAudio.muted;
+        return;
+    }
+
+    if (!player || typeof player.isMuted !== 'function') return;
+    try {
+        if (player.isMuted()) {
+            player.unMute();
+        } else {
+            player.mute();
+        }
+    } catch (e) {
+        console.error("Error al silenciar", e);
+    }
+}
+
+function playNext() {
+    // Buscar la canción actual en la lista y reproducir la siguiente
+    if (!currentYoutubeId) return;
+    const items = Array.from(document.querySelectorAll('.playlist-item'));
+    const currentIndex = items.findIndex(item => item.dataset.youtubeId === currentYoutubeId);
+    if (currentIndex >= 0 && currentIndex < items.length - 1) {
+        const nextId = items[currentIndex + 1].dataset.id;
+        playSongFromItem(nextId);
+    }
+}
+
+function playPrevious() {
+    // Buscar la canción actual en la lista y reproducir la anterior
+    if (!currentYoutubeId) return;
+    const items = Array.from(document.querySelectorAll('.playlist-item'));
+    const currentIndex = items.findIndex(item => item.dataset.youtubeId === currentYoutubeId);
+    if (currentIndex > 0) {
+        const prevId = items[currentIndex - 1].dataset.id;
+        playSongFromItem(prevId);
+    }
 }
 
 function openCurrentInYouTube() {
@@ -453,20 +580,23 @@ function searchLyricsForSong(songName, artist) {
     lyricsContainer.innerHTML = '<p style="color: var(--text-muted);">Buscando letra...</p>';
     
     const searchTerm = artist ? `${songName} - ${artist}` : songName;
+    const escapedSearchTerm = searchTerm.replace(/'/g, "\\'").replace(/"/g, '&quot;');
     
     // Simular búsqueda de letras (puedes integrar con una API real)
     setTimeout(() => {
         lyricsContainer.innerHTML = `
-            <p style="color: var(--text-muted);">Letra no disponible automáticamente para "${searchTerm}".</p>
-            <button class="btn-primary" onclick="searchLyricsManually('${searchTerm}')">🔍 Buscar letra manualmente</button>
+            <p style="color: var(--text-muted);">Letra no disponible automáticamente para "${escapedSearchTerm}".</p>
+            <button class="btn-primary" onclick="searchLyricsManually('${escapedSearchTerm}')">🔍 Buscar letra manualmente</button>
         `;
     }, 1500);
 }
 
 function searchLyricsManually(searchTerm = '') {
+    // Si viene escapado, restaurar comillas dobles para el value
+    const unescapedTerm = searchTerm.replace(/&quot;/g, '"');
     const lyricsContainer = document.getElementById('lyrics-container');
     lyricsContainer.innerHTML = `
-        <input type="text" id="manual-lyrics-search" placeholder="Canción - Artista" class="music-input" style="width: 100%; margin-bottom: 10px;" value="${searchTerm}">
+        <input type="text" id="manual-lyrics-search" placeholder="Canción - Artista" class="music-input" style="width: 100%; margin-bottom: 10px;" value="${unescapedTerm}">
         <button class="btn-primary" onclick="performManualSearch()">🔍 Buscar</button>
     `;
 }
@@ -504,6 +634,114 @@ function getCookie(name) {
         }
     }
     return cookieValue;
+}
+
+// ==================== INTEGRACIÓN CON MINI PLAYER GLOBAL ====================
+// Cuando se reproduce una canción desde la lista, actualizamos el global
+const originalPlaySongFromItem = window.playSongFromItem;
+window.playSongFromItem = function(songId) {
+    const item = document.querySelector(`.playlist-item[data-id="${songId}"]`);
+    if (!item) return;
+    
+    const youtubeId = item.dataset.youtubeId;
+    const songName = item.dataset.name;
+    const artist = item.dataset.artist;
+    
+    if (!youtubeId) {
+        alert('Esta canción no tiene video de YouTube');
+        return;
+    }
+    
+    currentYoutubeId = youtubeId;
+    document.getElementById('youtube-open-btn').style.display = 'block';
+    document.getElementById('current-song-title').textContent = `${songName} ${artist ? '- ' + artist : ''}`;
+    
+    const vinyl = document.getElementById('vinyl-record');
+    if (vinyl) {
+        vinyl.style.animationPlayState = 'running';
+        vinyl.classList.add('spinning');
+    }
+    
+    if (player) {
+        player.destroy();
+    }
+    
+    const wrapper1 = document.getElementById('player-wrapper');
+    if (wrapper1) {
+        wrapper1.innerHTML = '<div id="youtube-iframe"><p style="color: var(--text-muted);">El reproductor aparecerá aquí</p></div>';
+    }
+    
+    player = new YT.Player('youtube-iframe', {
+        height: '400',
+        width: '100%',
+        videoId: youtubeId,
+        playerVars: {
+            'autoplay': 1,
+            'rel': 0,
+            'modestbranding': 1,
+            'iv_load_policy': 3,
+            'disablekb': 1,
+            'fs': 0,
+            'origin': window.location.origin
+        },
+        events: {
+            'onError': onPlayerError,
+            'onStateChange': onPlayerStateChange
+        }
+    });
+    
+    // Reproducir también en el reproductor global (base.html)
+    if (typeof globalPlaySong === 'function') {
+        globalPlaySong(youtubeId, songName, artist);
+    }
+    
+    searchLyricsForSong(songName, artist);
+};
+
+// Sobrescribir botones de control para sincronizar con global si no hay local
+function togglePause() {
+    const fallbackAudio = document.querySelector('#player-wrapper audio');
+    if (fallbackAudio) {
+        if (fallbackAudio.paused) fallbackAudio.play();
+        else fallbackAudio.pause();
+        return;
+    }
+    
+    if (!player || typeof player.getPlayerState !== 'function') {
+        if (typeof globalTogglePause === 'function') globalTogglePause();
+        return;
+    }
+    
+    try {
+        if (player.getPlayerState() !== YT.PlayerState.PLAYING) player.playVideo();
+        else player.pauseVideo();
+    } catch (e) {
+        console.error("Error al pausar/reproducir", e);
+    }
+}
+
+function playNext() {
+    if (!currentYoutubeId && typeof globalPlayNext === 'function') {
+        globalPlayNext();
+        return;
+    }
+    const items = Array.from(document.querySelectorAll('.playlist-item'));
+    const currentIndex = items.findIndex(item => item.dataset.youtubeId === currentYoutubeId);
+    if (currentIndex >= 0 && currentIndex < items.length - 1) {
+        playSongFromItem(items[currentIndex + 1].dataset.id);
+    }
+}
+
+function playPrevious() {
+    if (!currentYoutubeId && typeof globalPlayPrevious === 'function') {
+        globalPlayPrevious();
+        return;
+    }
+    const items = Array.from(document.querySelectorAll('.playlist-item'));
+    const currentIndex = items.findIndex(item => item.dataset.youtubeId === currentYoutubeId);
+    if (currentIndex > 0) {
+        playSongFromItem(items[currentIndex - 1].dataset.id);
+    }
 }
 </script>
 {% endblock %}

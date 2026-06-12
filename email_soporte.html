@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: 'Segoe UI', Helvetica, Arial, sans-serif; background-color: #f4f7f9; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border: 1px solid #e1e8ed; }
+        .header { background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 100%); color: #ffffff; padding: 30px 20px; text-align: center; }
+        .header h1 { margin: 0; font-size: 24px; letter-spacing: 1px; text-transform: uppercase; }
+        .content { padding: 40px 30px; }
+        .field-group { margin-bottom: 25px; }
+        .label { display: block; font-size: 12px; font-weight: 700; color: #7c3aed; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; }
+        .value { background: #f8fafc; padding: 15px; border-radius: 8px; border: 1px solid #edf2f7; color: #1e293b; font-size: 16px; line-height: 1.5; }
+        .footer { background: #f8fafc; padding: 20px; text-align: center; color: #64748b; font-size: 13px; border-top: 1px solid #edf2f7; }
+        .accent { color: #7c3aed; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Nuevo Mensaje de Soporte</h1>
+            <p style="margin: 10px 0 0; opacity: 0.9;">Se ha recibido una nueva consulta desde el portal</p>
+        </div>
+        <div class="content">
+            <div class="field-group">
+                <span class="label">👤 Nombre del Usuario</span>
+                <div class="value">{{ nombre }}</div>
+            </div>
+            
+            <div class="field-group">
+                <span class="label">📧 Correo Electrónico</span>
+                <div class="value">{{ email }}</div>
+            </div>
+            
+            <div class="field-group">
+                <span class="label">💬 Mensaje / Sugerencia</span>
+                <div class="value" style="white-space: pre-wrap;">{{ mensaje }}</div>
+            </div>
+        </div>
+        <div class="footer">
+            Recibido el {{ fecha }}<br>
+            Sistema de Soporte Automático <span class="accent">MiniAmigixV</span>
+        </div>
+    </div>
+</body>
+</html>

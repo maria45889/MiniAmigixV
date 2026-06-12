@@ -4,96 +4,687 @@
 {% block title %}Juegos{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/juegos.css' %}">
+<link rel="stylesheet" href="{% static 'css/juegos.css' %}?v=2">
 {% endblock %}
 
 {% block content %}
-<div class="dashboard">
+<div class="dashboard" style="max-width: 1200px; margin: 0 auto; padding: 20px;">
     <div class="games-header" style="margin-bottom: 3rem; text-align: center;">
-        <h1 style="font-family: var(--font-title); font-size: 3rem; margin-bottom: 0.5rem;">🎮 Juegos</h1>
+        <h1 class="neon-title" style="justify-content: center; font-size: 3rem;">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-gamepad-2" width="48" height="48" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 10px;">
+                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                <path d="M12 5h-3.5a5 5 0 0 0 -5 5v3a5 5 0 0 0 5 5h7a5 5 0 0 0 5 -5v-3a5 5 0 0 0 -5 -5h-3.5"></path>
+                <path d="M14 15l4 -4"></path>
+                <path d="M15 14l-4 -4"></path>
+            </svg>
+            Juegos Arena
+        </h1>
         <p style="color: var(--text-muted); font-size: 1.1rem;">Selecciona un desafío y pon a prueba tus habilidades</p>
     </div>
-    
+
+    <!-- ARENA MODAL PARA LOS JUEGOS -->
+    <div id="game-modal" class="game-modal-overlay">
+        <div class="game-arena">
+            <button class="game-close-btn" onclick="cerrarJuego()" title="Cerrar Juego">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                    <path d="M18 6l-12 12"></path>
+                    <path d="M6 6l12 12"></path>
+                </svg>
+            </button>
+            <div id="juego-container" class="game-arena-content"></div>
+        </div>
+    </div>
+
     <div class="game-grid">
         <!-- Adivinanza -->
-        <a href="{% url 'estudio' %}?game=adivinanza" class="game-card">
-            <div class="game-icon-wrapper" style="background: rgba(124, 58, 237, 0.1); border-radius: 20px; padding: 20px; margin-bottom: 15px;">
-                <div style="font-size: 3.5rem;">🧩</div>
-            </div>
-            <h3 style="font-size: 1.5rem; margin-bottom: 8px;">Adivinanza</h3>
-            <p style="color: var(--text-muted); font-size: 0.95rem;">Resuelve los acertijos más difíciles.</p>
-            <div class="game-tag" style="margin-top: 15px; font-size: 0.8rem; font-weight: bold; color: #7c3aed; text-transform: uppercase; letter-spacing: 1px;">Lógica</div>
+        <a href="javascript:void(0)" onclick="iniciarJuegoAdivinanza()" class="game-card" style="--game-color: #7c3aed;">
+            <div class="game-icon-wrapper">🧩</div>
+            <h3>Adivinanza</h3>
+            <p>Resuelve los acertijos más difíciles.</p>
+            <div class="game-tag">Lógica</div>
         </a>
         
         <!-- Quiz -->
-        <a href="{% url 'estudio' %}?game=quiz" class="game-card">
-            <div class="game-icon-wrapper" style="background: rgba(59, 130, 246, 0.1); border-radius: 20px; padding: 20px; margin-bottom: 15px;">
-                <div style="font-size: 3.5rem;">❓</div>
-            </div>
-            <h3 style="font-size: 1.5rem; margin-bottom: 8px;">Quiz Master</h3>
-            <p style="color: var(--text-muted); font-size: 0.95rem;">¿Qué tanto sabes del mundo?</p>
-            <div class="game-tag" style="margin-top: 15px; font-size: 0.8rem; font-weight: bold; color: #3b82f6; text-transform: uppercase; letter-spacing: 1px;">Cultura</div>
+        <a href="javascript:void(0)" onclick="iniciarJuegoQuiz()" class="game-card" style="--game-color: #3b82f6;">
+            <div class="game-icon-wrapper">❓</div>
+            <h3>Quiz Master</h3>
+            <p>¿Qué tanto sabes del mundo?</p>
+            <div class="game-tag">Cultura</div>
         </a>
         
         <!-- Memoria -->
-        <a href="{% url 'estudio' %}?game=memoria" class="game-card">
-            <div class="game-icon-wrapper" style="background: rgba(236, 72, 153, 0.1); border-radius: 20px; padding: 20px; margin-bottom: 15px;">
-                <div style="font-size: 3.5rem;">🎯</div>
-            </div>
-            <h3 style="font-size: 1.5rem; margin-bottom: 8px;">Memoria</h3>
-            <p style="color: var(--text-muted); font-size: 0.95rem;">Encuentra los pares idénticos.</p>
-            <div class="game-tag" style="margin-top: 15px; font-size: 0.8rem; font-weight: bold; color: #ec4899; text-transform: uppercase; letter-spacing: 1px;">Agilidad</div>
+        <a href="javascript:void(0)" onclick="iniciarJuegoMemoria()" class="game-card" style="--game-color: #ec4899;">
+            <div class="game-icon-wrapper">🎯</div>
+            <h3>Memoria</h3>
+            <p>Encuentra los pares idénticos.</p>
+            <div class="game-tag">Agilidad</div>
         </a>
         
         <!-- Matemáticas -->
-        <a href="{% url 'estudio' %}?game=matematicas" class="game-card">
-            <div class="game-icon-wrapper" style="background: rgba(34, 197, 94, 0.1); border-radius: 20px; padding: 20px; margin-bottom: 15px;">
-                <div style="font-size: 3.5rem;">🔢</div>
-            </div>
-            <h3 style="font-size: 1.5rem; margin-bottom: 8px;">Mente Rápida</h3>
-            <p style="color: var(--text-muted); font-size: 0.95rem;">Cálculos mentales veloces.</p>
-            <div class="game-tag" style="margin-top: 15px; font-size: 0.8rem; font-weight: bold; color: #22c55e; text-transform: uppercase; letter-spacing: 1px;">Números</div>
+        <a href="javascript:void(0)" onclick="iniciarJuegoMatematicas()" class="game-card" style="--game-color: #22c55e;">
+            <div class="game-icon-wrapper">🔢</div>
+            <h3>Mente Rápida</h3>
+            <p>Cálculos mentales veloces.</p>
+            <div class="game-tag">Números</div>
         </a>
 
         <!-- Reflejos (Nuevo) -->
-        <a href="{% url 'estudio' %}?game=reflejos" class="game-card">
-            <div class="game-icon-wrapper" style="background: rgba(245, 158, 11, 0.1); border-radius: 20px; padding: 20px; margin-bottom: 15px;">
-                <div style="font-size: 3.5rem;">⚡</div>
-            </div>
-            <h3 style="font-size: 1.5rem; margin-bottom: 8px;">Reflejos</h3>
-            <p style="color: var(--text-muted); font-size: 0.95rem;">Haz clic lo más rápido posible.</p>
-            <div class="game-tag" style="margin-top: 15px; font-size: 0.8rem; font-weight: bold; color: #f59e0b; text-transform: uppercase; letter-spacing: 1px;">Velocidad</div>
+        <a href="javascript:void(0)" onclick="iniciarJuegoReflejos()" class="game-card" style="--game-color: #f59e0b;">
+            <div class="game-icon-wrapper">⚡</div>
+            <h3>Reflejos</h3>
+            <p>Haz clic lo más rápido posible.</p>
+            <div class="game-tag">Velocidad</div>
         </a>
 
         <!-- Fidget Spinner (Nuevo) -->
-        <a href="{% url 'estudio' %}?game=fidget" class="game-card">
-            <div class="game-icon-wrapper" style="background: rgba(6, 182, 212, 0.1); border-radius: 20px; padding: 20px; margin-bottom: 15px;">
-                <div style="font-size: 3.5rem;">🌀</div>
-            </div>
-            <h3 style="font-size: 1.5rem; margin-bottom: 8px;">Fidget</h3>
-            <p style="color: var(--text-muted); font-size: 0.95rem;">Relájate girando el spinner.</p>
-            <div class="game-tag" style="margin-top: 15px; font-size: 0.8rem; font-weight: bold; color: #06b6d4; text-transform: uppercase; letter-spacing: 1px;">Relax</div>
+        <a href="javascript:void(0)" onclick="iniciarJuegoFidget()" class="game-card" style="--game-color: #06b6d4;">
+            <div class="game-icon-wrapper">🌀</div>
+            <h3>Fidget</h3>
+            <p>Relájate girando el spinner.</p>
+            <div class="game-tag">Relax</div>
         </a>
 
         <!-- Snake (Nuevo Extra) -->
-        <a href="{% url 'estudio' %}?game=snake" class="game-card">
-            <div class="game-icon-wrapper" style="background: rgba(139, 92, 246, 0.1); border-radius: 20px; padding: 20px; margin-bottom: 15px;">
-                <div style="font-size: 3.5rem;">🐍</div>
-            </div>
-            <h3 style="font-size: 1.5rem; margin-bottom: 8px;">Snake</h3>
-            <p style="color: var(--text-muted); font-size: 0.95rem;">El clásico juego de la serpiente.</p>
-            <div class="game-tag" style="margin-top: 15px; font-size: 0.8rem; font-weight: bold; color: #8b5cf6; text-transform: uppercase; letter-spacing: 1px;">Retro</div>
+        <a href="javascript:void(0)" onclick="iniciarJuegoSnake()" class="game-card" style="--game-color: #a855f7;">
+            <div class="game-icon-wrapper">🐍</div>
+            <h3>Snake Neo</h3>
+            <p>El clásico juego de la serpiente.</p>
+            <div class="game-tag">Retro</div>
         </a>
 
         <!-- Respiración (Nuevo para Relax) -->
-        <a href="{% url 'estudio' %}?game=respiracion" class="game-card">
-            <div class="game-icon-wrapper" style="background: rgba(45, 212, 191, 0.1); border-radius: 20px; padding: 20px; margin-bottom: 15px;">
-                <div style="font-size: 3.5rem;">🌬️</div>
-            </div>
-            <h3 style="font-size: 1.5rem; margin-bottom: 8px;">Respiración</h3>
-            <p style="color: var(--text-muted); font-size: 0.95rem;">Relájate y encuentra tu centro.</p>
-            <div class="game-tag" style="margin-top: 15px; font-size: 0.8rem; font-weight: bold; color: #2dd4bf; text-transform: uppercase; letter-spacing: 1px;">Mindfulness</div>
+        <a href="javascript:void(0)" onclick="iniciarJuegoRespiracion()" class="game-card" style="--game-color: #2dd4bf;">
+            <div class="game-icon-wrapper">🌬️</div>
+            <h3>Respiración</h3>
+            <p>Relájate y encuentra tu centro.</p>
+            <div class="game-tag">Mindfulness</div>
         </a>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// ==================== LÓGICA DE JUEGOS MODAL ====================
+
+function prepararJuego() {
+    const modal = document.getElementById('game-modal');
+    const container = document.getElementById('juego-container');
+    container.innerHTML = ''; // Limpiar
+    modal.classList.add('active'); // Mostrar Modal
+    return container;
+}
+
+function cerrarJuego() {
+    const modal = document.getElementById('game-modal');
+    const container = document.getElementById('juego-container');
+    modal.classList.remove('active');
+    setTimeout(() => { container.innerHTML = ''; }, 300); // Limpiar después de animación
+    
+    // Limpiar loops
+    if (window.snakeLoop) clearInterval(window.snakeLoop);
+    if (window.fidgetAnimacion) cancelAnimationFrame(window.fidgetAnimacion);
+}
+
+// Cerrar al dar clic fuera del modal
+document.getElementById('game-modal').addEventListener('click', function(e) {
+    if (e.target === this) cerrarJuego();
+});
+
+// Adivinanzas
+function iniciarJuegoAdivinanza() {
+    const container = prepararJuego();
+    
+    const adivinanzas = [
+        { pregunta: "¿Qué es lo que cuanto más quitas más grande es?", respuesta: "agujero" },
+        { pregunta: "¿Qué tiene cuello pero no cabeza?", respuesta: "botella" },
+        { pregunta: "¿Qué tiene dientes pero no come?", respuesta: "peine" },
+        { pregunta: "¿Qué sube pero nunca baja?", respuesta: "edad" },
+        { pregunta: "¿Qué tiene llaves pero no abre puertas?", respuesta: "piano" },
+        { pregunta: "¿Qué tiene ojos pero no ve?", respuesta: "aguja" },
+        { pregunta: "¿Qué tiene patas pero no camina?", respuesta: "mesa" },
+        { pregunta: "¿Qué tiene cara pero no ojos?", respuesta: "reloj" }
+    ];
+    
+    const adivinanza = adivinanzas[Math.floor(Math.random() * adivinanzas.length)];
+    window.adivinanzaActual = adivinanza;
+    window.adivinanzasIntentos = 3;
+    
+    container.innerHTML = `
+        <div class="game-arena-title">🧩 Adivinanzas</div>
+        <div class="game-arena-subtitle">¡Pon a prueba tu lógica!</div>
+        
+        <div class="game-box">
+            <div class="game-question">${adivinanza.pregunta}</div>
+            <input type="text" id="adivinanza-respuesta" class="game-input" placeholder="Escribe tu respuesta aquí...">
+            <br>
+            <button onclick="verificarAdivinanza()" class="game-btn">Comprobar</button>
+        </div>
+        
+        <div class="game-score-board">
+            <div>Intentos restantes: <span id="adivinanza-intentos">${window.adivinanzasIntentos}</span></div>
+        </div>
+    `;
+    
+    document.getElementById('adivinanza-respuesta').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') verificarAdivinanza();
+    });
+}
+
+function verificarAdivinanza() {
+    const respuesta = document.getElementById('adivinanza-respuesta').value.toLowerCase().trim();
+    
+    if (respuesta === window.adivinanzaActual.respuesta.toLowerCase()) {
+        alert('¡Correcto! ¡Felicidades! 🎉');
+        iniciarJuegoAdivinanza();
+    } else {
+        window.adivinanzasIntentos--;
+        document.getElementById('adivinanza-intentos').textContent = window.adivinanzasIntentos;
+        
+        if (window.adivinanzasIntentos <= 0) {
+            alert(`Se acabaron los intentos. La respuesta era: ${window.adivinanzaActual.respuesta} 😅`);
+            iniciarJuegoAdivinanza();
+        } else {
+            alert('Incorrecto. Intenta de nuevo.');
+            document.getElementById('adivinanza-respuesta').value = '';
+            document.getElementById('adivinanza-respuesta').focus();
+        }
+    }
+}
+
+// Quiz Master
+function iniciarJuegoQuiz() {
+    const container = prepararJuego();
+    
+    const preguntas = [
+        { pregunta: "¿Cuál es el planeta más grande del sistema solar?", opciones: ["Tierra", "Júpiter", "Saturno", "Marte"], correcta: 1 },
+        { pregunta: "¿Cuántos continentes hay en el mundo?", opciones: ["5", "6", "7", "8"], correcta: 2 },
+        { pregunta: "¿Cuál es el océano más grande?", opciones: ["Atlántico", "Índico", "Pacífico", "Ártico"], correcta: 2 },
+        { pregunta: "¿En qué año llegó el hombre a la luna?", opciones: ["1965", "1969", "1972", "1975"], correcta: 1 },
+        { pregunta: "¿Cuál es el animal más rápido del mundo?", opciones: ["León", "Guepardo", "Caballo", "Águila"], correcta: 1 },
+        { pregunta: "¿Quién pintó la Mona Lisa?", opciones: ["Van Gogh", "Picasso", "Da Vinci", "Miguel Ángel"], correcta: 2 }
+    ];
+    
+    window.quizPreguntas = preguntas.sort(() => Math.random() - 0.5).slice(0, 5);
+    window.quizIndice = 0;
+    window.quizPuntuacion = 0;
+    
+    mostrarPreguntaQuiz();
+}
+
+function mostrarPreguntaQuiz() {
+    const container = document.getElementById('juego-container');
+    const pregunta = window.quizPreguntas[window.quizIndice];
+    
+    container.innerHTML = `
+        <div class="game-arena-title">❓ Quiz Master</div>
+        <div class="game-arena-subtitle">Pregunta ${window.quizIndice + 1} de ${window.quizPreguntas.length}</div>
+        
+        <div class="game-box">
+            <div class="game-question">${pregunta.pregunta}</div>
+            <div id="quiz-opciones" class="game-options-grid"></div>
+        </div>
+        
+        <div class="game-score-board">
+            <div>Puntuación: <span id="quiz-puntuacion">${window.quizPuntuacion}</span></div>
+        </div>
+    `;
+    
+    const opcionesContainer = document.getElementById('quiz-opciones');
+    pregunta.opciones.forEach((opcion, index) => {
+        const boton = document.createElement('button');
+        boton.textContent = opcion;
+        boton.className = 'game-option-btn';
+        boton.onclick = () => verificarRespuestaQuiz(index);
+        opcionesContainer.appendChild(boton);
+    });
+}
+
+function verificarRespuestaQuiz(indice) {
+    const pregunta = window.quizPreguntas[window.quizIndice];
+    
+    if (indice === pregunta.correcta) {
+        window.quizPuntuacion += 20;
+    } else {
+        alert(`Incorrecto. La respuesta correcta era: ${pregunta.opciones[pregunta.correcta]}`);
+    }
+    
+    window.quizIndice++;
+    
+    if (window.quizIndice < window.quizPreguntas.length) {
+        mostrarPreguntaQuiz();
+    } else {
+        alert(`¡Quiz completado! Tu puntuación final: ${window.quizPuntuacion} puntos 🏆`);
+        cerrarJuego();
+    }
+}
+
+// Memoria
+function iniciarJuegoMemoria() {
+    const container = prepararJuego();
+    container.innerHTML = `
+        <div class="game-arena-title">🎯 Memoria Neón</div>
+        <div class="game-arena-subtitle">Encuentra los pares de cartas idénticas.</div>
+        
+        <div id="memoria-grid" class="memory-grid"></div>
+        
+        <div class="game-score-board">
+            <div>Movimientos: <span id="memoria-movimientos">0</span></div>
+        </div>
+        <button onclick="iniciarJuegoMemoria()" class="game-btn-outline" style="margin-top: 20px;">Reiniciar Juego</button>
+    `;
+    
+    const emojis = ['👽', '🚀', '🌌', '👾', '⚡', '🎮', '💡', '🔥'];
+    const cartas = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
+    
+    let movimientos = 0;
+    let primeraCarta = null;
+    let segundaCarta = null;
+    let bloqueado = false;
+    let encontradas = 0;
+    
+    const grid = document.getElementById('memoria-grid');
+    cartas.forEach((emoji, index) => {
+        const carta = document.createElement('div');
+        carta.className = 'memory-card';
+        carta.dataset.emoji = emoji;
+        carta.dataset.index = index;
+        
+        carta.innerHTML = `
+            <div class="memory-card-front"></div>
+            <div class="memory-card-back">${emoji}</div>
+        `;
+        
+        carta.onclick = () => voltearCarta(carta);
+        grid.appendChild(carta);
+    });
+    
+    function voltearCarta(carta) {
+        if (bloqueado || carta.classList.contains('flipped') || carta.classList.contains('matched')) return;
+        
+        carta.classList.add('flipped');
+        
+        if (!primeraCarta) {
+            primeraCarta = carta;
+        } else {
+            segundaCarta = carta;
+            movimientos++;
+            document.getElementById('memoria-movimientos').textContent = movimientos;
+            
+            if (primeraCarta.dataset.emoji === segundaCarta.dataset.emoji) {
+                primeraCarta.classList.add('matched');
+                segundaCarta.classList.add('matched');
+                primeraCarta = null;
+                segundaCarta = null;
+                encontradas += 2;
+                
+                if (encontradas === cartas.length) {
+                    setTimeout(() => alert(`¡Increíble! Lo lograste en ${movimientos} movimientos. 🏆`), 500);
+                }
+            } else {
+                bloqueado = true;
+                setTimeout(() => {
+                    primeraCarta.classList.remove('flipped');
+                    segundaCarta.classList.remove('flipped');
+                    primeraCarta = null;
+                    segundaCarta = null;
+                    bloqueado = false;
+                }, 1000);
+            }
+        }
+    }
+}
+
+// Matemáticas
+function iniciarJuegoMatematicas() {
+    const container = prepararJuego();
+    
+    container.innerHTML = `
+        <div class="game-arena-title">🔢 Mente Rápida</div>
+        <div class="game-arena-subtitle">Resuelve las operaciones lo antes posible.</div>
+        
+        <div class="game-box">
+            <div id="matematicas-pregunta" class="game-question" style="font-size: 2.5rem; letter-spacing: 2px;"></div>
+            <input type="number" id="matematicas-respuesta" class="game-input" placeholder="Tu respuesta">
+            <br>
+            <button onclick="verificarRespuestaMatematicas()" class="game-btn">Responder</button>
+        </div>
+        
+        <div class="game-score-board">
+            <div>Puntuación: <span id="matematicas-puntuacion">0</span></div>
+        </div>
+    `;
+    
+    window.matematicasPuntuacion = 0;
+    window.matematicasRespuestaCorrecta = 0;
+    generarPreguntaMatematica();
+    
+    document.getElementById('matematicas-respuesta').addEventListener('keypress', function(e){
+        if(e.key === 'Enter') verificarRespuestaMatematicas();
+    });
+}
+
+function generarPreguntaMatematica() {
+    const operaciones = ['+', '-', '*'];
+    const operacion = operaciones[Math.floor(Math.random() * operaciones.length)];
+    let num1, num2, respuesta;
+    
+    if (operacion === '+') {
+        num1 = Math.floor(Math.random() * 50) + 1;
+        num2 = Math.floor(Math.random() * 50) + 1;
+        respuesta = num1 + num2;
+    } else if (operacion === '-') {
+        num1 = Math.floor(Math.random() * 50) + 10;
+        num2 = Math.floor(Math.random() * num1);
+        respuesta = num1 - num2;
+    } else {
+        num1 = Math.floor(Math.random() * 10) + 1;
+        num2 = Math.floor(Math.random() * 10) + 1;
+        respuesta = num1 * num2;
+    }
+    
+    window.matematicasRespuestaCorrecta = respuesta;
+    document.getElementById('matematicas-pregunta').textContent = `${num1} ${operacion} ${num2}`;
+    document.getElementById('matematicas-respuesta').focus();
+}
+
+function verificarRespuestaMatematicas() {
+    const input = document.getElementById('matematicas-respuesta');
+    if (!input.value) return;
+    
+    const respuestaUsuario = parseInt(input.value);
+    
+    if (respuestaUsuario === window.matematicasRespuestaCorrecta) {
+        window.matematicasPuntuacion += 10;
+        document.getElementById('matematicas-puntuacion').textContent = window.matematicasPuntuacion;
+        input.value = '';
+        input.style.borderColor = '#22c55e';
+        setTimeout(()=> input.style.borderColor = '', 300);
+        generarPreguntaMatematica();
+    } else {
+        alert(`Incorrecto. La respuesta era ${window.matematicasRespuestaCorrecta}`);
+        input.value = '';
+        generarPreguntaMatematica();
+    }
+}
+
+// Reflejos
+function iniciarJuegoReflejos() {
+    const container = prepararJuego();
+    
+    window.reflejosPuntuacion = 0;
+    window.reflejosIntentos = 0;
+    window.reflejosTiempoInicio = 0;
+    
+    container.innerHTML = `
+        <div class="game-arena-title">⚡ Reflejos</div>
+        <div class="game-arena-subtitle">Haz clic en la esfera luminosa en cuanto cambie de color.</div>
+        
+        <div class="game-box" style="height: 300px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5);">
+            <div id="reflejos-circulo" style="width: 100px; height: 100px; background: #ef4444; border-radius: 50%; cursor: pointer; transition: background 0.1s; box-shadow: 0 0 20px #ef4444;"></div>
+        </div>
+        
+        <div class="game-score-board">
+            <div>Puntuación: <span id="reflejos-puntuacion">0</span></div>
+            <div>Intentos: <span id="reflejos-intentos">0</span>/5</div>
+        </div>
+    `;
+    
+    const circulo = document.getElementById('reflejos-circulo');
+    circulo.onclick = () => {
+        if (circulo.style.background === 'rgb(34, 197, 94)' || circulo.style.background === '#22c55e') {
+            const tiempo = Date.now() - window.reflejosTiempoInicio;
+            const puntos = Math.max(0, 100 - Math.floor(tiempo / 10));
+            window.reflejosPuntuacion += puntos;
+            document.getElementById('reflejos-puntuacion').textContent = window.reflejosPuntuacion;
+            circulo.style.background = '#ef4444';
+            circulo.style.boxShadow = '0 0 20px #ef4444';
+            
+            if (window.reflejosIntentos >= 5) {
+                alert(`¡Juego terminado! Puntuación final: ${window.reflejosPuntuacion}`);
+                cerrarJuego();
+            } else {
+                iniciarRondaReflejos();
+            }
+        }
+    };
+    
+    iniciarRondaReflejos();
+}
+
+function iniciarRondaReflejos() {
+    const circulo = document.getElementById('reflejos-circulo');
+    if(!circulo) return;
+    
+    const tiempoAleatorio = Math.random() * 2500 + 1000;
+    
+    setTimeout(() => {
+        if(!document.getElementById('reflejos-circulo')) return;
+        circulo.style.background = '#22c55e';
+        circulo.style.boxShadow = '0 0 40px #22c55e';
+        window.reflejosTiempoInicio = Date.now();
+        window.reflejosIntentos++;
+        document.getElementById('reflejos-intentos').textContent = window.reflejosIntentos;
+        
+        setTimeout(() => {
+            const circ = document.getElementById('reflejos-circulo');
+            if (circ && (circ.style.background === 'rgb(34, 197, 94)' || circ.style.background === '#22c55e')) {
+                circ.style.background = '#ef4444';
+                circ.style.boxShadow = '0 0 20px #ef4444';
+                if (window.reflejosIntentos >= 5) {
+                    alert(`¡Muy lento! Fin del juego. Puntuación: ${window.reflejosPuntuacion}`);
+                    cerrarJuego();
+                } else {
+                    iniciarRondaReflejos();
+                }
+            }
+        }, 1500);
+    }, tiempoAleatorio);
+}
+
+// Fidget Spinner
+function iniciarJuegoFidget() {
+    const container = prepararJuego();
+    
+    window.fidgetVelocidad = 0;
+    window.fidgetRotacion = 0;
+    window.fidgetAnimacion = null;
+    
+    container.innerHTML = `
+        <div class="game-arena-title">🌀 Fidget Neón</div>
+        <div class="game-arena-subtitle">Arrastra para girar y relajar tu mente.</div>
+        
+        <div class="game-box" style="height: 350px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: transparent; border: none;">
+            <div id="fidget-spinner" style="width: 180px; height: 180px; position: relative; cursor: pointer; transition: transform 0.1s; filter: drop-shadow(0 0 15px rgba(6, 182, 212, 0.5));">
+                <div style="position: absolute; width: 100%; height: 100%; border: 12px solid #06b6d4; border-radius: 50%;"></div>
+                <div style="position: absolute; width: 40%; height: 40%; background: #3b82f6; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 4px solid #fff;"></div>
+                
+                <div style="position: absolute; width: 35%; height: 35%; background: #7c3aed; border-radius: 50%; top: 0; left: 50%; transform: translate(-50%, -10%);"></div>
+                <div style="position: absolute; width: 35%; height: 35%; background: #7c3aed; border-radius: 50%; bottom: 0; left: 50%; transform: translate(-50%, 10%);"></div>
+                
+                <div style="position: absolute; width: 35%; height: 35%; background: #06b6d4; border-radius: 50%; top: 50%; left: 0; transform: translate(-10%, -50%);"></div>
+                <div style="position: absolute; width: 35%; height: 35%; background: #06b6d4; border-radius: 50%; top: 50%; right: 0; transform: translate(10%, -50%);"></div>
+            </div>
+        </div>
+        
+        <div class="game-score-board">
+            <div>Velocidad: <span id="fidget-velocidad">0</span> RPM</div>
+        </div>
+    `;
+    
+    const spinner = document.getElementById('fidget-spinner');
+    
+    let isDragging = false;
+    let lastX = 0; let lastY = 0;
+    
+    const girarSpinner = () => {
+        if (window.fidgetVelocidad > 0) {
+            window.fidgetRotacion += window.fidgetVelocidad;
+            spinner.style.transform = `rotate(${window.fidgetRotacion}deg)`;
+            document.getElementById('fidget-velocidad').textContent = Math.floor(window.fidgetVelocidad * 10);
+            window.fidgetVelocidad *= 0.985;
+            
+            if (window.fidgetVelocidad < 0.1) {
+                window.fidgetVelocidad = 0;
+                cancelAnimationFrame(window.fidgetAnimacion);
+            } else {
+                window.fidgetAnimacion = requestAnimationFrame(girarSpinner);
+            }
+        }
+    };
+    
+    spinner.addEventListener('mousedown', (e) => {
+        isDragging = true; lastX = e.clientX; lastY = e.clientY;
+        window.fidgetVelocidad += 5;
+        if (!window.fidgetAnimacion) window.fidgetAnimacion = requestAnimationFrame(girarSpinner);
+    });
+    
+    spinner.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            const dx = e.clientX - lastX; const dy = e.clientY - lastY;
+            const vel = Math.sqrt(dx*dx + dy*dy) / 10;
+            window.fidgetVelocidad = Math.min(window.fidgetVelocidad + vel, 60);
+            lastX = e.clientX; lastY = e.clientY;
+        }
+    });
+    
+    window.addEventListener('mouseup', () => { isDragging = false; });
+}
+
+// Respiración
+function iniciarJuegoRespiracion() {
+    const container = prepararJuego();
+    container.innerHTML = `
+        <div class="game-arena-title">🌬️ Respiración Consciente</div>
+        <div class="game-arena-subtitle">Sigue el ritmo del círculo para relajarte.</div>
+        
+        <div class="game-box" style="height: 350px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; background: transparent; border: none;">
+            <div id="breathing-circle" class="breath-circle"></div>
+            <h2 id="breathing-text" style="margin-top: 50px; font-size: 2rem; color: #2dd4bf; letter-spacing: 2px;">Prepárate...</h2>
+        </div>
+    `;
+
+    const circle = document.getElementById('breathing-circle');
+    const text = document.getElementById('breathing-text');
+    let step = 0; 
+    let active = true;
+
+    document.getElementById('game-modal').addEventListener('click', function(e) {
+        if (e.target === this) active = false; // Stop loop when closing modal
+    });
+
+    function runCycle() {
+        if (!active || !document.getElementById('breathing-circle')) return;
+        if (step === 0) {
+            text.innerText = "INHALA";
+            circle.className = "breath-circle inhale";
+            setTimeout(() => { step = 1; runCycle(); }, 4000);
+        } else if (step === 1) {
+            text.innerText = "MANTÉN";
+            circle.className = "breath-circle hold";
+            setTimeout(() => { step = 2; runCycle(); }, 3000);
+        } else {
+            text.innerText = "EXHALA";
+            circle.className = "breath-circle exhale";
+            setTimeout(() => { step = 0; runCycle(); }, 4000);
+        }
+    }
+    setTimeout(runCycle, 1000);
+}
+
+// Snake
+function iniciarJuegoSnake() {
+    const container = prepararJuego();
+    container.innerHTML = `
+        <div class="game-arena-title">🐍 Snake Neo</div>
+        <div class="game-arena-subtitle">Usa las flechas del teclado para jugar.</div>
+        
+        <div class="snake-board">
+            <canvas id="snakeCanvas" width="300" height="300"></canvas>
+            <div id="snake-game-over" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); flex-direction: column; align-items: center; justify-content: center; border-radius: 8px;">
+                <h2 style="color: #ef4444; font-size: 2rem; margin-bottom: 20px; text-shadow: 0 0 10px #ef4444;">GAME OVER</h2>
+                <button onclick="iniciarJuegoSnake()" class="game-btn">Reintentar</button>
+            </div>
+        </div>
+        
+        <div class="game-score-board" style="margin-top: 25px;">
+            <div>Puntuación: <span id="snake-score">0</span></div>
+        </div>
+    `;
+
+    const canvas = document.getElementById('snakeCanvas');
+    const ctx = canvas.getContext('2d');
+    const gridSize = 15;
+    const tileCount = canvas.width / gridSize;
+    let snake = [{x: 10, y: 10}];
+    let food = {x: 5, y: 5};
+    let dx = 0, dy = 0, nextDx = 0, nextDy = 0;
+    let score = 0;
+    
+    if (window.snakeLoop) clearInterval(window.snakeLoop);
+    
+    function drawGame() {
+        if (!document.getElementById('snakeCanvas')) {
+            clearInterval(window.snakeLoop);
+            return;
+        }
+
+        dx = nextDx; dy = nextDy;
+        const head = {x: snake[0].x + dx, y: snake[0].y + dy};
+        
+        if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount || 
+            (dx !== 0 && dy !== 0 && snake.some((s, i) => i !== 0 && s.x === head.x && s.y === head.y))) {
+            clearInterval(window.snakeLoop);
+            document.getElementById('snake-game-over').style.display = 'flex';
+            return;
+        }
+        
+        // Prevent moving immediately into self on start
+        if (dx === 0 && dy === 0) {
+             ctx.clearRect(0, 0, canvas.width, canvas.height);
+             ctx.fillStyle = '#ec4899'; ctx.beginPath(); ctx.arc(food.x * gridSize + 7.5, food.y * gridSize + 7.5, 5, 0, 2*Math.PI); ctx.fill();
+             snake.forEach((s, i) => { ctx.fillStyle = i === 0 ? '#a855f7' : '#8b5cf6'; ctx.fillRect(s.x * gridSize + 1, s.y * gridSize + 1, gridSize - 2, gridSize - 2); });
+             return;
+        }
+
+        snake.unshift(head);
+        if (head.x === food.x && head.y === food.y) {
+            food = {x: Math.floor(Math.random()*tileCount), y: Math.floor(Math.random()*tileCount)};
+            score += 10;
+            document.getElementById('snake-score').textContent = score;
+        } else {
+            snake.pop();
+        }
+        
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Food
+        ctx.fillStyle = '#ec4899'; 
+        ctx.shadowBlur = 10; ctx.shadowColor = '#ec4899';
+        ctx.beginPath(); ctx.arc(food.x * gridSize + 7.5, food.y * gridSize + 7.5, 5, 0, 2*Math.PI); ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // Snake
+        snake.forEach((s, i) => { 
+            ctx.fillStyle = i === 0 ? '#a855f7' : '#8b5cf6'; 
+            ctx.fillRect(s.x * gridSize + 1, s.y * gridSize + 1, gridSize - 2, gridSize - 2); 
+        });
+    }
+
+    const keyHandler = e => {
+        if (!document.getElementById('snakeCanvas')) {
+            window.removeEventListener('keydown', keyHandler);
+            return;
+        }
+        if (e.key === 'ArrowUp' && dy === 0) { nextDx = 0; nextDy = -1; e.preventDefault(); }
+        if (e.key === 'ArrowDown' && dy === 0) { nextDx = 0; nextDy = 1; e.preventDefault(); }
+        if (e.key === 'ArrowLeft' && dx === 0) { nextDx = -1; nextDy = 0; e.preventDefault(); }
+        if (e.key === 'ArrowRight' && dx === 0) { nextDx = 1; nextDy = 0; e.preventDefault(); }
+    };
+    
+    window.addEventListener('keydown', keyHandler);
+    window.snakeLoop = setInterval(drawGame, 120);
+}
+</script>
 {% endblock %}

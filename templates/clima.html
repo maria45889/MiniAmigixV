@@ -10,22 +10,50 @@
 {% block content %}
 <div class="dashboard">
     <h1 style="font-family: var(--font-title); margin-bottom: 2rem;">🌤️ Clima</h1>
-    
+
     {% if datos_clima %}
     <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 2rem;">
-        <div class="weather-card" style="min-width: 300px;">
+        <div class="weather-card" style="min-width: 300px; flex: 1;">
             <div style="font-size: 4rem; margin-bottom: 10px;">
-                {% if "rain" in datos_clima.weather.0.main.lower %}🌧️
-                {% elif "cloud" in datos_clima.weather.0.main.lower %}☁️
+                {% with desc=datos_clima.weather.0.description %}
+                {% if "Tormenta" in desc %}⛈️
+                {% elif "Lluvia" in desc or "Llovizna" in desc or "Chubascos" in desc %}🌧️
+                {% elif "Nieve" in desc or "Nevada" in desc %}🌨️
+                {% elif "Niebla" in desc %}🌫️
+                {% elif "Nublado" in desc or "Parcialmente" in desc %}☁️
                 {% else %}☀️{% endif %}
+                {% endwith %}
             </div>
-            <h2 style="color: #fbbf24; margin: 0;">{{ datos_clima.main.temp }}°C</h2>
-            <p style="color: var(--text-main); font-weight: bold; margin: 10px 0; text-transform: capitalize;">
+            <h2 style="color: #fbbf24; margin: 0; font-size: 2.5rem;">{{ datos_clima.main.temp }}°C</h2>
+            <p style="color: var(--text-main); font-weight: bold; margin: 10px 0; text-transform: capitalize; font-size: 1.1rem;">
                 {{ datos_clima.name }}: {{ datos_clima.weather.0.description }}
             </p>
+            <p style="font-size: 0.9rem; color: var(--text-muted);">Sensación térmica: {{ datos_clima.main.feels_like }}°C</p>
             <p style="font-size: 0.9rem; color: var(--text-muted);">Humedad: {{ datos_clima.main.humidity }}%</p>
             <p style="font-size: 0.9rem; color: var(--text-muted);">Viento: {{ datos_clima.wind.speed }} km/h</p>
         </div>
+
+        {% if datos_clima.daily %}
+        <div class="weather-card" style="min-width: 300px; flex: 1;">
+            <h3 style="color: #7c3aed; margin-top: 0;">Pronóstico 3 días</h3>
+            {% for day in datos_clima.daily %}
+            <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <span>{{ day.date }}</span>
+                <span>
+                    {% if day.weather_code == 0 or day.weather_code == 1 %}☀️
+                    {% elif day.weather_code == 2 %}⛅
+                    {% elif day.weather_code == 3 %}☁️
+                    {% elif day.weather_code >= 51 and day.weather_code <= 55 %}🌧️
+                    {% elif day.weather_code >= 61 and day.weather_code <= 65 %}🌧️
+                    {% elif day.weather_code >= 71 and day.weather_code <= 75 %}🌨️
+                    {% elif day.weather_code >= 95 %}⛈️
+                    {% else %}🌤️{% endif %}
+                </span>
+                <span>{{ day.temp_min }}° / {{ day.temp_max }}°</span>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
     </div>
     {% elif error %}
     <div style="padding: 15px; background: rgba(239, 68, 68, 0.1); border-radius: 8px; color: #ef4444; margin-bottom: 2rem;">
@@ -34,19 +62,13 @@
     {% else %}
     <p style="color: var(--text-muted); margin-bottom: 2rem;">Ingresa una ciudad abajo para obtener el reporte meteorológico en tiempo real.</p>
     {% endif %}
-    
+
     <div style="margin-top: 30px; background: #111c2e; padding: 20px; border-radius: 12px; color: white;">
         <h3 style="color: #7c3aed; margin-top: 0;">Buscar clima de otra ciudad</h3>
-        <form method="GET" action="{% url 'clima' %}" style="display: flex; gap: 10px; margin-top: 15px;"> 
+        <form method="GET" action="{% url 'clima' %}" style="display: flex; gap: 10px; margin-top: 15px;">
             <input type="text" name="ciudad" value="{{ ciudad }}" placeholder="Ej: Quito, Madrid, New York..." style="flex: 1; padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: #0f172a; color: white;" required>
             <button type="submit" style="padding: 10px 20px; background: var(--accent-gradient); color: white; border: none; border-radius: 8px; cursor: pointer;">Buscar</button>
         </form>
     </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-// Eliminamos la alerta anterior para que el formulario funcione correctamente
-</script>
 {% endblock %}

@@ -4,29 +4,87 @@
 {% block title %}Inicio{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/home.css' %}">
+<link rel="stylesheet" href="{% static 'css/home.css' %}?v=2">
 {% endblock %}
 
 {% block content %}
 <div class="dashboard">
-    <h1 style="font-family: var(--font-title); margin-bottom: 0.5rem;">🏠 Bienvenido a MiniAmigixV</h1>
-    <p id="clock" style="font-size: 1.2rem; color: var(--text-muted); margin-bottom: 2.5rem; font-weight: 500;"></p>
+    <div class="hero-section">
+        <h1 class="hero-title">Bienvenido a MiniAmigixV</h1>
+        <p class="hero-subtitle">Tu espacio personal interactivo</p>
+        <div class="time-widget">
+            <i class="ti ti-clock"></i>
+            <span id="clock"></span>
+        </div>
+    </div>
+
+    <div class="widgets-grid">
+        <!-- Tarjeta: Frase del Día -->
+        <div class="widget-card quote-card">
+            <div class="quote-icon">✨</div>
+            <h3>Frase del Día</h3>
+            <p class="quote-text">"{{ frase_texto }}"</p>
+            <p class="quote-author">- {{ frase_autor }}</p>
+        </div>
+
+        <!-- Tarjeta: Estadísticas (Chart) -->
+        <div class="widget-card chart-card">
+            <h3>Tu Actividad</h3>
+            <div class="chart-container">
+                <canvas id="activityChart"></canvas>
+            </div>
+        </div>
+    </div>
 
     <div class="cards">
         <a href="{% url 'chat' %}" class="card">
-            <div class="card-icon">💬</div>
-            <div class="card-title">Chat IA</div>
+            <div class="card-icon-wrapper chat-icon"><span class="emoji">💬</span></div>
+            <div class="card-content">
+                <h3>Chat IA</h3>
+                <p>Conversa y explora con tu asistente virtual inteligente.</p>
+            </div>
         </a>
-        <div class="card"><div class="card-icon">🎵</div>Música</div>
-        <div class="card"><div class="card-icon">🎮</div>Juegos</div>
-        <div class="card"><div class="card-icon">📚</div>Estudio</div>
-        <div class="card"><div class="card-icon">🌤️</div>Clima</div>
-        <div class="card"><div class="card-icon">📝</div>Blog</div>
+        <a href="{% url 'musica' %}" class="card">
+            <div class="card-icon-wrapper music-icon"><span class="emoji">🎵</span></div>
+            <div class="card-content">
+                <h3>Música</h3>
+                <p>Escucha tus canciones favoritas en un solo lugar.</p>
+            </div>
+        </a>
+        <a href="{% url 'juegos' %}" class="card">
+            <div class="card-icon-wrapper games-icon"><span class="emoji">🎮</span></div>
+            <div class="card-content">
+                <h3>Juegos</h3>
+                <p>Diviértete y relájate con nuestra colección de juegos.</p>
+            </div>
+        </a>
+        <a href="{% url 'estudio' %}" class="card">
+            <div class="card-icon-wrapper study-icon"><span class="emoji">📚</span></div>
+            <div class="card-content">
+                <h3>Estudio</h3>
+                <p>Herramientas y recursos para mejorar tu aprendizaje.</p>
+            </div>
+        </a>
+        <a href="{% url 'clima' %}" class="card">
+            <div class="card-icon-wrapper weather-icon"><span class="emoji">🌤️</span></div>
+            <div class="card-content">
+                <h3>Clima</h3>
+                <p>Revisa el pronóstico y las condiciones actuales.</p>
+            </div>
+        </a>
+        <a href="{% url 'blog' %}" class="card">
+            <div class="card-icon-wrapper blog-icon"><span class="emoji">📝</span></div>
+            <div class="card-content">
+                <h3>Blog</h3>
+                <p>Lee, escribe y comparte tus ideas con la comunidad.</p>
+            </div>
+        </a>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 function updateClock() {
     const now = new Date();
@@ -34,5 +92,63 @@ function updateClock() {
 }
 setInterval(updateClock, 1000);
 updateClock();
+
+// Configuración del Gráfico de Estadísticas
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('activityChart').getContext('2d');
+    
+    // Variables enviadas desde Django
+    const dataChats = {{ stats_chats|default:0 }};
+    const dataNotas = {{ stats_notas|default:0 }};
+    const dataEventos = {{ stats_eventos|default:0 }};
+    const dataCanciones = {{ stats_canciones|default:0 }};
+
+    // Crear gradiente para las barras
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(124, 58, 237, 0.8)');
+    gradient.addColorStop(1, 'rgba(6, 182, 212, 0.8)');
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Chats', 'Blog', 'Eventos', 'Música'],
+            datasets: [{
+                label: 'Actividad',
+                data: [dataChats, dataNotas, dataEventos, dataCanciones],
+                backgroundColor: gradient,
+                borderRadius: 8,
+                borderSkipped: false,
+                barThickness: 20
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(17, 28, 46, 0.9)',
+                    titleColor: '#e2e8f0',
+                    bodyColor: '#e2e8f0',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1,
+                    padding: 10,
+                    displayColors: false
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: '#94a3b8', stepSize: 1 },
+                    grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false }
+                },
+                x: {
+                    ticks: { color: '#e2e8f0', font: { weight: 'bold' } },
+                    grid: { display: false, drawBorder: false }
+                }
+            }
+        }
+    });
+});
 </script>
 {% endblock %}

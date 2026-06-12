@@ -4,7 +4,7 @@
 {% block title %}Chat IA{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/chat.css' %}">
+<link rel="stylesheet" href="{% static 'css/chat.css' %}?v=2">
 {% endblock %}
 
 {% block content %}
@@ -25,6 +25,7 @@
             {% for conv in conversaciones %}
             <div class="chat-item {% if conv.id == active_id %}active{% endif %}" onclick="location.href='?id={{ conv.id }}'">
                 <div class="chat-item-name">{{ conv.titulo }}</div>
+                <button class="delete-chat-btn" onclick="deleteChat(event, {{ conv.id }})" title="Eliminar Chat"><i class="ti ti-trash"></i></button>
             </div>
             {% endfor %}
         </div>
@@ -168,6 +169,30 @@
             }
         }
         return cookieValue;
+    }
+
+    async function deleteChat(event, chatId) {
+        event.stopPropagation();
+        if (!confirm('¿Estás seguro de que deseas eliminar este chat?')) return;
+        
+        try {
+            const response = await fetch(`/api/delete-chat/${chatId}/`, {
+                method: 'DELETE',
+                headers: { 'X-CSRFToken': getCookie('csrftoken') }
+            });
+            if (response.ok) {
+                if (chatId == activeId) {
+                    location.href = '{% url "chat" %}';
+                } else {
+                    location.reload();
+                }
+            } else {
+                alert('No se pudo eliminar el chat.');
+            }
+        } catch (e) {
+            console.error('Error al eliminar:', e);
+            alert('Ocurrió un error al intentar eliminar el chat.');
+        }
     }
 
     async function sendMessage() {

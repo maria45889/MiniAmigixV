@@ -12,6 +12,8 @@ class Perfil(models.Model):
     idioma = models.CharField(max_length=10, default='es')
     fecha_nacimiento = models.DateField(blank=True, null=True)
     creado = models.DateTimeField(auto_now_add=True)
+    notificaciones_email = models.BooleanField(default=True)
+    perfil_publico = models.BooleanField(default=True)
 
     def __str__(self):
         return self.usuario.username

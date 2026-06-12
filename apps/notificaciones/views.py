@@ -1,3 +1,4 @@
+import json
 from django.shortcuts import render
 from .models import Notificacion
 from django.http import JsonResponse
@@ -16,6 +17,15 @@ def lista_notificaciones(request):
 
 def marcar_leidas(request):
     if request.method == 'POST' and request.user.is_authenticated:
-        Notificacion.objects.filter(usuario=request.user, leida=False).update(leida=True)
-        return JsonResponse({'status': 'success'})
+        try:
+            data = json.loads(request.body)
+            notif_id = data.get('id')
+            if notif_id:
+                Notificacion.objects.filter(id=notif_id, usuario=request.user).update(leida=True)
+            else:
+                Notificacion.objects.filter(usuario=request.user, leida=False).update(leida=True)
+            return JsonResponse({'status': 'success'})
+        except (json.JSONDecodeError, AttributeError):
+            Notificacion.objects.filter(usuario=request.user, leida=False).update(leida=True)
+            return JsonResponse({'status': 'success'})
     return JsonResponse({'status': 'error'}, status=400)

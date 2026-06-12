@@ -129,26 +129,30 @@ function traducir() {
     resultado.value = 'Traduciendo...';
     traduccionInfo.textContent = 'Procesando...';
     
-    // Simulación de traducción (en producción, usarías una API real como Google Translate)
-    setTimeout(() => {
-        const idiomas = {
-            'es': 'Español',
-            'en': 'Inglés',
-            'fr': 'Francés',
-            'de': 'Alemán',
-            'pt': 'Portugués',
-            'it': 'Italiano',
-            'ja': 'Japonés',
-            'ko': 'Coreano',
-            'zh': 'Chino'
-        };
-        
-        resultado.value = `[${idiomas[origen]} → ${idiomas[destino]}] Traducción de: "${texto}"`;
-        traduccionInfo.textContent = `[${origen} → ${destino}]`;
-        
-        // Agregar al historial
-        agregarAlHistorial(texto, resultado.value, origen, destino);
-    }, 500);
+    fetch('{% url "traductor" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ texto, origen, destino })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.error) {
+            resultado.value = 'Error: ' + data.error;
+            traduccionInfo.textContent = 'Error';
+            return;
+        }
+        resultado.value = data.traduccion;
+        traduccionInfo.textContent = `[${data.origen} → ${data.destino}]`;
+        agregarAlHistorial(texto, data.traduccion, origen, destino);
+    })
+    .catch(error => {
+        resultado.value = 'Error de conexión';
+        traduccionInfo.textContent = 'Error';
+    });
 }
 
 function agregarAlHistorial(original, traducido, origen, destino) {

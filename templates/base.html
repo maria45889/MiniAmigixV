@@ -14,7 +14,90 @@
     <!-- Iconos: Tabler (Nuevo diseño) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
     <!-- CSS Principal -->
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=5">
+    <style>
+        /* Estilos para la cajita de sugerencias flotante */
+        .suggestion-float {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 280px;
+            background: #111c2e;
+            border: 1px solid rgba(124, 58, 237, 0.3);
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            z-index: 9999;
+            overflow: hidden;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+        .suggestion-header {
+            background: var(--accent-gradient, linear-gradient(135deg, #7c3aed, #06b6d4));
+            color: white;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            cursor: move;
+        }
+        .suggestion-body {
+            padding: 15px;
+            display: none;
+        }
+        .suggestion-body textarea {
+            width: 100%;
+            height: 100px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border-color, #2d3748);
+            border-radius: 8px;
+            color: white;
+            padding: 10px;
+            resize: none;
+            margin-bottom: 10px;
+            font-family: inherit;
+        }
+        .suggestion-btn {
+            width: 100%;
+            padding: 8px;
+            background: var(--accent-gradient, #7c3aed);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* Botón flotante de música */
+        .music-float-btn {
+            position: fixed;
+            bottom: 25px;
+            right: 280px; /* A la izquierda de la caja de sugerencias */
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(124, 58, 237, 0.9), rgba(6, 182, 212, 0.9));
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+            cursor: pointer;
+            z-index: 999;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .music-float-btn:hover {
+            transform: scale(1.1) rotate(10deg);
+            box-shadow: 0 6px 20px rgba(6, 182, 212, 0.6);
+        }
+
+        /* En móviles, ajustar la posición */
+        @media (max-width: 768px) {
+            .music-float-btn {
+                right: 20px;
+                bottom: 80px; /* Arriba del menú inferior o caja de sugerencias si están */
+            }
+        }
+    </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -27,9 +110,149 @@
             </div>
         </main>
     </div>
+
+    <!-- Caja de Sugerencias Flotante -->
+    <div id="quick-suggestion" class="suggestion-float">
+        <div class="suggestion-header" onclick="toggleSuggestion()">
+            <span>💡 Sugerencias</span>
+            <span id="suggestion-icon"><i class="ti ti-chevron-up"></i></span>
+        </div>
+        <div class="suggestion-body" id="suggestion-body">
+            <textarea id="suggestion-content-text" placeholder="¿Cómo podemos mejorar MiniAmigixV?"></textarea>
+            <button class="suggestion-btn" onclick="sendQuickSuggestion()">Enviar al Admin</button>
+        </div>
+    </div>
+
+    <!-- Botón flotante para abrir el minirreproductor (Aparece si hay canción guardada) -->
+    <div id="music-float-btn" class="music-float-btn" style="display: none;" title="Abrir Reproductor">
+        <span style="font-size: 20px;">🎵</span>
+    </div>
+
+    <!-- Global Floating Mini Player -->
+    <div id="mini-player" class="floating-mini-player" style="display: none;">
+        <div class="mini-player-header" id="mini-player-header">
+            <div class="mini-player-song-info">
+                <div class="mini-player-vinyl" id="mini-player-vinyl"></div>
+                <div style="min-width: 0; flex: 1;">
+                    <div class="mini-player-title" id="mini-player-title">Sin reproducción</div>
+                    <div class="mini-player-artist" id="mini-player-artist"></div>
+                </div>
+            </div>
+            <div class="mini-player-header-btns">
+                <button class="btn-mini video-btn" id="mini-video-toggle" onclick="toggleMiniVideo()" title="Ver/Ocultar Video">🎬</button>
+                <button class="btn-mini close-btn" onclick="toggleGlobalMiniPlayer()" title="Cerrar">✖</button>
+            </div>
+        </div>
+        <div class="mini-player-video-container" id="mini-video-container">
+            <div id="mini-player-iframe"></div>
+        </div>
+        <div class="mini-player-body">
+            <div class="mini-player-progress">
+                <div class="mini-player-progress-bar" id="mini-progress-bar"></div>
+            </div>
+            <div class="mini-player-controls">
+                <button class="btn-mini" onclick="globalPlayPrevious()" title="Anterior">⏮</button>
+                <button class="btn-mini play" id="mini-play-btn" onclick="globalTogglePause()" title="Reproducir/Pausar">▶</button>
+                <button class="btn-mini" onclick="globalPlayNext()" title="Siguiente">⏭</button>
+                <button class="btn-mini" onclick="globalToggleMute()" id="mini-mute-btn" title="Silenciar">🔊</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- YouTube IFrame API (Global) -->
+    <script src="https://www.youtube.com/iframe_api"></script>
+
     <!-- Inicializar Iconos -->
     <script>lucide.createIcons();</script>
     <script>
+        // ==================== SUGGESTION BOX ====================
+        let hasMoved = false;
+
+        function toggleSuggestion() {
+            if (hasMoved) return;
+
+            const body = document.getElementById('suggestion-body');
+            const icon = document.getElementById('suggestion-icon');
+            if (body.style.display === 'none' || body.style.display === '') {
+                body.style.display = 'block';
+                icon.innerHTML = '<i class="ti ti-x"></i>';
+            } else {
+                body.style.display = 'none';
+                icon.innerHTML = '<i class="ti ti-chevron-up"></i>';
+            }
+        }
+
+        function makeDraggable(elmnt) {
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            const header = elmnt.querySelector('.suggestion-header');
+
+            header.onmousedown = function(e) {
+                e = e || window.event;
+                hasMoved = false;
+                const startX = e.clientX;
+                const startY = e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+
+                document.onmouseup = function() {
+                    document.onmouseup = null;
+                    document.onmousemove = null;
+                };
+
+                document.onmousemove = function(e) {
+                    e = e || window.event;
+                    e.preventDefault();
+                    if (Math.abs(startX - e.clientX) > 5 || Math.abs(startY - e.clientY) > 5) {
+                        hasMoved = true;
+                    }
+                    pos1 = pos3 - e.clientX;
+                    pos2 = pos4 - e.clientY;
+                    pos3 = e.clientX;
+                    pos4 = e.clientY;
+                    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+                    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+                    elmnt.style.bottom = "auto";
+                    elmnt.style.right = "auto";
+                };
+            };
+        }
+
+        function sendQuickSuggestion() {
+            const text = document.getElementById('suggestion-content-text').value;
+            if (!text.trim()) {
+                alert("Por favor escribe algo antes de enviar.");
+                return;
+            }
+
+            fetch('/api/sugerencia-rapida/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: JSON.stringify({ contenido: text })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    let msg = "¡Gracias! Tu sugerencia ha sido guardada.";
+                    if (data.guardada_en === 'bd_y_email') {
+                        msg = "¡Gracias! Tu sugerencia ha sido enviada al administrador por email." + (data.email_error ? " (con respaldo en BD)" : "");
+                    } else if (data.email_error) {
+                        msg += " El email al administrador falló: " + data.email_error;
+                    }
+                    alert(msg);
+                    document.getElementById('suggestion-content-text').value = '';
+                    toggleSuggestion();
+                } else {
+                    alert("❌ Error al enviar el mensaje. " + data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        }
+
         function toggleTheme() {
             document.body.classList.toggle("light");
             const isLight = document.body.classList.contains("light");
@@ -40,6 +263,489 @@
         if (localStorage.getItem("theme") === "light") {
             document.body.classList.add("light");
         }
+
+        // Inicializar posición y drag para la caja de sugerencias
+        const suggestBox = document.getElementById("quick-suggestion");
+        if (suggestBox) {
+            const rect = suggestBox.getBoundingClientRect();
+            suggestBox.style.top = rect.top + "px";
+            suggestBox.style.left = rect.left + "px";
+            makeDraggable(suggestBox);
+        }
+
+        // ==================== GLOBAL MINI PLAYER ====================
+        let globalPlayer = null;
+        let globalCurrentYoutubeId = null;
+        let globalCurrentSongName = '';
+        let globalCurrentArtist = '';
+        let globalIsPaused = false;
+        let globalMiniVideoVisible = false;
+
+        // Drag variables for mini player
+        let mpDragging = false;
+        let mpCurrentX, mpCurrentY, mpInitialX, mpInitialY;
+        let mpXOffset = 0, mpYOffset = 0;
+
+        function onYouTubeIframeAPIReady() {
+            console.log('YouTube IFrame API lista (global)');
+            // Restaurar última canción del localStorage
+            restoreLastSong();
+        }
+
+        // --- localStorage ---
+        function saveCurrentSong() {
+            if (globalCurrentYoutubeId) {
+                localStorage.setItem('miniAmigix_lastSong', JSON.stringify({
+                    youtubeId: globalCurrentYoutubeId,
+                    name: globalCurrentSongName,
+                    artist: globalCurrentArtist
+                }));
+            }
+        }
+
+        function restoreLastSong() {
+            const saved = localStorage.getItem('miniAmigix_lastSong');
+            if (saved) {
+                try {
+                    const data = JSON.parse(saved);
+                    const titleEl = document.getElementById('mini-player-title');
+                    const artistEl = document.getElementById('mini-player-artist');
+                    if (titleEl) titleEl.textContent = data.name || 'Sin reproducción';
+                    if (artistEl) artistEl.textContent = data.artist || '';
+                    globalCurrentYoutubeId = data.youtubeId;
+                    globalCurrentSongName = data.name;
+                    globalCurrentArtist = data.artist;
+                    
+                    // Mostrar el botón flotante de música ya que hay una canción en memoria
+                    const floatBtn = document.getElementById('music-float-btn');
+                    if (floatBtn) floatBtn.style.display = 'flex';
+                } catch(e) {}
+            }
+        }
+
+        // --- Toggle mini player ---
+        function toggleGlobalMiniPlayer() {
+            const mp = document.getElementById('mini-player');
+            if (!mp) return;
+            if (mp.style.display === 'none' || !mp.style.display) {
+                mp.style.display = 'block';
+            } else {
+                mp.style.display = 'none';
+            }
+        }
+
+        // --- Play a song in the global mini player ---
+        function globalPlaySong(youtubeId, songName, artist) {
+            globalCurrentYoutubeId = youtubeId;
+            globalCurrentSongName = songName || '';
+            globalCurrentArtist = artist || '';
+
+            // Update UI
+            const titleEl = document.getElementById('mini-player-title');
+            const artistEl = document.getElementById('mini-player-artist');
+            const playBtn = document.getElementById('mini-play-btn');
+            const vinyl = document.getElementById('mini-player-vinyl');
+
+            if (titleEl) titleEl.textContent = songName || 'Sin título';
+            if (artistEl) artistEl.textContent = artist || '';
+            if (playBtn) playBtn.textContent = '⏸';
+            if (vinyl) vinyl.classList.add('spinning');
+
+            // Show mini player
+            const mp = document.getElementById('mini-player');
+            if (mp) mp.style.display = 'block';
+
+            // Save to localStorage
+            saveCurrentSong();
+
+            // Mostrar botón flotante
+            const floatBtn = document.getElementById('music-float-btn');
+            if (floatBtn) floatBtn.style.display = 'flex';
+
+            // Destroy existing player
+            if (globalPlayer) {
+                try { globalPlayer.destroy(); } catch(e) {}
+                globalPlayer = null;
+            }
+
+            // If video is visible, play in mini player video container
+            if (globalMiniVideoVisible) {
+                createMiniPlayerYT(youtubeId);
+            } else {
+                // Play in a hidden mini iframe
+                createMiniPlayerYT(youtubeId);
+            }
+
+            globalIsPaused = false;
+        }
+
+        function createMiniPlayerYT(youtubeId) {
+            const container = document.getElementById('mini-player-iframe');
+            if (!container) return;
+            container.innerHTML = '<div id="mini-yt-player"></div>';
+
+            globalPlayer = new YT.Player('mini-yt-player', {
+                height: globalMiniVideoVisible ? '180' : '1',
+                width: '100%',
+                videoId: youtubeId,
+                playerVars: {
+                    'autoplay': 1,
+                    'rel': 0,
+                    'modestbranding': 1,
+                    'iv_load_policy': 3,
+                    'disablekb': 1,
+                    'fs': 0,
+                    'origin': window.location.origin
+                },
+                events: {
+                    'onError': onGlobalPlayerError,
+                    'onStateChange': onGlobalPlayerStateChange
+                }
+            });
+        }
+
+        function onGlobalPlayerError(event) {
+            console.error('Error del reproductor global:', event.data);
+            if (event.data === 150 || event.data === 153) {
+                const container = document.getElementById('mini-player-iframe');
+                container.innerHTML = '<p style="color: #06b6d4; text-align: center; padding: 10px; font-size: 12px;">🔄 Extrayendo audio...</p>';
+
+                fetch(`/api/stream-audio/${globalCurrentYoutubeId}/`)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.success && data.url) {
+                            container.innerHTML = `
+                                <audio controls autoplay style="width: 100%; border-radius: 10px; background: rgba(0,0,0,0.5);">
+                                    <source src="${data.url}" type="audio/mp4">
+                                </audio>
+                            `;
+                            const playBtn = document.getElementById('mini-play-btn');
+                            if (playBtn) playBtn.textContent = '⏸';
+                        } else {
+                            container.innerHTML = '<p style="color: #ef4444; text-align: center; padding: 10px; font-size: 12px;">No se pudo extraer el audio</p>';
+                        }
+                    })
+                    .catch(() => {
+                        container.innerHTML = '<p style="color: #ef4444; text-align: center; padding: 10px; font-size: 12px;">Error de conexión</p>';
+                    });
+            }
+        }
+
+        function onGlobalPlayerStateChange(event) {
+            const vinyl = document.getElementById('mini-player-vinyl');
+            const playBtn = document.getElementById('mini-play-btn');
+            if (!vinyl) return;
+
+            if (event.data === YT.PlayerState.PLAYING) {
+                vinyl.classList.add('spinning');
+                if (playBtn) playBtn.textContent = '⏸';
+                globalIsPaused = false;
+                // Also update main page vinyl if on /musica/
+                const mainVinyl = document.getElementById('vinyl-record');
+                if (mainVinyl) {
+                    mainVinyl.style.animationPlayState = 'running';
+                    mainVinyl.classList.add('spinning');
+                }
+            } else if (event.data === YT.PlayerState.PAUSED) {
+                vinyl.classList.remove('spinning');
+                if (playBtn) playBtn.textContent = '▶';
+                globalIsPaused = true;
+                const mainVinyl = document.getElementById('vinyl-record');
+                if (mainVinyl) mainVinyl.style.animationPlayState = 'paused';
+            } else if (event.data === YT.PlayerState.ENDED) {
+                vinyl.classList.remove('spinning');
+                if (playBtn) playBtn.textContent = '▶';
+                // Auto-play next if playlist exists
+                globalPlayNext();
+            }
+        }
+
+        // --- Controls ---
+        function globalTogglePause() {
+            const fallbackAudio = document.querySelector('#mini-player-iframe audio');
+            if (fallbackAudio) {
+                if (fallbackAudio.paused) {
+                    fallbackAudio.play();
+                    document.getElementById('mini-play-btn').textContent = '⏸';
+                } else {
+                    fallbackAudio.pause();
+                    document.getElementById('mini-play-btn').textContent = '▶';
+                }
+                return;
+            }
+
+            if (!globalPlayer) {
+                if (globalCurrentYoutubeId) {
+                    // Inicializar el reproductor si estaba en memoria pero no cargado
+                    createMiniPlayerYT(globalCurrentYoutubeId);
+                    document.getElementById('mini-play-btn').textContent = '⏸';
+                }
+                return;
+            }
+
+            if (typeof globalPlayer.getPlayerState !== 'function') return;
+            try {
+                if (globalPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
+                    globalPlayer.pauseVideo();
+                } else {
+                    globalPlayer.playVideo();
+                }
+            } catch(e) {
+                console.error('Error al pausar/reproducir', e);
+            }
+        }
+
+        function globalToggleMute() {
+            const fallbackAudio = document.querySelector('#mini-player-iframe audio');
+            const muteBtn = document.getElementById('mini-mute-btn');
+            if (fallbackAudio) {
+                fallbackAudio.muted = !fallbackAudio.muted;
+                if (muteBtn) muteBtn.textContent = fallbackAudio.muted ? '🔇' : '🔊';
+                return;
+            }
+
+            if (!globalPlayer || typeof globalPlayer.isMuted !== 'function') return;
+            try {
+                if (globalPlayer.isMuted()) {
+                    globalPlayer.unMute();
+                    if (muteBtn) muteBtn.textContent = '🔊';
+                } else {
+                    globalPlayer.mute();
+                    if (muteBtn) muteBtn.textContent = '🔇';
+                }
+            } catch(e) {}
+        }
+
+        function globalPlayNext() {
+            const items = Array.from(document.querySelectorAll('.playlist-item'));
+            if (items.length === 0) return;
+            const currentIndex = items.findIndex(item => item.dataset.youtubeId === globalCurrentYoutubeId);
+            if (currentIndex >= 0 && currentIndex < items.length - 1) {
+                const next = items[currentIndex + 1];
+                globalPlaySong(next.dataset.youtubeId, next.dataset.name, next.dataset.artist);
+                // Update main page UI if on /musica/
+                updateMainPageUI(next.dataset.name, next.dataset.artist);
+            }
+        }
+
+        function globalPlayPrevious() {
+            const items = Array.from(document.querySelectorAll('.playlist-item'));
+            if (items.length === 0) return;
+            const currentIndex = items.findIndex(item => item.dataset.youtubeId === globalCurrentYoutubeId);
+            if (currentIndex > 0) {
+                const prev = items[currentIndex - 1];
+                globalPlaySong(prev.dataset.youtubeId, prev.dataset.name, prev.dataset.artist);
+                updateMainPageUI(prev.dataset.name, prev.dataset.artist);
+            }
+        }
+
+        function updateMainPageUI(songName, artist) {
+            const mainTitle = document.getElementById('current-song-title');
+            if (mainTitle) mainTitle.textContent = `${songName} ${artist ? '- ' + artist : ''}`;
+        }
+
+        // --- Video Toggle ---
+        function toggleMiniVideo() {
+            const container = document.getElementById('mini-video-container');
+            const btn = document.getElementById('mini-video-toggle');
+            if (!container) return;
+
+            globalMiniVideoVisible = !globalMiniVideoVisible;
+
+            if (globalMiniVideoVisible) {
+                container.classList.add('expanded');
+                if (btn) btn.classList.add('active');
+                
+                // If player doesn't exist but we have a song, initialize it!
+                if (!globalPlayer && globalCurrentYoutubeId) {
+                    createMiniPlayerYT(globalCurrentYoutubeId);
+                    document.getElementById('mini-play-btn').textContent = '⏸';
+                } else if (globalPlayer && typeof globalPlayer.setSize === 'function') {
+                    try { globalPlayer.setSize('100%', 180); } catch(e) {}
+                }
+            } else {
+                container.classList.remove('expanded');
+                if (btn) btn.classList.remove('active');
+                if (globalPlayer && typeof globalPlayer.setSize === 'function') {
+                    try { globalPlayer.setSize('100%', 1); } catch(e) {}
+                }
+            }
+        }
+
+        // --- Mini Player Drag ---
+        function initMiniPlayerDrag() {
+            const mp = document.getElementById('mini-player');
+            const mpHeader = document.getElementById('mini-player-header');
+            if (!mp || !mpHeader) return;
+
+            mpHeader.addEventListener('mousedown', mpDragStart);
+            mpHeader.addEventListener('touchstart', mpDragStart, { passive: false });
+            document.addEventListener('mousemove', mpDrag);
+            document.addEventListener('touchmove', mpDrag, { passive: false });
+            document.addEventListener('mouseup', mpDragEnd);
+            document.addEventListener('touchend', mpDragEnd);
+        }
+
+        function mpDragStart(e) {
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            mpInitialX = clientX - mpXOffset;
+            mpInitialY = clientY - mpYOffset;
+            const target = e.target;
+            const header = document.getElementById('mini-player-header');
+            if (target === header || header.contains(target)) {
+                // Don't drag when clicking buttons
+                if (target.tagName === 'BUTTON' || target.closest('button')) return;
+                mpDragging = true;
+            }
+        }
+
+        function mpDrag(e) {
+            if (!mpDragging) return;
+            e.preventDefault();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            mpCurrentX = clientX - mpInitialX;
+            mpCurrentY = clientY - mpInitialY;
+            mpXOffset = mpCurrentX;
+            mpYOffset = mpCurrentY;
+            const mp = document.getElementById('mini-player');
+            mp.style.transform = `translate3d(${mpCurrentX}px, ${mpCurrentY}px, 0)`;
+        }
+
+        function mpDragEnd() {
+            mpInitialX = mpCurrentX;
+            mpInitialY = mpCurrentY;
+            mpDragging = false;
+        }
+
+        // --- Progress bar update ---
+        setInterval(() => {
+            if (!globalPlayer || typeof globalPlayer.getCurrentTime !== 'function') return;
+            try {
+                const current = globalPlayer.getCurrentTime();
+                const duration = globalPlayer.getDuration();
+                if (duration > 0) {
+                    const pct = (current / duration) * 100;
+                    const bar = document.getElementById('mini-progress-bar');
+                    if (bar) bar.style.width = pct + '%';
+                }
+            } catch(e) {}
+        }, 1000);
+
+        // --- getCookie global ---
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.startsWith(name + "=")) {
+                        cookieValue = decodeURIComponent(cookie.split("=")[1]);
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+        // --- Music Float Btn Drag ---
+        let btnDragging = false;
+        let btnCurrentX = 0, btnCurrentY = 0, btnInitialX = 0, btnInitialY = 0;
+        let btnXOffset = 0, btnYOffset = 0;
+        let btnWasDragged = false; // To prevent click event after dragging
+
+        function initFloatBtnDrag() {
+            const btn = document.getElementById('music-float-btn');
+            if (!btn) return;
+
+            // Restaurar posición guardada
+            const savedPos = localStorage.getItem('miniAmigix_btnPos');
+            if (savedPos) {
+                try {
+                    const pos = JSON.parse(savedPos);
+                    btnXOffset = pos.x;
+                    btnYOffset = pos.y;
+                    btn.style.transform = `translate3d(${btnXOffset}px, ${btnYOffset}px, 0)`;
+                } catch(e) {}
+            }
+
+            btn.addEventListener('mousedown', btnDragStart);
+            btn.addEventListener('touchstart', btnDragStart, { passive: false });
+            document.addEventListener('mousemove', btnDrag);
+            document.addEventListener('touchmove', btnDrag, { passive: false });
+            document.addEventListener('mouseup', btnDragEnd);
+            document.addEventListener('touchend', btnDragEnd);
+            
+            // Override click behavior to prevent toggling player after dragging
+            btn.addEventListener('click', function(e) {
+                if (btnWasDragged) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+                toggleGlobalMiniPlayer();
+            });
+        }
+
+        function btnDragStart(e) {
+            const target = e.target.closest('#music-float-btn');
+            if (!target) return;
+            
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            btnInitialX = clientX - btnXOffset;
+            btnInitialY = clientY - btnYOffset;
+            btnDragging = true;
+            btnWasDragged = false; // Reset drag flag
+        }
+
+        function btnDrag(e) {
+            if (!btnDragging) return;
+            e.preventDefault(); // Prevent scrolling on mobile
+            
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            
+            btnCurrentX = clientX - btnInitialX;
+            btnCurrentY = clientY - btnInitialY;
+            
+            // Si se movió más de 3 píxeles, consideramos que fue un arrastre y no un clic
+            if (Math.abs(clientX - btnInitialX - btnXOffset) > 3 || Math.abs(clientY - btnInitialY - btnYOffset) > 3) {
+                btnWasDragged = true;
+            }
+            
+            btnXOffset = btnCurrentX;
+            btnYOffset = btnCurrentY;
+            
+            const btn = document.getElementById('music-float-btn');
+            btn.style.transform = `translate3d(${btnCurrentX}px, ${btnCurrentY}px, 0)`;
+        }
+
+        function btnDragEnd() {
+            if (!btnDragging) return;
+            btnInitialX = btnCurrentX;
+            btnInitialY = btnCurrentY;
+            btnDragging = false;
+            
+            // Guardar posición en localStorage
+            if (btnWasDragged) {
+                localStorage.setItem('miniAmigix_btnPos', JSON.stringify({
+                    x: btnCurrentX,
+                    y: btnCurrentY
+                }));
+                
+                // Reset wasDragged flag a bit later so click event catches it
+                setTimeout(() => {
+                    btnWasDragged = false;
+                }, 100);
+            }
+        }
+
+        // Init drags
+        initMiniPlayerDrag();
+        initFloatBtnDrag();
     </script>
     {% block extra_js %}{% endblock %}
 </body>

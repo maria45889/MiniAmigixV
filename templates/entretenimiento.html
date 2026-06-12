@@ -5,48 +5,96 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/entretenimiento.css' %}">
+<style>
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; }
+.modal-overlay.active { display: flex; }
+.modal-content { background: #111c2e; border-radius: 16px; padding: 30px; max-width: 700px; width: 90%; max-height: 80vh; overflow-y: auto; border: 1px solid rgba(124,58,237,0.3); }
+.modal-content h2 { color: #7c3aed; margin-top: 0; }
+.modal-close { float: right; background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; }
+.reco-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 20px; }
+.reco-card { background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px; border: 1px solid rgba(255,255,255,0.05); }
+.reco-card img { width: 100%; border-radius: 8px; margin-bottom: 10px; }
+.reco-card h4 { margin: 5px 0; color: var(--text-main); }
+.reco-card p { font-size: 0.85rem; color: var(--text-muted); margin: 5px 0; }
+.reco-card a { color: #06b6d4; text-decoration: none; font-size: 0.85rem; }
+.reco-empty { color: var(--text-muted); text-align: center; padding: 40px; }
+</style>
 {% endblock %}
 
 {% block content %}
 <div class="dashboard">
     <h1 style="font-family: var(--font-title); margin-bottom: 2rem;">✨ Entretenimiento</h1>
-    
+
     <div class="cards">
         <div class="card-entertainment">
             <div style="font-size: 3rem; margin-bottom: 15px;">🎬</div>
             <h3>Películas</h3>
             <p style="color: var(--text-muted); margin-top: 10px;">Descubre recomendaciones de películas</p>
-            <button onclick="mostrarInfo('películas')">Ver más</button>
+            <button onclick="abrirModal('peliculas')">Ver más</button>
         </div>
-        
+
         <div class="card-entertainment">
             <div style="font-size: 3rem; margin-bottom: 15px;">📺</div>
             <h3>Series</h3>
             <p style="color: var(--text-muted); margin-top: 10px;">Las mejores series para ver</p>
-            <button onclick="mostrarInfo('series')">Ver más</button>
+            <button onclick="abrirModal('series')">Ver más</button>
         </div>
-        
+
         <div class="card-entertainment">
             <div style="font-size: 3rem; margin-bottom: 15px;">📚</div>
             <h3>Libros</h3>
             <p style="color: var(--text-muted); margin-top: 10px;">Recomendaciones de lectura</p>
-            <button onclick="mostrarInfo('libros')">Ver más</button>
+            <button onclick="abrirModal('libros')">Ver más</button>
         </div>
-        
+
         <div class="card-entertainment">
             <div style="font-size: 3rem; margin-bottom: 15px;">🎭</div>
             <h3>Teatro</h3>
             <p style="color: var(--text-muted); margin-top: 10px;">Obras de teatro recomendadas</p>
-            <button onclick="mostrarInfo('teatro')">Ver más</button>
+            <button onclick="abrirModal('teatro')">Ver más</button>
         </div>
+    </div>
+</div>
+
+<div id="modal" class="modal-overlay">
+    <div class="modal-content">
+        <button class="modal-close" onclick="cerrarModal()">&times;</button>
+        <h2 id="modal-titulo"></h2>
+        <div id="modal-contenido" class="reco-grid"></div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-function mostrarInfo(categoria) {
-    alert('Sección de ' + categoria + ' en desarrollo');
+const recomendaciones = {{ recomendaciones|safe }};
+const nombres = { peliculas: '🎬 Películas', series: '📺 Series', libros: '📚 Libros', teatro: '🎭 Teatro' };
+
+function abrirModal(cat) {
+    document.getElementById('modal-titulo').textContent = nombres[cat] || cat;
+    const cont = document.getElementById('modal-contenido');
+    const items = recomendaciones[cat] || [];
+    if (items.length === 0) {
+        cont.innerHTML = '<div class="reco-empty">No hay recomendaciones disponibles en este momento</div>';
+    } else {
+        let html = '';
+        items.forEach(item => {
+            if (cat === 'libros') {
+                html += `<div class="reco-card"><h4>${item.titulo || ''}</h4><p>${item.autor || ''}</p><p>${item.descripcion || ''}</p></div>`;
+            } else {
+                html += `<div class="reco-card"><img src="${item.imagen || ''}" alt="${item.titulo || ''}"><h4>${item.titulo || ''}</h4><p>${item.descripcion || ''}</p><a href="${item.url || '#'}" target="_blank">Ver en YouTube →</a></div>`;
+            }
+        });
+        cont.innerHTML = html;
+    }
+    document.getElementById('modal').classList.add('active');
 }
+
+function cerrarModal() {
+    document.getElementById('modal').classList.remove('active');
+}
+document.getElementById('modal').addEventListener('click', function(e) {
+    if (e.target === this) cerrarModal();
+});
 </script>
 {% endblock %}

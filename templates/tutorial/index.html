@@ -5,6 +5,23 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/tutorial.css' %}">
+<style>
+.tour-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.75); z-index: 9999; align-items: center; justify-content: center; }
+.tour-overlay.active { display: flex; }
+.tour-card { background: #111c2e; border-radius: 16px; padding: 35px; max-width: 500px; width: 90%; text-align: center; border: 1px solid rgba(124,58,237,0.3); }
+.tour-icon { font-size: 4rem; margin-bottom: 15px; }
+.tour-card h2 { color: #7c3aed; margin: 10px 0; }
+.tour-card p { color: var(--text-muted); line-height: 1.6; margin: 15px 0; }
+.tour-progress { display: flex; justify-content: center; gap: 8px; margin: 20px 0; }
+.tour-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.15); }
+.tour-dot.active { background: #7c3aed; }
+.tour-dot.done { background: #06b6d4; }
+.tour-buttons { display: flex; gap: 10px; justify-content: center; }
+.tour-btn { padding: 10px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+.tour-btn-primary { background: var(--accent-gradient, linear-gradient(135deg, #7c3aed, #06b6d4)); color: white; }
+.tour-btn-secondary { background: rgba(255,255,255,0.1); color: var(--text-muted); }
+.tour-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -13,47 +30,97 @@
     
     <p style="color: var(--text-muted); margin-bottom: 20px;">Bienvenido 👋 aquí aprenderás a usar la app de forma interactiva.</p>
     
-    <button onclick="startTour()" class="btn-start">🚀 Iniciar guía</button>
+    <button onclick="startTour()" class="btn-start" style="padding: 12px 30px; background: var(--accent-gradient, linear-gradient(135deg, #7c3aed, #06b6d4)); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600;">🚀 Iniciar guía</button>
     
     <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 30px 0;">
     
     <h2>📌 Módulos principales</h2>
     
-    <ul class="tutorial-list">
-        <li id="step1">🏠 <strong>Inicio:</strong> Explora el dashboard y accesos rápidos.</li>
-        <li id="step2">💬 <strong>Chat IA:</strong> Conversa con nuestra inteligencia artificial.</li>
-        <li id="step3">🎵 <strong>Música:</strong> Gestiona y reproduce tus listas de YouTube.</li>
-        <li id="step4">🎮 <strong>Juegos:</strong> Diviértete con mini arcade integrados.</li>
-        <li id="step5">📚 <strong>Estudio:</strong> Crea notas y resúmenes inteligentes.</li>
-        <li id="step6">📅 <strong>Eventos:</strong> Organiza tu calendario personal.</li>
-        <li id="step7">🔔 <strong>Notificaciones:</strong> Mantente informado de todo.</li>
-        <li id="step8">👤 <strong>Perfil:</strong> Personaliza tu experiencia.</li>
+    <ul class="tutorial-list" style="list-style: none; padding: 0;">
+        <li style="padding: 10px 15px; background: rgba(124,58,237,0.05); border-radius: 8px; margin-bottom: 8px;">🏠 <strong>Inicio:</strong> Explora el dashboard y accesos rápidos.</li>
+        <li style="padding: 10px 15px; background: rgba(124,58,237,0.05); border-radius: 8px; margin-bottom: 8px;">💬 <strong>Chat IA:</strong> Conversa con nuestra inteligencia artificial.</li>
+        <li style="padding: 10px 15px; background: rgba(124,58,237,0.05); border-radius: 8px; margin-bottom: 8px;">🎵 <strong>Música:</strong> Gestiona y reproduce tus listas de YouTube.</li>
+        <li style="padding: 10px 15px; background: rgba(124,58,237,0.05); border-radius: 8px; margin-bottom: 8px;">🎮 <strong>Juegos:</strong> Diviértete con mini arcade integrados.</li>
+        <li style="padding: 10px 15px; background: rgba(124,58,237,0.05); border-radius: 8px; margin-bottom: 8px;">📚 <strong>Estudio:</strong> Crea notas y resúmenes inteligentes.</li>
+        <li style="padding: 10px 15px; background: rgba(124,58,237,0.05); border-radius: 8px; margin-bottom: 8px;">📅 <strong>Eventos:</strong> Organiza tu calendario personal.</li>
+        <li style="padding: 10px 15px; background: rgba(124,58,237,0.05); border-radius: 8px; margin-bottom: 8px;">🔔 <strong>Notificaciones:</strong> Mantente informado de todo.</li>
+        <li style="padding: 10px 15px; background: rgba(124,58,237,0.05); border-radius: 8px; margin-bottom: 8px;">👤 <strong>Perfil:</strong> Personaliza tu experiencia.</li>
     </ul>
     
     <h2>⚙️ Configuración</h2>
     
-    <ul class="tutorial-list">
-        <li>🌙 Cambia entre modo oscuro y claro</li>
-        <li>🌐 Selecciona tu idioma preferido</li>
-        <li>🖼️ Sube tu avatar personal</li>
+    <ul class="tutorial-list" style="list-style: none; padding: 0;">
+        <li style="padding: 10px 15px; background: rgba(6,182,212,0.05); border-radius: 8px; margin-bottom: 8px;">🌙 Cambia entre modo oscuro y claro</li>
+        <li style="padding: 10px 15px; background: rgba(6,182,212,0.05); border-radius: 8px; margin-bottom: 8px;">🌐 Selecciona tu idioma preferido</li>
+        <li style="padding: 10px 15px; background: rgba(6,182,212,0.05); border-radius: 8px; margin-bottom: 8px;">🖼️ Sube tu avatar personal</li>
     </ul>
 </div>
 
+<div id="tourOverlay" class="tour-overlay">
+    <div class="tour-card">
+        <div class="tour-icon" id="tourIcon">👋</div>
+        <h2 id="tourTitle">Bienvenido</h2>
+        <p id="tourDesc">Texto del paso</p>
+        <div class="tour-progress" id="tourProgress"></div>
+        <div class="tour-buttons">
+            <button class="tour-btn tour-btn-secondary" id="tourPrev" onclick="tourPrev()">← Anterior</button>
+            <button class="tour-btn tour-btn-primary" id="tourNext" onclick="tourNext()">Siguiente →</button>
+        </div>
+    </div>
+</div>
+
 <script>
-function startTour() {
-    alert("👋 Bienvenido a MiniAmigixV. Vamos a darte un paseo rápido.");
+const steps = [
+    { icon: '👋', title: 'Bienvenido a MiniAmigixV', desc: 'Esta guía interactiva te mostrará las principales funciones de la aplicación. Puedes navegar con los botones o hacer clic en las secciones de abajo.' },
+    { icon: '🏠', title: 'Inicio', desc: 'En el dashboard encontrarás un reloj en vivo, accesos rápidos a todas las secciones y tu resumen de actividad.' },
+    { icon: '💬', title: 'Chat IA', desc: 'Conversa con MiniAmigix, nuestra IA amigable. Pregunta lo que quieras, comparte ideas o pide ayuda. ¡Usa emojis para una mejor experiencia!' },
+    { icon: '🎵', title: 'Música', desc: 'Gestiona tus listas de reproducción de YouTube. Busca canciones, agrégalas a tu biblioteca y reprodúcelas sin salir de la app.' },
+    { icon: '🎮', title: 'Juegos', desc: 'Diviértete con mini arcades integrados como Adivina el Número y Quiz. ¡Perfectos para descansar!' },
+    { icon: '📚', title: 'Estudio', desc: 'Crea notas y resúmenes inteligentes con ayuda de la IA. Organiza tus apuntes por materia y accede a ellos cuando quieras.' },
+    { icon: '📅', title: 'Eventos', desc: 'Organiza tu calendario personal. Añade eventos, tareas y recordatorios para no olvidar nada importante.' },
+    { icon: '🔔', title: 'Notificaciones', desc: 'Mantente informado de todo. Recibe alertas de eventos, mensajes y actividades importantes en tiempo real.' },
+    { icon: '👤', title: 'Perfil', desc: 'Personaliza tu experiencia. Sube un avatar, escribe tu biografía, cambia el tema y selecciona tu idioma preferido.' },
+    { icon: '⚙️', title: 'Configuración', desc: 'Ajusta el tema oscuro/claro, cambia el idioma, configura tu privacidad y mucho más.' },
+    { icon: '🎉', title: '¡Todo listo!', desc: 'Ya conoces lo básico. Explora el menú lateral para acceder a todas las funciones. ¡Disfruta MiniAmigixV!' },
+];
+
+let currentStep = 0;
+
+function startTour() { currentStep = 0; showStep(); document.getElementById('tourOverlay').classList.add('active'); }
+
+function showStep() {
+    const step = steps[currentStep];
+    document.getElementById('tourIcon').textContent = step.icon;
+    document.getElementById('tourTitle').textContent = step.title;
+    document.getElementById('tourDesc').textContent = step.desc;
+    document.getElementById('tourPrev').disabled = currentStep === 0;
+    const nextBtn = document.getElementById('tourNext');
+    nextBtn.textContent = currentStep === steps.length - 1 ? '✅ Finalizar' : 'Siguiente →';
     
-    setTimeout(() => {
-        alert("🏠 Inicio: En el dashboard verás el reloj y tus herramientas principales.");
-    }, 500);
-    
-    setTimeout(() => {
-        alert("💬 Chat IA: Puedes preguntar lo que quieras, MiniAmigix está para ayudarte.");
-    }, 2000);
-    
-    setTimeout(() => {
-        alert("🎉 ¡Eso es todo! El resto de funciones te esperan en el sidebar lateral.");
-    }, 3500);
+    const progress = document.getElementById('tourProgress');
+    progress.innerHTML = '';
+    steps.forEach((_, i) => {
+        const dot = document.createElement('span');
+        dot.className = 'tour-dot' + (i === currentStep ? ' active' : '') + (i < currentStep ? ' done' : '');
+        progress.appendChild(dot);
+    });
 }
+
+function tourNext() {
+    if (currentStep < steps.length - 1) { currentStep++; showStep(); }
+    else { cerrarTour(); }
+}
+
+function tourPrev() {
+    if (currentStep > 0) { currentStep--; showStep(); }
+}
+
+function cerrarTour() {
+    document.getElementById('tourOverlay').classList.remove('active');
+}
+
+document.getElementById('tourOverlay').addEventListener('click', function(e) {
+    if (e.target === this) cerrarTour();
+});
 </script>
 {% endblock %}
