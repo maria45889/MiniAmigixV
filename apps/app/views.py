@@ -9,11 +9,13 @@ from django.conf import settings
 from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from django.core.mail import EmailMultiAlternatives
 import json
 import os
 import re
 import logging
 import openai
+import requests
 import random
 import datetime
 import yt_dlp
@@ -594,10 +596,6 @@ def enviar_sugerencia_rapida(request):
             # Enviar email con HTML a miniamigixv@gmail.com
             email_error = None
             try:
-                import smtplib
-                from email.mime.multipart import MIMEMultipart
-                from email.mime.text import MIMEText
-
                 context = {
                     'nombre': nombre,
                     'email': email_usuario,
@@ -607,33 +605,10 @@ def enviar_sugerencia_rapida(request):
                 html_message = render_to_string('email_sugerencia.html', context)
                 plain_message = strip_tags(html_message)
                 asunto = f"💡 NUEVA SUGERENCIA - {nombre}"
-
-                msg = MIMEMultipart('alternative')
-                msg['Subject'] = asunto
-                msg['From'] = settings.EMAIL_HOST_USER
-                msg['To'] = 'miniamigixv@gmail.com'
-                msg.attach(MIMEText(plain_message, 'plain'))
-                msg.attach(MIMEText(html_message, 'html'))
-
-                # Intentar con TLS puerto 587
-                try:
-                    server = smtplib.SMTP('smtp.gmail.com', 587, timeout=10)
-                    server.ehlo()
-                    server.starttls()
-                    server.ehlo()
-                    server.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
-                    server.sendmail(settings.EMAIL_HOST_USER, ['miniamigixv@gmail.com'], msg.as_string())
-                    server.quit()
-                except Exception as e:
-                    # Fallback: intentar SSL puerto 465
-                    try:
-                        server = smtplib.SMTP_SSL('smtp.gmail.com', 465, timeout=10)
-                        server.ehlo()
-                        server.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
-                        server.sendmail(settings.EMAIL_HOST_USER, ['miniamigixv@gmail.com'], msg.as_string())
-                        server.quit()
-                    except Exception as e2:
-                        email_error = str(e2)
+                
+                email = EmailMultiAlternatives(asunto, plain_message, settings.EMAIL_HOST_USER, ['miniamigixv@gmail.com'])
+                email.attach_alternative(html_message, "text/html")
+                email.send()
             except Exception as e:
                 email_error = str(e)
 
