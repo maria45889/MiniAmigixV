@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
@@ -297,16 +297,17 @@ def clima(request):
                             },
                             'wind': {'speed': round(w_data['current']['wind_speed_10m'])},
                             'weather': [{'main': desc.split()[-1], 'description': desc}],
-                            'daily': [
-                                {
-                                    'date': day['time'],
-                                    'temp_max': round(day['temperature_2m_max']),
-                                    'temp_min': round(day['temperature_2m_min']),
-                                    'weather_code': day['weather_code']
-                                }
-                                for day in w_data.get('daily', {}).get('data', [])
-                            ] if 'daily' in w_data else []
+                            'daily': []
                         }
+                        if 'daily' in w_data:
+                            d = w_data['daily']
+                            for i in range(len(d.get('time', []))):
+                                datos_clima['daily'].append({
+                                    'date': d['time'][i],
+                                    'temp_max': round(d['temperature_2m_max'][i]),
+                                    'temp_min': round(d['temperature_2m_min'][i]),
+                                    'weather_code': d['weather_code'][i]
+                                })
                     else:
                         error = "No se pudieron obtener datos climáticos."
             except requests.exceptions.RequestException:
@@ -354,8 +355,7 @@ def entretenimiento(request):
     recomendaciones = {'peliculas': [], 'series': [], 'libros': [], 'teatro': []}
 
     try:
-        from django.conf import settings as s
-        if s.YOUTUBE_API_KEY:
+        if hasattr(settings, 'YOUTUBE_API_KEY') and settings.YOUTUBE_API_KEY:
             # Buscar tráilers/populares en YouTube como recomendaciones
             categorias = {
                 'peliculas': 'tráilers películas 2025 2026',
@@ -369,7 +369,7 @@ def entretenimiento(request):
                     'q': query,
                     'type': 'video',
                     'maxResults': 4,
-                    'key': s.YOUTUBE_API_KEY,
+                    'key': settings.YOUTUBE_API_KEY,
                     'regionCode': 'ES',
                     'relevanceLanguage': 'es'
                 }
@@ -386,8 +386,8 @@ def entretenimiento(request):
                         })
 
         # Libros: usar Groq API para recomendar libros
-        if s.GROQ_API_KEY and not recomendaciones['libros']:
-            client = openai.OpenAI(api_key=s.GROQ_API_KEY, base_url="https://api.groq.com/openai/v1")
+        if settings.GROQ_API_KEY and not recomendaciones['libros']:
+            client = openai.OpenAI(api_key=settings.GROQ_API_KEY, base_url="https://api.groq.com/openai/v1")
             prompt = "Recomienda 4 libros populares en español de diferentes géneros. Devuelve SOLO JSON con formato: [{\"titulo\": \"...\", \"autor\": \"...\", \"descripcion\": \"...\"}]. Sin markdown ni explicaciones."
             response = client.chat.completions.create(model="llama-3.3-70b-versatile", messages=[{"role": "user", "content": prompt}], max_tokens=500)
             json_match = re.search(r'\[.*\]', response.choices[0].message.content, re.DOTALL)
@@ -467,11 +467,11 @@ def stream_audio_api(request, youtube_id):
 @require_http_methods(["DELETE", "POST"])
 def delete_chat_api(request, chat_id):
     try:
-        chat_obj = ConversacionChat.objects.get(id=chat_id, usuario=request.user)
+        chat_obj = ConversacionChat.objects.filter(id=chat_id, usuario=request.user).first()
+        if not chat_obj:
+            return JsonResponse({'status': 'error', 'error': 'Chat no encontrado'}, status=404)
         chat_obj.delete()
         return JsonResponse({'status': 'success', 'message': 'Chat eliminado correctamente'})
-    except ConversacionChat.DoesNotExist:
-        return JsonResponse({'status': 'error', 'error': 'El chat no existe o no tienes permiso'}, status=404)
     except Exception as e:
         logger.error(f"Error al eliminar chat: {e}")
         return JsonResponse({'status': 'error', 'error': str(e)}, status=500)
@@ -482,11 +482,11 @@ def delete_song_api(request, song_id):
         return JsonResponse({'success': False, 'error': 'No autenticado'}, status=401)
     
     try:
-        cancion = Cancion.objects.get(id=song_id, usuario=request.user)
+        cancion = Cancion.objects.filter(id=song_id, usuario=request.user).first()
+        if not cancion:
+            return JsonResponse({'success': False, 'error': 'Canción no encontrada'}, status=404)
         cancion.delete()
         return JsonResponse({'success': True})
-    except Cancion.DoesNotExist:
-        return JsonResponse({'success': False, 'error': 'Canción no encontrada'}, status=404)
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
@@ -496,9 +496,10 @@ def edit_song_api(request, song_id):
         return JsonResponse({'success': False, 'error': 'No autenticado'}, status=401)
     
     try:
-        import json
         data = json.loads(request.body)
-        cancion = Cancion.objects.get(id=song_id, usuario=request.user)
+        cancion = Cancion.objects.filter(id=song_id, usuario=request.user).first()
+        if not cancion:
+            return JsonResponse({'success': False, 'error': 'Canción no encontrada'}, status=404)
         
         if 'nombre' in data:
             cancion.nombre = data['nombre']
@@ -507,8 +508,6 @@ def edit_song_api(request, song_id):
             
         cancion.save()
         return JsonResponse({'success': True, 'nombre': cancion.nombre, 'artista': cancion.artista})
-    except Cancion.DoesNotExist:
-        return JsonResponse({'success': False, 'error': 'Canción no encontrada'}, status=404)
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
