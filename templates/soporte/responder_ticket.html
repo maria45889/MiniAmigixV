@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Responder Ticket{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/soporte.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="soporte-container">
+    <h1>💬 Responder Ticket</h1>
+    
+    <div class="ticket-detail">
+        <div class="ticket-card">
+            <div class="ticket-header">
+                <h2>{{ ticket.asunto }}</h2>
+                <div class="ticket-badges">
+                    <span class="prioridad-badge prioridad-{{ ticket.prioridad }}">{{ ticket.get_prioridad_display }}</span>
+                    <span class="estado-badge estado-{{ ticket.estado }}">{{ ticket.get_estado_display }}</span>
+                </div>
+            </div>
+            
+            <div class="ticket-info">
+                <p><strong>Descripción:</strong></p>
+                <p>{{ ticket.descripcion }}</p>
+                
+                {% if ticket.usuario %}
+                <p><strong>Usuario:</strong> @{{ ticket.usuario.username }} ({{ ticket.usuario.email }})</p>
+                {% else %}
+                <p><strong>Usuario:</strong> Anónimo</p>
+                {% endif %}
+                
+                <p><strong>Fecha:</strong> {{ ticket.fecha_creacion|date:"d M Y, H:i" }}</p>
+                
+                {% if ticket.respuesta_admin %}
+                <div class="respuesta-admin">
+                    <h4>✅ Respuesta anterior:</h4>
+                    <p>{{ ticket.respuesta_admin }}</p>
+                    <p class="respuesta-meta">
+                        Respondido por: {{ ticket.respondido_por.username }} el {{ ticket.fecha_respuesta|date:"d M Y, H:i" }}
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="responder-form">
+            <h3>Escribe tu respuesta:</h3>
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="respuesta">Respuesta:</label>
+                    <textarea 
+                        name="respuesta" 
+                        id="respuesta" 
+                        rows="6" 
+                        required
+                        placeholder="Escribe tu respuesta al usuario..."
+                    >{% if ticket.respuesta_admin %}{{ ticket.respuesta_admin }}{% endif %}</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="estado">Cambiar estado:</label>
+                    <select name="estado" id="estado">
+                        <option value="abierto" {% if ticket.estado == 'abierto' %}selected{% endif %}>Abierto</option>
+                        <option value="en_proceso" {% if ticket.estado == 'en_proceso' %}selected{% endif %}>En proceso</option>
+                        <option value="resuelto" {% if ticket.estado == 'resuelto' %}selected{% endif %}>Resuelto</option>
+                        <option value="cerrado" {% if ticket.estado == 'cerrado' %}selected{% endif %}>Cerrado</option>
+                    </select>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">📤 Enviar Respuesta</button>
+                    <a href="{% url 'admin_tickets' %}" class="btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -240,7 +240,7 @@ def eventos(request):
     return redirect('lista_eventos')
 
 def clima(request):
-    ciudad = request.GET.get('ciudad', '')
+    ciudad = request.GET.get('ciudad', 'Quito')
     datos_clima = None
     error = None
 
@@ -373,7 +373,8 @@ def entretenimiento(request):
                     'regionCode': 'ES',
                     'relevanceLanguage': 'es'
                 }
-                resp = requests.get(url, params=params, timeout=10)
+                headers = {'Referer': request.build_absolute_uri('/')}
+                resp = requests.get(url, params=params, headers=headers, timeout=10)
                 if resp.status_code == 200:
                     items = resp.json().get('items', [])
                     for item in items:
@@ -416,8 +417,9 @@ def sugerencias(request):
     return redirect('lista_sugerencias')
 
 def logout_view(request):
-    logout(request)
-    return redirect('home')
+    if request.method == 'POST' or request.method == 'GET':
+        logout(request)
+    return redirect('login')
 
 @require_http_methods(["POST"])
 def add_song_api(request):
@@ -462,6 +464,83 @@ def stream_audio_api(request, youtube_id):
             return JsonResponse({'success': True, 'url': audio_url})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+@login_required
+@require_http_methods(["GET"])
+def download_media_api(request):
+    url = request.GET.get('url')
+    format_type = request.GET.get('format', 'mp3')
+    
+    if not url:
+        return HttpResponse('URL es requerida', status=400)
+        
+    import tempfile
+    from django.http import FileResponse
+    import os
+    
+    try:
+        # Create a temporary directory that will be automatically cleaned up eventually
+        # but we need to return a FileResponse, so we can't use `with tempfile.TemporaryDirectory()` directly
+        # because the directory would be deleted before the file is sent.
+        # However, Django's FileResponse doesn't delete the file after sending.
+        # We'll use a temporary file path
+        fd, temp_path = tempfile.mkstemp()
+        os.close(fd)
+        # We need the base name without extension for yt-dlp
+        base_path = temp_path
+        
+        ydl_opts = {
+            'outtmpl': base_path + '.%(ext)s',
+            'quiet': True,
+            'no_warnings': True,
+            'noplaylist': True,
+        }
+        
+        if format_type == 'mp3':
+            ydl_opts.update({
+                'format': 'bestaudio/best',
+                'postprocessors': [{
+                    'key': 'FFmpegExtractAudio',
+                    'preferredcodec': 'mp3',
+                    'preferredquality': '192',
+                }],
+            })
+            expected_ext = 'mp3'
+        else:
+            ydl_opts.update({
+                'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+                'merge_output_format': 'mp4',
+            })
+            expected_ext = 'mp4'
+            
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=True)
+            title = info.get('title', 'descarga')
+            
+            # Limpiar el título para el nombre del archivo
+            clean_title = "".join([c for c in title if c.isalpha() or c.isdigit() or c==' ']).rstrip()
+            filename = f"{clean_title}.{expected_ext}"
+            
+            final_path = base_path + '.' + expected_ext
+            
+            if os.path.exists(final_path):
+                file = open(final_path, 'rb')
+                response = FileResponse(file)
+                response['Content-Disposition'] = f'attachment; filename="{filename}"'
+                
+                # Opcional: borrar el archivo original mkstemp si yt-dlp no lo usó
+                try:
+                    if os.path.exists(temp_path):
+                        os.remove(temp_path)
+                except:
+                    pass
+                    
+                return response
+            else:
+                return HttpResponse('Error: Archivo no generado', status=500)
+                
+    except Exception as e:
+        return HttpResponse(f'Error al procesar la descarga: {str(e)}', status=500)
 
 @login_required
 @require_http_methods(["DELETE", "POST"])
@@ -513,16 +592,24 @@ def edit_song_api(request, song_id):
 
 # ==================== VISTAS DEL BLOG ====================
 def blog(request):
-    publicaciones = []
+    noticias_globales = PublicacionBlog.objects.filter(
+        es_oficial=True, 
+        publicado=True
+    )
+    if not request.user.is_staff:
+        noticias_globales = noticias_globales.filter(visible_para_todos=True)
+    
+    mis_publicaciones = []
     if request.user.is_authenticated:
-        # Solo mostrar publicaciones del usuario actual
-        publicaciones = PublicacionBlog.objects.filter(
+        mis_publicaciones = PublicacionBlog.objects.filter(
             usuario=request.user,
-            publicado=True
-        ).order_by('-fecha_publicacion')
+            publicado=True,
+            es_oficial=False
+        )
     
     return render(request, 'blog.html', {
-        'publicaciones': publicaciones
+        'noticias_globales': noticias_globales,
+        'mis_publicaciones': mis_publicaciones
     })
 
 def crear_publicacion(request):
@@ -535,24 +622,43 @@ def crear_publicacion(request):
         categoria = request.POST.get('categoria', 'personal')
         
         if not titulo or not contenido:
-            publicaciones = PublicacionBlog.objects.filter(
-                usuario=request.user,
-                publicado=True
-            ).order_by('-fecha_publicacion')
-            return render(request, 'blog.html', {
-                'error': 'Por favor completa todos los campos',
-                'publicaciones': publicaciones
-            })
+            return redirect('blog')
+            
+        es_oficial = False
+        fijado = False
+        visible_para_todos = True
+        
+        if request.user.is_staff:
+            es_oficial = request.POST.get('es_oficial') == 'on'
+            fijado = request.POST.get('fijado') == 'on'
+            visible_para_todos = request.POST.get('visible_para_todos') == 'on'
+        else:
+            if categoria in ['mantenimiento', 'actualizaciones', 'avisos_urgentes']:
+                categoria = 'personal'
         
         PublicacionBlog.objects.create(
             usuario=request.user,
             titulo=titulo,
             contenido=contenido,
-            categoria=categoria
+            categoria=categoria,
+            es_oficial=es_oficial,
+            fijado=fijado,
+            visible_para_todos=visible_para_todos
         )
         
         return redirect('blog')
     
+    return redirect('blog')
+
+def eliminar_publicacion(request, publicacion_id):
+    if not request.user.is_authenticated:
+        return redirect('login')
+    if request.method == 'POST':
+        try:
+            publicacion = PublicacionBlog.objects.get(id=publicacion_id, usuario=request.user)
+            publicacion.delete()
+        except PublicacionBlog.DoesNotExist:
+            pass
     return redirect('blog')
 
 @require_http_methods(["DELETE"])
@@ -623,3 +729,18 @@ def enviar_sugerencia_rapida(request):
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)}, status=500)
     return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
+
+@login_required
+def panel_admin(request):
+    if request.user.email != 'miniamigixv@gmail.com':
+        return redirect('home')
+        
+    context = {
+        'total_usuarios': User.objects.count(),
+        'total_chats': ConversacionChat.objects.count(),
+        'total_canciones': Cancion.objects.count(),
+        'total_publicaciones': PublicacionBlog.objects.count(),
+        'total_eventos': Evento.objects.count(),
+        'ultimos_usuarios': User.objects.order_by('-date_joined')[:10],
+    }
+    return render(request, 'panel_admin.html', context)

@@ -1,6 +1,9 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.mail import send_mail
 from django.conf import settings
+from django.template.loader import render_to_string
+from django.utils import timezone
 from .models import TicketSoporte
 
 def lista_tickets(request):
@@ -29,28 +32,108 @@ def soporte_home(request):
         nombre = request.POST.get("nombre")
         email = request.POST.get("email")
         mensaje = request.POST.get("mensaje")
+        categoria = request.POST.get("asunto", "general")
 
-        asunto = f"🛟 Soporte de {nombre}"
+        categorias_map = {
+            "general": "Consulta general",
+            "bug": "Reportar un error",
+            "cuenta": "Problema con cuenta",
+            "sugerencia": "Sugerencia",
+            "otro": "Otro",
+        }
+        categoria_texto = categorias_map.get(categoria, categoria)
 
-        contenido = f"""
+        # Estilos de badge según categoría
+        badge_styles = {
+            "general":    {"bg": "rgba(6,182,212,0.15)",  "border": "rgba(6,182,212,0.3)",  "color": "#06b6d4", "emoji": "📋"},
+            "bug":        {"bg": "rgba(239,68,68,0.15)",  "border": "rgba(239,68,68,0.3)",  "color": "#ef4444", "emoji": "🐛"},
+            "cuenta":     {"bg": "rgba(245,158,11,0.15)", "border": "rgba(245,158,11,0.3)", "color": "#f59e0b", "emoji": "🔑"},
+            "sugerencia": {"bg": "rgba(16,185,129,0.15)", "border": "rgba(16,185,129,0.3)", "color": "#10b981", "emoji": "💡"},
+            "otro":       {"bg": "rgba(167,139,250,0.15)","border": "rgba(167,139,250,0.3)","color": "#a78bfa", "emoji": "📌"},
+        }
+        badge = badge_styles.get(categoria, badge_styles["general"])
+
+        asunto_email = f"🛟 [{categoria_texto}] Soporte de {nombre}"
+
+        # Texto plano (fallback)
+        contenido_texto = f"""
         NUEVO MENSAJE DE SOPORTE
 
         Nombre: {nombre}
         Email: {email}
+        Categoría: {categoria_texto}
 
         Mensaje:
         {mensaje}
         """
 
+        # Renderizar plantilla HTML
+        fecha_actual = timezone.now().strftime("%d/%m/%Y a las %H:%M")
+        contenido_html = render_to_string("email_soporte.html", {
+            "nombre": nombre,
+            "email": email,
+            "mensaje": mensaje,
+            "categoria": categoria_texto,
+            "categoria_emoji": badge["emoji"],
+            "badge_bg": badge["bg"],
+            "badge_border": badge["border"],
+            "badge_color": badge["color"],
+            "fecha": fecha_actual,
+        })
+
         try:
             send_mail(
-                asunto,
-                contenido,
+                asunto_email,
+                contenido_texto,
                 settings.EMAIL_HOST_USER,
-                ["miniamigixv@gmail.com"]
+                ["miniamigixv@gmail.com"],
+                html_message=contenido_html,
             )
             return render(request, "soporte/index.html", {"enviado": True})
         except Exception as e:
             return render(request, "soporte/index.html", {"error": True})
 
     return render(request, "soporte/index.html")
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def admin_tickets(request):
+    tickets = TicketSoporte.objects.all().order_by('-fecha_creacion')
+    return render(request, 'soporte/admin_tickets.html', {'tickets': tickets})
+
+@login_required
+@user_passes_test(lambda u: u.is_staff)
+def responder_ticket(request, ticket_id):
+    ticket = get_object_or_404(TicketSoporte, id=ticket_id)
+    
+    if request.method == 'POST':
+        respuesta = request.POST.get('respuesta')
+        nuevo_estado = request.POST.get('estado')
+        
+        if respuesta:
+            ticket.respuesta_admin = respuesta
+            ticket.fecha_respuesta = timezone.now()
+            ticket.respondido_por = request.user
+            
+            if nuevo_estado:
+                ticket.estado = nuevo_estado
+                if nuevo_estado == 'resuelto':
+                    ticket.fecha_resolucion = timezone.now()
+            
+            ticket.save()
+            
+            # Enviar email de notificación al usuario si tiene email
+            if ticket.usuario and ticket.usuario.email:
+                try:
+                    send_mail(
+                        f'🎉 Respuesta a tu ticket: {ticket.asunto}',
+                        f'Hola {ticket.usuario.username},\n\nTu ticket ha recibido una respuesta:\n\n{respuesta}\n\nSaludos,\nEl equipo de MiniAmigixV',
+                        settings.EMAIL_HOST_USER,
+                        [ticket.usuario.email],
+                    )
+                except:
+                    pass
+            
+            return redirect('admin_tickets')
+    
+    return render(request, 'soporte/responder_ticket.html', {'ticket': ticket})

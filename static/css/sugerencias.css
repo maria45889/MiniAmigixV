@@ -26,3 +26,145 @@ textarea {
 button:hover {
     opacity: 0.9;
 }
+
+/* ============================================================
+   ADMIN PANEL STYLES
+   ============================================================ */
+.sugerencias-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.admin-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: rgba(17, 28, 46, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+}
+
+.stat-card h3 {
+    font-size: 14px;
+    color: #94a3b8;
+    margin-bottom: 8px;
+}
+
+.stat-number {
+    font-size: 32px;
+    font-weight: 700;
+    color: #7c3aed;
+}
+
+.admin-sugerencia {
+    border: 2px solid rgba(124, 58, 237, 0.2);
+}
+
+.admin-sugerencia:hover {
+    border-color: rgba(124, 58, 237, 0.4);
+}
+
+.sugerencias-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.sugerencia-card {
+    background: rgba(17, 28, 46, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 16px;
+    padding: 20px;
+}
+
+.sugerencia-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.sugerencia-header h3 {
+    color: #e2e8f0;
+    margin: 0;
+}
+
+.sugerencia-badges {
+    display: flex;
+    gap: 8px;
+}
+
+.categoria-badge,
+.estado-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.categoria-mejora { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+.categoria-bug { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+.categoria-nueva_funcionalidad { background: rgba(124, 58, 237, 0.15); color: #a78bfa; border: 1px solid rgba(124, 58, 237, 0.3); }
+.categoria-otro { background: rgba(100, 116, 139, 0.15); color: #94a3b8; border: 1px solid rgba(100, 116, 139, 0.3); }
+
+.estado-pendiente { background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
+.estado-en_revision { background: rgba(6, 182, 212, 0.15); color: #06b6d4; border: 1px solid rgba(6, 182, 212, 0.3); }
+.estado-aprobada { background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); }
+.estado-rechazada { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+.sugerencia-card p {
+    color: #94a3b8;
+    margin-bottom: 8px;
+}
+
+.sugerencia-meta {
+    display: flex;
+    gap: 16px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: #64748b;
+}
+
+.no-sugerencias {
+    text-align: center;
+    padding: 40px;
+    color: #64748b;
+}
+
+/* ============================================================
+   LIGHT MODE OVERRIDES
+   ============================================================ */
+body.light .stat-card {
+    background: rgba(255, 255, 255, 0.7);
+    border-color: rgba(0, 0, 0, 0.06);
+}
+
+body.light .stat-card h3 {
+    color: #64748b;
+}
+
+body.light .sugerencia-card {
+    background: rgba(255, 255, 255, 0.7);
+    border-color: rgba(0, 0, 0, 0.06);
+}
+
+body.light .sugerencia-header h3 {
+    color: #1e293b;
+}
+
+body.light .sugerencia-card p {
+    color: #64748b;
+}
+
+body.light .sugerencia-meta {
+    color: #94a3b8;
+}

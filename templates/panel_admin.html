@@ -1,0 +1,233 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Panel de Administración{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-dashboard {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        padding: 20px;
+    }
+    
+    .admin-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: rgba(17, 28, 46, 0.7);
+        backdrop-filter: blur(10px);
+        padding: 20px 30px;
+        border-radius: 20px;
+        border: 1px solid rgba(124, 58, 237, 0.2);
+    }
+    
+    .admin-header h1 {
+        font-family: 'Syne', sans-serif;
+        font-size: 28px;
+        margin: 0;
+        background: var(--accent-gradient, linear-gradient(135deg, #7c3aed, #06b6d4));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
+    
+    .stat-card {
+        background: rgba(17, 28, 46, 0.7);
+        border: 1px solid rgba(124, 58, 237, 0.2);
+        border-radius: 16px;
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(124, 58, 237, 0.15);
+        border-color: rgba(6, 182, 212, 0.5);
+    }
+    
+    .stat-icon {
+        font-size: 32px;
+        margin-bottom: 15px;
+        background: var(--accent-gradient, linear-gradient(135deg, #7c3aed, #06b6d4));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+    
+    .stat-value {
+        font-size: 36px;
+        font-weight: 700;
+        font-family: 'Syne', sans-serif;
+        color: white;
+        margin-bottom: 5px;
+    }
+    
+    .stat-label {
+        font-size: 14px;
+        color: #94a3b8;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .recent-users-section {
+        background: rgba(17, 28, 46, 0.7);
+        border: 1px solid rgba(124, 58, 237, 0.2);
+        border-radius: 20px;
+        padding: 24px;
+        margin-top: 10px;
+    }
+
+    .recent-users-section h2 {
+        font-family: 'Syne', sans-serif;
+        font-size: 20px;
+        margin-top: 0;
+        margin-bottom: 20px;
+        color: white;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .users-table-container {
+        overflow-x: auto;
+    }
+
+    .users-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .users-table th {
+        text-align: left;
+        padding: 12px 15px;
+        color: #94a3b8;
+        font-weight: 500;
+        font-size: 14px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .users-table td {
+        padding: 15px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        color: #f1f5f9;
+        font-size: 15px;
+    }
+
+    .users-table tbody tr:hover {
+        background: rgba(124, 58, 237, 0.05);
+    }
+
+    .user-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        background: rgba(6, 182, 212, 0.1);
+        color: #06b6d4;
+        border: 1px solid rgba(6, 182, 212, 0.2);
+    }
+
+    .user-badge.admin {
+        background: rgba(124, 58, 237, 0.1);
+        color: #c084fc;
+        border: 1px solid rgba(124, 58, 237, 0.2);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-dashboard">
+    <div class="admin-header">
+        <h1>Centro de Administración General</h1>
+        <div class="user-badge admin">
+            <i class="ti ti-shield-check"></i> Super Administrador
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon"><i class="ti ti-users"></i></div>
+            <div class="stat-value">{{ total_usuarios }}</div>
+            <div class="stat-label">Usuarios</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="ti ti-messages"></i></div>
+            <div class="stat-value">{{ total_chats }}</div>
+            <div class="stat-label">Conversaciones</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="ti ti-music"></i></div>
+            <div class="stat-value">{{ total_canciones }}</div>
+            <div class="stat-label">Canciones</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="ti ti-notebook"></i></div>
+            <div class="stat-value">{{ total_publicaciones }}</div>
+            <div class="stat-label">Publicaciones Blog</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="ti ti-calendar-event"></i></div>
+            <div class="stat-value">{{ total_eventos }}</div>
+            <div class="stat-label">Eventos</div>
+        </div>
+    </div>
+
+    <div class="recent-users-section">
+        <h2><i class="ti ti-user-plus"></i> Usuarios Recientes</h2>
+        <div class="users-table-container">
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th>Fecha de Registro</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in ultimos_usuarios %}
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--accent-gradient); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">
+                                    {{ u.username.0|upper }}
+                                </div>
+                                {{ u.username }}
+                            </div>
+                        </td>
+                        <td>{{ u.email|default:"<span style='color: #64748b; font-style: italic;'>Sin correo</span>"|safe }}</td>
+                        <td>{{ u.date_joined|date:"d M Y, H:i" }}</td>
+                        <td>
+                            {% if u.is_superuser %}
+                                <span class="user-badge admin">Superadmin</span>
+                            {% elif u.is_staff %}
+                                <span class="user-badge">Staff</span>
+                            {% else %}
+                                <span class="user-badge" style="background: rgba(16, 185, 129, 0.1); color: #34d399; border-color: rgba(16, 185, 129, 0.2);">Activo</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: #64748b;">No hay usuarios registrados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

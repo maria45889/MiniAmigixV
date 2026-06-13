@@ -10,6 +10,7 @@ urlpatterns = [
     path('musica/', views.musica, name='musica'),
     path('api/add-song/', views.add_song_api, name='add_song_api'),
     path('api/stream-audio/<str:youtube_id>/', views.stream_audio_api, name='stream_audio_api'),
+    path('api/download-media/', views.download_media_api, name='download_media_api'),
     path('api/delete-chat/<int:chat_id>/', views.delete_chat_api, name='delete_chat_api'),
     path('api/delete-song/<int:song_id>/', views.delete_song_api, name='delete_song_api'),
     path('api/edit-song/<int:song_id>/', views.edit_song_api, name='edit_song_api'),
@@ -20,7 +21,9 @@ urlpatterns = [
     path('entretenimiento/', views.entretenimiento, name='entretenimiento'),
     path('blog/', views.blog, name='blog'),
     path('blog/crear/', views.crear_publicacion, name='crear_publicacion'),
+    path('eliminar-publicacion/<int:publicacion_id>/', views.eliminar_publicacion, name='eliminar_publicacion'),
     path('api/delete-publicacion/<int:publicacion_id>/', views.delete_publicacion_api, name='delete_publicacion_api'),
     path('logout/', views.logout_view, name='logout'),
     path('api/sugerencia-rapida/', views.enviar_sugerencia_rapida, name='sugerencia_rapida'),
+    path('panel-admin/', views.panel_admin, name='panel_admin'),
 ]

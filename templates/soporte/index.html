@@ -4,80 +4,284 @@
 {% block title %}Soporte{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/soporte.css' %}">
+<link rel="stylesheet" href="{% static 'css/soporte.css' %}?v=3">
 {% endblock %}
 
 {% block content %}
-<div class="soporte-container">
-    <h1>🛟 Soporte MiniAmigixV</h1>
-    
-    <hr>
-    
-    <div class="info-section">
-        <h2>ℹ️ ¿Qué es MiniAmigixV?</h2>
-        <p>
-            MiniAmigixV es una plataforma todo en uno con Chat IA, música, juegos, estudio,
-            eventos, herramientas inteligentes y más. Una aplicación moderna diseñada para
-            simplificar tu vida digital.
-        </p>
-    </div>
-    
-    <div class="info-section">
-        <h2>🎯 Misión</h2>
-        <p>
-            Crear una app moderna, inteligente y accesible que unifique herramientas útiles
-            en un solo sistema digital, facilitando la productividad y el entretenimiento.
-        </p>
-    </div>
-    
-    <div class="info-section">
-        <h2>🌟 Visión</h2>
-        <p>
-            Ser una plataforma global tipo "super app" educativa, social e inteligente que
-            transforme la manera en que las personas interactúan con la tecnología.
-        </p>
-    </div>
-    
-    <hr>
-    
-    <h2>📩 Contacto con soporte</h2>
-    
-    {% if enviado %}
-    <div class="success-message">
-        ✅ Mensaje enviado correctamente. Te responderemos pronto.
-    </div>
-    {% endif %}
-    
-    {% if error %}
-    <div class="error-message">
-        ❌ Error al enviar el mensaje. Por favor intenta nuevamente.
-    </div>
-    {% endif %}
-    
-    <form method="POST" class="contact-form">
-        {% csrf_token %}
-        
-        <div class="form-group">
-            <label for="nombre">Tu nombre</label>
-            <input type="text" id="nombre" name="nombre" placeholder="Ej: Juan Pérez" required>
+<div class="soporte-page">
+
+    <!-- Hero Section -->
+    <section class="soporte-hero">
+        <div class="hero-orbs">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
         </div>
-        
-        <div class="form-group">
-            <label for="email">Tu correo</label>
-            <input type="email" id="email" name="email" placeholder="ejemplo@correo.com" required>
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="ti ti-headset"></i>
+                <span>Centro de Soporte</span>
+            </div>
+            <h1 class="hero-title">
+                ¿Cómo podemos
+                <span class="gradient-text">ayudarte</span>?
+            </h1>
+            <p class="hero-subtitle">
+                Estamos aquí para resolver tus dudas y hacer tu experiencia increíble.
+            </p>
         </div>
-        
-        <div class="form-group">
-            <label for="mensaje">Mensaje</label>
-            <textarea id="mensaje" name="mensaje" rows="6" placeholder="Escribe tu problema o mensaje..." required></textarea>
+    </section>
+
+    <!-- Info Cards Grid -->
+    <section class="info-cards-grid">
+        <div class="info-card card-about">
+            <div class="card-icon-wrapper">
+                <i class="ti ti-info-circle"></i>
+            </div>
+            <h3>¿Qué es MiniAmigixV?</h3>
+            <p>
+                Una plataforma todo en uno con Chat IA, música, juegos, estudio,
+                eventos, herramientas inteligentes y más. Diseñada para simplificar
+                tu vida digital.
+            </p>
+            <div class="card-glow"></div>
         </div>
-        
-        <button type="submit" class="btn-submit">Enviar mensaje</button>
-    </form>
-    
-    <div class="contact-info">
-        <p>📧 Email: miniamigixv@gmail.com</p>
-        <p>🌐 Web: miniamigixv.com</p>
-    </div>
+
+        <div class="info-card card-mission">
+            <div class="card-icon-wrapper">
+                <i class="ti ti-target-arrow"></i>
+            </div>
+            <h3>Misión</h3>
+            <p>
+                Crear una app moderna, inteligente y accesible que unifique herramientas
+                útiles en un solo sistema digital, facilitando la productividad y el
+                entretenimiento.
+            </p>
+            <div class="card-glow"></div>
+        </div>
+
+        <div class="info-card card-vision">
+            <div class="card-icon-wrapper">
+                <i class="ti ti-sparkles"></i>
+            </div>
+            <h3>Visión</h3>
+            <p>
+                Ser una plataforma global tipo "super app" educativa, social e inteligente
+                que transforme la manera en que las personas interactúan con la tecnología.
+            </p>
+            <div class="card-glow"></div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="faq-section">
+        <div class="section-header">
+            <i class="ti ti-help-circle"></i>
+            <h2>Preguntas Frecuentes</h2>
+        </div>
+        <div class="faq-list">
+            <div class="faq-item" onclick="toggleFaq(this)">
+                <div class="faq-question">
+                    <span>¿Cómo creo mi cuenta?</span>
+                    <i class="ti ti-chevron-down faq-chevron"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Haz clic en "Registrarse" en la página de inicio, completa tus datos y listo. También puedes registrarte con tu cuenta de Google.</p>
+                </div>
+            </div>
+            <div class="faq-item" onclick="toggleFaq(this)">
+                <div class="faq-question">
+                    <span>¿La plataforma es gratuita?</span>
+                    <i class="ti ti-chevron-down faq-chevron"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Sí, MiniAmigixV es completamente gratuita. Todas las funciones básicas están disponibles sin costo alguno.</p>
+                </div>
+            </div>
+            <div class="faq-item" onclick="toggleFaq(this)">
+                <div class="faq-question">
+                    <span>¿Cómo uso el Chat IA?</span>
+                    <i class="ti ti-chevron-down faq-chevron"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Dirígete a la sección de Chat desde el menú lateral. Escribe tu pregunta y la inteligencia artificial te responderá al instante.</p>
+                </div>
+            </div>
+            <div class="faq-item" onclick="toggleFaq(this)">
+                <div class="faq-question">
+                    <span>¿Cómo reporto un error?</span>
+                    <i class="ti ti-chevron-down faq-chevron"></i>
+                </div>
+                <div class="faq-answer">
+                    <p>Usa el formulario de contacto más abajo describiendo el problema con el mayor detalle posible. ¡Nos encargamos!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Form Section -->
+    <section class="contact-section">
+        <div class="contact-wrapper">
+            <div class="contact-info-panel">
+                <div class="contact-info-content">
+                    <h2>Escríbenos</h2>
+                    <p>¿No encontraste la respuesta? Nuestro equipo te ayudará personalmente.</p>
+
+                    <div class="contact-details">
+                        <div class="contact-detail-item">
+                            <div class="contact-detail-icon">
+                                <i class="ti ti-mail"></i>
+                            </div>
+                            <div>
+                                <span class="detail-label">Email</span>
+                                <span class="detail-value">miniamigixv@gmail.com</span>
+                            </div>
+                        </div>
+                        <div class="contact-detail-item">
+                            <div class="contact-detail-icon">
+                                <i class="ti ti-world"></i>
+                            </div>
+                            <div>
+                                <span class="detail-label">Web</span>
+                                <span class="detail-value">miniamigixv.com</span>
+                            </div>
+                        </div>
+                        <div class="contact-detail-item">
+                            <div class="contact-detail-icon">
+                                <i class="ti ti-clock"></i>
+                            </div>
+                            <div>
+                                <span class="detail-label">Tiempo de respuesta</span>
+                                <span class="detail-value">Menos de 24 horas</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="contact-info-decoration">
+                    <div class="deco-circle deco-1"></div>
+                    <div class="deco-circle deco-2"></div>
+                </div>
+            </div>
+
+            <div class="contact-form-panel">
+                {% if enviado %}
+                <div class="alert-message alert-success">
+                    <div class="alert-icon"><i class="ti ti-circle-check"></i></div>
+                    <div>
+                        <strong>¡Mensaje enviado!</strong>
+                        <p>Te responderemos pronto. Gracias por contactarnos.</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if error %}
+                <div class="alert-message alert-error">
+                    <div class="alert-icon"><i class="ti ti-alert-circle"></i></div>
+                    <div>
+                        <strong>Error al enviar</strong>
+                        <p>Por favor intenta nuevamente.</p>
+                    </div>
+                </div>
+                {% endif %}
+
+                <form method="POST" class="contact-form" id="soporte-form">
+                    {% csrf_token %}
+
+                    <div class="form-group">
+                        <label for="nombre">
+                            <i class="ti ti-user"></i>
+                            Tu nombre
+                        </label>
+                        <input type="text" id="nombre" name="nombre" placeholder="Ej: Juan Pérez" required>
+                        <div class="input-focus-line"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">
+                            <i class="ti ti-mail"></i>
+                            Tu correo
+                        </label>
+                        <input type="email" id="email" name="email" placeholder="ejemplo@correo.com" required>
+                        <div class="input-focus-line"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="asunto">
+                            <i class="ti ti-tag"></i>
+                            Asunto
+                        </label>
+                        <select id="asunto" name="asunto">
+                            <option value="general">Consulta general</option>
+                            <option value="bug">Reportar un error</option>
+                            <option value="cuenta">Problema con mi cuenta</option>
+                            <option value="sugerencia">Sugerencia</option>
+                            <option value="otro">Otro</option>
+                        </select>
+                        <div class="input-focus-line"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mensaje">
+                            <i class="ti ti-message-2"></i>
+                            Mensaje
+                        </label>
+                        <textarea id="mensaje" name="mensaje" rows="5" placeholder="Describe tu consulta con detalle..." required></textarea>
+                        <div class="input-focus-line"></div>
+                    </div>
+
+                    <button type="submit" class="btn-submit" id="btn-enviar">
+                        <span class="btn-text">
+                            <i class="ti ti-send"></i>
+                            Enviar mensaje
+                        </span>
+                        <span class="btn-loading" style="display:none;">
+                            <i class="ti ti-loader-2 spin-icon"></i>
+                            Enviando...
+                        </span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // FAQ Accordion
+    function toggleFaq(item) {
+        const isOpen = item.classList.contains('open');
+        // Close all
+        document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+        // Toggle clicked
+        if (!isOpen) item.classList.add('open');
+    }
+
+    // Form submit animation
+    const form = document.getElementById('soporte-form');
+    if (form) {
+        form.addEventListener('submit', function() {
+            const btn = document.getElementById('btn-enviar');
+            btn.querySelector('.btn-text').style.display = 'none';
+            btn.querySelector('.btn-loading').style.display = 'inline-flex';
+            btn.disabled = true;
+        });
+    }
+
+    // Intersection Observer for scroll animations
+    const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.info-card, .faq-section, .contact-section').forEach(el => {
+        observer.observe(el);
+    });
+</script>
 {% endblock %}

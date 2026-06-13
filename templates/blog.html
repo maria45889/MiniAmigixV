@@ -1,137 +1,603 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Blog{% endblock %}
+{% block title %}Blog & Noticias{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/blog.css' %}">
+<link rel="stylesheet" href="{% static 'css/blog.css' %}?v=3">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style>
+    /* ===== LAYOUT PRINCIPAL ===== */
+    .blog-page {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 30px 20px;
+    }
+    .blog-page-title {
+        font-family: var(--font-title);
+        font-size: 2.2rem;
+        color: #f8fafc;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    /* ===== EDITOR DE ESCRITURA ===== */
+    .editor-card {
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 18px;
+        padding: 32px;
+        margin-bottom: 40px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+    }
+    .editor-card h2 {
+        color: #f8fafc;
+        font-size: 1.5rem;
+        margin-bottom: 24px;
+    }
+    .editor-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+    .editor-row {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 16px;
+    }
+    .editor-field label {
+        display: block;
+        color: #94a3b8;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    .editor-field input,
+    .editor-field select {
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(0,0,0,0.3);
+        color: #f8fafc;
+        font-size: 1rem;
+        font-family: inherit;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+    .editor-field input:focus,
+    .editor-field select:focus {
+        outline: none;
+        border-color: #06b6d4;
+        box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
+        background: rgba(0,0,0,0.4);
+    }
+    .editor-field input::placeholder {
+        color: #475569;
+    }
+    .editor-textarea {
+        width: 100%;
+        min-height: 200px;
+        padding: 16px;
+        border-radius: 12px;
+        border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(0,0,0,0.3);
+        color: #f8fafc;
+        font-size: 1rem;
+        font-family: inherit;
+        line-height: 1.7;
+        resize: vertical;
+        transition: all 0.3s ease;
+        box-sizing: border-box;
+    }
+    .editor-textarea:focus {
+        outline: none;
+        border-color: #06b6d4;
+        box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15);
+        background: rgba(0,0,0,0.4);
+        min-height: 280px;
+    }
+    .editor-textarea::placeholder {
+        color: #475569;
+    }
+    .editor-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 20px;
+    }
+    .btn-publish {
+        padding: 14px 36px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #7c3aed, #ec4899);
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-size: 1.05rem;
+        font-weight: 700;
+        transition: all 0.3s cubic-bezier(.22,.68,0,1.2);
+        box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+        white-space: nowrap;
+    }
+    .btn-publish:hover {
+        transform: translateY(-3px) scale(1.03);
+        box-shadow: 0 8px 25px rgba(124, 58, 237, 0.6);
+    }
+
+    /* ===== OPCIONES DE ADMIN ===== */
+    .admin-opts {
+        background: rgba(124, 58, 237, 0.08);
+        border: 1px dashed rgba(124, 58, 237, 0.35);
+        border-radius: 12px;
+        padding: 16px 20px;
+        flex: 1;
+    }
+    .admin-opts-title {
+        color: #c084fc;
+        font-size: 0.85rem;
+        font-weight: 700;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .admin-check {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 8px;
+        color: #e2e8f0;
+        cursor: pointer;
+        padding: 4px;
+        border-radius: 6px;
+        transition: background 0.2s;
+    }
+    .admin-check:hover {
+        background: rgba(255,255,255,0.05);
+    }
+    .admin-check:last-child {
+        margin-bottom: 0;
+    }
+    .admin-check input[type="checkbox"] {
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border: 2px solid #7c3aed;
+        border-radius: 4px;
+        background: rgba(15, 23, 42, 0.5);
+        cursor: pointer;
+        position: relative;
+        flex-shrink: 0;
+    }
+    .admin-check input[type="checkbox"]:checked {
+        background: #7c3aed;
+        border-color: #c084fc;
+    }
+    .admin-check input[type="checkbox"]:checked::after {
+        content: '✔';
+        position: absolute;
+        color: white;
+        font-size: 11px;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+    }
+    .admin-check label {
+        cursor: pointer;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+
+    /* ===== PANEL ADMIN LINK ===== */
+    .admin-link-card {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        background: linear-gradient(135deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.8));
+        border: 1px solid rgba(234, 179, 8, 0.35);
+        border-radius: 14px;
+        padding: 18px 24px;
+        margin-bottom: 30px;
+        text-decoration: none;
+        color: #fef08a;
+        transition: all 0.3s ease;
+    }
+    .admin-link-card:hover {
+        border-color: rgba(234, 179, 8, 0.7);
+        box-shadow: 0 0 20px rgba(234, 179, 8, 0.15);
+        transform: translateY(-2px);
+    }
+    .admin-link-card i {
+        font-size: 1.6rem;
+        color: #eab308;
+    }
+    .admin-link-card .admin-link-info h3 {
+        margin: 0 0 2px 0;
+        font-size: 1.1rem;
+        color: #fef08a;
+    }
+    .admin-link-card .admin-link-info p {
+        margin: 0;
+        font-size: 0.85rem;
+        color: #94a3b8;
+    }
+    .admin-link-card .staff-tag {
+        margin-left: auto;
+        background: rgba(234, 179, 8, 0.15);
+        color: #fcd34d;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 1px;
+        border: 1px solid rgba(234, 179, 8, 0.3);
+    }
+
+    /* ===== SECCIÓN SEPARADORA ===== */
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .section-title h2 {
+        color: #f8fafc;
+        font-size: 1.5rem;
+        margin: 0;
+    }
+    .section-title .count-badge {
+        background: rgba(255,255,255,0.08);
+        color: #94a3b8;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        margin-left: auto;
+    }
+
+    /* ===== TARJETA DE NOTICIA OFICIAL ===== */
+    .noticia-card {
+        background: rgba(15, 23, 42, 0.65);
+        backdrop-filter: blur(16px);
+        border: 1px solid rgba(6, 182, 212, 0.25);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 16px;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .noticia-card::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 0; width: 4px; height: 100%;
+        background: linear-gradient(to bottom, #06b6d4, #7c3aed);
+    }
+    .noticia-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(6, 182, 212, 0.15);
+    }
+    .noticia-card .badge-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+    }
+    .badge-oficial {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(124, 58, 237, 0.2));
+        color: #e0e7ff;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border: 1px solid rgba(6, 182, 212, 0.3);
+    }
+    .badge-pin {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        background: rgba(234, 179, 8, 0.15);
+        color: #fcd34d;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        border: 1px solid rgba(234, 179, 8, 0.3);
+    }
+    .badge-cat {
+        background: rgba(255,255,255,0.08);
+        color: #cbd5e1;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+    .noticia-card h3 {
+        color: #f8fafc;
+        font-size: 1.3rem;
+        margin: 0 0 6px 0;
+    }
+    .noticia-card .meta {
+        color: #64748b;
+        font-size: 0.82rem;
+        margin-bottom: 14px;
+    }
+    .noticia-card .body-text {
+        color: #cbd5e1;
+        line-height: 1.7;
+        font-size: 0.95rem;
+    }
+    .noticia-card .card-actions {
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 1px solid rgba(255,255,255,0.07);
+        display: flex;
+        justify-content: flex-end;
+    }
+    .btn-delete {
+        background: rgba(239, 68, 68, 0.12);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #fca5a5;
+        padding: 6px 14px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+    }
+    .btn-delete:hover {
+        background: #ef4444;
+        color: white;
+    }
+
+    /* ===== TARJETA DE PUBLICACIÓN PERSONAL ===== */
+    .pub-card {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 14px;
+        padding: 20px 24px;
+        margin-bottom: 14px;
+        transition: all 0.25s ease;
+    }
+    .pub-card:hover {
+        background: rgba(255, 255, 255, 0.07);
+        border-color: rgba(255,255,255,0.15);
+    }
+    .pub-card .pub-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 6px;
+    }
+    .pub-card h3 {
+        color: #f1f5f9;
+        font-size: 1.15rem;
+        margin: 0;
+    }
+    .pub-card .meta {
+        color: #64748b;
+        font-size: 0.82rem;
+        margin-bottom: 10px;
+    }
+    .pub-card .body-text {
+        color: #94a3b8;
+        line-height: 1.6;
+        font-size: 0.92rem;
+    }
+    .pub-card .card-actions {
+        margin-top: 14px;
+        display: flex;
+        justify-content: flex-end;
+    }
+
+    /* ===== ESTADO VACÍO ===== */
+    .empty-state {
+        text-align: center;
+        padding: 50px 20px;
+        color: #64748b;
+    }
+    .empty-state .empty-icon {
+        font-size: 3rem;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+    .empty-state p {
+        font-size: 1rem;
+        margin: 0;
+    }
+
+    /* ===== LOGIN PROMPT ===== */
+    .login-prompt {
+        text-align: center;
+        padding: 40px;
+        background: rgba(255,255,255,0.03);
+        border-radius: 16px;
+        border: 1px dashed rgba(255,255,255,0.1);
+    }
+    .login-prompt p {
+        color: #94a3b8;
+        margin-bottom: 16px;
+    }
+    .btn-login-blog {
+        display: inline-block;
+        padding: 10px 24px;
+        background: linear-gradient(135deg, #7c3aed, #06b6d4);
+        color: white;
+        text-decoration: none;
+        border-radius: 10px;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+    .btn-login-blog:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+    }
+
+    @media (max-width: 640px) {
+        .editor-row {
+            grid-template-columns: 1fr;
+        }
+        .editor-footer {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .admin-opts {
+            width: 100%;
+        }
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="blog-container">
-    <h1 style="font-family: var(--font-title); margin-bottom: 2rem;">📝 Blog</h1>
-    
-    <div class="blog-layout">
-        <!-- Formulario para crear publicación -->
-        {% if request.user.is_authenticated %}
-        <div class="blog-section">
-            <div class="blog-card">
-                <h2>✍️ Crear Nueva Publicación</h2>
-                <form method="POST" action="{% url 'crear_publicacion' %}" class="blog-form">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label for="titulo">Título</label>
-                        <input type="text" id="titulo" name="titulo" placeholder="Escribe un título atractivo..." required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="categoria">Categoría</label>
-                        <select id="categoria" name="categoria">
-                            <option value="personal">📝 Personal</option>
-                            <option value="noticias">📰 Noticias</option>
-                            <option value="consejos">💡 Consejos</option>
-                            <option value="tutorial">🎯 Tutorial</option>
-                            <option value="anuncios">🚀 Anuncios</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="contenido">Contenido</label>
-                        <textarea id="contenido" name="contenido" placeholder="Escribe tu publicación aquí..." rows="6" required></textarea>
-                    </div>
-                    
-                    <button type="submit" class="btn-publicar">📝 Publicar</button>
-                </form>
-            </div>
+<div class="blog-page">
+    <h1 class="blog-page-title">📝 Blog & Noticias</h1>
+
+    <!-- Panel Admin Link (Solo Staff) -->
+    {% if request.user.is_staff %}
+    <a href="{% url 'panel_admin' %}" class="admin-link-card">
+        <i class="fas fa-shield-alt"></i>
+        <div class="admin-link-info">
+            <h3>Panel de Administración</h3>
+            <p>Gestiona usuarios, publicaciones y configuraciones.</p>
         </div>
-        {% endif %}
-        
-        <!-- Lista de publicaciones -->
-        <div class="blog-section">
-            <div class="blog-header">
-                <h2>📚 Mis Publicaciones</h2>
-                {% if request.user.is_authenticated %}
-                <span class="publicaciones-count">{{ publicaciones|length }} publicaciones</span>
-                {% else %}
-                <a href="{% url 'login' %}" class="btn-login">Inicia sesión para ver tus publicaciones</a>
-                {% endif %}
+        <span class="staff-tag">STAFF</span>
+    </a>
+    {% endif %}
+
+    <!-- ===== EDITOR DE ESCRITURA ===== -->
+    {% if request.user.is_authenticated %}
+    <div class="editor-card">
+        <h2>✍️ Escribir Publicación</h2>
+        <form method="POST" action="{% url 'crear_publicacion' %}" class="editor-form">
+            {% csrf_token %}
+            <div class="editor-row">
+                <div class="editor-field">
+                    <label for="titulo">Título</label>
+                    <input type="text" id="titulo" name="titulo" placeholder="¿De qué quieres escribir hoy?" required>
+                </div>
+                <div class="editor-field">
+                    <label for="categoria">Categoría</label>
+                    <select id="categoria" name="categoria">
+                        <option value="personal">📝 Personal</option>
+                        <option value="noticias">📰 Noticias</option>
+                        <option value="consejos">💡 Consejos</option>
+                        <option value="tutorial">🎯 Tutorial</option>
+                        <option value="anuncios">🚀 Anuncios</option>
+                        {% if request.user.is_staff %}
+                        <option value="mantenimiento">⚙️ Mantenimiento</option>
+                        <option value="actualizaciones">🔄 Actualizaciones</option>
+                        <option value="avisos_urgentes">⚠️ Avisos Urgentes</option>
+                        {% endif %}
+                    </select>
+                </div>
             </div>
-            
-            <div class="publicaciones-list">
-                {% if request.user.is_authenticated %}
-                    {% for publicacion in publicaciones %}
-                    <div class="publicacion-card" data-id="{{ publicacion.id }}">
-                        <div class="publicacion-header">
-                            <span class="categoria-badge">{{ publicacion.get_categoria_display }}</span>
-                            <div class="publicacion-actions">
-                                <button onclick="eliminarPublicacion({{ publicacion.id }})" class="btn-eliminar">🗑️</button>
-                            </div>
-                        </div>
-                        <h3 class="publicacion-titulo">{{ publicacion.titulo }}</h3>
-                        <p class="publicacion-contenido">{{ publicacion.contenido }}</p>
-                        <div class="publicacion-footer">
-                            <span class="publicacion-fecha">� {{ publicacion.fecha_publicacion|date:"d M Y, H:i" }}</span>
-                            <span class="publicacion-autor">👤 {{ publicacion.usuario.username }}</span>
-                        </div>
+
+            <div class="editor-field">
+                <label for="contenido">Contenido</label>
+                <textarea id="contenido" name="contenido" class="editor-textarea" placeholder="Escribe tu publicación aquí... Comparte tus ideas, noticias o lo que quieras con la comunidad." required></textarea>
+            </div>
+
+            <div class="editor-footer">
+                {% if request.user.is_staff %}
+                <div class="admin-opts">
+                    <div class="admin-opts-title"><i class="fas fa-crown"></i> Opciones de Administrador</div>
+                    <div class="admin-check">
+                        <input type="checkbox" id="es_oficial" name="es_oficial">
+                        <label for="es_oficial">📢 Noticia Oficial Global</label>
                     </div>
-                    {% empty %}
-                    <div class="no-publicaciones">
-                        <p>No tienes publicaciones aún. ¡Crea la primera!</p>
-                        <span>📝</span>
+                    <div class="admin-check">
+                        <input type="checkbox" id="fijado" name="fijado">
+                        <label for="fijado">📌 Fijar arriba</label>
                     </div>
-                    {% endfor %}
-                {% else %}
-                <div class="no-publicaciones">
-                    <p>Inicia sesión para ver y crear tus publicaciones</p>
-                    <a href="{% url 'login' %}" class="btn-login">Iniciar Sesión</a>
+                    <div class="admin-check">
+                        <input type="checkbox" id="visible_para_todos" name="visible_para_todos" checked>
+                        <label for="visible_para_todos">👀 Visible para todos</label>
+                    </div>
                 </div>
                 {% endif %}
+                <button type="submit" class="btn-publish">📝 Publicar</button>
             </div>
-        </div>
+        </form>
     </div>
+    {% endif %}
+
+    <!-- ===== NOTICIAS GLOBALES ===== -->
+    {% if noticias_globales %}
+    <div style="margin-bottom: 40px;">
+        <div class="section-title">
+            <h2>📢 Noticias Globales</h2>
+        </div>
+
+        {% for pub in noticias_globales %}
+        <div class="noticia-card">
+            <div class="badge-row">
+                <span class="badge-oficial"><i class="fas fa-shield-alt"></i> Administración</span>
+                {% if pub.fijado %}<span class="badge-pin"><i class="fas fa-thumbtack"></i> Fijado</span>{% endif %}
+                <span class="badge-cat">{{ pub.get_categoria_display }}</span>
+            </div>
+            <h3>{{ pub.titulo }}</h3>
+            <div class="meta">{{ pub.fecha_publicacion|date:"d M Y, H:i" }} · por {{ pub.usuario.username }}</div>
+            <div class="body-text">{{ pub.contenido|linebreaksbr }}</div>
+
+            {% if request.user.is_staff and pub.usuario == request.user %}
+            <div class="card-actions">
+                <form method="POST" action="{% url 'eliminar_publicacion' pub.id %}" style="margin:0;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-delete" onclick="return confirm('¿Eliminar esta noticia oficial?')">🗑️ Eliminar</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- ===== MIS PUBLICACIONES ===== -->
+    {% if request.user.is_authenticated %}
+    <div>
+        <div class="section-title">
+            <h2>📝 Mis Publicaciones</h2>
+            <span class="count-badge">{{ mis_publicaciones|length }} publicaciones</span>
+        </div>
+
+        {% if mis_publicaciones %}
+            {% for pub in mis_publicaciones %}
+            <div class="pub-card">
+                <div class="pub-top">
+                    <h3>{{ pub.titulo }}</h3>
+                    <span class="badge-cat">{{ pub.get_categoria_display }}</span>
+                </div>
+                <div class="meta">{{ pub.fecha_publicacion|date:"d M Y, H:i" }}</div>
+                <div class="body-text">{{ pub.contenido|linebreaksbr }}</div>
+                <div class="card-actions">
+                    <form method="POST" action="{% url 'eliminar_publicacion' pub.id %}" style="margin:0;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-delete" onclick="return confirm('¿Eliminar esta publicación?')">🗑️ Eliminar</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-state">
+                <div class="empty-icon">📄</div>
+                <p>No tienes publicaciones aún. ¡Escribe la primera arriba!</p>
+            </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="login-prompt">
+        <p>Inicia sesión para escribir y ver tus publicaciones</p>
+        <a href="{% url 'login' %}" class="btn-login-blog">Iniciar Sesión</a>
+    </div>
+    {% endif %}
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-function eliminarPublicacion(publicacionId) {
-    if (!confirm('¿Estás seguro de eliminar esta publicación?')) {
-        return;
-    }
-    
-    fetch(`/api/delete-publicacion/${publicacionId}/`, {
-        method: 'DELETE',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken')
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert('Error al eliminar la publicación: ' + data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al eliminar la publicación');
-    });
-}
-
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.startsWith(name + "=")) {
-                cookieValue = decodeURIComponent(cookie.split("=")[1]);
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-</script>
 {% endblock %}

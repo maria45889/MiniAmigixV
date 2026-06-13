@@ -73,7 +73,13 @@ class PublicacionBlog(models.Model):
         ('tutorial', '🎯 Tutorial'),
         ('personal', '📝 Personal'),
         ('anuncios', '🚀 Anuncios'),
+        ('mantenimiento', '⚙️ Mantenimiento'),
+        ('actualizaciones', '🔄 Actualizaciones'),
+        ('avisos_urgentes', '⚠️ Avisos Urgentes'),
     ], default='personal')
+    es_oficial = models.BooleanField(default=False)
+    fijado = models.BooleanField(default=False)
+    visible_para_todos = models.BooleanField(default=True)
     fecha_publicacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
     publicado = models.BooleanField(default=True)
@@ -82,6 +88,6 @@ class PublicacionBlog(models.Model):
         return f"{self.titulo} - {self.usuario.username}"
 
     class Meta:
-        ordering = ['-fecha_publicacion']
+        ordering = ['-fijado', '-fecha_publicacion']
         verbose_name = 'Publicación de Blog'
         verbose_name_plural = 'Publicaciones de Blog'

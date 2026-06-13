@@ -246,7 +246,7 @@ function togglePause() {
 }
 
 // ==================== DESCARGADOR DE MÚSICA ====================
-function downloadMusic() {
+async function downloadMusic() {
     const url = document.getElementById('download-url').value;
     const format = document.getElementById('download-format').value;
     const statusDiv = document.getElementById('download-status');
@@ -264,17 +264,45 @@ function downloadMusic() {
     }
     
     const youtubeId = match[1];
-    statusDiv.textContent = 'Preparando descarga...';
+    statusDiv.innerHTML = '<p style="color: #06b6d4;">⏳ Procesando y descargando en el servidor... Esto puede tardar varios segundos, por favor espera.</p>';
     
-    // Simular descarga (en producción, usarías una API real como yt-dlp)
-    setTimeout(() => {
+    try {
+        const cleanUrl = `https://www.youtube.com/watch?v=${youtubeId}`;
+        const response = await fetch(`/api/download-media/?url=${encodeURIComponent(cleanUrl)}&format=${format}`);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(errorText || 'Error desconocido al descargar');
+        }
+        
+        // Obtener el nombre del archivo de los headers si es posible
+        let filename = `descarga.${format}`;
+        const disposition = response.headers.get('Content-Disposition');
+        if (disposition && disposition.indexOf('filename=') !== -1) {
+            const matches = /filename="([^"]+)"/.exec(disposition);
+            if (matches != null && matches[1]) {
+                filename = matches[1];
+            }
+        }
+        
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = downloadUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(downloadUrl);
+        
         statusDiv.innerHTML = `
-            <p style="color: #22c55e;">✓ Descarga iniciada</p>
-            <p style="font-size: 12px; color: var(--text-muted);">Formato: ${format.toUpperCase()}</p>
-            <p style="font-size: 12px; color: var(--text-muted);">Video ID: ${youtubeId}</p>
-            <p style="font-size: 12px; color: var(--text-muted);">Nota: Esta es una simulación. En producción, se usaría una API real como yt-dlp.</p>
+            <p style="color: #22c55e;">✓ ¡Descarga completada con éxito!</p>
+            <p style="font-size: 12px; color: var(--text-muted);">Formato: ${format.toUpperCase()} | Archivo: ${filename}</p>
         `;
-    }, 2000);
+    } catch (error) {
+        console.error("Error en descarga:", error);
+        statusDiv.innerHTML = `<p style="color: #ef4444;">❌ Fallo en la descarga: ${error.message}</p>`;
+    }
 }
 
 // ==================== CHAT FLOTANTE ====================

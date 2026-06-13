@@ -1,0 +1,73 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Completar Registro - MiniAmigix</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/configuraciones.css' %}">
+    <style>
+        .auth-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: var(--bg-dark);
+            padding: 20px;
+        }
+        .auth-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--border-color, #2d3748);
+            color: var(--text-main, #f1f5f9);
+            border-radius: 8px;
+            font-family: inherit;
+            margin-bottom: 15px;
+        }
+        .auth-input:focus {
+            outline: none;
+            border-color: #06b6d4;
+            box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.2);
+        }
+    </style>
+</head>
+<body class="auth-wrapper">
+    <div class="config-card" style="max-width: 450px; width: 100%;">
+        <h2 style="text-align: center; margin-bottom: 1rem; font-family: var(--font-title); font-size: 1.8rem; background: linear-gradient(135deg, #7c3aed, #06b6d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+            Completar Registro
+        </h2>
+        
+        <p style="text-align: center; color: var(--text-muted, #94a3b8); margin-bottom: 2rem; font-size: 0.95rem; line-height: 1.5;">
+            Te estás registrando usando una cuenta externa. Por favor, confirma tu correo electrónico para completar el proceso.
+        </p>
+
+        <form method="POST" action="{% url 'socialaccount_signup' %}" style="display: flex; flex-direction: column;">
+            {% csrf_token %}
+            
+            {% for field in form %}
+                <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 8px;">
+                    <label for="{{ field.id_for_label }}" style="font-weight: 500; color: #e2e8f0;">{{ field.label }}</label>
+                    <input type="{{ field.field.widget.input_type|default:'text' }}" name="{{ field.name }}" id="{{ field.id_for_label }}" class="auth-input" value="{{ field.value|default:'' }}" required>
+                </div>
+                {% if field.errors %}
+                    <div style="color: #fca5a5; font-size: 0.85rem; margin-top: -10px; margin-bottom: 10px;">
+                        {{ field.errors.0 }}
+                    </div>
+                {% endif %}
+            {% endfor %}
+
+            {% if form.non_field_errors %}
+                <div style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); padding: 10px; border-radius: 8px; margin-bottom: 15px; color: #fca5a5; font-size: 0.9rem;">
+                    {{ form.non_field_errors.0 }}
+                </div>
+            {% endif %}
+
+            <button type="submit" style="width: 100%; padding: 12px; margin-top: 10px; background: linear-gradient(135deg, #7c3aed, #06b6d4); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;">
+                Registrarse
+            </button>
+        </form>
+    </div>
+</body>
+</html>

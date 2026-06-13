@@ -1,91 +1,139 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Traductor{% endblock %}
+{% block title %}AI Translation Core{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/traductor.css' %}">
+<link rel="stylesheet" href="{% static 'css/traductor.css' %}?v=3">
 {% endblock %}
 
 {% block content %}
-<div class="traductor-container">
-    <h1 style="font-family: var(--font-title); margin-bottom: 2rem;">🌐 Traductor</h1>
-    
-    <div class="traductor-card">
-        <!-- Selector de idiomas -->
-        <div class="idioma-selector">
-            <div class="idioma-group">
-                <label for="idiomaOrigen">Idioma de origen</label>
-                <select id="idiomaOrigen" class="idioma-select">
-                    <option value="es">🇪🇸 Español</option>
-                    <option value="en">🇬🇧 Inglés</option>
-                    <option value="fr">🇫🇷 Francés</option>
-                    <option value="de">🇩🇪 Alemán</option>
-                    <option value="pt">🇧🇷 Portugués</option>
-                    <option value="it">🇮🇹 Italiano</option>
-                    <option value="ja">🇯🇵 Japonés</option>
-                    <option value="ko">🇰🇷 Coreano</option>
-                    <option value="zh">🇨🇳 Chino</option>
-                </select>
-            </div>
-            
-            <button onclick="intercambiarIdiomas()" class="btn-intercambiar">
-                <span>⇄</span>
-            </button>
-            
-            <div class="idioma-group">
-                <label for="idiomaDestino">Idioma de destino</label>
-                <select id="idiomaDestino" class="idioma-select">
-                    <option value="en">🇬🇧 Inglés</option>
-                    <option value="es">🇪🇸 Español</option>
-                    <option value="fr">🇫🇷 Francés</option>
-                    <option value="de">🇩🇪 Alemán</option>
-                    <option value="pt">🇧🇷 Portugués</option>
-                    <option value="it">🇮🇹 Italiano</option>
-                    <option value="ja">🇯🇵 Japonés</option>
-                    <option value="ko">🇰🇷 Coreano</option>
-                    <option value="zh">🇨🇳 Chino</option>
-                </select>
-            </div>
+<div class="traductor-wrapper">
+
+    <!-- Header -->
+    <div class="tr-header">
+        <h1>AI TRANSLATION CORE</h1>
+        <div class="tr-subtitle">MINIAMIGIXV LANGUAGE MATRIX • NEURAL ENGINE v3.0</div>
+    </div>
+
+    <!-- Main Translation Card -->
+    <div class="tr-card" id="translatorCard">
+
+        <!-- Language Bar -->
+        <div class="lang-bar">
+            <select id="idiomaOrigen" class="lang-select">
+                <option value="es">🇪🇸 Español</option>
+                <option value="en">🇬🇧 Inglés</option>
+                <option value="fr">🇫🇷 Francés</option>
+                <option value="de">🇩🇪 Alemán</option>
+                <option value="pt">🇧🇷 Portugués</option>
+                <option value="it">🇮🇹 Italiano</option>
+                <option value="ja">🇯🇵 Japonés</option>
+                <option value="ko">🇰🇷 Coreano</option>
+                <option value="zh">🇨🇳 Chino</option>
+                <option value="ru">🇷🇺 Ruso</option>
+                <option value="ar">🇸🇦 Árabe</option>
+            </select>
+
+            <button class="btn-swap" onclick="intercambiarIdiomas()" title="Intercambiar idiomas">⇄</button>
+
+            <select id="idiomaDestino" class="lang-select">
+                <option value="en">🇬🇧 Inglés</option>
+                <option value="es">🇪🇸 Español</option>
+                <option value="fr">🇫🇷 Francés</option>
+                <option value="de">🇩🇪 Alemán</option>
+                <option value="pt">🇧🇷 Portugués</option>
+                <option value="it">🇮🇹 Italiano</option>
+                <option value="ja">🇯🇵 Japonés</option>
+                <option value="ko">🇰🇷 Coreano</option>
+                <option value="zh">🇨🇳 Chino</option>
+                <option value="ru">🇷🇺 Ruso</option>
+                <option value="ar">🇸🇦 Árabe</option>
+            </select>
         </div>
-        
-        <!-- Área de texto -->
-        <div class="texto-area">
-            <div class="texto-input-group">
-                <textarea id="textoOriginal" placeholder="Escribe el texto que quieres traducir..." class="texto-input"></textarea>
-                <div class="texto-info">
-                    <span id="charCount">0 caracteres</span>
-                    <button onclick="limpiarTexto()" class="btn-limpiar">🗑️ Limpiar</button>
+
+        <!-- Text Panels -->
+        <div class="text-panels">
+            <!-- Input Panel -->
+            <div class="text-panel input-panel">
+                <div class="scan-line"></div>
+                <div class="panel-label">TEXTO ORIGINAL</div>
+                <textarea id="textoOriginal" placeholder="ESCRIBE O PEGA TEXTO..." maxlength="5000"></textarea>
+                <div class="panel-footer">
+                    <span class="char-count" id="charCount">0 / 5000</span>
+                    <div class="action-chips">
+                        <button class="chip" onclick="hablarTexto('textoOriginal')">🎤 Voz</button>
+                        <button class="chip" onclick="limpiarTexto()">🧹 Limpiar</button>
+                    </div>
                 </div>
             </div>
-            
-            <div class="texto-output-group">
-                <textarea id="textoTraducido" placeholder="La traducción aparecerá aquí..." class="texto-output" readonly></textarea>
-                <div class="texto-info">
-                    <span id="traduccionInfo"></span>
-                    <button onclick="copiarTraduccion()" class="btn-copiar">📋 Copiar</button>
+
+            <!-- Output Panel -->
+            <div class="text-panel output-panel">
+                <div class="scan-line"></div>
+                <div class="panel-label">TRADUCCIÓN</div>
+                <textarea id="textoTraducido" placeholder="LA TRADUCCIÓN APARECERÁ AQUÍ..." readonly></textarea>
+                <div class="panel-footer">
+                    <span class="char-count" id="outputInfo"></span>
+                    <div class="action-chips">
+                        <button class="chip" onclick="escucharTraduccion()">🔊 Escuchar</button>
+                        <button class="chip" onclick="copiarTraduccion()">📋 Copiar</button>
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <!-- Botón de traducir -->
-        <button onclick="traducir()" class="btn-traducir">🔄 Traducir</button>
-    </div>
-    
-    <!-- Historial de traducciones -->
-    <div class="historial-section">
-        <h3>📋 Historial de traducciones</h3>
-        <div id="historial" class="historial-list">
-            <p style="color: var(--text-muted);">No hay traducciones recientes</p>
+
+        <!-- Translate Button -->
+        <div class="translate-bar">
+            <button class="btn-translate" id="btnTranslate" onclick="traducir()">⚡ INICIAR TRADUCCIÓN NEURAL</button>
         </div>
     </div>
+
+    <!-- Neural Engine Status -->
+    <div class="engine-status" id="engineStatus">
+        <div class="status-card">
+            <span class="status-label">STATUS</span>
+            <span class="status-value green" id="statusVal"><span class="status-dot green"></span> ACTIVE</span>
+        </div>
+        <div class="status-card">
+            <span class="status-label">IDIOMA DETECTADO</span>
+            <span class="status-value cyan" id="detectedLang">—</span>
+        </div>
+        <div class="status-card">
+            <span class="status-label">CONFIANZA</span>
+            <span class="status-value amber" id="confidenceVal">—</span>
+            <div class="confidence-bar"><div class="confidence-fill" id="confidenceBar"></div></div>
+        </div>
+        <div class="status-card">
+            <span class="status-label">LATENCIA</span>
+            <span class="status-value purple" id="latencyVal">—</span>
+        </div>
+    </div>
+
+    <!-- History -->
+    <div class="history-section">
+        <div class="history-title"><span class="dot"></span> REGISTRO DE TRADUCCIONES</div>
+        <div class="history-list" id="historial">
+            <div class="history-empty">// NO HAY TRADUCCIONES EN EL REGISTRO</div>
+        </div>
+    </div>
+
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-let historialTraducciones = [];
+// ===== STORAGE =====
+const STORAGE_KEY = 'miniamigixv_translations';
+let historialTraducciones = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
 
+const langNames = {
+    es: 'Español', en: 'Inglés', fr: 'Francés', de: 'Alemán',
+    pt: 'Portugués', it: 'Italiano', ja: 'Japonés', ko: 'Coreano',
+    zh: 'Chino', ru: 'Ruso', ar: 'Árabe'
+};
+
+// ===== SWAP =====
 function intercambiarIdiomas() {
     const origen = document.getElementById('idiomaOrigen');
     const destino = document.getElementById('idiomaDestino');
@@ -94,112 +142,202 @@ function intercambiarIdiomas() {
     destino.value = temp;
 }
 
+// ===== CLEAR =====
 function limpiarTexto() {
     document.getElementById('textoOriginal').value = '';
     document.getElementById('textoTraducido').value = '';
-    document.getElementById('charCount').textContent = '0 caracteres';
-    document.getElementById('traduccionInfo').textContent = '';
+    document.getElementById('charCount').textContent = '0 / 5000';
+    document.getElementById('outputInfo').textContent = '';
+    resetStatus();
 }
 
+// ===== COPY =====
 function copiarTraduccion() {
-    const traduccion = document.getElementById('textoTraducido').value;
-    if (traduccion) {
-        navigator.clipboard.writeText(traduccion);
-        alert('¡Traducción copiada al portapapeles!');
-    }
+    const texto = document.getElementById('textoTraducido').value;
+    if (!texto) return;
+    navigator.clipboard.writeText(texto).then(() => {
+        const chip = event.target.closest('.chip');
+        const original = chip.innerHTML;
+        chip.innerHTML = '✅ Copiado';
+        chip.style.borderColor = '#22c55e';
+        chip.style.color = '#22c55e';
+        setTimeout(() => {
+            chip.innerHTML = original;
+            chip.style.borderColor = '';
+            chip.style.color = '';
+        }, 1500);
+    });
 }
 
+// ===== SPEAK (Text-to-Speech) =====
+function escucharTraduccion() {
+    const texto = document.getElementById('textoTraducido').value;
+    const destino = document.getElementById('idiomaDestino').value;
+    if (!texto) return;
+    const utter = new SpeechSynthesisUtterance(texto);
+    utter.lang = destino;
+    utter.rate = 0.9;
+    speechSynthesis.cancel();
+    speechSynthesis.speak(utter);
+}
+
+// ===== VOICE INPUT (Speech-to-Text) =====
+function hablarTexto(targetId) {
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+        alert('Tu navegador no soporta reconocimiento de voz.');
+        return;
+    }
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = document.getElementById('idiomaOrigen').value;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    const chip = event.target.closest('.chip');
+    chip.innerHTML = '🔴 Grabando...';
+    chip.style.borderColor = '#ef4444';
+    chip.style.color = '#ef4444';
+
+    recognition.start();
+    recognition.onresult = function(e) {
+        document.getElementById(targetId).value = e.results[0][0].transcript;
+        actualizarCharCount();
+        chip.innerHTML = '🎤 Voz';
+        chip.style.borderColor = '';
+        chip.style.color = '';
+    };
+    recognition.onerror = function() {
+        chip.innerHTML = '🎤 Voz';
+        chip.style.borderColor = '';
+        chip.style.color = '';
+    };
+    recognition.onend = function() {
+        chip.innerHTML = '🎤 Voz';
+        chip.style.borderColor = '';
+        chip.style.color = '';
+    };
+}
+
+// ===== CHAR COUNT =====
 function actualizarCharCount() {
     const texto = document.getElementById('textoOriginal').value;
-    document.getElementById('charCount').textContent = `${texto.length} caracteres`;
+    document.getElementById('charCount').textContent = `${texto.length} / 5000`;
 }
+document.getElementById('textoOriginal').addEventListener('input', actualizarCharCount);
 
-function traducir() {
+// ===== TRANSLATE =====
+async function traducir() {
     const texto = document.getElementById('textoOriginal').value;
     const origen = document.getElementById('idiomaOrigen').value;
     const destino = document.getElementById('idiomaDestino').value;
     const resultado = document.getElementById('textoTraducido');
-    const traduccionInfo = document.getElementById('traduccionInfo');
-    
-    if (texto.trim() === '') {
-        alert('Por favor, escribe algún texto para traducir.');
-        return;
-    }
-    
-    resultado.value = 'Traduciendo...';
-    traduccionInfo.textContent = 'Procesando...';
-    
-    fetch('{% url "traductor" %}', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-Requested-With': 'XMLHttpRequest',
-            'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: JSON.stringify({ texto, origen, destino })
-    })
-    .then(response => response.json())
-    .then(data => {
+    const btn = document.getElementById('btnTranslate');
+
+    if (!texto.trim()) return;
+
+    // UI: loading state
+    btn.disabled = true;
+    btn.textContent = '⏳ PROCESANDO NEURAL TRANSLATION...';
+    document.getElementById('translatorCard').classList.add('translating');
+    document.getElementById('statusVal').innerHTML = '<span class="status-dot cyan"></span> TRANSLATING...';
+    resultado.value = '';
+
+    const startTime = performance.now();
+
+    try {
+        const response = await fetch('{% url "traductor" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ texto, origen, destino })
+        });
+        const data = await response.json();
+        const elapsed = Math.round(performance.now() - startTime);
+
         if (data.error) {
-            resultado.value = 'Error: ' + data.error;
-            traduccionInfo.textContent = 'Error';
-            return;
+            resultado.value = 'ERROR: ' + data.error;
+            updateStatus('ERROR', '—', 0, elapsed);
+        } else {
+            resultado.value = data.traduccion;
+            updateStatus('ACTIVE', langNames[origen] || origen, 97, elapsed);
+            document.getElementById('outputInfo').textContent = `${langNames[origen]} → ${langNames[destino]}`;
+            agregarAlHistorial(texto, data.traduccion, origen, destino);
         }
-        resultado.value = data.traduccion;
-        traduccionInfo.textContent = `[${data.origen} → ${data.destino}]`;
-        agregarAlHistorial(texto, data.traduccion, origen, destino);
-    })
-    .catch(error => {
-        resultado.value = 'Error de conexión';
-        traduccionInfo.textContent = 'Error';
-    });
+    } catch (err) {
+        resultado.value = 'ERROR DE CONEXIÓN';
+        updateStatus('ERROR', '—', 0, 0);
+    }
+
+    btn.disabled = false;
+    btn.textContent = '⚡ INICIAR TRADUCCIÓN NEURAL';
+    document.getElementById('translatorCard').classList.remove('translating');
 }
 
-function agregarAlHistorial(original, traducido, origen, destino) {
-    const historialItem = {
-        original: original,
-        traducido: traducido,
-        origen: origen,
-        destino: destino,
-        fecha: new Date().toLocaleString()
-    };
-    
-    historialTraducciones.unshift(historialItem);
-    
-    // Mantener solo las últimas 10 traducciones
-    if (historialTraducciones.length > 10) {
-        historialTraducciones.pop();
+// ===== STATUS =====
+function updateStatus(status, lang, confidence, latency) {
+    const statusEl = document.getElementById('statusVal');
+    if (status === 'ACTIVE') {
+        statusEl.innerHTML = '<span class="status-dot green"></span> ACTIVE';
+    } else {
+        statusEl.innerHTML = '<span class="status-dot" style="background:#ef4444;box-shadow:0 0 8px #ef4444"></span> ERROR';
     }
-    
+    document.getElementById('detectedLang').textContent = lang;
+    document.getElementById('confidenceVal').textContent = confidence > 0 ? confidence + '%' : '—';
+    document.getElementById('confidenceBar').style.width = confidence + '%';
+    document.getElementById('latencyVal').textContent = latency > 0 ? latency + 'ms' : '—';
+}
+
+function resetStatus() {
+    document.getElementById('statusVal').innerHTML = '<span class="status-dot green"></span> ACTIVE';
+    document.getElementById('detectedLang').textContent = '—';
+    document.getElementById('confidenceVal').textContent = '—';
+    document.getElementById('confidenceBar').style.width = '0';
+    document.getElementById('latencyVal').textContent = '—';
+}
+
+// ===== HISTORY =====
+function agregarAlHistorial(original, traducido, origen, destino) {
+    const item = {
+        original: original.substring(0, 200),
+        traducido: traducido.substring(0, 200),
+        origen, destino,
+        fecha: new Date().toLocaleString('es-ES')
+    };
+    historialTraducciones.unshift(item);
+    if (historialTraducciones.length > 15) historialTraducciones.pop();
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(historialTraducciones));
     actualizarHistorialUI();
 }
 
 function actualizarHistorialUI() {
-    const historialDiv = document.getElementById('historial');
-    
+    const div = document.getElementById('historial');
     if (historialTraducciones.length === 0) {
-        historialDiv.innerHTML = '<p style="color: var(--text-muted);">No hay traducciones recientes</p>';
+        div.innerHTML = '<div class="history-empty">// NO HAY TRADUCCIONES EN EL REGISTRO</div>';
         return;
     }
-    
-    let html = '';
-    historialTraducciones.forEach((item, index) => {
-        html += `
-            <div class="historial-item">
-                <div class="historial-header">
-                    <span class="historial-idiomas">[${item.origen} → ${item.destino}]</span>
-                    <span class="historial-fecha">${item.fecha}</span>
-                </div>
-                <p class="historial-original">${item.original.substring(0, 50)}${item.original.length > 50 ? '...' : ''}</p>
-                <p class="historial-traducido">${item.traducido.substring(0, 50)}${item.traducido.length > 50 ? '...' : ''}</p>
+    div.innerHTML = historialTraducciones.map(item => `
+        <div class="history-item" onclick="cargarHistorial('${item.original.replace(/'/g, "\\'")}', '${item.traducido.replace(/'/g, "\\'")}')">
+            <div class="history-head">
+                <span class="history-lang">[${(langNames[item.origen] || item.origen).toUpperCase()} → ${(langNames[item.destino] || item.destino).toUpperCase()}]</span>
+                <span class="history-date">${item.fecha}</span>
             </div>
-        `;
-    });
-    
-    historialDiv.innerHTML = html;
+            <div class="history-original">${item.original.substring(0, 80)}${item.original.length > 80 ? '...' : ''}</div>
+            <div class="history-translated">${item.traducido.substring(0, 80)}${item.traducido.length > 80 ? '...' : ''}</div>
+        </div>
+    `).join('');
 }
 
-// Event listener para contador de caracteres
-document.getElementById('textoOriginal').addEventListener('input', actualizarCharCount);
+function cargarHistorial(original, traducido) {
+    document.getElementById('textoOriginal').value = original;
+    document.getElementById('textoTraducido').value = traducido;
+    actualizarCharCount();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// Init
+actualizarHistorialUI();
 </script>
 {% endblock %}

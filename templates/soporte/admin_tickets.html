@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Panel de Administración - Tickets{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/soporte.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="soporte-container">
+    <h1>🔧 Panel de Administración - Tickets</h1>
+    
+    <div class="admin-stats">
+        <div class="stat-card">
+            <h3>Total Tickets</h3>
+            <p class="stat-number">{{ tickets|length }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Abiertos</h3>
+            <p class="stat-number">{{ tickets|length }}</p>
+        </div>
+        <div class="stat-card">
+            <h3>Resueltos</h3>
+            <p class="stat-number">{{ tickets|length }}</p>
+        </div>
+    </div>
+    
+    <div class="tickets-list">
+        {% for ticket in tickets %}
+        <div class="ticket-card admin-ticket" data-estado="{{ ticket.estado }}" data-prioridad="{{ ticket.prioridad }}">
+            <div class="ticket-header">
+                <h3>{{ ticket.asunto }}</h3>
+                <div class="ticket-badges">
+                    <span class="prioridad-badge prioridad-{{ ticket.prioridad }}">{{ ticket.get_prioridad_display }}</span>
+                    <span class="estado-badge estado-{{ ticket.estado }}">{{ ticket.get_estado_display }}</span>
+                </div>
+            </div>
+            <p><strong>Descripción:</strong> {{ ticket.descripcion }}</p>
+            
+            {% if ticket.usuario %}
+            <p><strong>Usuario:</strong> @{{ ticket.usuario.username }} ({{ ticket.usuario.email }})</p>
+            {% else %}
+            <p><strong>Usuario:</strong> Anónimo</p>
+            {% endif %}
+            
+            <div class="ticket-meta">
+                <span class="fecha">📅 {{ ticket.fecha_creacion|date:"d M Y, H:i" }}</span>
+            </div>
+            
+            {% if ticket.respuesta_admin %}
+            <div class="respuesta-admin">
+                <h4>✅ Respuesta del administrador:</h4>
+                <p>{{ ticket.respuesta_admin }}</p>
+                <p class="respuesta-meta">
+                    Respondido por: {{ ticket.respondido_por.username }} el {{ ticket.fecha_respuesta|date:"d M Y, H:i" }}
+                </p>
+            </div>
+            {% endif %}
+            
+            <div class="admin-actions">
+                <a href="{% url 'responder_ticket' ticket.id %}" class="btn-primary">💬 Responder</a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="no-tickets">
+            <p>No hay tickets de soporte.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

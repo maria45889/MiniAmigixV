@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Responder Sugerencia{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/sugerencias.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="sugerencias-container">
+    <h1>💬 Responder Sugerencia</h1>
+    
+    <div class="sugerencia-detail">
+        <div class="sugerencia-card">
+            <div class="sugerencia-header">
+                <h2>{{ sugerencia.titulo }}</h2>
+                <div class="sugerencia-badges">
+                    <span class="categoria-badge categoria-{{ sugerencia.categoria }}">{{ sugerencia.get_categoria_display }}</span>
+                    <span class="estado-badge estado-{{ sugerencia.estado }}">{{ sugerencia.get_estado_display }}</span>
+                </div>
+            </div>
+            
+            <div class="sugerencia-info">
+                <p><strong>Descripción:</strong></p>
+                <p>{{ sugerencia.descripcion }}</p>
+                
+                {% if sugerencia.usuario %}
+                <p><strong>Usuario:</strong> @{{ sugerencia.usuario.username }} ({{ sugerencia.usuario.email }})</p>
+                {% else %}
+                <p><strong>Usuario:</strong> Anónimo</p>
+                {% endif %}
+                
+                <p><strong>Fecha:</strong> {{ sugerencia.fecha_creacion|date:"d M Y, H:i" }}</p>
+                
+                {% if sugerencia.respuesta_admin %}
+                <div class="respuesta-admin">
+                    <h4>✅ Respuesta anterior:</h4>
+                    <p>{{ sugerencia.respuesta_admin }}</p>
+                    <p class="respuesta-meta">
+                        Respondido por: {{ sugerencia.respondido_por.username }} el {{ sugerencia.fecha_respuesta|date:"d M Y, H:i" }}
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="responder-form">
+            <h3>Escribe tu respuesta:</h3>
+            <form method="POST">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="respuesta">Respuesta:</label>
+                    <textarea 
+                        name="respuesta" 
+                        id="respuesta" 
+                        rows="6" 
+                        required
+                        placeholder="Escribe tu respuesta al usuario..."
+                    >{% if sugerencia.respuesta_admin %}{{ sugerencia.respuesta_admin }}{% endif %}</textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="estado">Cambiar estado:</label>
+                    <select name="estado" id="estado">
+                        <option value="pendiente" {% if sugerencia.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                        <option value="en_revision" {% if sugerencia.estado == 'en_revision' %}selected{% endif %}>En revisión</option>
+                        <option value="aprobada" {% if sugerencia.estado == 'aprobada' %}selected{% endif %}>Aprobada</option>
+                        <option value="rechazada" {% if sugerencia.estado == 'rechazada' %}selected{% endif %}>Rechazada</option>
+                    </select>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">📤 Enviar Respuesta</button>
+                    <a href="{% url 'admin_sugerencias' %}" class="btn-secondary">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

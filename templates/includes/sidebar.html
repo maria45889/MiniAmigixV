@@ -14,11 +14,21 @@
         <a href="{% url 'entretenimiento' %}" class="nav-item"><i data-lucide="sparkles"></i> Entretenimiento</a>
         <a href="{% url 'blog' %}" class="nav-item"><i data-lucide="file-text"></i> Blog</a>
         <a href="{% url 'soporte' %}" class="nav-item"><i data-lucide="life-buoy"></i> Soporte</a>
+        {% if user.is_authenticated and user.email == 'miniamigixv@gmail.com' %}
+        <a href="{% url 'panel_admin' %}" class="nav-item" style="color: #c084fc; border-left-color: #c084fc;"><i data-lucide="shield-alert"></i> Centro de Administración General</a>
+        {% endif %}
+        {% if user.is_authenticated %}
+        <form method="POST" action="{% url 'logout' %}" style="margin:0; padding:0;">
+            {% csrf_token %}
+            <button type="submit" class="nav-item" style="color: #ef4444; background:none; border:none; width:100%; text-align:left; cursor:pointer; font-size:inherit; font-family:inherit; padding: 10px 20px; display:flex; align-items:center; gap:8px;">
+                <i data-lucide="log-out"></i> Cerrar Sesión
+            </button>
+        </form>
+        {% else %}
+        <a href="{% url 'login' %}" class="nav-item" style="color: #10b981;"><i data-lucide="log-in"></i> Iniciar Sesión</a>
+        {% endif %}
     </nav>
     <div class="sidebar-footer">
-        {% if user.is_staff %}
-        <a href="/admin/" class="nav-item" title="Administración"><i data-lucide="shield"></i></a>
-        {% endif %}
         <a href="{% url 'lista_notificaciones' %}" class="nav-item" title="Notificaciones" id="notif-sidebar-link">
             <i data-lucide="bell"></i>
             {% if user.is_authenticated and notificaciones_sin_leer > 0 %}
@@ -28,10 +38,5 @@
         <a href="{% url 'perfil' %}" class="nav-item" title="Perfil"><i data-lucide="user"></i></a>
         <a href="{% url 'tutorial_home' %}" class="nav-item" title="Tutorial"><i data-lucide="help-circle"></i></a>
         <a href="{% url 'configuracion_view' %}" class="nav-item" title="Configuración"><i data-lucide="settings"></i></a>
-        {% if user.is_authenticated %}
-        <a href="{% url 'logout' %}" class="nav-item" title="Cerrar sesión"><i data-lucide="log-out"></i></a>
-        {% else %}
-        <a href="{% url 'login' %}" class="nav-item" title="Iniciar sesión"><i data-lucide="log-in"></i></a>
-        {% endif %}
     </div>
 </aside>

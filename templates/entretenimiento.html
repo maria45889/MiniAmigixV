@@ -4,97 +4,285 @@
 {% block title %}Entretenimiento{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/entretenimiento.css' %}">
-<style>
-.modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; }
-.modal-overlay.active { display: flex; }
-.modal-content { background: #111c2e; border-radius: 16px; padding: 30px; max-width: 700px; width: 90%; max-height: 80vh; overflow-y: auto; border: 1px solid rgba(124,58,237,0.3); }
-.modal-content h2 { color: #7c3aed; margin-top: 0; }
-.modal-close { float: right; background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; }
-.reco-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-top: 20px; }
-.reco-card { background: rgba(0,0,0,0.2); border-radius: 12px; padding: 15px; border: 1px solid rgba(255,255,255,0.05); }
-.reco-card img { width: 100%; border-radius: 8px; margin-bottom: 10px; }
-.reco-card h4 { margin: 5px 0; color: var(--text-main); }
-.reco-card p { font-size: 0.85rem; color: var(--text-muted); margin: 5px 0; }
-.reco-card a { color: #06b6d4; text-decoration: none; font-size: 0.85rem; }
-.reco-empty { color: var(--text-muted); text-align: center; padding: 40px; }
-</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/entretenimiento.css' %}?v=10">
 {% endblock %}
 
 {% block content %}
-<div class="dashboard">
-    <h1 style="font-family: var(--font-title); margin-bottom: 2rem;">✨ Entretenimiento</h1>
+<div class="dashboard" style="position: relative;">
 
-    <div class="cards">
-        <div class="card-entertainment">
-            <div style="font-size: 3rem; margin-bottom: 15px;">🎬</div>
+    <!-- Floating Particles Background -->
+    <div class="entertain-particles" id="particles"></div>
+
+    <!-- Page Header -->
+    <h1 class="entertain-page-title">🎭 Entretenimiento</h1>
+    <p class="entertain-page-subtitle">Descubre películas, series, libros y teatro recomendados para ti</p>
+
+    <!-- Category Cards Carousel -->
+    <div class="cat-carousel-container">
+        <button class="trend-nav trend-nav-left cat-nav-btn" onclick="scrollCatCarousel(-1)">❮</button>
+        <div class="entertain-grid" id="cat-scroll">
+
+        <!-- Películas -->
+        <div class="cat-card cat-card--peliculas" onclick="abrirModal('peliculas')">
+            <span class="cat-tag">Popular</span>
+            <div class="cat-icon">🎬</div>
             <h3>Películas</h3>
-            <p style="color: var(--text-muted); margin-top: 10px;">Descubre recomendaciones de películas</p>
-            <button onclick="abrirModal('peliculas')">Ver más</button>
+            <p>Descubre los mejores estrenos y recomendaciones cinematográficas</p>
+            <button class="cat-btn" type="button">Explorar →</button>
         </div>
 
-        <div class="card-entertainment">
-            <div style="font-size: 3rem; margin-bottom: 15px;">📺</div>
+        <!-- Series -->
+        <div class="cat-card cat-card--series" onclick="abrirModal('series')">
+            <span class="cat-tag">Trending</span>
+            <div class="cat-icon">📺</div>
             <h3>Series</h3>
-            <p style="color: var(--text-muted); margin-top: 10px;">Las mejores series para ver</p>
-            <button onclick="abrirModal('series')">Ver más</button>
+            <p>Las mejores series que no puedes dejar de ver este año</p>
+            <button class="cat-btn" type="button">Explorar →</button>
         </div>
 
-        <div class="card-entertainment">
-            <div style="font-size: 3rem; margin-bottom: 15px;">📚</div>
+        <!-- Libros -->
+        <div class="cat-card cat-card--libros" onclick="abrirModal('libros')">
+            <span class="cat-tag">Nuevo</span>
+            <div class="cat-icon">📚</div>
             <h3>Libros</h3>
-            <p style="color: var(--text-muted); margin-top: 10px;">Recomendaciones de lectura</p>
-            <button onclick="abrirModal('libros')">Ver más</button>
+            <p>Recomendaciones de lectura para todos los gustos</p>
+            <button class="cat-btn" type="button">Explorar →</button>
         </div>
 
-        <div class="card-entertainment">
-            <div style="font-size: 3rem; margin-bottom: 15px;">🎭</div>
+        <!-- Teatro -->
+        <div class="cat-card cat-card--teatro" onclick="abrirModal('teatro')">
+            <span class="cat-tag">Especial</span>
+            <div class="cat-icon">🎭</div>
             <h3>Teatro</h3>
-            <p style="color: var(--text-muted); margin-top: 10px;">Obras de teatro recomendadas</p>
-            <button onclick="abrirModal('teatro')">Ver más</button>
+            <p>Obras de teatro imperdibles y recomendaciones escénicas</p>
+            <button class="cat-btn" type="button">Explorar →</button>
+        </div>
+
+        </div>
+    </div>
+
+    <!-- Trending Section (Quick Preview) -->
+    <div class="trending-section" id="trending-section" style="display: none;">
+        <div class="trending-header">
+            <h2>🔥 Tendencias</h2>
+            <span class="trending-badge">En vivo</span>
+        </div>
+        <div class="trending-carousel-container">
+            <button class="trend-nav trend-nav-left" onclick="scrollTrending(-1)">❮</button>
+            <div class="trending-scroll" id="trending-scroll"></div>
+            <button class="trend-nav trend-nav-right" onclick="scrollTrending(1)">❯</button>
+        </div>
+    </div>
+
+</div>
+
+<!-- Premium Modal -->
+<div id="modal" class="ent-modal-overlay">
+    <div class="ent-modal">
+        <div class="ent-modal-header">
+            <h2 id="modal-titulo"></h2>
+            <button class="ent-modal-close" onclick="cerrarModal()" title="Cerrar">&times;</button>
+        </div>
+        <div class="ent-modal-body">
+            <div id="modal-contenido" class="reco-grid"></div>
         </div>
     </div>
 </div>
 
-<div id="modal" class="modal-overlay">
-    <div class="modal-content">
-        <button class="modal-close" onclick="cerrarModal()">&times;</button>
-        <h2 id="modal-titulo"></h2>
-        <div id="modal-contenido" class="reco-grid"></div>
-    </div>
-</div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
 const recomendaciones = {{ recomendaciones|safe }};
-const nombres = { peliculas: '🎬 Películas', series: '📺 Series', libros: '📚 Libros', teatro: '🎭 Teatro' };
+const nombres = {
+    peliculas: '🎬 Películas',
+    series: '📺 Series',
+    libros: '📚 Libros',
+    teatro: '🎭 Teatro'
+};
 
+// ============ MODAL ============
 function abrirModal(cat) {
     document.getElementById('modal-titulo').textContent = nombres[cat] || cat;
     const cont = document.getElementById('modal-contenido');
     const items = recomendaciones[cat] || [];
+
     if (items.length === 0) {
         cont.innerHTML = '<div class="reco-empty">No hay recomendaciones disponibles en este momento</div>';
     } else {
         let html = '';
-        items.forEach(item => {
+        items.forEach((item, i) => {
             if (cat === 'libros') {
-                html += `<div class="reco-card"><h4>${item.titulo || ''}</h4><p>${item.autor || ''}</p><p>${item.descripcion || ''}</p></div>`;
+                html += `
+                <div class="reco-card reco-card--book" style="animation-delay: ${i * 0.08}s">
+                    <div class="book-icon">📖</div>
+                    <div class="reco-card-body">
+                        <h4>${item.titulo || ''}</h4>
+                        <p class="book-author">${item.autor || ''}</p>
+                        <p>${item.descripcion || ''}</p>
+                    </div>
+                </div>`;
             } else {
-                html += `<div class="reco-card"><img src="${item.imagen || ''}" alt="${item.titulo || ''}"><h4>${item.titulo || ''}</h4><p>${item.descripcion || ''}</p><a href="${item.url || '#'}" target="_blank">Ver en YouTube →</a></div>`;
+                html += `
+                <div class="reco-card" style="animation-delay: ${i * 0.08}s">
+                    <div class="reco-card-img">
+                        <img src="${item.imagen || ''}" alt="${item.titulo || ''}" loading="lazy">
+                        <div class="play-overlay">
+                            <a href="${item.url || '#'}" target="_blank" class="play-overlay-icon" title="Ver en YouTube">▶</a>
+                        </div>
+                    </div>
+                    <div class="reco-card-body">
+                        <h4>${item.titulo || ''}</h4>
+                        <p>${item.descripcion || ''}</p>
+                        <a href="${item.url || '#'}" target="_blank">Ver en YouTube →</a>
+                    </div>
+                </div>`;
             }
         });
         cont.innerHTML = html;
     }
-    document.getElementById('modal').classList.add('active');
+
+    const modal = document.getElementById('modal');
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
 }
 
 function cerrarModal() {
-    document.getElementById('modal').classList.remove('active');
+    const modal = document.getElementById('modal');
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
 }
+
+// Close on backdrop click
 document.getElementById('modal').addEventListener('click', function(e) {
     if (e.target === this) cerrarModal();
 });
+
+// Close on ESC key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') cerrarModal();
+});
+
+// ============ TRENDING SECTION ============
+(function buildTrending() {
+    const allItems = [
+        ...(recomendaciones.peliculas || []),
+        ...(recomendaciones.series || [])
+    ];
+    if (allItems.length === 0) return;
+
+    const section = document.getElementById('trending-section');
+    const scroll = document.getElementById('trending-scroll');
+    section.style.display = 'block';
+
+    allItems.slice(0, 8).forEach((item, i) => {
+        const el = document.createElement('div');
+        el.className = 'trending-item';
+        el.innerHTML = `
+            <img src="${item.imagen || ''}" alt="${item.titulo || ''}" loading="lazy">
+            <div class="trend-rank">#${i + 1}</div>
+        `;
+        el.addEventListener('click', () => {
+            if (item.url) window.open(item.url, '_blank');
+        });
+        scroll.appendChild(el);
+    });
+
+    // Auto-scroll logic
+    let scrollDirection = 1;
+    let autoScrollInterval = setInterval(() => {
+        if (scroll.scrollLeft + scroll.clientWidth >= scroll.scrollWidth - 5) {
+            scrollDirection = -1; // reverse
+        } else if (scroll.scrollLeft <= 0) {
+            scrollDirection = 1; // forward
+        }
+        scroll.scrollBy({ left: scrollDirection * 280, behavior: 'smooth' });
+    }, 4000);
+
+    // Pause on hover
+    section.addEventListener('mouseenter', () => clearInterval(autoScrollInterval));
+    section.addEventListener('mouseleave', () => {
+        autoScrollInterval = setInterval(() => {
+            if (scroll.scrollLeft + scroll.clientWidth >= scroll.scrollWidth - 5) scrollDirection = -1;
+            else if (scroll.scrollLeft <= 0) scrollDirection = 1;
+            scroll.scrollBy({ left: scrollDirection * 280, behavior: 'smooth' });
+        }, 4000);
+    });
+
+})();
+
+function scrollTrending(dir) {
+    const scroll = document.getElementById('trending-scroll');
+    scroll.scrollBy({ left: dir * 280, behavior: 'smooth' });
+}
+
+function scrollCatCarousel(dir) {
+    const scroll = document.getElementById('cat-scroll');
+    const card = scroll.querySelector('.cat-card');
+    if (card && scroll) {
+        const scrollAmount = card.offsetWidth + 28; // width + gap
+        scroll.scrollBy({ left: dir * scrollAmount, behavior: 'smooth' });
+    }
+}
+
+function checkScrollVisibility() {
+    // Check categories
+    const catScroll = document.getElementById('cat-scroll');
+    if (catScroll) {
+        const container = catScroll.closest('.cat-carousel-container');
+        if (container) {
+            const btns = container.querySelectorAll('.cat-nav-btn');
+            // If it can't scroll, hide arrows
+            const hide = catScroll.scrollWidth <= catScroll.clientWidth + 5;
+            btns.forEach(btn => btn.style.display = hide ? 'none' : 'flex');
+        }
+    }
+    
+    // Check tendencias
+    const trendScroll = document.getElementById('trending-scroll');
+    if (trendScroll) {
+        const container = trendScroll.closest('.trending-carousel-container');
+        if (container) {
+            const btns = container.querySelectorAll('.trend-nav');
+            // Hide if no overflow
+            const hide = trendScroll.scrollWidth <= trendScroll.clientWidth + 5;
+            btns.forEach(btn => {
+                if (!btn.classList.contains('cat-nav-btn')) { // ensure we don't grab wrong btns if nested
+                    btn.style.display = hide ? 'none' : 'flex';
+                }
+            });
+        }
+    }
+}
+
+window.addEventListener('resize', checkScrollVisibility);
+window.addEventListener('load', () => {
+    setTimeout(checkScrollVisibility, 100);
+});
+
+// ============ PARTICLES ============
+(function createParticles() {
+    const container = document.getElementById('particles');
+    if (!container) return;
+    const colors = ['#f43f5e', '#8b5cf6', '#06b6d4', '#f59e0b', '#a78bfa', '#ec4899'];
+
+    for (let i = 0; i < 18; i++) {
+        const span = document.createElement('span');
+        const size = Math.random() * 6 + 3;
+        span.style.cssText = `
+            width: ${size}px;
+            height: ${size}px;
+            left: ${Math.random() * 100}%;
+            top: ${80 + Math.random() * 40}%;
+            background: ${colors[Math.floor(Math.random() * colors.length)]};
+            animation-duration: ${12 + Math.random() * 18}s;
+            animation-delay: ${Math.random() * 10}s;
+        `;
+        container.appendChild(span);
+    }
+})();
 </script>
 {% endblock %}
