@@ -1,8 +1,50 @@
+{% load static %}
+<style>
+    .navbar-logo {
+        display: none; /* Ocultar logo del navbar */
+    }
+    .navbar-logo:hover {
+        transform: scale(1.05); /* Un pequeño efecto visual al pasar el mouse */
+    }
+</style>
 <nav class="navbar">
     <div class="nav-left">
-        <span style="font-weight: 600; color: var(--text-muted);">MiniAmigixV / {% block nav_title %}{% block title %}Inicio{% endblock %}{% endblock %}</span>
+        <img src="{% static 'Logo.png' %}" alt="MiniAmigixV Logo" class="navbar-logo">
+        <span style="font-weight: 600; color: var(--text-muted);">/ {% block nav_title %}{% block title %}Inicio{% endblock %}{% endblock %}</span>
     </div>
-    <div class="nav-right" style="display: flex; align-items: center; gap: 15px;">
+    <div class="nav-right" style="display: flex; align-items: center; gap: 25px;">
+        <!-- Reloj Digital -->
+        <div id="digital-clock" class="digital-clock" style="font-weight: 700; color: var(--text-main); font-size: 20px; min-width: 100px; text-align: center;">
+            --:--
+        </div>
+        
+        <!-- Notificaciones -->
+        <a href="{% url 'lista_notificaciones' %}" class="notification-btn" style="position: relative; background: none; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; text-decoration: none;">
+            <i data-lucide="bell"></i>
+            {% if user.is_authenticated and notificaciones_sin_leer > 0 %}
+            <span class="notification-badge" style="position: absolute; top: -5px; right: -5px; background: #ef4444; color: white; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 10px; min-width: 18px; text-align: center;">{{ notificaciones_sin_leer }}</span>
+            {% endif %}
+        </a>
+        
+        <!-- Tema -->
         <button onclick="toggleTheme()" style="background: none; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center;"><i data-lucide="sun"></i></button>
     </div>
 </nav>
+
+<script>
+// Reloj Digital en Tiempo Real
+function updateClock() {
+    const now = new Date();
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const seconds = String(now.getSeconds()).padStart(2, '0');
+    const clockElement = document.getElementById('digital-clock');
+    if (clockElement) {
+        clockElement.textContent = `${hours}:${minutes}:${seconds}`;
+    }
+}
+
+// Actualizar el reloj cada segundo
+setInterval(updateClock, 1000);
+updateClock(); // Inicializar inmediatamente
+</script>

@@ -41,6 +41,15 @@ body {
     text-align: center;
 }
 
+.sidebar-header .logo {
+    width: 100%;
+    max-width: 280px;
+    height: auto;
+    margin-bottom: 2rem;
+    display: block;
+    border-radius: 12px;
+}
+
 .nav-group {
     margin-bottom: 1.5rem;
     flex-grow: 1;
@@ -91,8 +100,39 @@ body {
     background-color: var(--bg-dark);
 }
 
+.navbar-logo {
+    display: none;
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.notification-btn:hover {
+    color: #fff !important;
+}
+
+.notification-btn:hover i {
+    color: #fff;
+}
+
+.digital-clock {
+    font-family: 'Courier New', monospace;
+    background: rgba(124, 58, 237, 0.1);
+    padding: 10px 16px;
+    border-radius: 8px;
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    color: #a78bfa;
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    min-width: 120px;
+}
+
 .page-content {
-    padding: 2rem;
+    padding: 3rem;
     flex: 1;
     overflow-y: auto;
     background-color: var(--bg-dark);
@@ -111,6 +151,12 @@ body.light {
 
 body.light .navbar, body.light .page-content {
     background-color: var(--bg-dark);
+}
+
+body.light .digital-clock {
+    background: rgba(124, 58, 237, 0.08);
+    border-color: rgba(124, 58, 237, 0.15);
+    color: #7c3aed;
 }
 
 /* ==================== GLOBAL FLOATING MINI PLAYER ==================== */

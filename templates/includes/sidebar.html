@@ -1,6 +1,20 @@
+{% load static %}
+<style>
+    .sidebar-header {
+        padding: 1.5rem;
+        text-align: center;
+    }
+    .sidebar-header .logo {
+        width: 100%;
+        max-width: 280px; /* Logo más grande */
+        height: auto;
+        object-fit: contain;
+        filter: drop-shadow(0 0 10px rgba(124, 58, 237, 0.2));
+    }
+</style>
 <aside class="sidebar">
     <div class="sidebar-header">
-        <h1>MiniAmigixV</h1>
+        <img src="{% static 'Logo.png' %}" alt="MiniAmigixV Logo" class="logo">
     </div>
     <nav class="nav-group">
         <a href="/" class="nav-item active"><i data-lucide="home"></i> Inicio</a>
@@ -29,12 +43,6 @@
         {% endif %}
     </nav>
     <div class="sidebar-footer">
-        <a href="{% url 'lista_notificaciones' %}" class="nav-item" title="Notificaciones" id="notif-sidebar-link">
-            <i data-lucide="bell"></i>
-            {% if user.is_authenticated and notificaciones_sin_leer > 0 %}
-            <span class="notif-badge">{{ notificaciones_sin_leer }}</span>
-            {% endif %}
-        </a>
         <a href="{% url 'perfil' %}" class="nav-item" title="Perfil"><i data-lucide="user"></i></a>
         <a href="{% url 'tutorial_home' %}" class="nav-item" title="Tutorial"><i data-lucide="help-circle"></i></a>
         <a href="{% url 'configuracion_view' %}" class="nav-item" title="Configuración"><i data-lucide="settings"></i></a>
