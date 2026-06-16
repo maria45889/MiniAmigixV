@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Configuración{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/configuraciones.css' %}?v=6">
+{% endblock %}
+
+{% block content %}
+{% include "configuracion/configuracion.html" %}
+{% endblock %}
+
+

@@ -15,7 +15,6 @@ urlpatterns = [
     path('api/delete-song/<int:song_id>/', views.delete_song_api, name='delete_song_api'),
     path('api/edit-song/<int:song_id>/', views.edit_song_api, name='edit_song_api'),
     path('juegos/', views.juegos, name='juegos'),
-    path('estudio/', views.estudio, name='estudio'),
     path('clima/', views.clima, name='clima'),
     path('traductor/', views.traductor, name='traductor'),
     path('entretenimiento/', views.entretenimiento, name='entretenimiento'),
@@ -26,4 +25,5 @@ urlpatterns = [
     path('logout/', views.logout_view, name='logout'),
     path('api/sugerencia-rapida/', views.enviar_sugerencia_rapida, name='sugerencia_rapida'),
     path('panel-admin/', views.panel_admin, name='panel_admin'),
+    path('panel-admin/user-email/<int:user_id>/', views.panel_admin_email_user, name='panel_admin_email_user'),
 ]

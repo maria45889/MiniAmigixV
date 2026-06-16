@@ -1,84 +1,444 @@
-{% extends "base.html" %}
-{% load static %}
-
-{% block title %}Configuración{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/configuraciones.css' %}">
-{% endblock %}
-
-{% block content %}
-<div class="configuracion-container">
-    <h1>⚙️ Configuración</h1>
+<div class="configuracion-container modern">
+    <div class="config-header">
+        <div class="config-header-glow"></div>
+        <h1><i data-lucide="settings"></i> Configuración</h1>
+        <p>Personaliza tu experiencia y ajusta tus preferencias.</p>
+    </div>
     
     {% if tema_actualizado %}
-    <div class="success-message">
-        ✅ Configuración actualizada correctamente
+    <div class="success-message-modern" id="success-msg">
+        <i data-lucide="check-circle"></i> Configuración actualizada correctamente
     </div>
     {% endif %}
     
+    <!-- Navigation Tabs -->
+    <div class="config-tabs">
+        <button class="config-tab active" data-tab="general" onclick="switchTab('general')">
+            <i data-lucide="sliders-horizontal"></i> General
+        </button>
+        <button class="config-tab" data-tab="privacidad" onclick="switchTab('privacidad')">
+            <i data-lucide="shield"></i> Privacidad
+        </button>
+        <button class="config-tab" data-tab="accesibilidad" onclick="switchTab('accesibilidad')">
+            <i data-lucide="accessibility"></i> Accesibilidad
+        </button>
+        <button class="config-tab" data-tab="seguridad" onclick="switchTab('seguridad')">
+            <i data-lucide="lock"></i> Seguridad
+        </button>
+        <button class="config-tab" data-tab="sesion" onclick="switchTab('sesion')">
+            <i data-lucide="user-cog"></i> Sesión
+        </button>
+    </div>
+
     <form method="POST" class="configuracion-form">
         {% csrf_token %}
         
-        <div class="config-section">
-            <h2>🌙 Apariencia</h2>
+        <!-- ==================== TAB: General ==================== -->
+        <div class="config-tab-content active" id="tab-general">
             
-            <div class="form-group">
-                <label for="tema">Tema</label>
-                <select id="tema" name="tema" onchange="previewTheme(this.value)">
-                    <option value="dark" {% if perfil.tema == 'dark' %}selected{% endif %}>Oscuro</option>
-                    <option value="light" {% if perfil.tema == 'light' %}selected{% endif %}>Claro</option>
-                </select>
+            <!-- Apariencia -->
+            <div class="config-section-modern">
+                <div class="section-header">
+                    <div class="section-icon purple"><i data-lucide="palette"></i></div>
+                    <div>
+                        <h2>Apariencia</h2>
+                        <p class="section-desc">Personaliza el aspecto visual de la interfaz.</p>
+                    </div>
+                </div>
+                
+                <div class="form-group-flex">
+                    <div class="group-info">
+                        <h3>Tema de la interfaz</h3>
+                        <p>Elige entre modo claro u oscuro.</p>
+                    </div>
+                    <div class="theme-switcher">
+                        <button type="button" class="theme-option {% if perfil.tema == 'dark' %}active{% endif %}" data-theme="dark" onclick="selectTheme('dark')">
+                            <i data-lucide="moon"></i> Oscuro
+                        </button>
+                        <button type="button" class="theme-option {% if perfil.tema == 'light' %}active{% endif %}" data-theme="light" onclick="selectTheme('light')">
+                            <i data-lucide="sun"></i> Claro
+                        </button>
+                    </div>
+                    <input type="hidden" id="tema" name="tema" value="{{ perfil.tema }}">
+                </div>
+
+                <div class="form-group-flex">
+                    <div class="group-info">
+                        <h3>Color de acento</h3>
+                        <p>Elige el color principal de la interfaz.</p>
+                    </div>
+                    <div class="accent-colors">
+                        <button type="button" class="accent-dot active" data-color="#7c3aed" style="--dot-color: #7c3aed;" onclick="selectAccent(this)" title="Violeta"></button>
+                        <button type="button" class="accent-dot" data-color="#06b6d4" style="--dot-color: #06b6d4;" onclick="selectAccent(this)" title="Cian"></button>
+                        <button type="button" class="accent-dot" data-color="#ec4899" style="--dot-color: #ec4899;" onclick="selectAccent(this)" title="Rosa"></button>
+                        <button type="button" class="accent-dot" data-color="#10b981" style="--dot-color: #10b981;" onclick="selectAccent(this)" title="Esmeralda"></button>
+                        <button type="button" class="accent-dot" data-color="#f59e0b" style="--dot-color: #f59e0b;" onclick="selectAccent(this)" title="Ámbar"></button>
+                        <button type="button" class="accent-dot" data-color="#ef4444" style="--dot-color: #ef4444;" onclick="selectAccent(this)" title="Rojo"></button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Idioma -->
+            <div class="config-section-modern">
+                <div class="section-header">
+                    <div class="section-icon blue"><i data-lucide="globe"></i></div>
+                    <div>
+                        <h2>Idioma</h2>
+                        <p class="section-desc">Configura el idioma de la aplicación.</p>
+                    </div>
+                </div>
+                
+                <div class="form-group-flex">
+                    <div class="group-info">
+                        <h3>Idioma preferido</h3>
+                        <p>Selecciona en qué idioma quieres la aplicación.</p>
+                    </div>
+                    <div class="custom-select-wrapper">
+                        <select id="idioma" name="idioma" class="custom-select">
+                            <option value="es" {% if perfil.idioma == 'es' %}selected{% endif %}>🇪🇸 Español</option>
+                            <option value="en" {% if perfil.idioma == 'en' %}selected{% endif %}>🇺🇸 English</option>
+                        </select>
+                        <i data-lucide="chevron-down" class="custom-select-icon"></i>
+                    </div>
+                </div>
+
+                <div class="form-group-flex">
+                    <div class="group-info">
+                        <h3>Formato de fecha</h3>
+                        <p>Cómo se muestran las fechas en la app.</p>
+                    </div>
+                    <div class="custom-select-wrapper">
+                        <select id="formato_fecha" class="custom-select" onchange="localStorage.setItem('formato_fecha', this.value)">
+                            <option value="dd/mm/yyyy">DD/MM/AAAA</option>
+                            <option value="mm/dd/yyyy">MM/DD/AAAA</option>
+                            <option value="yyyy-mm-dd">AAAA-MM-DD</option>
+                        </select>
+                        <i data-lucide="chevron-down" class="custom-select-icon"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB: Privacidad ==================== -->
+        <div class="config-tab-content" id="tab-privacidad">
+            
+            <div class="config-section-modern">
+                <div class="section-header">
+                    <div class="section-icon green"><i data-lucide="shield"></i></div>
+                    <div>
+                        <h2>Privacidad</h2>
+                        <p class="section-desc">Controla quién puede ver tu información.</p>
+                    </div>
+                </div>
+                
+                <div class="form-group-flex">
+                    <div class="group-info">
+                        <h3>Perfil Público</h3>
+                        <p>Permite que otros usuarios vean tu perfil.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" name="perfil_publico" {% if perfil.perfil_publico %}checked{% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="form-group-flex">
+                    <div class="group-info">
+                        <h3>Mostrar actividad en línea</h3>
+                        <p>Que otros usuarios vean si estás conectado.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" name="actividad_en_linea" {% if perfil.actividad_en_linea %}checked{% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="config-section-modern">
+                <div class="section-header">
+                    <div class="section-icon blue"><i data-lucide="bell"></i></div>
+                    <div>
+                        <h2>Notificaciones</h2>
+                        <p class="section-desc">Administra cómo te llegamos.</p>
+                    </div>
+                </div>
+                
+                <div class="form-group-flex">
+                    <div class="group-info">
+                        <h3>Notificaciones por Email</h3>
+                        <p>Recibe avisos sobre tus eventos y recordatorios.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" name="notificaciones_email" {% if perfil.notificaciones_email %}checked{% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="form-group-flex">
+                    <div class="group-info">
+                        <h3>Notificaciones Push</h3>
+                        <p>Alertas instantáneas en el navegador.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="push_notif" onchange="togglePushNotif(this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="form-group-flex">
+                    <div class="group-info">
+                        <h3>Sonido de notificación</h3>
+                        <p>Reproduce un sonido al recibir alertas.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" name="sonidos" {% if perfil.sonidos %}checked{% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
             </div>
         </div>
         
-        <div class="config-section">
-            <h2>🌐 Idioma</h2>
+        <!-- ==================== TAB: Accesibilidad ==================== -->
+        <div class="config-tab-content" id="tab-accesibilidad">
             
-            <div class="form-group">
-                <label for="idioma">Idioma</label>
-                <select id="idioma" name="idioma">
-                    <option value="es" {% if perfil.idioma == 'es' %}selected{% endif %}>Español</option>
-                    <option value="en" {% if perfil.idioma == 'en' %}selected{% endif %}>English</option>
-                </select>
+            <div class="config-section-modern">
+                <div class="section-header">
+                    <div class="section-icon teal"><i data-lucide="type"></i></div>
+                    <div>
+                        <h2>Texto y Lectura</h2>
+                        <p class="section-desc">Ajusta cómo se visualiza el contenido.</p>
+                    </div>
+                </div>
+                
+                <div class="form-group-flex">
+                    <div class="group-info">
+                        <h3>Tamaño de fuente</h3>
+                        <p>Ajusta el tamaño del texto en la aplicación.</p>
+                    </div>
+                    <div class="font-size-selector">
+                        <button type="button" class="font-btn {% if perfil.tamano_fuente == 'small' %}active{% endif %}" data-size="small" onclick="selectFontSize('small')">A<small>−</small></button>
+                        <button type="button" class="font-btn {% if perfil.tamano_fuente == 'normal' or not perfil.tamano_fuente %}active{% endif %}" data-size="normal" onclick="selectFontSize('normal')">A</button>
+                        <button type="button" class="font-btn {% if perfil.tamano_fuente == 'large' %}active{% endif %}" data-size="large" onclick="selectFontSize('large')">A<small>+</small></button>
+                    </div>
+                    <input type="hidden" id="tamano_fuente" name="tamano_fuente" value="{{ perfil.tamano_fuente|default:'normal' }}">
+                </div>
+            </div>
+
+            <div class="config-section-modern">
+                <div class="section-header">
+                    <div class="section-icon purple"><i data-lucide="sparkles"></i></div>
+                    <div>
+                        <h2>Movimiento y Efectos</h2>
+                        <p class="section-desc">Controla las animaciones y efectos visuales.</p>
+                    </div>
+                </div>
+                
+                <div class="form-group-flex">
+                    <div class="group-info">
+                        <h3>Animaciones</h3>
+                        <p>Activa o desactiva transiciones y micro-animaciones.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" name="animaciones" {% if perfil.animaciones %}checked{% endif %} onchange="toggleAnimations(this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="form-group-flex">
+                    <div class="group-info">
+                        <h3>Efectos de transparencia</h3>
+                        <p>Glassmorphism y blur en paneles (puede mejorar rendimiento al desactivar).</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" id="blur_effects" checked onchange="toggleBlur(this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Seguridad tab removed (password change UI deleted as requested) -->
+
+            <div class="config-section-modern">
+                <div class="section-header">
+                    <div class="section-icon green"><i data-lucide="monitor-smartphone"></i></div>
+                    <div>
+                        <h2>Sesiones activas</h2>
+                        <p class="section-desc">Dispositivos donde tienes la sesión iniciada.</p>
+                    </div>
+                </div>
+                
+                <div class="session-list">
+                    <div class="session-item current">
+                        <div class="session-icon"><i data-lucide="monitor"></i></div>
+                        <div class="session-info">
+                            <h3>Este dispositivo <span class="session-badge">Actual</span></h3>
+                            <p id="session-browser">Navegador desconocido</p>
+                        </div>
+                        <span class="session-status online">Activo</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==================== TAB: Sesión ==================== -->
+        <div class="config-tab-content" id="tab-sesion">
+            
+            <div class="config-section-modern">
+                <div class="section-header">
+                    <div class="section-icon blue"><i data-lucide="user"></i></div>
+                    <div>
+                        <h2>Información de la cuenta</h2>
+                        <p class="section-desc">Resumen de tu cuenta.</p>
+                    </div>
+                </div>
+                
+                <div class="account-info-grid">
+                    <div class="account-info-card">
+                        <div class="aic-icon"><i data-lucide="user"></i></div>
+                        <div class="aic-data">
+                            <span class="aic-label">Usuario</span>
+                            <span class="aic-value">{{ user.username }}</span>
+                        </div>
+                    </div>
+                    <div class="account-info-card">
+                        <div class="aic-icon"><i data-lucide="mail"></i></div>
+                        <div class="aic-data">
+                            <span class="aic-label">Email</span>
+                            <span class="aic-value">{{ user.email|default:"No configurado" }}</span>
+                        </div>
+                    </div>
+                    <div class="account-info-card">
+                        <div class="aic-icon"><i data-lucide="calendar"></i></div>
+                        <div class="aic-data">
+                            <span class="aic-label">Miembro desde</span>
+                            <span class="aic-value">{{ user.date_joined|date:"d M Y" }}</span>
+                        </div>
+                    </div>
+                    <div class="account-info-card">
+                        <div class="aic-icon"><i data-lucide="clock"></i></div>
+                        <div class="aic-data">
+                            <span class="aic-label">Último acceso</span>
+                            <span class="aic-value">{{ user.last_login|date:"d M Y, H:i" }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="config-section-modern">
+                <div class="section-header">
+                    <div class="section-icon purple"><i data-lucide="download"></i></div>
+                    <div>
+                        <h2>Datos y almacenamiento</h2>
+                        <p class="section-desc">Gestiona los datos almacenados localmente.</p>
+                    </div>
+                </div>
+
+                <div class="form-group-flex">
+                    <div class="group-info">
+                        <h3>Caché local</h3>
+                        <p>Datos almacenados en tu navegador para mejorar la velocidad.</p>
+                    </div>
+                    <button type="button" class="btn-outline-action" onclick="clearLocalCache()">
+                        <i data-lucide="trash"></i> Limpiar caché
+                    </button>
+                </div>
+
+                <div class="form-group-flex">
+                    <div class="group-info">
+                        <h3>Exportar mis datos</h3>
+                        <p>Descarga una copia de tu información personal.</p>
+                    </div>
+                    <button type="button" class="btn-outline-action" onclick="exportData()">
+                        <i data-lucide="download"></i> Exportar
+                    </button>
+                </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div class="config-section-modern danger-zone-modern">
+                <div class="section-header">
+                    <div class="section-icon red"><i data-lucide="alert-triangle"></i></div>
+                    <div>
+                        <h2 style="color: #ef4444;">Zona de Peligro</h2>
+                        <p class="section-desc" style="color: var(--text-muted);">Las acciones aquí son irreversibles. Ten cuidado.</p>
+                    </div>
+                </div>
+                
+                <div class="danger-actions">
+                    <div class="danger-item">
+                        <div class="group-info">
+                            <h3>Eliminar cuenta</h3>
+                            <p>Se eliminarán todos tus datos permanentemente.</p>
+                        </div>
+                        <button type="button" class="btn-danger-modern" onclick="confirmDelete('cuenta')">
+                            <i data-lucide="trash-2"></i> Eliminar
+                        </button>
+                    </div>
+                    <div class="danger-item">
+                        <div class="group-info">
+                            <h3>Borrar todos los datos</h3>
+                            <p>Elimina eventos, notificaciones y configuraciones.</p>
+                        </div>
+                        <button type="button" class="btn-danger-modern" onclick="confirmDelete('datos')">
+                            <i data-lucide="database"></i> Borrar
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
         
-        <div class="config-section">
-            <h2>🔒 Privacidad</h2>
-            
-            <div class="form-group">
-                <label>
-                    <input type="checkbox" name="notificaciones_email" {% if perfil.notificaciones_email %}checked{% endif %}>
-                    Recibir notificaciones por email
-                </label>
-            </div>
-            
-            <div class="form-group">
-                <label>
-                    <input type="checkbox" name="perfil_publico" {% if perfil.perfil_publico %}checked{% endif %}>
-                    Mostrar perfil público
-                </label>
-            </div>
-        </div>
-        
-        <div class="form-actions">
-            <button type="submit" class="btn-primary">Guardar Cambios</button>
+        <!-- Save Button (visible in all tabs) -->
+        <div class="form-actions-modern">
+            <button type="submit" class="btn-save-modern" id="btn-save">
+                <i data-lucide="save"></i> Guardar Cambios
+            </button>
         </div>
     </form>
-    
-    <div class="config-section">
-        <h2>🗑️ Zona de Peligro</h2>
-        
-        <div class="danger-zone">
-            <button class="btn-danger">Eliminar cuenta</button>
-            <button class="btn-danger">Borrar todos los datos</button>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal-overlay" id="delete-modal" style="display:none;">
+    <div class="modal-card">
+        <div class="modal-icon-danger"><i data-lucide="alert-triangle"></i></div>
+        <h2 id="modal-title">¿Estás seguro?</h2>
+        <p id="modal-desc">Esta acción no se puede deshacer.</p>
+        <div class="modal-actions">
+            <button type="button" class="btn-modal-cancel" onclick="closeModal()">Cancelar</button>
+            <button type="button" class="btn-modal-danger" id="modal-confirm">Confirmar</button>
         </div>
     </div>
 </div>
 
 <script>
-function previewTheme(tema) {
+// ==================== TAB NAVIGATION ====================
+function switchTab(tab) {
+    document.querySelectorAll('.config-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.config-tab-content').forEach(c => {
+        c.classList.remove('active');
+        c.style.display = 'none';
+    });
+    
+    document.querySelector(`.config-tab[data-tab="${tab}"]`).classList.add('active');
+    const content = document.getElementById(`tab-${tab}`);
+    content.style.display = 'block';
+    // Trigger animation
+    requestAnimationFrame(() => content.classList.add('active'));
+    
+    lucide.createIcons();
+    localStorage.setItem('config_tab', tab);
+}
+
+// Restore last tab
+const savedTab = localStorage.getItem('config_tab');
+if (savedTab) switchTab(savedTab);
+
+// ==================== THEME ====================
+function selectTheme(tema) {
+    document.getElementById('tema').value = tema;
+    document.querySelectorAll('.theme-option').forEach(b => b.classList.remove('active'));
+    document.querySelector(`.theme-option[data-theme="${tema}"]`).classList.add('active');
+    
     if (tema === 'light') {
         document.body.classList.add('light');
     } else {
@@ -86,9 +446,276 @@ function previewTheme(tema) {
     }
 }
 
-// Aplicar tema actual al cargar
+// ==================== ACCENT COLOR ====================
+function selectAccent(el) {
+    document.querySelectorAll('.accent-dot').forEach(d => d.classList.remove('active'));
+    el.classList.add('active');
+    const color = el.dataset.color;
+    document.documentElement.style.setProperty('--primary', color);
+    localStorage.setItem('accent_color', color);
+}
+
+// Restore accent
+const savedAccent = localStorage.getItem('accent_color');
+if (savedAccent) {
+    document.documentElement.style.setProperty('--primary', savedAccent);
+    document.querySelectorAll('.accent-dot').forEach(d => {
+        d.classList.toggle('active', d.dataset.color === savedAccent);
+    });
+}
+
+// ==================== FONT SIZE ====================
+function selectFontSize(size) {
+    document.getElementById('tamano_fuente').value = size;
+    document.querySelectorAll('.font-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector(`.font-btn[data-size="${size}"]`).classList.add('active');
+    
+    const sizes = { small: '14px', normal: '16px', large: '18px' };
+    document.documentElement.style.fontSize = sizes[size];
+    localStorage.setItem('font_size', size);
+}
+
+// Restore font size
+const savedFont = localStorage.getItem('font_size');
+if (savedFont) {
+    const sizes = { small: '14px', normal: '16px', large: '18px' };
+    document.documentElement.style.fontSize = sizes[savedFont];
+}
+
+// ==================== ANIMATIONS ====================
+function toggleAnimations(enabled) {
+    if (!enabled) {
+        document.body.style.setProperty('--transition-speed', '0s');
+        document.body.classList.add('no-animations');
+    } else {
+        document.body.style.removeProperty('--transition-speed');
+        document.body.classList.remove('no-animations');
+    }
+    localStorage.setItem('animations', enabled);
+}
+
+// ==================== BLUR EFFECTS ====================
+function toggleBlur(enabled) {
+    document.body.classList.toggle('no-blur', !enabled);
+    localStorage.setItem('blur_effects', enabled);
+}
+
+const savedBlur = localStorage.getItem('blur_effects');
+if (savedBlur === 'false') {
+    document.body.classList.add('no-blur');
+    const blurCheck = document.getElementById('blur_effects');
+    if (blurCheck) blurCheck.checked = false;
+}
+
+// ==================== PUSH NOTIFICATIONS ====================
+function togglePushNotif(enabled) {
+    if (enabled && 'Notification' in window) {
+        Notification.requestPermission().then(perm => {
+            if (perm !== 'granted') {
+                document.getElementById('push_notif').checked = false;
+            }
+        });
+    }
+    localStorage.setItem('push_notifications', enabled);
+}
+
+const savedPush = localStorage.getItem('push_notifications');
+if (savedPush === 'true') {
+    const pushCheck = document.getElementById('push_notif');
+    if (pushCheck) pushCheck.checked = true;
+}
+
+// ==================== PASSWORD ====================
+function togglePasswordVisibility(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const isPassword = input.type === 'password';
+    input.type = isPassword ? 'text' : 'password';
+    btn.innerHTML = isPassword ? '<i data-lucide="eye"></i>' : '<i data-lucide="eye-off"></i>';
+    lucide.createIcons();
+}
+
+function checkPasswordStrength(password) {
+    const fill = document.getElementById('strength-fill');
+    const label = document.getElementById('strength-label');
+    const container = document.getElementById('password-strength');
+    
+    if (!password) {
+        container.style.display = 'none';
+        return;
+    }
+    container.style.display = 'flex';
+    
+    let strength = 0;
+    if (password.length >= 8) strength++;
+    if (password.length >= 12) strength++;
+    if (/[A-Z]/.test(password)) strength++;
+    if (/[0-9]/.test(password)) strength++;
+    if (/[^A-Za-z0-9]/.test(password)) strength++;
+    
+    const levels = [
+        { width: '20%', color: '#ef4444', text: 'Muy débil' },
+        { width: '40%', color: '#f59e0b', text: 'Débil' },
+        { width: '60%', color: '#eab308', text: 'Regular' },
+        { width: '80%', color: '#22c55e', text: 'Fuerte' },
+        { width: '100%', color: '#10b981', text: 'Muy fuerte' },
+    ];
+    
+    const level = levels[Math.min(strength, 4)];
+    fill.style.width = level.width;
+    fill.style.background = level.color;
+    label.textContent = level.text;
+    label.style.color = level.color;
+}
+
+function cambiarPassword() {
+    const current = document.getElementById('current_password').value;
+    const newPw = document.getElementById('new_password').value;
+    const confirm = document.getElementById('confirm_password').value;
+    const msg = document.getElementById('password-msg');
+    
+    if (!current || !newPw || !confirm) {
+        showPasswordMsg('Completa todos los campos', 'error');
+        return;
+    }
+    
+    fetch('{% url "cambiar_password" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `current_password=${encodeURIComponent(current)}&new_password=${encodeURIComponent(newPw)}&confirm_password=${encodeURIComponent(confirm)}`
+    })
+    .then(r => r.json())
+    .then(data => {
+        showPasswordMsg(data.message, data.status);
+        if (data.status === 'success') {
+            document.getElementById('current_password').value = '';
+            document.getElementById('new_password').value = '';
+            document.getElementById('confirm_password').value = '';
+            document.getElementById('password-strength').style.display = 'none';
+        }
+    })
+    .catch(() => showPasswordMsg('Error de conexión', 'error'));
+}
+
+function showPasswordMsg(text, type) {
+    const msg = document.getElementById('password-msg');
+    msg.textContent = text;
+    msg.className = `password-msg ${type}`;
+    msg.style.display = 'block';
+    setTimeout(() => msg.style.display = 'none', 4000);
+}
+
+// ==================== LOCAL CACHE ====================
+function clearLocalCache() {
+    const keys = ['accent_color', 'font_size', 'formato_fecha', 'blur_effects', 'push_notifications', 'animations'];
+    keys.forEach(k => localStorage.removeItem(k));
+    showToast('Caché limpiada correctamente');
+}
+
+// ==================== EXPORT DATA ====================
+function exportData() {
+    const data = {
+        usuario: '{{ user.username }}',
+        email: '{{ user.email }}',
+        fecha_registro: '{{ user.date_joined|date:"Y-m-d" }}',
+        configuracion_local: {
+            accent_color: localStorage.getItem('accent_color'),
+            font_size: localStorage.getItem('font_size'),
+            animations: localStorage.getItem('animations'),
+        }
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `miniamigixv_datos_{{ user.username }}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    showToast('Datos exportados correctamente');
+}
+
+// ==================== DELETE MODAL ====================
+function confirmDelete(type) {
+    const modal = document.getElementById('delete-modal');
+    const title = document.getElementById('modal-title');
+    const desc = document.getElementById('modal-desc');
+    
+    if (type === 'cuenta') {
+        title.textContent = '¿Eliminar tu cuenta?';
+        desc.textContent = 'Todos tus datos, eventos y configuraciones serán eliminados permanentemente.';
+    } else {
+        title.textContent = '¿Borrar todos los datos?';
+        desc.textContent = 'Se eliminarán tus eventos, notificaciones y configuraciones. Tu cuenta seguirá activa.';
+    }
+    modal.style.display = 'flex';
+    requestAnimationFrame(() => modal.classList.add('show'));
+}
+
+function closeModal() {
+    const modal = document.getElementById('delete-modal');
+    modal.classList.remove('show');
+    setTimeout(() => modal.style.display = 'none', 300);
+}
+
+// ==================== TOAST ====================
+function showToast(message) {
+    let toast = document.createElement('div');
+    toast.className = 'config-toast';
+    toast.innerHTML = `<i data-lucide="check-circle"></i> ${message}`;
+    document.body.appendChild(toast);
+    lucide.createIcons();
+    requestAnimationFrame(() => toast.classList.add('show'));
+    setTimeout(() => {
+        toast.classList.remove('show');
+        setTimeout(() => toast.remove(), 300);
+    }, 2500);
+}
+
+// ==================== SESSION INFO ====================
+(function detectBrowser() {
+    const ua = navigator.userAgent;
+    let browser = 'Navegador desconocido';
+    if (ua.includes('Chrome') && !ua.includes('Edg')) browser = 'Google Chrome';
+    else if (ua.includes('Firefox')) browser = 'Mozilla Firefox';
+    else if (ua.includes('Safari') && !ua.includes('Chrome')) browser = 'Safari';
+    else if (ua.includes('Edg')) browser = 'Microsoft Edge';
+    else if (ua.includes('Opera') || ua.includes('OPR')) browser = 'Opera';
+    
+    let os = 'Sistema desconocido';
+    if (ua.includes('Windows')) os = 'Windows';
+    else if (ua.includes('Mac')) os = 'macOS';
+    else if (ua.includes('Linux')) os = 'Linux';
+    else if (ua.includes('Android')) os = 'Android';
+    else if (ua.includes('iPhone') || ua.includes('iPad')) os = 'iOS';
+    
+    const el = document.getElementById('session-browser');
+    if (el) el.textContent = `${browser} en ${os}`;
+})();
+
+// Apply saved theme
 {% if perfil.tema == 'light' %}
 document.body.classList.add('light');
 {% endif %}
+
+// Restore date format
+const savedDateFmt = localStorage.getItem('formato_fecha');
+if (savedDateFmt) {
+    const sel = document.getElementById('formato_fecha');
+    if (sel) sel.value = savedDateFmt;
+}
+
+// Auto-hide success message
+const successMsg = document.getElementById('success-msg');
+if (successMsg) {
+    setTimeout(() => {
+        successMsg.style.opacity = '0';
+        successMsg.style.transform = 'translateY(-10px)';
+        setTimeout(() => successMsg.remove(), 300);
+    }, 3000);
+}
+
+// Re-initialize icons after dynamic content
+lucide.createIcons();
 </script>
-{% endblock %}

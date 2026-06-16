@@ -17,7 +17,7 @@
     margin: 0 auto;
     background: rgba(17, 28, 46, 0.6);
     border-radius: 20px;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     overflow: hidden;
     backdrop-filter: blur(16px);
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
@@ -34,7 +34,7 @@
 
 .chat-list {
     width: 280px;
-    border-right: 1px solid rgba(255, 255, 255, 0.05);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
     display: flex;
     flex-direction: column;
     background: rgba(0, 0, 0, 0.2);
@@ -46,7 +46,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
     background: rgba(0, 0, 0, 0.1);
 }
 
@@ -187,9 +187,9 @@
 }
 
 .icon-btn {
-    background: none;
-    border: none;
-    color: var(--text-muted);
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #e2e8f0;
     cursor: pointer;
     padding: 10px;
     transition: all 0.2s;
@@ -199,8 +199,8 @@
     border-radius: 10px;
 }
 
-.icon-btn:hover { color: #fff; background: rgba(255,255,255,0.08); transform: scale(1.05); }
-.icon-btn.active { color: #06b6d4; }
+.icon-btn:hover { color: #fff; background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.25); transform: scale(1.05); }
+.icon-btn.active { color: #06b6d4; border-color: #06b6d4; }
 
 .emoji-picker {
     display: none;
@@ -228,8 +228,8 @@
 
 .msg-input {
     flex: 1;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     color: #fff;
     padding: 14px 20px;
     border-radius: 24px;
@@ -238,16 +238,22 @@
     transition: all 0.3s ease;
 }
 
+.msg-input::placeholder {
+    color: #64748b;
+    font-weight: 400;
+    opacity: 1;
+}
+
 .msg-input:focus {
     border-color: rgba(6, 182, 212, 0.5);
-    background: rgba(255, 255, 255, 0.06);
+    background: rgba(255, 255, 255, 0.08);
     box-shadow: 0 0 15px rgba(6, 182, 212, 0.1);
 }
 
 .send-btn {
     background: linear-gradient(135deg, #7c3aed, #06b6d4);
-    color: white;
-    border: none;
+    color: #fff;
+    border: 2px solid rgba(255,255,255,0.2);
     width: 44px;
     height: 44px;
     border-radius: 50%;
@@ -259,7 +265,7 @@
     box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
 }
 
-.send-btn i { font-size: 18px; }
+.send-btn i { font-size: 20px; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3)); }
 
 .send-btn:hover {
     transform: scale(1.1) rotate(-5deg);

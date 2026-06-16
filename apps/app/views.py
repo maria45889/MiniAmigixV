@@ -744,3 +744,64 @@ def panel_admin(request):
         'ultimos_usuarios': User.objects.order_by('-date_joined')[:10],
     }
     return render(request, 'panel_admin.html', context)
+
+@login_required
+def panel_admin_email_user(request, user_id):
+    if request.user.email != 'miniamigixv@gmail.com':
+        return redirect('home')
+
+    user_target = get_object_or_404(User, id=user_id)
+    if request.method == 'POST':
+        subject = request.POST.get('subject', '').strip()
+        message = request.POST.get('message', '').strip()
+
+        if not subject or not message:
+            error = 'El asunto y el mensaje son obligatorios.'
+            return render(request, 'panel_admin_email_user.html', {
+                'user_target': user_target,
+                'error': error,
+                'subject': subject,
+                'message': message,
+            })
+
+        if not user_target.email:
+            error = 'Este usuario no tiene un correo válido.'
+            return render(request, 'panel_admin_email_user.html', {
+                'user_target': user_target,
+                'error': error,
+                'subject': subject,
+                'message': message,
+            })
+
+        html_message = render_to_string('email_admin_response.html', {
+            'recipient': user_target,
+            'subject': subject,
+            'message': message,
+            'sender': request.user,
+        })
+        plain_message = strip_tags(html_message)
+
+        try:
+            email = EmailMultiAlternatives(
+                subject,
+                plain_message,
+                settings.EMAIL_HOST_USER,
+                [user_target.email],
+            )
+            email.attach_alternative(html_message, 'text/html')
+            email.send()
+            return render(request, 'panel_admin_email_user.html', {
+                'user_target': user_target,
+                'success': True,
+            })
+        except Exception as e:
+            return render(request, 'panel_admin_email_user.html', {
+                'user_target': user_target,
+                'error': f'No se pudo enviar el correo: {str(e)}',
+                'subject': subject,
+                'message': message,
+            })
+
+    return render(request, 'panel_admin_email_user.html', {
+        'user_target': user_target,
+    })

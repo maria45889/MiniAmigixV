@@ -4,49 +4,70 @@
 {% block title %}Mi Perfil{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+<link rel="stylesheet" href="{% static 'css/profile.css' %}?v=3">
 {% endblock %}
 
 {% block content %}
-<div class="perfil-container">
-    <h1>👤 Mi Perfil</h1>
+<div class="perfil-container modern">
     
-    <div class="perfil-card">
-        {% if perfil.avatar %}
-        <img src="{{ perfil.avatar.url }}" width="120" height="120">
-        {% else %}
-        <div class="avatar-placeholder">👤</div>
-        {% endif %}
-        
-        <h2>{{ perfil.usuario.username }}</h2>
-        <p>{{ perfil.bio|default:"Sin biografía" }}</p>
-        
-        <div class="perfil-meta">
-            <span>📅 Miembro desde: {{ perfil.creado|date:"d M Y" }}</span>
-            <span>🌙 Tema: {{ perfil.get_tema_display }}</span>
-            <span>🌐 Idioma: {{ perfil.idioma|upper }}</span>
+    <!-- Banner Section -->
+    <div class="perfil-banner">
+        <div class="perfil-banner-glow"></div>
+        <div class="perfil-header">
+            <div class="perfil-avatar-wrapper">
+                {% if perfil.avatar %}
+                <img src="{{ perfil.avatar.url }}" class="perfil-avatar">
+                {% else %}
+                <div class="perfil-avatar placeholder">👤</div>
+                {% endif %}
+            </div>
+            <div class="perfil-info-top">
+                <h1 class="perfil-username">{{ perfil.usuario.username }}</h1>
+                <p class="perfil-bio">{{ perfil.bio|default:"Sin biografía. ¡Cuéntanos de ti!" }}</p>
+                
+                <div class="perfil-badges">
+                    <span class="badge"><i data-lucide="calendar"></i> {{ perfil.creado|date:"M Y" }}</span>
+                    <span class="badge"><i data-lucide="moon"></i> {{ perfil.get_tema_display }}</span>
+                    <span class="badge"><i data-lucide="globe"></i> {{ perfil.idioma|upper }}</span>
+                </div>
+            </div>
+            <div class="perfil-actions">
+                <a href="{% url 'editar_perfil' %}" class="btn-edit-modern">
+                    <i data-lucide="edit-3"></i> Editar
+                </a>
+            </div>
         </div>
-        
-        <a href="{% url 'editar_perfil' %}" class="btn-edit">✏️ Editar perfil</a>
     </div>
     
-    <div class="perfil-stats">
-        <div class="stat-card">
-            <span class="stat-number">{{ total_eventos }}</span>
-            <span class="stat-label">Eventos</span>
+    <!-- Stats Section -->
+    <div class="perfil-stats-grid">
+        <div class="stat-box">
+            <div class="stat-icon event-icon"><i data-lucide="calendar-days"></i></div>
+            <div class="stat-details">
+                <span class="stat-num">{{ total_eventos }}</span>
+                <span class="stat-text">Eventos Creados</span>
+            </div>
         </div>
-        <div class="stat-card">
-            <span class="stat-number">{{ total_notificaciones }}</span>
-            <span class="stat-label">Notificaciones</span>
+        <div class="stat-box">
+            <div class="stat-icon notif-icon"><i data-lucide="bell"></i></div>
+            <div class="stat-details">
+                <span class="stat-num">{{ total_notificaciones }}</span>
+                <span class="stat-text">Alertas</span>
+            </div>
         </div>
-        <div class="stat-card">
-            <span class="stat-number">{{ dias_activo }}</span>
-            <span class="stat-label">Días activo</span>
+        <div class="stat-box">
+            <div class="stat-icon active-icon"><i data-lucide="activity"></i></div>
+            <div class="stat-details">
+                <span class="stat-num">{{ dias_activo }}</span>
+                <span class="stat-text">Días Activo</span>
+            </div>
         </div>
     </div>
+
     {% if not perfil.bio %}
-    <div style="margin-top: 20px; padding: 15px; background: rgba(124, 58, 237, 0.1); border-radius: 8px; text-align: center;">
-        <p style="color: var(--text-muted); margin: 0;">✨ Añade una biografía en <a href="{% url 'editar_perfil' %}" style="color: #7c3aed;">editar perfil</a> para personalizar tu página</p>
+    <div class="bio-prompt">
+        <i data-lucide="sparkles"></i>
+        <span>Personaliza tu perfil añadiendo una biografía en <a href="{% url 'editar_perfil' %}">editar perfil</a>.</span>
     </div>
     {% endif %}
 </div>

@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Enviar correo a {{ user_target.username }}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/style.css' %}?v=6">
+<style>
+    .email-user-container { max-width: 780px; margin: 0 auto; padding: 24px; background: rgba(17, 28, 46, 0.75); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 20px; }
+    .email-user-header { display: flex; justify-content: space-between; align-items: center; gap: 16px; margin-bottom: 24px; }
+    .email-user-header h1 { margin: 0; font-family: 'Syne', sans-serif; font-size: 28px; }
+    .email-user-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 18px; padding: 20px; margin-bottom: 24px; }
+    .email-user-card p { margin: 8px 0; color: #cbd5e1; }
+    .form-group { margin-bottom: 18px; }
+    .form-group label { display: block; font-size: 14px; color: #94a3b8; margin-bottom: 8px; }
+    .form-group input, .form-group textarea { width: 100%; border-radius: 14px; border: 1px solid rgba(255,255,255,0.12); background: rgba(255,255,255,0.05); color: #f8fafc; padding: 14px; font-size: 15px; }
+    .form-group textarea { min-height: 180px; resize: vertical; }
+    .form-actions { display: flex; gap: 12px; flex-wrap: wrap; }
+    .form-actions .btn-primary, .form-actions .btn-secondary { padding: 12px 20px; border-radius: 12px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; }
+    .form-actions .btn-primary { background: linear-gradient(135deg, #7c3aed, #06b6d4); color: #fff; border: none; }
+    .form-actions .btn-secondary { background: rgba(255,255,255,0.06); color: #f8fafc; border: 1px solid rgba(255,255,255,0.12); }
+    .message-banner { margin-bottom: 20px; padding: 14px 18px; border-radius: 14px; }
+    .message-banner.success { background: rgba(16, 185, 129, 0.16); color: #a7f3d0; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .message-banner.error { background: rgba(239, 68, 68, 0.16); color: #fecaca; border: 1px solid rgba(239, 68, 68, 0.3); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="email-user-container">
+    <div class="email-user-header">
+        <div>
+            <h1>Enviar correo a {{ user_target.username }}</h1>
+            <p style="color: #94a3b8;">Email: {{ user_target.email|default:'Sin correo' }}</p>
+        </div>
+        <a href="{% url 'panel_admin' %}" class="btn-secondary">← Volver al panel</a>
+    </div>
+
+    {% if error %}
+    <div class="message-banner error">{{ error }}</div>
+    {% endif %}
+    {% if success %}
+    <div class="message-banner success">Correo enviado correctamente a {{ user_target.email }}</div>
+    {% endif %}
+
+    <div class="email-user-card">
+        <p><strong>Usuario:</strong> {{ user_target.username }}</p>
+        <p><strong>Rol:</strong> {% if user_target.is_superuser %}Superadmin{% elif user_target.is_staff %}Staff{% else %}Activo{% endif %}</p>
+        <p><strong>Registrado:</strong> {{ user_target.date_joined|date:'d M Y, H:i' }}</p>
+    </div>
+
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="subject">Asunto</label>
+            <input type="text" id="subject" name="subject" value="{{ subject|default:'Respuesta de MiniAmigixV' }}" required>
+        </div>
+        <div class="form-group">
+            <label for="message">Mensaje</label>
+            <textarea id="message" name="message" required>{% if message %}{{ message }}{% else %}Hola {{ user_target.username }},
+
+Gracias por usar MiniAmigixV. Aquí tienes una respuesta a tu solicitud:
+
+{% endif %}</textarea>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn-primary">Enviar correo</button>
+            <a href="{% url 'panel_admin' %}" class="btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

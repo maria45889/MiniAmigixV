@@ -4,61 +4,105 @@
 {% block title %}Tutorial{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/tutorial.css' %}">
-<style>
-.tour-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.75); z-index: 9999; align-items: center; justify-content: center; }
-.tour-overlay.active { display: flex; }
-.tour-card { background: #111c2e; border-radius: 16px; padding: 35px; max-width: 500px; width: 90%; text-align: center; border: 1px solid rgba(124,58,237,0.3); }
-.tour-icon { font-size: 4rem; margin-bottom: 15px; }
-.tour-card h2 { color: #7c3aed; margin: 10px 0; }
-.tour-card p { color: var(--text-muted); line-height: 1.6; margin: 15px 0; }
-.tour-progress { display: flex; justify-content: center; gap: 8px; margin: 20px 0; }
-.tour-dot { width: 10px; height: 10px; border-radius: 50%; background: rgba(255,255,255,0.15); }
-.tour-dot.active { background: #7c3aed; }
-.tour-dot.done { background: #06b6d4; }
-.tour-buttons { display: flex; gap: 10px; justify-content: center; }
-.tour-btn { padding: 10px 25px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
-.tour-btn-primary { background: var(--accent-gradient, linear-gradient(135deg, #7c3aed, #06b6d4)); color: white; }
-.tour-btn-secondary { background: rgba(255,255,255,0.1); color: var(--text-muted); }
-.tour-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-</style>
+<link rel="stylesheet" href="{% static 'css/tutorial.css' %}?v=2">
 {% endblock %}
 
 {% block content %}
 <div class="tutorial-container">
-    <h1>❓ Tutorial MiniAmigixV</h1>
     
-    <p style="color: var(--text-muted); margin-bottom: 20px;">Bienvenido 👋 aquí aprenderás a usar la app de forma interactiva.</p>
+    <div class="tutorial-header">
+        <div class="tutorial-header-glow"></div>
+        <h1><i data-lucide="help-circle"></i> Tutorial MiniAmigixV</h1>
+        <p>Bienvenido 👋 Aquí aprenderás a usar la app de forma interactiva.</p>
+        <button onclick="startTour()" class="btn-start-modern">
+            <i data-lucide="play-circle"></i> Iniciar Guía Interactiva
+        </button>
+    </div>
     
-    <button onclick="startTour()" class="btn-start" style="padding: 12px 30px; background: var(--accent-gradient, linear-gradient(135deg, #7c3aed, #06b6d4)); color: white; border: none; border-radius: 10px; cursor: pointer; font-size: 1rem; font-weight: 600;">🚀 Iniciar guía</button>
+    <h2 class="tutorial-section-title"><i data-lucide="grid"></i> Módulos principales</h2>
+    <div class="tutorial-grid">
+        <div class="tutorial-card">
+            <div class="card-icon purple"><i data-lucide="home"></i></div>
+            <div>
+                <h3>Inicio</h3>
+                <p>Explora el dashboard, accesos rápidos y mira tu resumen de actividad.</p>
+            </div>
+        </div>
+        <div class="tutorial-card">
+            <div class="card-icon blue"><i data-lucide="message-square"></i></div>
+            <div>
+                <h3>Chat IA</h3>
+                <p>Conversa con nuestra inteligencia artificial avanzada y pregúntale lo que sea.</p>
+            </div>
+        </div>
+        <div class="tutorial-card">
+            <div class="card-icon pink"><i data-lucide="music"></i></div>
+            <div>
+                <h3>Música</h3>
+                <p>Gestiona y reproduce tus listas de YouTube sin salir de la plataforma.</p>
+            </div>
+        </div>
+        <div class="tutorial-card">
+            <div class="card-icon green"><i data-lucide="gamepad-2"></i></div>
+            <div>
+                <h3>Juegos</h3>
+                <p>Diviértete con mini arcades integrados para tus ratos libres.</p>
+            </div>
+        </div>
+        <div class="tutorial-card">
+            <div class="card-icon orange"><i data-lucide="book-open"></i></div>
+            <div>
+                <h3>Estudio</h3>
+                <p>Crea notas, flashcards y resúmenes inteligentes ayudados por la IA.</p>
+            </div>
+        </div>
+        <div class="tutorial-card">
+            <div class="card-icon red"><i data-lucide="calendar-days"></i></div>
+            <div>
+                <h3>Eventos</h3>
+                <p>Organiza tu calendario personal y nunca te pierdas de nada.</p>
+            </div>
+        </div>
+        <div class="tutorial-card">
+            <div class="card-icon gray"><i data-lucide="bell"></i></div>
+            <div>
+                <h3>Notificaciones</h3>
+                <p>Mantente informado en tiempo real de todo lo que ocurre.</p>
+            </div>
+        </div>
+        <div class="tutorial-card">
+            <div class="card-icon purple"><i data-lucide="user"></i></div>
+            <div>
+                <h3>Perfil</h3>
+                <p>Sube tu avatar, cambia el idioma y ajusta la estética a tu gusto.</p>
+            </div>
+        </div>
+    </div>
     
-    <hr style="border: 0; border-top: 1px solid var(--border-color); margin: 30px 0;">
+    <h2 class="tutorial-section-title"><i data-lucide="settings"></i> Configuración</h2>
+    <div class="tutorial-grid">
+        <div class="tutorial-card">
+            <div class="card-icon gray"><i data-lucide="moon"></i></div>
+            <div>
+                <h3>Tema Oscuro/Claro</h3>
+                <p>Cambia entre el modo oscuro y claro según la hora del día.</p>
+            </div>
+        </div>
+        <div class="tutorial-card">
+            <div class="card-icon blue"><i data-lucide="globe"></i></div>
+            <div>
+                <h3>Idioma Preferido</h3>
+                <p>Selecciona tu idioma para que MiniAmigixV se adapte a ti.</p>
+            </div>
+        </div>
+    </div>
     
-    <h2>📌 Módulos principales</h2>
-    
-    <ul class="tutorial-list" style="list-style: none; padding: 0;">
-        <li style="padding: 10px 15px; background: rgba(124,58,237,0.05); border-radius: 8px; margin-bottom: 8px;">🏠 <strong>Inicio:</strong> Explora el dashboard y accesos rápidos.</li>
-        <li style="padding: 10px 15px; background: rgba(124,58,237,0.05); border-radius: 8px; margin-bottom: 8px;">💬 <strong>Chat IA:</strong> Conversa con nuestra inteligencia artificial.</li>
-        <li style="padding: 10px 15px; background: rgba(124,58,237,0.05); border-radius: 8px; margin-bottom: 8px;">🎵 <strong>Música:</strong> Gestiona y reproduce tus listas de YouTube.</li>
-        <li style="padding: 10px 15px; background: rgba(124,58,237,0.05); border-radius: 8px; margin-bottom: 8px;">🎮 <strong>Juegos:</strong> Diviértete con mini arcade integrados.</li>
-        <li style="padding: 10px 15px; background: rgba(124,58,237,0.05); border-radius: 8px; margin-bottom: 8px;">📚 <strong>Estudio:</strong> Crea notas y resúmenes inteligentes.</li>
-        <li style="padding: 10px 15px; background: rgba(124,58,237,0.05); border-radius: 8px; margin-bottom: 8px;">📅 <strong>Eventos:</strong> Organiza tu calendario personal.</li>
-        <li style="padding: 10px 15px; background: rgba(124,58,237,0.05); border-radius: 8px; margin-bottom: 8px;">🔔 <strong>Notificaciones:</strong> Mantente informado de todo.</li>
-        <li style="padding: 10px 15px; background: rgba(124,58,237,0.05); border-radius: 8px; margin-bottom: 8px;">👤 <strong>Perfil:</strong> Personaliza tu experiencia.</li>
-    </ul>
-    
-    <h2>⚙️ Configuración</h2>
-    
-    <ul class="tutorial-list" style="list-style: none; padding: 0;">
-        <li style="padding: 10px 15px; background: rgba(6,182,212,0.05); border-radius: 8px; margin-bottom: 8px;">🌙 Cambia entre modo oscuro y claro</li>
-        <li style="padding: 10px 15px; background: rgba(6,182,212,0.05); border-radius: 8px; margin-bottom: 8px;">🌐 Selecciona tu idioma preferido</li>
-        <li style="padding: 10px 15px; background: rgba(6,182,212,0.05); border-radius: 8px; margin-bottom: 8px;">🖼️ Sube tu avatar personal</li>
-    </ul>
 </div>
 
 <div id="tourOverlay" class="tour-overlay">
     <div class="tour-card">
-        <div class="tour-icon" id="tourIcon">👋</div>
+        <button class="tour-close-btn" onclick="cerrarTour()" title="Cerrar"><i data-lucide="x"></i></button>
+        <div class="tour-icon-wrap" id="tourIcon">👋</div>
         <h2 id="tourTitle">Bienvenido</h2>
         <p id="tourDesc">Texto del paso</p>
         <div class="tour-progress" id="tourProgress"></div>

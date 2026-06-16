@@ -52,7 +52,7 @@
             {% for msg in mensajes %}
                 <div class="msg {% if msg.es_usuario %}user{% else %}bot{% endif %}">
                     <div class="avatar {% if msg.es_usuario %}user{% else %}bot{% endif %}">
-                        {% if msg.es_usuario %}{{ request.user.username|slice:":1"|upper }}{% else %}M{% endif %}
+                        {% if msg.es_usuario %}{{ request.user.username|slice:":1"|upper }}{% else %}<i class="ti ti-robot"></i>{% endif %}
                     </div>
                     <div class="bubble {% if msg.es_usuario %}user{% else %}bot{% endif %}">
                         {{ msg.texto }}
@@ -140,7 +140,7 @@
         const msgDiv = document.createElement('div');
         const role = isUser ? 'user' : 'bot';
         msgDiv.className = `msg ${role}`;
-        const initial = isUser ? "{{ request.user.username|slice:":1"|upper }}" : "M";
+        const initial = isUser ? "{{ request.user.username|slice:":1"|upper }}" : '<i class="ti ti-robot"></i>';
 
         // Usamos textContent para el mensaje para evitar XSS
         msgDiv.innerHTML = `

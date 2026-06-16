@@ -10,12 +10,22 @@
     <!-- Fuentes: Syne para títulos, Inter para UI -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syne:wght@700&display=swap" rel="stylesheet">
     <!-- Iconos: Lucide (Se recomienda descargar y servir localmente para evitar 'Tracking Prevention') -->
-    <script src="https://unpkg.com/lucide@0.400.0/dist/umd/lucide.min.js"></script>
+    <script src="https://unpkg.com/lucide@0.400.0/dist/umd/lucide.min.js" id="lucide-cdn-script" defer onerror="loadLucideFallback()"></script>
     <!-- Iconos: Tabler (Nuevo diseño) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
     <!-- CSS Principal -->
-    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=5">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}?v=6">
     <style>
+        i[data-lucide], .ti {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-main);
+        }
+        i[data-lucide] svg {
+            width: 1em;
+            height: 1em;
+        }
         /* Estilos para la cajita de sugerencias flotante */
         .suggestion-float {
             position: fixed;
@@ -160,10 +170,34 @@
     </div>
 
     <!-- YouTube IFrame API (Global) -->
-    <script src="https://www.youtube.com/iframe_api"></script>
+    <script src="https://www.youtube.com/iframe_api" async></script>
 
     <!-- Inicializar Iconos -->
-    <script>lucide.createIcons();</script>
+    <script>
+        function loadLucideFallback() {
+            const script = document.createElement('script');
+            script.src = '{% static "js/lucide.min.js" %}';
+            script.onload = initIcons;
+            document.head.appendChild(script);
+        }
+
+        function initIcons() {
+            if (typeof lucide !== 'undefined' && document.querySelectorAll('i[data-lucide]').length > 0) {
+                lucide.createIcons({
+                    attributes: {
+                        'stroke-width': 1.8,
+                        'color': 'currentColor'
+                    }
+                });
+            }
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initIcons);
+        } else {
+            requestAnimationFrame(initIcons);
+        }
+    </script>
     <script>
         // ==================== SUGGESTION BOX ====================
         let hasMoved = false;
@@ -257,11 +291,18 @@
             document.body.classList.toggle("light");
             const isLight = document.body.classList.contains("light");
             localStorage.setItem("theme", isLight ? "light" : "dark");
+            // Update theme icon in navbar
+            const themeIcon = document.querySelector('.theme-btn i');
+            if (themeIcon) themeIcon.setAttribute('data-lucide', isLight ? 'sun' : 'moon');
             lucide.createIcons();
         }
 
         if (localStorage.getItem("theme") === "light") {
             document.body.classList.add("light");
+            // Ensure correct icon on load
+            const icon = document.querySelector('.theme-btn i');
+            if (icon) icon.setAttribute('data-lucide', 'sun');
+            lucide.createIcons();
         }
 
         // Inicializar posición y drag para la caja de sugerencias

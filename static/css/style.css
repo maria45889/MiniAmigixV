@@ -1,10 +1,13 @@
 :root {
-    --bg-dark: #0f172a;
-    --panel-dark: #111c2e;
-    --border-color: rgba(255, 255, 255, 0.08);
-    --text-main: #e2e8f0;
+    --bg-dark: #09090f;
+    --panel-dark: #111827;
+    --border-color: rgba(255, 255, 255, 0.05);
+    --text-main: #f8fafc;
     --text-muted: #94a3b8;
     --accent-gradient: linear-gradient(135deg, #7c3aed, #06b6d4);
+    --primary: #7c3aed;
+    --secondary: #06b6d4;
+    --accent: #ec4899;
     --font-ui: 'Inter', sans-serif;
     --font-title: 'Syne', sans-serif;
 }
@@ -21,24 +24,32 @@ body {
 
 .app-layout { display: flex; height: 100vh; }
 
-/* Sidebar Estilo Discord/ChatGPT */
+/* Sidebar Estilo Flotante / Glassmorphism */
 .sidebar {
     width: 260px;
-    background-color: var(--panel-dark);
+    background: rgba(17, 24, 39, 0.4);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border-right: 1px solid var(--border-color);
     display: flex;
     flex-direction: column;
     padding: 1.5rem 1rem;
+    margin: 15px 0 15px 15px;
+    border-radius: 20px;
+    box-shadow: 5px 0 25px rgba(0,0,0,0.3);
 }
 
-.sidebar-header h1 {
+.sidebar-header .logo-text {
     font-family: var(--font-title);
-    font-size: 1.5rem;
+    font-size: 1.8rem;
     margin-bottom: 2rem;
     background: var(--accent-gradient);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     text-align: center;
+    font-weight: 800;
+    text-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
+    letter-spacing: 1px;
 }
 
 .sidebar-header .logo {

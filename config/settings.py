@@ -33,7 +33,17 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-default-dev-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
+
+# Configuración para túneles (ngrok) y HTTPS
+CSRF_TRUSTED_ORIGINS = [
+    'https://yasmin-uncalumniative-demetria.ngrok-free.dev',
+    'http://127.0.0.1:8000',
+    'http://localhost:8000',
+]
+
+# Para que Django reconozca que está detrás de un proxy con HTTPS
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 
 # Application definition
@@ -116,8 +126,8 @@ AUTHENTICATION_BACKENDS = [
 
 SITE_ID = 1 # Required by allauth
 
-ACCOUNT_LOGIN_METHODS = {'email', 'username'}
-ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+ACCOUNT_LOGIN_METHODS = {'email'}
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*']
 ACCOUNT_SESSION_REMEMBER = True
 ACCOUNT_UNIQUE_EMAIL = True
 
@@ -129,7 +139,7 @@ SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 
 # Adaptador personalizado para generar username automáticamente
-# SOCIALACCOUNT_ADAPTER = 'app.adapters.SocialAccountAdapter'
+SOCIALACCOUNT_ADAPTER = 'app.adapters.SocialAccountAdapter'
 
 # Saltar la página de confirmación de inicio de sesión social ("Continuar")
 SOCIALACCOUNT_LOGIN_ON_GET = True

@@ -4,7 +4,7 @@
 {% block title %}Notificaciones{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/notificaciones.css' %}">
+<link rel="stylesheet" href="{% static 'css/notificaciones.css' %}?v=2">
 {% endblock %}
 
 {% block content %}
@@ -14,12 +14,14 @@
         <div class="header-actions">
             <span class="no-leidas" id="no-leidas-count">{{ no_leidas }} sin leer</span>
             {% if no_leidas > 0 %}
-            <button onclick="marcarLeidas()" class="btn-secondary">Marcar todas como leídas</button>
+            <button onclick="marcarLeidas()" class="btn-secondary">
+                <i class="ti ti-checks"></i> Marcar todas como leídas
+            </button>
             {% endif %}
         </div>
     </div>
 
-    <div class="notificaciones-filtros" style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+    <div class="notificaciones-filtros">
         <button class="filtro-btn active" data-filtro="todas" onclick="filtrar('todas')">Todas</button>
         <button class="filtro-btn" data-filtro="no-leidas" onclick="filtrar('no-leidas')">No leídas</button>
         <button class="filtro-btn" data-filtro="info" onclick="filtrar('info')">ℹ️ Info</button>
@@ -40,24 +42,22 @@
                 <span class="notificacion-fecha">{{ notificacion.fecha_creacion|date:"d M Y, H:i" }}</span>
             </div>
             {% if notificacion.enlace %}
-            <a href="{{ notificacion.enlace }}" class="notificacion-link" onclick="event.stopPropagation();">Ver</a>
+            <a href="{{ notificacion.enlace }}" class="notificacion-link" onclick="event.stopPropagation();">
+                Ver →
+            </a>
             {% endif %}
         </div>
         {% empty %}
         <div class="no-notificaciones">
-            <p style="text-align: center; padding: 40px; color: var(--text-muted);">No tienes notificaciones</p>
+            <div class="no-notificaciones-icon">🔔</div>
+            <p>
+                <strong>Sin notificaciones</strong>
+                Aquí aparecerán tus alertas, eventos y actualizaciones importantes
+            </p>
         </div>
         {% endfor %}
     </div>
 </div>
-
-<style>
-.filtro-btn { padding: 6px 14px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: var(--text-muted); border-radius: 20px; cursor: pointer; font-size: 0.85rem; }
-.filtro-btn:hover { border-color: #7c3aed; color: #7c3aed; }
-.filtro-btn.active { background: rgba(124,58,237,0.15); border-color: #7c3aed; color: #7c3aed; }
-.notificacion-card { cursor: pointer; transition: transform 0.15s; }
-.notificacion-card:hover { transform: translateX(4px); }
-</style>
 
 <script>
 function marcarLeidas() {
@@ -71,12 +71,22 @@ function marcarLeidas() {
     .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
-            location.reload();
+            // Animate cards before reload
+            document.querySelectorAll('.notificacion-card.no-leida').forEach((card, i) => {
+                card.style.transition = `all 0.3s ease ${i * 0.05}s`;
+                card.classList.remove('no-leida');
+            });
+            setTimeout(() => location.reload(), 400);
         }
     });
 }
 
 function marcarIndividual(id) {
+    const card = event.currentTarget;
+    // Instant visual feedback
+    card.style.transition = 'all 0.4s ease';
+    card.classList.remove('no-leida');
+    
     fetch('{% url "marcar_leidas" %}', {
         method: 'POST',
         headers: {
@@ -88,7 +98,11 @@ function marcarIndividual(id) {
     .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
-            location.reload();
+            // Update counter without full reload
+            const countEl = document.getElementById('no-leidas-count');
+            const remaining = document.querySelectorAll('.notificacion-card.no-leida').length;
+            countEl.textContent = remaining + ' sin leer';
+            card.dataset.leida = 'True';
         }
     });
 }
@@ -96,10 +110,19 @@ function marcarIndividual(id) {
 function filtrar(filtro) {
     document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
     document.querySelector(`.filtro-btn[data-filtro="${filtro}"]`).classList.add('active');
-    document.querySelectorAll('.notificacion-card').forEach(card => {
-        if (filtro === 'todas') { card.style.display = ''; }
-        else if (filtro === 'no-leidas') { card.style.display = card.dataset.leida === 'False' ? '' : 'none'; }
-        else { card.style.display = card.dataset.tipo === filtro ? '' : 'none'; }
+    
+    document.querySelectorAll('.notificacion-card').forEach((card, i) => {
+        let show = false;
+        if (filtro === 'todas') show = true;
+        else if (filtro === 'no-leidas') show = card.dataset.leida === 'False';
+        else show = card.dataset.tipo === filtro;
+
+        if (show) {
+            card.style.display = '';
+            card.style.animation = `card-slide-in 0.3s ease-out ${i * 0.03}s backwards`;
+        } else {
+            card.style.display = 'none';
+        }
     });
 }
 </script>

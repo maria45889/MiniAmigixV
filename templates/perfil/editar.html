@@ -4,53 +4,80 @@
 {% block title %}Editar Perfil{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/profile.css' %}">
+<link rel="stylesheet" href="{% static 'css/profile.css' %}?v=4">
 {% endblock %}
 
 {% block content %}
-<div class="perfil-container">
-    <h1>✏️ Editar Perfil</h1>
+<div class="perfil-container modern">
     
-    <form method="POST" enctype="multipart/form-data" class="perfil-form">
+    <div class="edit-profile-header">
+        <h1><i data-lucide="edit-3"></i> Editar Perfil</h1>
+        <p>Personaliza tu identidad en MiniAmigixV</p>
+    </div>
+    
+    <form method="POST" enctype="multipart/form-data" class="perfil-form-modern">
         {% csrf_token %}
         
-        <div class="form-group">
-            <label for="bio">Biografía</label>
-            <textarea id="bio" name="bio" rows="4" placeholder="Cuéntanos sobre ti...">{{ perfil.bio }}</textarea>
+        <div class="form-section">
+            <h3 class="section-title">Información Básica</h3>
+            
+            <div class="form-group-modern">
+                <label for="bio"><i data-lucide="align-left"></i> Biografía</label>
+                <textarea id="bio" name="bio" rows="4" placeholder="Escribe algo interesante sobre ti...">{{ perfil.bio }}</textarea>
+            </div>
+            
+            <div class="form-group-modern file-upload-group">
+                <label><i data-lucide="image"></i> Avatar</label>
+                <div class="file-upload-wrapper">
+                    {% if perfil.avatar %}
+                    <img src="{{ perfil.avatar.url }}" alt="Avatar actual" class="avatar-preview-modern">
+                    {% else %}
+                    <div class="avatar-preview-modern placeholder"><i data-lucide="user"></i></div>
+                    {% endif %}
+                    <div class="file-input-container">
+                        <input type="file" id="avatar" name="avatar" accept="image/*" class="custom-file-input">
+                        <label for="avatar" class="custom-file-label">Seleccionar nueva imagen...</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group-modern">
+                <label for="fecha_nacimiento"><i data-lucide="calendar"></i> Fecha de Nacimiento</label>
+                <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" value="{% if perfil.fecha_nacimiento %}{{ perfil.fecha_nacimiento|date:'Y-m-d' }}{% endif %}">
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h3 class="section-title">Preferencias</h3>
+            
+            <div class="form-row">
+                <div class="form-group-modern half">
+                    <label for="tema"><i data-lucide="moon"></i> Tema</label>
+                    <div class="select-wrapper">
+                        <select id="tema" name="tema">
+                            <option value="dark" {% if perfil.tema == 'dark' %}selected{% endif %}>Oscuro</option>
+                            <option value="light" {% if perfil.tema == 'light' %}selected{% endif %}>Claro</option>
+                        </select>
+                        <i data-lucide="chevron-down" class="select-icon"></i>
+                    </div>
+                </div>
+                
+                <div class="form-group-modern half">
+                    <label for="idioma"><i data-lucide="globe"></i> Idioma</label>
+                    <div class="select-wrapper">
+                        <select id="idioma" name="idioma">
+                            <option value="es" {% if perfil.idioma == 'es' %}selected{% endif %}>Español</option>
+                            <option value="en" {% if perfil.idioma == 'en' %}selected{% endif %}>English</option>
+                        </select>
+                        <i data-lucide="chevron-down" class="select-icon"></i>
+                    </div>
+                </div>
+            </div>
         </div>
         
-        <div class="form-group">
-            <label for="avatar">Avatar</label>
-            <input type="file" id="avatar" name="avatar" accept="image/*">
-            {% if perfil.avatar %}
-            <img src="{{ perfil.avatar.url }}" alt="Avatar actual" class="avatar-preview">
-            {% endif %}
-        </div>
-        
-        <div class="form-group">
-            <label for="tema">Tema</label>
-            <select id="tema" name="tema">
-                <option value="dark" {% if perfil.tema == 'dark' %}selected{% endif %}>Oscuro</option>
-                <option value="light" {% if perfil.tema == 'light' %}selected{% endif %}>Claro</option>
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label for="idioma">Idioma</label>
-            <select id="idioma" name="idioma">
-                <option value="es" {% if perfil.idioma == 'es' %}selected{% endif %}>Español</option>
-                <option value="en" {% if perfil.idioma == 'en' %}selected{% endif %}>English</option>
-            </select>
-        </div>
-        
-        <div class="form-group">
-            <label for="fecha_nacimiento">Fecha de Nacimiento</label>
-            <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" value="{% if perfil.fecha_nacimiento %}{{ perfil.fecha_nacimiento|date:'Y-m-d' }}{% endif %}">
-        </div>
-        
-        <div class="form-actions">
-            <a href="{% url 'perfil' %}" class="btn-secondary">Cancelar</a>
-            <button type="submit" class="btn-primary">Guardar cambios</button>
+        <div class="form-actions-modern">
+            <a href="{% url 'perfil' %}" class="btn-cancel"><i data-lucide="x"></i> Cancelar</a>
+            <button type="submit" class="btn-save"><i data-lucide="save"></i> Guardar Cambios</button>
         </div>
     </form>
 </div>

@@ -14,6 +14,16 @@ class Perfil(models.Model):
     creado = models.DateTimeField(auto_now_add=True)
     notificaciones_email = models.BooleanField(default=True)
     perfil_publico = models.BooleanField(default=True)
+    # Accesibilidad
+    tamano_fuente = models.CharField(max_length=10, choices=[
+        ('small', 'Pequeño'),
+        ('normal', 'Normal'),
+        ('large', 'Grande'),
+    ], default='normal')
+    animaciones = models.BooleanField(default=True)
+    sonidos = models.BooleanField(default=True)
+    # Sesión
+    actividad_en_linea = models.BooleanField(default=True)
 
     def __str__(self):
         return self.usuario.username
