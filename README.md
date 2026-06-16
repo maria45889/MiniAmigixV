@@ -209,6 +209,18 @@ Puede además:
 
 ---
 
+# 🔔 Cambios recientes
+
+- Se añadió la funcionalidad para que el administrador principal (`miniamigixv@gmail.com`) pueda responder por correo a usuarios directamente desde el panel de administración.
+- Rutas y plantillas relevantes:
+  - `apps/app/urls.py`: `panel-admin/user-email/<int:user_id>/`
+  - Plantilla del formulario: `templates/panel_admin_email_user.html`
+  - Plantilla del email HTML: `templates/email_admin_response.html`
+- Commit con este cambio: `e6922c7` (Añadir respuesta por correo en panel admin, plantilla y mejoras de UI).
+
+> Nota: El envío usa `EmailMultiAlternatives` y requiere configurar las credenciales SMTP en `config/settings.py` (ver sección "Configuración de correo").
+
+
 # 🎨 Diseño UI/UX
 
 MiniAmigixV utiliza una interfaz visual moderna basada en:
