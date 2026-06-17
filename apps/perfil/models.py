@@ -13,6 +13,7 @@ class Perfil(models.Model):
     fecha_nacimiento = models.DateField(blank=True, null=True)
     creado = models.DateTimeField(auto_now_add=True)
     notificaciones_email = models.BooleanField(default=True)
+    notificaciones_push = models.BooleanField(default=False)
     perfil_publico = models.BooleanField(default=True)
     # Accesibilidad
     tamano_fuente = models.CharField(max_length=10, choices=[

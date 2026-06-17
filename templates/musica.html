@@ -269,7 +269,20 @@ async function downloadMusic() {
     try {
         const cleanUrl = `https://www.youtube.com/watch?v=${youtubeId}`;
         const response = await fetch(`/api/download-media/?url=${encodeURIComponent(cleanUrl)}&format=${format}`);
-        
+
+        // If user is not authenticated, API returns JSON 401 instead of HTML login page.
+        if (response.status === 401) {
+            statusDiv.innerHTML = '<p style="color: #ef4444;">🔒 Debes iniciar sesión para descargar música.</p>';
+            return;
+        }
+
+        // If server returned HTML (login redirect or error page), don't try to save as blob
+        const contentType = response.headers.get('Content-Type') || '';
+        if (contentType.includes('text/html')) {
+            statusDiv.innerHTML = '<p style="color: #ef4444;">🔒 La sesión expiró o la petición no está autenticada. Inicia sesión e inténtalo de nuevo.</p>';
+            return;
+        }
+
         if (!response.ok) {
             const errorText = await response.text();
             throw new Error(errorText || 'Error desconocido al descargar');

@@ -40,6 +40,7 @@ CSRF_TRUSTED_ORIGINS = [
     'https://yasmin-uncalumniative-demetria.ngrok-free.dev',
     'http://127.0.0.1:8000',
     'http://localhost:8000',
+    'http://127.0.0.1:50769',
 ]
 
 # Para que Django reconozca que está detrás de un proxy con HTTPS
@@ -63,6 +64,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.microsoft',
     'allauth.socialaccount.providers.github',
+    'webpush', # Añadir la aplicación webpush
     # Project Apps
     'app.apps.AppConfig',
     'configuracion',
@@ -100,6 +102,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'notificaciones.context_processors.notificaciones_sin_leer',
+                'perfil.context_processors.perfil_settings',
             ],
         },
     },
@@ -111,12 +114,31 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+# Aplicaciones que usarán MongoDB (deshabilitado temporalmente)
+# MONGO_APPS = [
+#     'notificaciones',
+#     'chats', 
+#     'recomendaciones',
+#     'analitica',
+#     'juegos_data'
+# ]
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
-    }
+    },
+    # 'mongodb': {
+    #     'ENGINE': 'djongo',
+    #     'NAME': os.getenv('MONGODB_NAME', 'miniamigixv_db'),
+    #     'ENFORCE_SCHEMA': False,
+    #     'CLIENT': {
+    #         'host': os.getenv('MONGODB_URI', 'mongodb://localhost:27017/'),
+    #     }
+    # }
 }
+
+# DATABASE_ROUTERS = ['config.db_router.DatabaseRouter']
 
 # Allauth specific settings
 AUTHENTICATION_BACKENDS = [
@@ -217,3 +239,10 @@ EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD") # Reemplazar con App Pass
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home' # Redirige a 'home' después de un login exitoso
 ACCOUNT_LOGOUT_REDIRECT_URL = 'home' # Redirige a 'home' después de un logout
+
+# Configuración de WebPush (VAPID keys)
+# Reemplaza con las claves generadas por 'python manage.py webpush_generate_vapid_key'
+# y tu correo electrónico de contacto.
+WEBPUSH_VAPID_PRIVATE_KEY = os.getenv('WEBPUSH_VAPID_PRIVATE_KEY', 'TU_CLAVE_PRIVADA_AQUI')
+WEBPUSH_VAPID_PUBLIC_KEY = os.getenv('WEBPUSH_VAPID_PUBLIC_KEY', 'TU_CLAVE_PUBLICA_AQUI')
+WEBPUSH_CONTACT_EMAIL = os.getenv('WEBPUSH_CONTACT_EMAIL', 'tu_email@ejemplo.com')

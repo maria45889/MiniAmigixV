@@ -13,6 +13,12 @@
         <h1>🔔 Notificaciones</h1>
         <div class="header-actions">
             <span class="no-leidas" id="no-leidas-count">{{ no_leidas }} sin leer</span>
+            <button onclick="crearNotificacionPrueba()" class="btn-secondary" title="Crear notificación de prueba">
+                <i class="ti ti-plus"></i> Prueba
+            </button>
+            <button onclick="recargarNotificaciones()" class="btn-secondary" title="Recargar notificaciones">
+                <i class="ti ti-refresh"></i> Recargar
+            </button>
             {% if no_leidas > 0 %}
             <button onclick="marcarLeidas()" class="btn-secondary">
                 <i class="ti ti-checks"></i> Marcar todas como leídas
@@ -60,6 +66,41 @@
 </div>
 
 <script>
+function recargarNotificaciones() {
+    // Add rotation animation to refresh icon
+    const btn = event.currentTarget;
+    const icon = btn.querySelector('i');
+    icon.style.transition = 'transform 0.5s ease';
+    icon.style.transform = 'rotate(360deg)';
+    
+    // Reload page after animation
+    setTimeout(() => {
+        location.reload();
+    }, 300);
+}
+
+function crearNotificacionPrueba() {
+    fetch('{% url "crear_notificacion_prueba" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            alert('Notificación de prueba creada exitosamente');
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        alert('Error al crear notificación: ' + error);
+    });
+}
+
 function marcarLeidas() {
     fetch('{% url "marcar_leidas" %}', {
         method: 'POST',

@@ -88,7 +88,8 @@ MiniAmigixV es una aplicación web moderna desarrollada con **Django** que integ
 
 * Python 3
 * Django
-* SQLite (desarrollo)
+* SQLite (Usuarios, Auth, Sesiones)
+* MongoDB (Chats, Notificaciones, Analítica)
 
 ## Frontend
 
@@ -105,13 +106,26 @@ MiniAmigixV es una aplicación web moderna desarrollada con **Django** que integ
 
 ---
 
-# 📂 Estructura del Proyecto
+# � Futuras Mejoras
+
+* Notificaciones push — sistema de alertas en tiempo real para avisos, mensajes y novedades importantes.
+* Modo oscuro avanzado
+* Dashboard analítico
+* Más minijuegos
+* IA más avanzada
+
+---
+
+# �� Estructura del Proyecto
 
 ```bash
 MiniAmigixV/
 │
 ├── apps/
 │   ├── app/
+│   ├── configuracion/
+│   ├── estudio/
+│   ├── eventos/
 │   ├── soporte/
 │   └── sugerencias/
 │

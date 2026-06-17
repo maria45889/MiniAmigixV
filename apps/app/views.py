@@ -63,7 +63,7 @@ def chat_api(request):
             # Fetch latest 10 and reverse to restore chronological order
             mensajes = list(MensajeChat.objects.filter(conversacion=conversacion).order_by('-fecha_creacion')[:10])[::-1]
             messages = [
-                {"role": "system", "content": "Eres MiniAmigix, un asistente amigable y entusiasta. Responde en español, de forma concisa y utiliza emojis para hacer la conversación más amena. 🚀"}
+                {"role": "system", "content": "Eres MiniAmigix, un asistente amigable y entusiasta. Responde en español de forma concisa. Usa emojis con moderación, solo cuando sea necesario para dar énfasis. 🌟"}
             ]
             
             for msg in mensajes:
@@ -72,7 +72,7 @@ def chat_api(request):
         else:
             # For non-authenticated users, just use current message
             messages = [
-                {"role": "system", "content": "Eres MiniAmigix, un asistente amigable y entusiasta. Responde en español, de forma concisa y utiliza emojis. ✨"},
+                {"role": "system", "content": "Eres MiniAmigix, un asistente amigable y entusiasta. Responde en español de forma concisa. Usa emojis con moderación. ✨"},
                 {"role": "user", "content": message}
             ]
         
@@ -465,9 +465,11 @@ def stream_audio_api(request, youtube_id):
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
-@login_required
 @require_http_methods(["GET"])
 def download_media_api(request):
+    # Return JSON 401 for unauthenticated API calls to avoid HTML login redirects
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'not_authenticated'}, status=401)
     url = request.GET.get('url')
     format_type = request.GET.get('format', 'mp3')
     
@@ -477,17 +479,14 @@ def download_media_api(request):
     import tempfile
     from django.http import FileResponse
     import os
+    import shutil
+    import mimetypes
     
     try:
-        # Create a temporary directory that will be automatically cleaned up eventually
-        # but we need to return a FileResponse, so we can't use `with tempfile.TemporaryDirectory()` directly
-        # because the directory would be deleted before the file is sent.
-        # However, Django's FileResponse doesn't delete the file after sending.
-        # We'll use a temporary file path
-        fd, temp_path = tempfile.mkstemp()
-        os.close(fd)
-        # We need the base name without extension for yt-dlp
-        base_path = temp_path
+        # Create a temporary directory for yt-dlp outputs. We'll remove it after response is closed.
+        temp_dir = tempfile.mkdtemp()
+        # Use a safe outtmpl inside the temp dir
+        base_path = os.path.join(temp_dir, '%(title)s')
         
         ydl_opts = {
             'outtmpl': base_path + '.%(ext)s',
@@ -515,29 +514,60 @@ def download_media_api(request):
             
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
-            title = info.get('title', 'descarga')
-            
-            # Limpiar el título para el nombre del archivo
-            clean_title = "".join([c for c in title if c.isalpha() or c.isdigit() or c==' ']).rstrip()
-            filename = f"{clean_title}.{expected_ext}"
-            
-            final_path = base_path + '.' + expected_ext
-            
-            if os.path.exists(final_path):
+
+            # Find the actual file generated in the temp directory to avoid path guessing errors
+            files = [f for f in os.listdir(temp_dir) if os.path.isfile(os.path.join(temp_dir, f))]
+            if not files:
+                raise Exception("No se pudo localizar el archivo descargado.")
+
+            # Prefer the file matching the expected extension (mp3/mp4)
+            final_filename = next((f for f in files if f.endswith(expected_ext)), files[0])
+            final_path = os.path.join(temp_dir, final_filename)
+
+            if os.path.getsize(final_path) > 0:
                 file = open(final_path, 'rb')
                 response = FileResponse(file)
-                response['Content-Disposition'] = f'attachment; filename="{filename}"'
-                
-                # Opcional: borrar el archivo original mkstemp si yt-dlp no lo usó
+
+                # Sanitize the title for the attachment header
+                title = info.get('title', 'descarga')
+                safe_title = "".join([c for c in title if c.isalnum() or c in (' ', '-', '_')]).strip()
+                response['Content-Disposition'] = f'attachment; filename="{safe_title}.{expected_ext}"'
+
+                # Add Content-Length and Content-Type
                 try:
-                    if os.path.exists(temp_path):
-                        os.remove(temp_path)
-                except:
+                    size = os.path.getsize(final_path)
+                    response['Content-Length'] = str(size)
+                except Exception:
                     pass
-                    
+                ctype, _ = mimetypes.guess_type(final_path)
+                if ctype:
+                    response['Content-Type'] = ctype
+
+                # Ensure temporary directory is removed after response is closed
+                orig_close = response.close
+                def cleanup_and_close():
+                    try:
+                        orig_close()
+                    finally:
+                        try:
+                            file.close()
+                        except Exception:
+                            pass
+                        try:
+                            shutil.rmtree(temp_dir)
+                        except Exception:
+                            pass
+
+                response.close = cleanup_and_close
+
                 return response
             else:
-                return HttpResponse('Error: Archivo no generado', status=500)
+                # Clean up temp dir on failure
+                try:
+                    shutil.rmtree(temp_dir)
+                except Exception:
+                    pass
+                return HttpResponse('Error: Archivo no generado o vacío', status=500)
                 
     except Exception as e:
         return HttpResponse(f'Error al procesar la descarga: {str(e)}', status=500)
@@ -743,6 +773,8 @@ def panel_admin(request):
         'total_eventos': Evento.objects.count(),
         'ultimos_usuarios': User.objects.order_by('-date_joined')[:10],
     }
+    print('ULTIMOS USUARIOS:')
+    print([u.username for u in context['ultimos_usuarios']])
     return render(request, 'panel_admin.html', context)
 
 @login_required

@@ -31,6 +31,7 @@ def configuracion_view(request):
         perfil.tema = request.POST.get('tema', perfil.tema)
         perfil.idioma = request.POST.get('idioma', perfil.idioma)
         perfil.notificaciones_email = request.POST.get('notificaciones_email') == 'on'
+        perfil.notificaciones_push = request.POST.get('notificaciones_push') == 'on'
         perfil.perfil_publico = request.POST.get('perfil_publico') == 'on'
         perfil.tamano_fuente = request.POST.get('tamano_fuente', perfil.tamano_fuente)
         perfil.animaciones = request.POST.get('animaciones') == 'on'

@@ -180,7 +180,7 @@
                         <p>Alertas instantáneas en el navegador.</p>
                     </div>
                     <label class="switch">
-                        <input type="checkbox" id="push_notif" onchange="togglePushNotif(this.checked)">
+                        <input type="checkbox" id="push_notif" name="notificaciones_push" onchange="togglePushNotif(this.checked)" {% if perfil.notificaciones_push %}checked{% endif %}>
                         <span class="slider"></span>
                     </label>
                 </div>
@@ -253,6 +253,14 @@
                         <input type="checkbox" id="blur_effects" checked onchange="toggleBlur(this.checked)">
                         <span class="slider"></span>
                     </label>
+                </div>
+
+                <div class="form-group-flex">
+                    <div class="group-info">
+                        <h3>Enviar notificación de prueba</h3>
+                        <p>Envía una notificación de prueba a este dispositivo para verificar la configuración.</p>
+                    </div>
+                    <button type="button" class="btn-outline-action" onclick="sendTestNotification()"><i data-lucide="bell"></i> Enviar Prueba</button>
                 </div>
             </div>
         </div>
@@ -509,18 +517,33 @@ if (savedBlur === 'false') {
 
 // ==================== PUSH NOTIFICATIONS ====================
 function togglePushNotif(enabled) {
-    if (enabled && 'Notification' in window) {
+    if (!('Notification' in window)) {
+        alert('Tu navegador no soporta notificaciones push.');
+        document.getElementById('push_notif').checked = false;
+        localStorage.setItem('push_notifications', false);
+        return;
+    }
+
+    if (enabled) {
         Notification.requestPermission().then(perm => {
-            if (perm !== 'granted') {
+            if (perm === 'granted') {
+                localStorage.setItem('push_notifications', true);
+                showToast('Notificaciones push activadas');
+            } else {
                 document.getElementById('push_notif').checked = false;
+                localStorage.setItem('push_notifications', false);
+                showToast('No se pudo activar push: permiso denegado');
             }
         });
+    } else {
+        localStorage.setItem('push_notifications', false);
+        showToast('Notificaciones push desactivadas');
     }
-    localStorage.setItem('push_notifications', enabled);
 }
 
 const savedPush = localStorage.getItem('push_notifications');
-if (savedPush === 'true') {
+const serverPush = {{ perfil.notificaciones_push|yesno:'true,false' }};
+if (savedPush === 'true' || (savedPush === null && serverPush)) {
     const pushCheck = document.getElementById('push_notif');
     if (pushCheck) pushCheck.checked = true;
 }

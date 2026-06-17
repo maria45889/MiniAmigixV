@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 urlpatterns = [
@@ -26,4 +26,12 @@ urlpatterns = [
     path('api/sugerencia-rapida/', views.enviar_sugerencia_rapida, name='sugerencia_rapida'),
     path('panel-admin/', views.panel_admin, name='panel_admin'),
     path('panel-admin/user-email/<int:user_id>/', views.panel_admin_email_user, name='panel_admin_email_user'),
+    path('estudio/', include('estudio.urls')),
+    path('eventos/', include('eventos.urls')),
+    path('soporte/', include('soporte.urls')),
+    path('configuracion/', include('configuracion.urls')),
+    path('perfil/', include('perfil.urls')),
+    path('notificaciones/', include('notificaciones.urls')),
+    path('sugerencias/', include('sugerencias.urls')),
+    path('tutorial/', include('tutorial.urls')),
 ]

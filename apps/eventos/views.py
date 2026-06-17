@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from .models import Evento
 from django.utils import timezone
 
@@ -21,3 +21,10 @@ def crear_evento(request):
             return redirect('lista_eventos')
     
     return render(request, 'eventos/crear_evento.html')
+
+def eliminar_evento(request, evento_id):
+    evento = get_object_or_404(Evento, id=evento_id)
+    if request.method == 'POST':
+        evento.delete()
+        return redirect('lista_eventos')
+    return redirect('lista_eventos')

@@ -4,6 +4,7 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.utils import timezone
 from .models import Sugerencia
+from notificaciones.models import Notificacion
 
 def lista_sugerencias(request):
     sugerencias = Sugerencia.objects.all().order_by('-fecha_creacion')
@@ -59,6 +60,19 @@ def responder_sugerencia(request, sugerencia_id):
                         f'Hola {sugerencia.usuario.username},\n\nTu sugerencia ha recibido una respuesta:\n\n{respuesta}\n\nSaludos,\nEl equipo de MiniAmigixV',
                         settings.EMAIL_HOST_USER,
                         [sugerencia.usuario.email],
+                    )
+                except:
+                    pass
+            
+            # Crear notificación en el sistema
+            if sugerencia.usuario:
+                try:
+                    Notificacion.objects.create(
+                        usuario=sugerencia.usuario,
+                        titulo=f'🎉 Respuesta a tu sugerencia: {sugerencia.titulo}',
+                        mensaje=f'Tu sugerencia ha recibido una respuesta: {respuesta}',
+                        tipo='success',
+                        leida=False
                     )
                 except:
                     pass

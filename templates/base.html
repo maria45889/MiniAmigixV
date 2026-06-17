@@ -5,8 +5,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MiniAmigixV - {% block title %}Bienvenido{% endblock %}</title>
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#7c3aed">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MiniAmigixV">
+    <meta name="description" content="MiniAmigixV - Tu espacio personal interactivo con IA, música, juegos y más">
+    <meta name="application-name" content="MiniAmigixV">
     <!-- Favicon -->
-    <link rel="shortcut icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
+    <link rel="icon" href="{% static 'imagenes/logo.png' %}" type="image/png">
+    <link rel="shortcut icon" href="{% static 'imagenes/logo.png' %}" type="image/png">
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="/manifest.json">
     <!-- Fuentes: Syne para títulos, Inter para UI -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syne:wght@700&display=swap" rel="stylesheet">
     <!-- Iconos: Lucide (Se recomienda descargar y servir localmente para evitar 'Tracking Prevention') -->
@@ -15,6 +25,8 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
     <!-- CSS Principal -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}?v=6">
+    <!-- CSS Sidebar con Efecto Neon -->
+    <link rel="stylesheet" href="{% static 'css/sidebar-neon.css' %}?v=1">
     <style>
         i[data-lucide], .ti {
             display: inline-flex;
@@ -197,6 +209,52 @@
         } else {
             requestAnimationFrame(initIcons);
         }
+
+        // Registrar Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/static/js/service-worker.js')
+                    .then(function(registration) {
+                        console.log('Service Worker registrado con éxito:', registration.scope);
+                    })
+                    .catch(function(error) {
+                        console.log('Error al registrar Service Worker:', error);
+                    });
+            });
+        }
+
+        // Botón de instalación PWA
+        let deferredPrompt;
+        const installHeroBtn = document.getElementById('pwa-install-hero');
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            if (installHeroBtn) {
+                installHeroBtn.style.display = 'inline-flex';
+            }
+        });
+
+        if (installHeroBtn) {
+            installHeroBtn.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    if (outcome === 'accepted') {
+                        console.log('Usuario aceptó la instalación');
+                    }
+                    deferredPrompt = null;
+                    installHeroBtn.style.display = 'none';
+                }
+            });
+        }
+
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA instalada');
+            if (installHeroBtn) {
+                installHeroBtn.style.display = 'none';
+            }
+        });
     </script>
     <script>
         // ==================== SUGGESTION BOX ====================
@@ -297,13 +355,37 @@
             lucide.createIcons();
         }
 
-        if (localStorage.getItem("theme") === "light") {
+        function showPushNotification(title, message) {
+            if (!('Notification' in window) || Notification.permission !== 'granted') return;
+            try {
+                const notification = new Notification(title, {
+                    body: message,
+                    badge: '',
+                });
+                setTimeout(() => notification.close(), 5000);
+            } catch (e) {
+                console.error('Error showing push notification:', e);
+            }
+        }
+
+        function initPushNotifications() {
+            const serverPush = {{ perfil_notificaciones_push|yesno:'true,false' }};
+            const enabled = localStorage.getItem('push_notifications') === 'true' || (localStorage.getItem('push_notifications') === null && serverPush);
+            const hasPermission = 'Notification' in window && Notification.permission === 'granted';
+            if (enabled && hasPermission) {
+                showPushNotification('MiniAmigixV', 'Notificaciones push activas. Mantente al tanto de novedades.');
+            }
+        }
+
+        const defaultTheme = localStorage.getItem("theme") || "{{ perfil_tema|default:'dark' }}";
+        if (defaultTheme === "light") {
             document.body.classList.add("light");
-            // Ensure correct icon on load
             const icon = document.querySelector('.theme-btn i');
             if (icon) icon.setAttribute('data-lucide', 'sun');
             lucide.createIcons();
         }
+
+        initPushNotifications();
 
         // Inicializar posición y drag para la caja de sugerencias
         const suggestBox = document.getElementById("quick-suggestion");

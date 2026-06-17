@@ -5,6 +5,7 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils import timezone
 from .models import TicketSoporte
+from notificaciones.models import Notificacion
 
 def lista_tickets(request):
     tickets = TicketSoporte.objects.all().order_by('-fecha_creacion')
@@ -130,6 +131,19 @@ def responder_ticket(request, ticket_id):
                         f'Hola {ticket.usuario.username},\n\nTu ticket ha recibido una respuesta:\n\n{respuesta}\n\nSaludos,\nEl equipo de MiniAmigixV',
                         settings.EMAIL_HOST_USER,
                         [ticket.usuario.email],
+                    )
+                except:
+                    pass
+            
+            # Crear notificación en el sistema
+            if ticket.usuario:
+                try:
+                    Notificacion.objects.create(
+                        usuario=ticket.usuario,
+                        titulo=f'🎉 Respuesta a tu ticket: {ticket.asunto}',
+                        mensaje=f'Tu ticket ha recibido una respuesta: {respuesta}',
+                        tipo='success',
+                        leida=False
                     )
                 except:
                     pass

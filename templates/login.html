@@ -4,9 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Iniciar Sesión - MiniAmigix</title>
+    <title>Iniciar Sesión - MiniAmigixV</title>
+    <!-- Favicon -->
+    <link rel="icon" href="{% static 'imagenes/logo.png' %}" type="image/png">
+    <link rel="shortcut icon" href="{% static 'imagenes/logo.png' %}" type="image/png">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/configuraciones.css' %}">
+    <link rel="stylesheet" href="{% static 'css/sidebar-neon.css' %}">
     <style>
         .auth-wrapper {
             display: flex;
@@ -29,27 +33,31 @@
         }
         .login-brand {
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             gap: 0.9rem;
             margin-bottom: 1.6rem;
         }
         .login-brand img {
-            width: 52px;
-            height: 52px;
-            border-radius: 16px;
-            background: rgba(255,255,255,0.08);
-            padding: 10px;
-            box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+            width: 120px;
+            height: auto;
+            border-radius: 12px;
+            filter: drop-shadow(0 0 15px rgba(124, 58, 237, 0.5));
         }
         .login-brand h1 {
             font-family: var(--font-title);
-            font-size: 1.75rem;
-            letter-spacing: 0.02em;
+            font-size: 1.8rem;
+            font-weight: 800;
+            letter-spacing: 2px;
             margin: 0;
-            background: var(--accent-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #fff;
+            text-shadow: 
+                0 0 10px rgba(124, 58, 237, 0.8),
+                0 0 20px rgba(124, 58, 237, 0.6),
+                0 0 30px rgba(124, 58, 237, 0.4),
+                0 0 40px rgba(6, 182, 212, 0.3);
+            animation: neonPulse 3s ease-in-out infinite alternate;
         }
         .login-card h2 {
             text-align: center;
@@ -139,8 +147,8 @@
 <body class="auth-wrapper">
     <div class="login-card">
         <div class="login-brand">
-            <img src="{% static 'logo.svg' %}" alt="MiniAmigix Logo">
-            <h1>MiniAmigix</h1>
+            <img src="{% static 'imagenes/logo.png' %}" alt="MiniAmigixV Logo">
+            <h1>MiniAmigixV</h1>
         </div>
         <h2>Bienvenido de nuevo</h2>
         <form method="POST">
