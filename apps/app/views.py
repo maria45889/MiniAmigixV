@@ -749,7 +749,7 @@ def enviar_sugerencia_rapida(request):
                 plain_message = strip_tags(html_message)
                 asunto = f"💡 NUEVA SUGERENCIA - {nombre}"
                 
-                email = EmailMultiAlternatives(asunto, plain_message, settings.EMAIL_HOST_USER, ['miniamigixv@gmail.com'])
+                email = EmailMultiAlternatives(asunto, plain_message, settings.DEFAULT_FROM_EMAIL, ['miniamigixv@gmail.com'])
                 email.attach_alternative(html_message, "text/html")
                 email.send()
             except Exception as e:
@@ -825,7 +825,7 @@ def panel_admin_email_user(request, user_id):
             email = EmailMultiAlternatives(
                 subject,
                 plain_message,
-                settings.EMAIL_HOST_USER,
+                settings.DEFAULT_FROM_EMAIL,
                 [user_target.email],
             )
             email.attach_alternative(html_message, 'text/html')

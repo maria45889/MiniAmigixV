@@ -129,7 +129,7 @@ def responder_ticket(request, ticket_id):
                     send_mail(
                         f'🎉 Respuesta a tu ticket: {ticket.asunto}',
                         f'Hola {ticket.usuario.username},\n\nTu ticket ha recibido una respuesta:\n\n{respuesta}\n\nSaludos,\nEl equipo de MiniAmigixV',
-                        settings.EMAIL_HOST_USER,
+                        settings.DEFAULT_FROM_EMAIL,
                         [ticket.usuario.email],
                     )
                 except:

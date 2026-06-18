@@ -234,6 +234,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True # Consider EMAIL_USE_SSL = True if using port 465
 EMAIL_HOST_USER = 'mariajosetacoc2005@gmail.com'
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD") # Reemplazar con App Password de Google
+DEFAULT_FROM_EMAIL = 'miniamigixv@gmail.com' # Correo de administración como remitente
 
 # Configuración de redirección de Login
 LOGIN_URL = 'login'

@@ -58,7 +58,7 @@ def responder_sugerencia(request, sugerencia_id):
                     send_mail(
                         f'🎉 Respuesta a tu sugerencia: {sugerencia.titulo}',
                         f'Hola {sugerencia.usuario.username},\n\nTu sugerencia ha recibido una respuesta:\n\n{respuesta}\n\nSaludos,\nEl equipo de MiniAmigixV',
-                        settings.EMAIL_HOST_USER,
+                        settings.DEFAULT_FROM_EMAIL,
                         [sugerencia.usuario.email],
                     )
                 except:
