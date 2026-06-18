@@ -36,11 +36,26 @@
                 <div id="calendar-dias" class="calendar-dias"></div>
             </div>
         </div>
+        <div id="eventos-del-dia" style="margin-top: 15px;"></div>
+
+        <!-- Modal para crear evento -->
+        <div id="modal-evento" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+            <div style="background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 12px; padding: 20px; max-width: 400px; width: 90%;">
+                <h3 style="color: #fff; margin-bottom: 15px;">📅 Agregar Evento</h3>
+                <p style="color: var(--text-muted); margin-bottom: 15px;">Fecha: <span id="fecha-seleccionada" style="color: #7c3aed;"></span></p>
+                <input type="text" id="evento-titulo" placeholder="Título del evento" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; background: rgba(255,255,255,0.04); color: var(--text-main);">
+                <textarea id="evento-descripcion" rows="3" placeholder="Descripción (opcional)" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; background: rgba(255,255,255,0.04); color: var(--text-main); resize: vertical;"></textarea>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button onclick="cerrarModalEvento()" style="padding: 10px 20px; background: rgba(255,255,255,0.1); color: white; border: none; border-radius: 8px; cursor: pointer;">Cancelar</button>
+                    <button onclick="guardarEvento()" style="padding: 10px 20px; background: var(--accent-gradient); color: white; border: none; border-radius: 8px; cursor: pointer;">Guardar</button>
+                </div>
+            </div>
+        </div>
         
         <!-- Notas Rápidas -->
         <div class="nota-card">
             <h3>�💡 Notas Rápidas</h3>
-            <input type="text" id="notaInput" placeholder="Escribe una nota rápida...">
+            <textarea id="notaInput" rows="3" placeholder="Escribe una nota rápida..." style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; background: rgba(255,255,255,0.04); color: var(--text-main); resize: vertical; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word;"></textarea>
             <button onclick="guardarNota()" style="margin-top: 10px; padding: 10px 20px; background: var(--accent-gradient); color: white; border: none; border-radius: 8px; cursor: pointer;">💾 Guardar</button>
             <div id="notasGuardadas" style="margin-top: 15px;"></div>
         </div>
@@ -91,7 +106,8 @@ function renderizarCalendario() {
     const hoy = new Date();
     for (let dia = 1; dia <= diasMes; dia++) {
         const esHoy = dia === hoy.getDate() && mesActual === hoy.getMonth() && anoActual === hoy.getFullYear();
-        html += `<div class="calendar-dia ${esHoy ? 'hoy' : ''}">${dia}</div>`;
+        const fechaCompleta = `${anoActual}-${String(mesActual + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
+        html += `<div class="calendar-dia ${esHoy ? 'hoy' : ''}" onclick="mostrarModalEvento('${fechaCompleta}')" style="cursor: pointer;">${dia}</div>`;
     }
     
     document.getElementById('calendar-dias').innerHTML = html;
@@ -279,6 +295,79 @@ function getCookie(name) {
         }
     }
     return cookieValue;
+}
+
+// ==================== MODAL DE EVENTOS ====================
+let fechaSeleccionada = null;
+
+function mostrarModalEvento(fecha) {
+    fechaSeleccionada = fecha;
+    document.getElementById('fecha-seleccionada').textContent = fecha;
+    document.getElementById('modal-evento').style.display = 'flex';
+    document.getElementById('evento-titulo').value = '';
+    document.getElementById('evento-descripcion').value = '';
+    cargarEventosDelDia(fecha);
+}
+
+function cerrarModalEvento() {
+    document.getElementById('modal-evento').style.display = 'none';
+    fechaSeleccionada = null;
+}
+
+function guardarEvento() {
+    const titulo = document.getElementById('evento-titulo').value;
+    const descripcion = document.getElementById('evento-descripcion').value;
+    
+    if (!titulo.trim()) {
+        alert('Por favor ingresa un título para el evento');
+        return;
+    }
+    
+    // Guardar en localStorage
+    const eventos = JSON.parse(localStorage.getItem('eventos_calendario') || '{}');
+    if (!eventos[fechaSeleccionada]) {
+        eventos[fechaSeleccionada] = [];
+    }
+    
+    eventos[fechaSeleccionada].push({
+        titulo: titulo,
+        descripcion: descripcion,
+        id: Date.now()
+    });
+    
+    localStorage.setItem('eventos_calendario', JSON.stringify(eventos));
+    
+    cerrarModalEvento();
+    cargarEventosDelDia(fechaSeleccionada);
+    renderizarCalendario(); // Para mostrar indicadores
+}
+
+function cargarEventosDelDia(fecha) {
+    const eventos = JSON.parse(localStorage.getItem('eventos_calendario') || '{}');
+    const eventosDelDia = eventos[fecha] || [];
+    const container = document.getElementById('eventos-del-dia');
+    
+    if (eventosDelDia.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">No hay eventos para este día</p>';
+    } else {
+        container.innerHTML = eventosDelDia.map(evento => `
+            <div style="background: rgba(124, 58, 237, 0.1); padding: 10px; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid #7c3aed;">
+                <strong style="color: var(--text-main);">${evento.titulo}</strong>
+                ${evento.descripcion ? `<p style="color: var(--text-muted); margin: 5px 0 0 0; font-size: 0.85rem;">${evento.descripcion}</p>` : ''}
+                <button onclick="eliminarEvento(${evento.id})" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 0.8rem; margin-top: 5px;">Eliminar</button>
+            </div>
+        `).join('');
+    }
+}
+
+function eliminarEvento(eventoId) {
+    const eventos = JSON.parse(localStorage.getItem('eventos_calendario') || '{}');
+    if (eventos[fechaSeleccionada]) {
+        eventos[fechaSeleccionada] = eventos[fechaSeleccionada].filter(e => e.id !== eventoId);
+        localStorage.setItem('eventos_calendario', JSON.stringify(eventos));
+        cargarEventosDelDia(fechaSeleccionada);
+        renderizarCalendario();
+    }
 }
 </script>
 {% endblock %}

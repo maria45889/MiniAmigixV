@@ -5,6 +5,67 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/juegos.css' %}?v=2">
+<style>
+.toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.toast {
+    background: rgba(0, 0, 0, 0.85);
+    border: 1px solid rgba(168, 85, 247, 0.5);
+    border-radius: 8px;
+    padding: 16px 20px;
+    color: #fff;
+    font-size: 0.95rem;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
+    animation: slideIn 0.3s ease-out;
+    max-width: 350px;
+}
+
+.toast.success {
+    border-color: rgba(34, 197, 94, 0.5);
+    background: rgba(0, 0, 0, 0.85);
+}
+
+.toast.error {
+    border-color: rgba(239, 68, 68, 0.5);
+    background: rgba(0, 0, 0, 0.85);
+}
+
+.toast.info {
+    border-color: rgba(59, 130, 246, 0.5);
+    background: rgba(0, 0, 0, 0.85);
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -35,6 +96,9 @@
             <div id="juego-container" class="game-arena-content"></div>
         </div>
     </div>
+
+    <!-- Contenedor de Toasts -->
+    <div id="toast-container" class="toast-container"></div>
 
     <div class="game-grid">
         <!-- Adivinanza -->
@@ -106,6 +170,27 @@
 
 {% block extra_js %}
 <script>
+// ==================== SISTEMA DE TOASTS ====================
+function showToast(message, type = 'info', duration = 3000) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease-out forwards';
+        setTimeout(() => {
+            if (container.contains(toast)) {
+                container.removeChild(toast);
+            }
+        }, 300);
+    }, duration);
+}
+
 // ==================== LÓGICA DE JUEGOS MODAL ====================
 
 function prepararJuego() {
@@ -176,17 +261,17 @@ function verificarAdivinanza() {
     const respuesta = document.getElementById('adivinanza-respuesta').value.toLowerCase().trim();
     
     if (respuesta === window.adivinanzaActual.respuesta.toLowerCase()) {
-        alert('¡Correcto! ¡Felicidades! 🎉');
+        showToast('¡Correcto! ¡Felicidades! 🎉', 'success');
         iniciarJuegoAdivinanza();
     } else {
         window.adivinanzasIntentos--;
         document.getElementById('adivinanza-intentos').textContent = window.adivinanzasIntentos;
         
         if (window.adivinanzasIntentos <= 0) {
-            alert(`Se acabaron los intentos. La respuesta era: ${window.adivinanzaActual.respuesta} 😅`);
+            showToast(`Se acabaron los intentos. La respuesta era: ${window.adivinanzaActual.respuesta}`, 'error');
             iniciarJuegoAdivinanza();
         } else {
-            alert('Incorrecto. Intenta de nuevo.');
+            showToast('Incorrecto. Intenta de nuevo.', 'error');
             document.getElementById('adivinanza-respuesta').value = '';
             document.getElementById('adivinanza-respuesta').focus();
         }
@@ -247,7 +332,7 @@ function verificarRespuestaQuiz(indice) {
     if (indice === pregunta.correcta) {
         window.quizPuntuacion += 20;
     } else {
-        alert(`Incorrecto. La respuesta correcta era: ${pregunta.opciones[pregunta.correcta]}`);
+        showToast(`Incorrecto. La respuesta correcta era: ${pregunta.opciones[pregunta.correcta]}`, 'error');
     }
     
     window.quizIndice++;
@@ -255,7 +340,7 @@ function verificarRespuestaQuiz(indice) {
     if (window.quizIndice < window.quizPreguntas.length) {
         mostrarPreguntaQuiz();
     } else {
-        alert(`¡Quiz completado! Tu puntuación final: ${window.quizPuntuacion} puntos 🏆`);
+        showToast(`¡Quiz completado! Tu puntuación final: ${window.quizPuntuacion} puntos 🏆`, 'success');
         cerrarJuego();
     }
 }
@@ -320,7 +405,7 @@ function iniciarJuegoMemoria() {
                 encontradas += 2;
                 
                 if (encontradas === cartas.length) {
-                    setTimeout(() => alert(`¡Increíble! Lo lograste en ${movimientos} movimientos. 🏆`), 500);
+                    setTimeout(() => showToast(`¡Increíble! Lo lograste en ${movimientos} movimientos. 🏆`, 'success'), 500);
                 }
             } else {
                 bloqueado = true;
@@ -360,8 +445,17 @@ function iniciarJuegoMatematicas() {
     window.matematicasRespuestaCorrecta = 0;
     generarPreguntaMatematica();
     
-    document.getElementById('matematicas-respuesta').addEventListener('keypress', function(e){
+    const input = document.getElementById('matematicas-respuesta');
+    input.addEventListener('keypress', function(e){
         if(e.key === 'Enter') verificarRespuestaMatematicas();
+    });
+    
+    input.addEventListener('input', function(e){
+        const value = e.target.value;
+        if (value && isNaN(value)) {
+            showToast('Solo se permiten números en esta sección', 'error');
+            e.target.value = value.replace(/[^0-9-]/g, '');
+        }
     });
 }
 
@@ -403,7 +497,7 @@ function verificarRespuestaMatematicas() {
         setTimeout(()=> input.style.borderColor = '', 300);
         generarPreguntaMatematica();
     } else {
-        alert(`Incorrecto. La respuesta era ${window.matematicasRespuestaCorrecta}`);
+        showToast(`Incorrecto. La respuesta era ${window.matematicasRespuestaCorrecta}`, 'error');
         input.value = '';
         generarPreguntaMatematica();
     }
@@ -442,7 +536,7 @@ function iniciarJuegoReflejos() {
             circulo.style.boxShadow = '0 0 20px #ef4444';
             
             if (window.reflejosIntentos >= 5) {
-                alert(`¡Juego terminado! Puntuación final: ${window.reflejosPuntuacion}`);
+                showToast(`¡Juego terminado! Puntuación final: ${window.reflejosPuntuacion}`, 'success');
                 cerrarJuego();
             } else {
                 iniciarRondaReflejos();
@@ -473,7 +567,7 @@ function iniciarRondaReflejos() {
                 circ.style.background = '#ef4444';
                 circ.style.boxShadow = '0 0 20px #ef4444';
                 if (window.reflejosIntentos >= 5) {
-                    alert(`¡Muy lento! Fin del juego. Puntuación: ${window.reflejosPuntuacion}`);
+                    showToast(`¡Muy lento! Fin del juego. Puntuación: ${window.reflejosPuntuacion}`, 'error');
                     cerrarJuego();
                 } else {
                     iniciarRondaReflejos();

@@ -31,17 +31,3 @@ def marcar_leidas(request):
             return JsonResponse({'status': 'success'})
     return JsonResponse({'status': 'error'}, status=400)
 
-def crear_notificacion_prueba(request):
-    if request.method == 'POST' and request.user.is_authenticated:
-        try:
-            Notificacion.objects.create(
-                usuario=request.user,
-                titulo='🧪 Notificación de Prueba',
-                mensaje='Esta es una notificación de prueba creada manualmente para verificar que el sistema funciona correctamente.',
-                tipo='info',
-                leida=False
-            )
-            return JsonResponse({'status': 'success', 'message': 'Notificación de prueba creada'})
-        except Exception as e:
-            return JsonResponse({'status': 'error', 'message': str(e)})
-    return JsonResponse({'status': 'error', 'message': 'Método no permitido o usuario no autenticado'}, status=400)

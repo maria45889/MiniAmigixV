@@ -79,28 +79,6 @@ function recargarNotificaciones() {
     }, 300);
 }
 
-function crearNotificacionPrueba() {
-    fetch('{% url "crear_notificacion_prueba" %}', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': '{{ csrf_token }}',
-            'Content-Type': 'application/json',
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success') {
-            alert('Notificación de prueba creada exitosamente');
-            location.reload();
-        } else {
-            alert('Error: ' + data.message);
-        }
-    })
-    .catch(error => {
-        alert('Error al crear notificación: ' + error);
-    });
-}
-
 function marcarLeidas() {
     fetch('{% url "marcar_leidas" %}', {
         method: 'POST',

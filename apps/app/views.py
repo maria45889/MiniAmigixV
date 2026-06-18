@@ -131,10 +131,18 @@ def register_view(request):
         password_confirm = request.POST.get('password_confirm')
         
         if password and password != password_confirm:
-            return render(request, 'register.html', {'error': 'Las contraseñas no coinciden'})
+            return render(request, 'register.html', {
+                'error': 'Las contraseñas no coinciden',
+                'username': username,
+                'email': email
+            })
         
         if User.objects.filter(username=username).exists():
-            return render(request, 'register.html', {'error': 'El usuario ya existe'})
+            return render(request, 'register.html', {
+                'error': 'El usuario ya existe',
+                'username': username,
+                'email': email
+            })
         
         user = User.objects.create_user(username=username, email=email, password=password)
         login(request, user)

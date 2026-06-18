@@ -185,7 +185,11 @@
             {% csrf_token %}
             <div class="login-field">
                 <label for="username">Usuario</label>
-                <input type="text" id="username" name="username" class="auth-input" required>
+                <input type="text" id="username" name="username" class="auth-input" value="{{ username|default:'' }}" required>
+            </div>
+            <div class="login-field">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" class="auth-input" value="{{ email|default:'' }}" required>
             </div>
             <div class="login-field">
                 <label for="password">Contraseña</label>
