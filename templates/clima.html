@@ -15,8 +15,8 @@
         <h1 class="cyber-title">CLIMA</h1>
         
         <form method="GET" action="{% url 'clima' %}" class="search-container">
-            <input type="text" name="ciudad" placeholder="ESCANEAR CIUDA" class="search-input" value="{{ ciudad_actual|default:'' }}" required autocomplete="off">
-            <button type="submit" class="search-btn">SCAN CORE</button>
+            <input type="text" name="ciudad" placeholder="ESCANEAR CIUDAD" class="search-input" value="{{ ciudad_actual|default:'' }}" required autocomplete="off">
+            <button type="submit" class="search-btn">BUSCAR</button>
         </form>
     </div>
 
@@ -134,10 +134,10 @@
             <div class="cyber-panel zone-status">
                 <div class="status-title">
                     <div class="status-dot"></div>
-                    CONSEJO
+                    FUENTE DE DATOS
                 </div>
                 <div class="status-msg">
-                    <b>SISTEMA LISTO:</b> Las condiciones ambientales son óptimas. ✨
+                    <b>Open-Meteo API:</b> Datos meteorológicos en tiempo real. La precisión puede variar según la ubicación.
                 </div>
             </div>
             

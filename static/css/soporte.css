@@ -966,3 +966,74 @@ body.light .btn-secondary {
 body.light .btn-secondary:hover {
     background: rgba(100, 116, 139, 0.2);
 }
+
+/* ============================================================
+   FORM VALIDATION STYLES
+   ============================================================ */
+.required {
+    color: #ef4444;
+    font-weight: 700;
+    margin-left: 2px;
+}
+
+body.light .required {
+    color: #dc2626;
+}
+
+.form-group.error input,
+.form-group.error textarea,
+.form-group.error select {
+    border-color: #ef4444;
+    background: rgba(239, 68, 68, 0.05);
+}
+
+.form-group.error input:focus,
+.form-group.error textarea:focus,
+.form-group.error select:focus {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.form-group.error .input-focus-line {
+    background: #ef4444;
+    width: calc(100% - 2px) !important;
+}
+
+.error-message {
+    color: #ef4444;
+    font-size: 12px;
+    margin-top: 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    animation: errorShake 0.3s ease;
+}
+
+.error-message::before {
+    content: '⚠';
+    font-size: 10px;
+}
+
+@keyframes errorShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-4px); }
+    75% { transform: translateX(4px); }
+}
+
+body.light .form-group.error input,
+body.light .form-group.error textarea,
+body.light .form-group.error select {
+    border-color: #dc2626;
+    background: rgba(220, 38, 38, 0.05);
+}
+
+body.light .form-group.error input:focus,
+body.light .form-group.error textarea:focus,
+body.light .form-group.error select:focus {
+    border-color: #dc2626;
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.08);
+}
+
+body.light .error-message {
+    color: #dc2626;
+}

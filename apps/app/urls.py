@@ -26,6 +26,7 @@ urlpatterns = [
     path('api/sugerencia-rapida/', views.enviar_sugerencia_rapida, name='sugerencia_rapida'),
     path('panel-admin/', views.panel_admin, name='panel_admin'),
     path('panel-admin/user-email/<int:user_id>/', views.panel_admin_email_user, name='panel_admin_email_user'),
+    path('api/admin/stats/', views.admin_stats_api, name='admin_stats_api'),
     path('estudio/', include('estudio.urls')),
     path('eventos/', include('eventos.urls')),
     path('soporte/', include('soporte.urls')),
