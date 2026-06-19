@@ -145,6 +145,37 @@
         color: #c084fc;
         border: 1px solid rgba(124, 58, 237, 0.2);
     }
+
+    .refresh-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: rgba(6, 182, 212, 0.1);
+        border: 1px solid rgba(6, 182, 212, 0.2);
+        border-radius: 20px;
+        color: #06b6d4;
+        font-size: 13px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .refresh-indicator:hover {
+        background: rgba(6, 182, 212, 0.2);
+    }
+
+    .refresh-indicator i {
+        transition: transform 0.5s ease;
+    }
+
+    .refresh-indicator.spinning i {
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
 </style>
 {% endblock %}
 
@@ -152,8 +183,14 @@
 <div class="admin-dashboard">
     <div class="admin-header">
         <h1>Centro de Administración General</h1>
-        <div class="user-badge admin">
-            <i class="ti ti-shield-check"></i> Super Administrador
+        <div style="display: flex; gap: 12px; align-items: center;">
+            <div class="refresh-indicator" id="refresh-btn" onclick="refreshStats()">
+                <i class="ti ti-refresh"></i>
+                <span id="refresh-text">Actualizar</span>
+            </div>
+            <div class="user-badge admin">
+                <i class="ti ti-shield-check"></i> Super Administrador
+            </div>
         </div>
     </div>
 
@@ -182,6 +219,11 @@
             <div class="stat-icon"><i class="ti ti-calendar-event"></i></div>
             <div class="stat-value">{{ total_eventos }}</div>
             <div class="stat-label">Eventos</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-icon"><i class="ti ti-bell"></i></div>
+            <div class="stat-value">{{ total_notificaciones }}</div>
+            <div class="stat-label">Notificaciones</div>
         </div>
     </div>
 
@@ -237,5 +279,105 @@
             </table>
         </div>
     </div>
+
+    <div class="recent-users-section">
+        <h2><i class="ti ti-bell"></i> Notificaciones Recientes</h2>
+        <div class="users-table-container">
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>Usuario</th>
+                        <th>Título</th>
+                        <th>Mensaje</th>
+                        <th>Tipo</th>
+                        <th>Fecha</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for notif in ultimas_notificaciones %}
+                    <tr>
+                        <td>{{ notif.usuario.username }}</td>
+                        <td>{{ notif.titulo }}</td>
+                        <td>{{ notif.mensaje|truncatechars:50 }}</td>
+                        <td>
+                            {% if notif.tipo == 'info' %}
+                                <span class="user-badge">ℹ️ Info</span>
+                            {% elif notif.tipo == 'success' %}
+                                <span class="user-badge" style="background: rgba(16, 185, 129, 0.1); color: #34d399; border-color: rgba(16, 185, 129, 0.2);">✅ Éxito</span>
+                            {% elif notif.tipo == 'warning' %}
+                                <span class="user-badge" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; border-color: rgba(245, 158, 11, 0.2);">⚠️ Advertencia</span>
+                            {% elif notif.tipo == 'error' %}
+                                <span class="user-badge" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.2);">❌ Error</span>
+                            {% elif notif.tipo == 'evento' %}
+                                <span class="user-badge" style="background: rgba(124, 58, 237, 0.1); color: #c084fc; border-color: rgba(124, 58, 237, 0.2);">📅 Evento</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ notif.fecha_creacion|date:"d M Y, H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: #64748b;">No hay notificaciones recientes.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    async function refreshStats() {
+        const refreshBtn = document.getElementById('refresh-btn');
+        const refreshText = document.getElementById('refresh-text');
+
+        refreshBtn.classList.add('spinning');
+        refreshText.textContent = 'Actualizando...';
+
+        try {
+            const response = await fetch('/api/admin/stats/', {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+
+                // Update stat values
+                document.querySelector('.stat-card:nth-child(1) .stat-value').textContent = data.total_usuarios;
+                document.querySelector('.stat-card:nth-child(2) .stat-value').textContent = data.total_chats;
+                document.querySelector('.stat-card:nth-child(3) .stat-value').textContent = data.total_canciones;
+                document.querySelector('.stat-card:nth-child(4) .stat-value').textContent = data.total_publicaciones;
+                document.querySelector('.stat-card:nth-child(5) .stat-value').textContent = data.total_eventos;
+                document.querySelector('.stat-card:nth-child(6) .stat-value').textContent = data.total_notificaciones;
+
+                refreshText.textContent = 'Actualizado';
+                setTimeout(() => {
+                    refreshText.textContent = 'Actualizar';
+                }, 2000);
+            } else {
+                refreshText.textContent = 'Error';
+                setTimeout(() => {
+                    refreshText.textContent = 'Actualizar';
+                }, 2000);
+            }
+        } catch (error) {
+            console.error('Error al actualizar estadísticas:', error);
+            refreshText.textContent = 'Error';
+            setTimeout(() => {
+                refreshText.textContent = 'Actualizar';
+            }, 2000);
+        } finally {
+            refreshBtn.classList.remove('spinning');
+        }
+    }
+
+    // Auto-refresh every 30 seconds
+    setInterval(() => {
+        refreshStats();
+    }, 30000);
+</script>
 {% endblock %}

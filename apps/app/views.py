@@ -21,6 +21,7 @@ import datetime
 import yt_dlp
 from .models import ConversacionChat, MensajeChat, Cancion, PublicacionBlog
 from eventos.models import Evento
+from notificaciones.models import Notificacion
 
 logger = logging.getLogger(__name__)
 
@@ -105,6 +106,18 @@ def chat_api(request):
                 texto=bot_response
             )
             conversacion.save() # Mantenemos el chat al principio de la lista
+
+            # Crear notificación de nueva respuesta del chat
+            try:
+                Notificacion.objects.create(
+                    usuario=request.user,
+                    titulo='💬 Nueva respuesta del Chat IA',
+                    mensaje=f'MiniAmigix ha respondido: "{bot_response[:100]}..."',
+                    tipo='info',
+                    enlace='/chat/'
+                )
+            except Exception as e:
+                logger.error(f"Error al crear notificación de chat: {str(e)}")
         
         return JsonResponse({'response': bot_response})
     except Exception as e:
@@ -749,7 +762,10 @@ def enviar_sugerencia_rapida(request):
                 plain_message = strip_tags(html_message)
                 asunto = f"💡 NUEVA SUGERENCIA - {nombre}"
                 
-                email = EmailMultiAlternatives(asunto, plain_message, settings.DEFAULT_FROM_EMAIL, ['miniamigixv@gmail.com'])
+                admin_recipients = getattr(settings, 'ADMIN_EMAILS', ['miniamigixv@gmail.com'])
+                if isinstance(admin_recipients, str):
+                    admin_recipients = [admin_recipients]
+                email = EmailMultiAlternatives(asunto, plain_message, settings.DEFAULT_FROM_EMAIL, admin_recipients)
                 email.attach_alternative(html_message, "text/html")
                 email.send()
             except Exception as e:
@@ -770,9 +786,9 @@ def enviar_sugerencia_rapida(request):
 
 @login_required
 def panel_admin(request):
-    if request.user.email != 'miniamigixv@gmail.com':
+    allowed_admins = getattr(settings, 'ADMIN_EMAILS', ['miniamigixv@gmail.com'])
+    if request.user.email not in allowed_admins:
         return redirect('home')
-        
     context = {
         'total_usuarios': User.objects.count(),
         'total_chats': ConversacionChat.objects.count(),
@@ -780,14 +796,34 @@ def panel_admin(request):
         'total_publicaciones': PublicacionBlog.objects.count(),
         'total_eventos': Evento.objects.count(),
         'ultimos_usuarios': User.objects.order_by('-date_joined')[:10],
+        'ultimas_notificaciones': Notificacion.objects.order_by('-fecha_creacion')[:5],
+        'total_notificaciones': Notificacion.objects.count(),
     }
-    print('ULTIMOS USUARIOS:')
-    print([u.username for u in context['ultimos_usuarios']])
     return render(request, 'panel_admin.html', context)
 
 @login_required
+def admin_stats_api(request):
+    allowed_admins = getattr(settings, 'ADMIN_EMAILS', ['miniamigixv@gmail.com'])
+    if request.user.email not in allowed_admins:
+        return JsonResponse({'error': 'Unauthorized'}, status=403)
+
+    stats = {
+        'total_usuarios': User.objects.count(),
+        'total_chats': ConversacionChat.objects.count(),
+        'total_canciones': Cancion.objects.count(),
+        'total_publicaciones': PublicacionBlog.objects.count(),
+        'total_eventos': Evento.objects.count(),
+        'total_notificaciones': Notificacion.objects.count(),
+    }
+    return JsonResponse(stats)
+
+@login_required
 def panel_admin_email_user(request, user_id):
-    if request.user.email != 'miniamigixv@gmail.com':
+    admin_emails = getattr(settings, 'ADMIN_EMAILS', ['miniamigixv@gmail.com'])
+    if isinstance(admin_emails, str):
+        admin_emails = [admin_emails]
+
+    if request.user.email not in admin_emails:
         return redirect('home')
 
     user_target = get_object_or_404(User, id=user_id)
@@ -821,14 +857,18 @@ def panel_admin_email_user(request, user_id):
         })
         plain_message = strip_tags(html_message)
 
+        # Aseguramos que el destinatario sea una lista [email]
+        recipient_list = [user_target.email] if user_target.email else []
+
         try:
             email = EmailMultiAlternatives(
                 subject,
                 plain_message,
                 settings.DEFAULT_FROM_EMAIL,
-                [user_target.email],
+                recipient_list,
             )
             email.attach_alternative(html_message, 'text/html')
+            email.encoding = 'utf-8'
             email.send()
             return render(request, 'panel_admin_email_user.html', {
                 'user_target': user_target,

@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils import timezone
 from .models import TicketSoporte
 from notificaciones.models import Notificacion
+import logging
 
 def lista_tickets(request):
     tickets = TicketSoporte.objects.all().order_by('-fecha_creacion')
@@ -16,16 +17,30 @@ def crear_ticket(request):
         asunto = request.POST.get('asunto')
         descripcion = request.POST.get('descripcion')
         prioridad = request.POST.get('prioridad', 'media')
-        
+
         if asunto and descripcion:
-            TicketSoporte.objects.create(
+            ticket = TicketSoporte.objects.create(
                 asunto=asunto,
                 descripcion=descripcion,
                 prioridad=prioridad,
                 usuario=request.user if request.user.is_authenticated else None
             )
+
+            # Crear notificación para el usuario
+            if request.user.is_authenticated:
+                try:
+                    Notificacion.objects.create(
+                        usuario=request.user,
+                        titulo='🎫 Ticket de soporte creado',
+                        mensaje=f'Tu ticket "{asunto}" ha sido creado. Te responderemos pronto.',
+                        tipo='success',
+                        enlace='/soporte/lista_tickets/'
+                    )
+                except Exception as e:
+                    logging.error(f"Error al crear notificación de ticket: {str(e)}")
+
             return redirect('lista_tickets')
-    
+
     return render(request, 'soporte/crear_ticket.html')
 
 def soporte_home(request):
@@ -83,16 +98,39 @@ def soporte_home(request):
         })
 
         try:
-            send_mail(
+            email = EmailMultiAlternatives(
                 asunto_email,
                 contenido_texto,
                 settings.EMAIL_HOST_USER,
-                ["miniamigixv@gmail.com"],
-                html_message=contenido_html,
+                settings.ADMIN_EMAILS,
             )
+            email.attach_alternative(contenido_html, "text/html")
+            email.encoding = 'utf-8'
+            resultado = email.send()
+            
+            # Verificar si el correo se envió correctamente
+            if resultado == 0:
+                print(f"ERROR: El correo no se envió. Configuración SMTP: {settings.EMAIL_HOST}:{settings.EMAIL_PORT}")
+                return render(request, "soporte/index.html", {"error": True, "error_msg": "No se pudo enviar el correo. Verifica la configuración SMTP."})
+
+            # Crear notificación si el usuario está autenticado
+            if request.user.is_authenticated:
+                try:
+                    Notificacion.objects.create(
+                        usuario=request.user,
+                        titulo='📧 Mensaje de soporte enviado',
+                        mensaje=f'Tu mensaje de soporte sobre "{categoria_texto}" ha sido enviado. Te responderemos pronto.',
+                        tipo='success',
+                        enlace='/soporte/'
+                    )
+                except Exception as e:
+                    logging.error(f"Error al crear notificación de soporte: {str(e)}")
+
             return render(request, "soporte/index.html", {"enviado": True})
         except Exception as e:
-            return render(request, "soporte/index.html", {"error": True})
+            print(f"ERROR al enviar correo: {str(e)}")
+            print(f"Configuración SMTP: {settings.EMAIL_HOST}:{settings.EMAIL_PORT}, TLS: {settings.EMAIL_USE_TLS}")
+            return render(request, "soporte/index.html", {"error": True, "error_msg": f"Error: {str(e)}"})
 
     return render(request, "soporte/index.html")
 
@@ -126,12 +164,14 @@ def responder_ticket(request, ticket_id):
             # Enviar email de notificación al usuario si tiene email
             if ticket.usuario and ticket.usuario.email:
                 try:
-                    send_mail(
+                    email = EmailMultiAlternatives(
                         f'🎉 Respuesta a tu ticket: {ticket.asunto}',
                         f'Hola {ticket.usuario.username},\n\nTu ticket ha recibido una respuesta:\n\n{respuesta}\n\nSaludos,\nEl equipo de MiniAmigixV',
                         settings.DEFAULT_FROM_EMAIL,
                         [ticket.usuario.email],
                     )
+                    email.encoding = 'utf-8'
+                    email.send()
                 except:
                     pass
             

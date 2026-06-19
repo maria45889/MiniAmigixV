@@ -179,38 +179,41 @@
                     <div class="alert-icon"><i class="ti ti-alert-circle"></i></div>
                     <div>
                         <strong>Error al enviar</strong>
-                        <p>Por favor intenta nuevamente.</p>
+                        <p>{% if error_msg %}{{ error_msg }}{% else %}Por favor intenta nuevamente.{% endif %}</p>
                     </div>
                 </div>
                 {% endif %}
 
-                <form method="POST" class="contact-form" id="soporte-form">
+                <form method="POST" class="contact-form" id="soporte-form" novalidate>
                     {% csrf_token %}
 
-                    <div class="form-group">
+                    <div class="form-group" id="group-nombre">
                         <label for="nombre">
                             <i class="ti ti-user"></i>
-                            Tu nombre
+                            Tu nombre <span class="required">*</span>
                         </label>
-                        <input type="text" id="nombre" name="nombre" placeholder="Ej: Juan Pérez" required>
+                        <input type="text" id="nombre" name="nombre" placeholder="Ej: Juan Pérez" required minlength="2">
                         <div class="input-focus-line"></div>
+                        <div class="error-message" id="error-nombre"></div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group" id="group-email">
                         <label for="email">
                             <i class="ti ti-mail"></i>
-                            Tu correo
+                            Tu correo <span class="required">*</span>
                         </label>
                         <input type="email" id="email" name="email" placeholder="ejemplo@correo.com" required>
                         <div class="input-focus-line"></div>
+                        <div class="error-message" id="error-email"></div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group" id="group-asunto">
                         <label for="asunto">
                             <i class="ti ti-tag"></i>
-                            Asunto
+                            Asunto <span class="required">*</span>
                         </label>
-                        <select id="asunto" name="asunto">
+                        <select id="asunto" name="asunto" required>
+                            <option value="">Selecciona un asunto</option>
                             <option value="general">Consulta general</option>
                             <option value="bug">Reportar un error</option>
                             <option value="cuenta">Problema con mi cuenta</option>
@@ -218,15 +221,17 @@
                             <option value="otro">Otro</option>
                         </select>
                         <div class="input-focus-line"></div>
+                        <div class="error-message" id="error-asunto"></div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group" id="group-mensaje">
                         <label for="mensaje">
                             <i class="ti ti-message-2"></i>
-                            Mensaje
+                            Mensaje <span class="required">*</span>
                         </label>
-                        <textarea id="mensaje" name="mensaje" rows="5" placeholder="Describe tu consulta con detalle..." required></textarea>
+                        <textarea id="mensaje" name="mensaje" rows="5" placeholder="Describe tu consulta con detalle..." required minlength="10"></textarea>
                         <div class="input-focus-line"></div>
+                        <div class="error-message" id="error-mensaje"></div>
                     </div>
 
                     <button type="submit" class="btn-submit" id="btn-enviar">
@@ -258,15 +263,92 @@
         if (!isOpen) item.classList.add('open');
     }
 
-    // Form submit animation
+    // Form validation
     const form = document.getElementById('soporte-form');
     if (form) {
-        form.addEventListener('submit', function() {
-            const btn = document.getElementById('btn-enviar');
-            btn.querySelector('.btn-text').style.display = 'none';
-            btn.querySelector('.btn-loading').style.display = 'inline-flex';
-            btn.disabled = true;
+        // Real-time validation
+        const inputs = form.querySelectorAll('input, select, textarea');
+        inputs.forEach(input => {
+            input.addEventListener('blur', () => validateField(input));
+            input.addEventListener('input', () => {
+                if (input.classList.contains('error')) {
+                    validateField(input);
+                }
+            });
         });
+
+        // Form submit validation
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            let isValid = true;
+            inputs.forEach(input => {
+                if (!validateField(input)) {
+                    isValid = false;
+                }
+            });
+
+            if (isValid) {
+                const btn = document.getElementById('btn-enviar');
+                btn.querySelector('.btn-text').style.display = 'none';
+                btn.querySelector('.btn-loading').style.display = 'inline-flex';
+                btn.disabled = true;
+                form.submit();
+            }
+        });
+    }
+
+    function validateField(input) {
+        const group = input.closest('.form-group');
+        if (!group) return true; // Skip validation if input is not in a form-group
+        const errorDiv = group.querySelector('.error-message');
+        let isValid = true;
+        let errorMessage = '';
+
+        // Reset error state
+        group.classList.remove('error');
+        errorDiv.textContent = '';
+
+        // Required validation
+        if (input.hasAttribute('required') && !input.value.trim()) {
+            isValid = false;
+            errorMessage = 'Este campo es obligatorio';
+        }
+
+        // Email validation
+        if (input.type === 'email' && input.value.trim()) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(input.value.trim())) {
+                isValid = false;
+                errorMessage = 'Ingresa un correo válido';
+            }
+        }
+
+        // Min length validation
+        if (input.hasAttribute('minlength') && input.value.trim()) {
+            const minLength = parseInt(input.getAttribute('minlength'));
+            if (input.value.trim().length < minLength) {
+                isValid = false;
+                errorMessage = `Mínimo ${minLength} caracteres`;
+            }
+        }
+
+        // Select validation
+        if (input.tagName === 'SELECT' && input.value === '') {
+            isValid = false;
+            errorMessage = 'Selecciona una opción';
+        }
+
+        // Show error
+        if (!isValid) {
+            group.classList.add('error');
+            errorDiv.textContent = errorMessage;
+            input.classList.add('error');
+        } else {
+            input.classList.remove('error');
+        }
+
+        return isValid;
     }
 
     // Intersection Observer for scroll animations
