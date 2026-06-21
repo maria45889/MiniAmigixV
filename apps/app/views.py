@@ -19,9 +19,10 @@ import requests
 import random
 import datetime
 import yt_dlp
-from .models import ConversacionChat, MensajeChat, Cancion, PublicacionBlog
+from .models import ConversacionChat, MensajeChat, Cancion, PublicacionBlog, Playlist, Favorite
 from eventos.models import Evento
 from notificaciones.models import Notificacion
+from apps.mongodb.services import DualDatabaseService
 
 logger = logging.getLogger(__name__)
 
@@ -60,11 +61,41 @@ def chat_api(request):
             )
             conversacion.save() # Forzamos la actualización de fecha_actualizacion (auto_now)
             
+            # Guardar también en MongoDB (historial y análisis)
+            DualDatabaseService.guardar_chat_mensaje(
+                usuario=request.user.username,
+                mensaje=message,
+                respuesta=None,
+                usar_mongodb=True
+            )
+            
             # Get conversation history
             # Fetch latest 10 and reverse to restore chronological order
             mensajes = list(MensajeChat.objects.filter(conversacion=conversacion).order_by('-fecha_creacion')[:10])[::-1]
+            
+            # Obtener eventos próximos del calendario (5 días antes y 3 días antes)
+            eventos_proximos = []
+            hoy = datetime.date.today()
+            # Eventos en los próximos 5 días
+            fecha_limite = hoy + datetime.timedelta(days=5)
+            eventos = Evento.objects.filter(fecha__gte=hoy, fecha__lte=fecha_limite).order_by('fecha')
+            
+            for evento in eventos:
+                dias_restantes = (evento.fecha - hoy).days
+                if dias_restantes == 0:
+                    texto_dias = "hoy"
+                elif dias_restantes == 1:
+                    texto_dias = "mañana"
+                elif dias_restantes <= 3:
+                    texto_dias = f"en {dias_restantes} días"
+                else:
+                    texto_dias = f"en {dias_restantes} días"
+                eventos_proximos.append(f"- {evento.titulo} ({texto_dias}, {evento.fecha.strftime('%d/%m/%Y')})")
+            
+            eventos_contexto = "\n".join(eventos_proximos) if eventos_proximos else "No tienes eventos en los próximos 5 días."
+            
             messages = [
-                {"role": "system", "content": "Eres MiniAmigix, un asistente amigable y entusiasta. Responde en español de forma concisa. Usa emojis con moderación, solo cuando sea necesario para dar énfasis. 🌟"}
+                {"role": "system", "content": f"Eres MiniAmigix, un asistente amigable y entusiasta. Responde en español de forma concisa. Usa emojis con moderación, solo cuando sea necesario para dar énfasis. 🌟\n\nEventos próximos del usuario:\n{eventos_contexto}\n\nCuando el usuario pregunte por sus eventos o agenda, recuérdale estos eventos. Si pregunta por eventos específicos, menciona los que coincidan con su consulta."}
             ]
             
             for msg in mensajes:
@@ -106,6 +137,14 @@ def chat_api(request):
                 texto=bot_response
             )
             conversacion.save() # Mantenemos el chat al principio de la lista
+            
+            # Guardar también en MongoDB (historial y análisis)
+            DualDatabaseService.guardar_chat_mensaje(
+                usuario=request.user.username,
+                mensaje=bot_response,
+                respuesta=bot_response,
+                usar_mongodb=True
+            )
 
             # Crear notificación de nueva respuesta del chat
             try:
@@ -115,6 +154,15 @@ def chat_api(request):
                     mensaje=f'MiniAmigix ha respondido: "{bot_response[:100]}..."',
                     tipo='info',
                     enlace='/chat/'
+                )
+                
+                # Guardar también en MongoDB (historial y análisis)
+                DualDatabaseService.guardar_notificacion(
+                    usuario=request.user.username,
+                    titulo='💬 Nueva respuesta del Chat IA',
+                    mensaje=f'MiniAmigix ha respondido: "{bot_response[:100]}..."',
+                    tipo='info',
+                    usar_mongodb=True
                 )
             except Exception as e:
                 logger.error(f"Error al crear notificación de chat: {str(e)}")
@@ -164,6 +212,19 @@ def register_view(request):
     return render(request, 'register.html')
 
 def home(request):
+    # Registrar actividad en MongoDB
+    if request.user.is_authenticated:
+        DualDatabaseService.log_actividad(
+            usuario=request.user.username,
+            accion='visit_home',
+            descripcion='Usuario visitó la página principal',
+            ip_address=request.META.get('REMOTE_ADDR', None)
+        )
+        DualDatabaseService.registrar_analitica(
+            usuario=request.user.username,
+            pagina='/home/'
+        )
+    
     context = {}
     
     # Frases del día (semilla basada en el día actual)
@@ -191,6 +252,22 @@ def home(request):
         context['stats_notas'] = PublicacionBlog.objects.filter(usuario=request.user).count()
         context['stats_eventos'] = Evento.objects.count()  # Evento es global, no tiene campo usuario
         context['stats_canciones'] = Cancion.objects.filter(usuario=request.user).count()
+        
+        # Obtener eventos próximos para el reloj inteligente
+        hoy = datetime.date.today()
+        fecha_limite = hoy + datetime.timedelta(days=3)
+        eventos_proximos = Evento.objects.filter(fecha__gte=hoy, fecha__lte=fecha_limite).order_by('fecha')[:3]
+        eventos_texto = []
+        for evento in eventos_proximos:
+            dias_restantes = (evento.fecha - hoy).days
+            if dias_restantes == 0:
+                texto_dias = "hoy"
+            elif dias_restantes == 1:
+                texto_dias = "mañana"
+            else:
+                texto_dias = f"en {dias_restantes} días"
+            eventos_texto.append(f"{evento.titulo} ({texto_dias})")
+        context['eventosProximos'] = eventos_texto
     else:
         context['stats_chats'] = 0
         context['stats_notas'] = 0
@@ -203,6 +280,19 @@ def index(request):
     return redirect('tutorial_home')
 
 def chat(request):
+    # Registrar actividad en MongoDB
+    if request.user.is_authenticated:
+        DualDatabaseService.log_actividad(
+            usuario=request.user.username,
+            accion='visit_chat',
+            descripcion='Usuario visitó la página de chat',
+            ip_address=request.META.get('REMOTE_ADDR', None)
+        )
+        DualDatabaseService.registrar_analitica(
+            usuario=request.user.username,
+            pagina='/chat/'
+        )
+    
     mensajes = []
     conversaciones = []
     active_id = None
@@ -243,19 +333,168 @@ def chat(request):
     })
 
 def musica(request):
-    canciones = []
+    # Registrar actividad en MongoDB
     if request.user.is_authenticated:
-        canciones = Cancion.objects.filter(usuario=request.user).order_by('-fecha_agregada')[:5]
+        DualDatabaseService.log_actividad(
+            usuario=request.user.username,
+            accion='visit_musica',
+            descripcion='Usuario visitó la página de música',
+            ip_address=request.META.get('REMOTE_ADDR', None)
+        )
+        DualDatabaseService.registrar_analitica(
+            usuario=request.user.username,
+            pagina='/musica/'
+        )
+    
+    canciones = []
+    playlists = []
+    favoritos = []
+    
+    if request.user.is_authenticated:
+        canciones = Cancion.objects.filter(usuario=request.user).order_by('-fecha_agregada')[:20]
+        playlists = Playlist.objects.filter(usuario=request.user).order_by('-fecha_actualizacion')
+        favoritos_canciones = Favorite.objects.filter(usuario=request.user).select_related('cancion')
+        favoritos = [fav.cancion for fav in favoritos_canciones]
     
     return render(request, 'musica.html', {
-        'canciones': canciones
+        'canciones': canciones,
+        'playlists': playlists,
+        'favoritos': favoritos
     })
 
+def crear_playlist(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'No autenticado'}, status=401)
+    
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            nombre = data.get('nombre', '').strip()
+            descripcion = data.get('descripcion', '').strip()
+            
+            if not nombre:
+                return JsonResponse({'error': 'El nombre es requerido'}, status=400)
+            
+            playlist = Playlist.objects.create(
+                usuario=request.user,
+                nombre=nombre,
+                descripcion=descripcion
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'playlist_id': playlist.id,
+                'nombre': playlist.nombre
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+def agregar_a_playlist(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'No autenticado'}, status=401)
+    
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            playlist_id = data.get('playlist_id')
+            cancion_id = data.get('cancion_id')
+            
+            playlist = Playlist.objects.get(id=playlist_id, usuario=request.user)
+            cancion = Cancion.objects.get(id=cancion_id, usuario=request.user)
+            
+            playlist.canciones.add(cancion)
+            playlist.save()
+            
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+def toggle_favorito(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'No autenticado'}, status=401)
+    
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            cancion_id = data.get('cancion_id')
+            
+            cancion = Cancion.objects.get(id=cancion_id, usuario=request.user)
+            favorito, created = Favorite.objects.get_or_create(
+                usuario=request.user,
+                cancion=cancion
+            )
+            
+            if not created:
+                favorito.delete()
+                return JsonResponse({'success': True, 'is_favorito': False})
+            
+            return JsonResponse({'success': True, 'is_favorito': True})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
 def juegos(request):
-    return render(request, 'juegos.html')
+    # Registrar actividad en MongoDB
+    if request.user.is_authenticated:
+        DualDatabaseService.log_actividad(
+            usuario=request.user.username,
+            accion='visit_juegos',
+            descripcion='Usuario visitó la página de juegos',
+            ip_address=request.META.get('REMOTE_ADDR', None)
+        )
+        DualDatabaseService.registrar_analitica(
+            usuario=request.user.username,
+            pagina='/juegos/'
+        )
+    
+    juegos_disponibles = Game.objects.filter(activo=True)
+    puntuaciones_usuario = []
+    logros_usuario = []
+    
+    if request.user.is_authenticated:
+        puntuaciones_usuario = Score.objects.filter(usuario=request.user).select_related('juego')
+        logros_usuario = UserAchievement.objects.filter(usuario=request.user).select_related('logro')
+    
+    return render(request, 'juegos.html', {
+        'juegos': juegos_disponibles,
+        'puntuaciones': puntuaciones_usuario,
+        'logros': logros_usuario
+    })
 
 def estudio(request):
-    return render(request, 'estudio.html')
+    # Registrar actividad en MongoDB
+    if request.user.is_authenticated:
+        DualDatabaseService.log_actividad(
+            usuario=request.user.username,
+            accion='visit_estudio',
+            descripcion='Usuario visitó la página de estudio',
+            ip_address=request.META.get('REMOTE_ADDR', None)
+        )
+        DualDatabaseService.registrar_analitica(
+            usuario=request.user.username,
+            pagina='/estudio/'
+        )
+    
+    from estudio.models import StudyResource, StudyCategory, StudyProgress
+    
+    categorias = StudyCategory.objects.all()
+    recursos_usuario = []
+    progreso_usuario = []
+    
+    if request.user.is_authenticated:
+        recursos_usuario = StudyResource.objects.filter(usuario=request.user).select_related('categoria')
+        progreso_usuario = StudyProgress.objects.filter(usuario=request.user).select_related('recurso')
+    
+    return render(request, 'estudio.html', {
+        'categorias': categorias,
+        'recursos': recursos_usuario,
+        'progreso': progreso_usuario
+    })
 
 def eventos(request):
     return redirect('lista_eventos')
@@ -658,9 +897,20 @@ def blog(request):
             es_oficial=False
         )
     
+    # Obtener categorías dinámicas
+    categorias = Category.objects.all()
+    
+    # Obtener comentarios para cada publicación
+    for publicacion in noticias_globales:
+        publicacion.comentarios_lista = publicacion.comentarios.all()[:5]
+    
+    for publicacion in mis_publicaciones:
+        publicacion.comentarios_lista = publicacion.comentarios.all()[:5]
+    
     return render(request, 'blog.html', {
         'noticias_globales': noticias_globales,
-        'mis_publicaciones': mis_publicaciones
+        'mis_publicaciones': mis_publicaciones,
+        'categorias': categorias
     })
 
 def crear_publicacion(request):
@@ -885,3 +1135,231 @@ def panel_admin_email_user(request, user_id):
     return render(request, 'panel_admin_email_user.html', {
         'user_target': user_target,
     })
+
+def crear_comentario(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'No autenticado'}, status=401)
+    
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            publicacion_id = data.get('publicacion_id')
+            contenido = data.get('contenido', '').strip()
+            padre_id = data.get('padre_id', None)
+            
+            if not contenido:
+                return JsonResponse({'error': 'El contenido es requerido'}, status=400)
+            
+            publicacion = PublicacionBlog.objects.get(id=publicacion_id, publicado=True)
+            
+            comentario = Comment.objects.create(
+                publicacion=publicacion,
+                usuario=request.user,
+                contenido=contenido
+            )
+            
+            if padre_id:
+                comentario.padre = Comment.objects.get(id=padre_id)
+                comentario.save()
+            
+            return JsonResponse({
+                'success': True,
+                'comentario_id': comentario.id,
+                'usuario': request.user.username,
+                'contenido': contenido,
+                'fecha': comentario.fecha_creacion.strftime('%d/%m/%Y %H:%M')
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+def crear_categoria(request):
+    if not request.user.is_authenticated or not request.user.is_staff:
+        return JsonResponse({'error': 'No autorizado'}, status=403)
+    
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            nombre = data.get('nombre', '').strip()
+            icono = data.get('icono', '📁')
+            descripcion = data.get('descripcion', '').strip()
+            
+            if not nombre:
+                return JsonResponse({'error': 'El nombre es requerido'}, status=400)
+            
+            categoria = Category.objects.create(
+                nombre=nombre,
+                icono=icono,
+                descripcion=descripcion
+            )
+            
+            return JsonResponse({
+                'success': True,
+                'categoria_id': categoria.id,
+                'nombre': categoria.nombre,
+                'icono': categoria.icono
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+def eliminar_categoria(request, categoria_id):
+    if not request.user.is_authenticated or not request.user.is_staff:
+        return JsonResponse({'error': 'No autorizado'}, status=403)
+    
+    if request.method == 'DELETE':
+        try:
+            categoria = Category.objects.get(id=categoria_id)
+            categoria.delete()
+            return JsonResponse({'success': True})
+        except Category.DoesNotExist:
+            return JsonResponse({'error': 'Categoría no encontrada'}, status=404)
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+def guardar_puntuacion(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'No autenticado'}, status=401)
+    
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            juego_id = data.get('juego_id')
+            puntuacion = data.get('puntuacion', 0)
+            
+            juego = Game.objects.get(id=juego_id, activo=True)
+            score = Score.objects.create(
+                usuario=request.user,
+                juego=juego,
+                puntuacion=puntuacion
+            )
+            
+            # Verificar logros desbloqueados
+            logros_desbloqueados = []
+            logros = Achievement.objects.filter(juego=juego)
+            for logro in logros:
+                if logro.puntos_requeridos <= puntuacion:
+                    user_logro, created = UserAchievement.objects.get_or_create(
+                        usuario=request.user,
+                        logro=logro
+                    )
+                    if created:
+                        logros_desbloqueados.append({
+                            'nombre': logro.nombre,
+                            'icono': logro.icono,
+                            'descripcion': logro.descripcion
+                        })
+            
+            return JsonResponse({
+                'success': True,
+                'puntuacion': puntuacion,
+                'logros_desbloqueados': logros_desbloqueados
+            })
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+def admin_soporte(request):
+    if not request.user.is_authenticated or not request.user.is_staff:
+        return redirect('home')
+    
+    from soporte.models import TicketSoporte
+    
+    tickets = TicketSoporte.objects.all().select_related('usuario', 'respondido_por')
+    
+    # Calcular estadísticas
+    total_tickets = tickets.count()
+    tickets_abiertos = tickets.filter(estado='abierto').count()
+    tickets_en_proceso = tickets.filter(estado='en_proceso').count()
+    tickets_resueltos = tickets.filter(estado='resuelto').count()
+    
+    return render(request, 'admin_soporte.html', {
+        'tickets': tickets,
+        'total_tickets': total_tickets,
+        'tickets_abiertos': tickets_abiertos,
+        'tickets_en_proceso': tickets_en_proceso,
+        'tickets_resueltos': tickets_resueltos
+    })
+
+def responder_ticket(request, ticket_id):
+    if not request.user.is_authenticated or not request.user.is_staff:
+        return JsonResponse({'error': 'No autorizado'}, status=403)
+    
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            respuesta = data.get('respuesta', '').strip()
+            nuevo_estado = data.get('estado', 'en_proceso')
+            
+            if not respuesta:
+                return JsonResponse({'error': 'La respuesta es requerida'}, status=400)
+            
+            ticket = TicketSoporte.objects.get(id=ticket_id)
+            ticket.respuesta_admin = respuesta
+            ticket.fecha_respuesta = datetime.datetime.now()
+            ticket.respondido_por = request.user
+            ticket.estado = nuevo_estado
+            
+            if nuevo_estado == 'resuelto':
+                ticket.fecha_resolucion = datetime.datetime.now()
+            
+            ticket.save()
+            
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+def admin_sugerencias(request):
+    if not request.user.is_authenticated or not request.user.is_staff:
+        return redirect('home')
+    
+    from sugerencias.models import Sugerencia
+    
+    sugerencias = Sugerencia.objects.all().select_related('usuario', 'respondido_por')
+    
+    # Calcular estadísticas
+    total_sugerencias = sugerencias.count()
+    sugerencias_pendientes = sugerencias.filter(estado='pendiente').count()
+    sugerencias_en_revision = sugerencias.filter(estado='en_revision').count()
+    sugerencias_aprobadas = sugerencias.filter(estado='aprobada').count()
+    
+    return render(request, 'admin_sugerencias.html', {
+        'sugerencias': sugerencias,
+        'total_sugerencias': total_sugerencias,
+        'sugerencias_pendientes': sugerencias_pendientes,
+        'sugerencias_en_revision': sugerencias_en_revision,
+        'sugerencias_aprobadas': sugerencias_aprobadas
+    })
+
+def responder_sugerencia(request, sugerencia_id):
+    if not request.user.is_authenticated or not request.user.is_staff:
+        return JsonResponse({'error': 'No autorizado'}, status=403)
+    
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            respuesta = data.get('respuesta', '').strip()
+            nuevo_estado = data.get('estado', 'en_revision')
+            
+            if not respuesta:
+                return JsonResponse({'error': 'La respuesta es requerida'}, status=400)
+            
+            sugerencia = Sugerencia.objects.get(id=sugerencia_id)
+            sugerencia.respuesta_admin = respuesta
+            sugerencia.fecha_respuesta = datetime.datetime.now()
+            sugerencia.respondido_por = request.user
+            sugerencia.estado = nuevo_estado
+            sugerencia.save()
+            
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)

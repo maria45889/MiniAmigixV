@@ -101,7 +101,26 @@
     <div id="toast-container" class="toast-container"></div>
 
     <div class="game-grid">
-        <!-- Adivinanza -->
+        {% for juego in juegos %}
+        <a href="javascript:void(0)" onclick="iniciarJuego({{ juego.id }}, '{{ juego.tipo }}')" class="game-card" style="--game-color: {% if juego.tipo == 'quiz' %}#3b82f6{% elif juego.tipo == 'memoria' %}#ec4899{% elif juego.tipo == 'matematicas' %}#22c55e{% elif juego.tipo == 'palabras' %}#f59e0b{% elif juego.tipo == 'logica' %}#7c3aed{% else %}#06b6d4{% endif %};">
+            <div class="game-icon-wrapper">
+                {% if juego.tipo == 'quiz' %}❓
+                {% elif juego.tipo == 'memoria' %}🎯
+                {% elif juego.tipo == 'matematicas' %}🔢
+                {% elif juego.tipo == 'palabras' %}📝
+                {% elif juego.tipo == 'logica' %}🧩
+                {% else %}🎮
+                {% endif %}
+            </div>
+            <h3>{{ juego.nombre }}</h3>
+            <p>{{ juego.descripcion }}</p>
+            <div class="game-tag">{{ juego.get_tipo_display }} - {{ juego.get_dificultad_display }}</div>
+        </a>
+        {% empty %}
+        <p style="color: #94a3b8; text-align: center; grid-column: 1 / -1;">No hay juegos disponibles</p>
+        {% endfor %}
+        
+        <!-- Juegos estáticos (compatibilidad) -->
         <a href="javascript:void(0)" onclick="iniciarJuegoAdivinanza()" class="game-card" style="--game-color: #7c3aed;">
             <div class="game-icon-wrapper">🧩</div>
             <h3>Adivinanza</h3>
@@ -109,7 +128,6 @@
             <div class="game-tag">Lógica</div>
         </a>
         
-        <!-- Quiz -->
         <a href="javascript:void(0)" onclick="iniciarJuegoQuiz()" class="game-card" style="--game-color: #3b82f6;">
             <div class="game-icon-wrapper">❓</div>
             <h3>Quiz Master</h3>
@@ -117,7 +135,6 @@
             <div class="game-tag">Cultura</div>
         </a>
         
-        <!-- Memoria -->
         <a href="javascript:void(0)" onclick="iniciarJuegoMemoria()" class="game-card" style="--game-color: #ec4899;">
             <div class="game-icon-wrapper">🎯</div>
             <h3>Memoria</h3>
@@ -125,7 +142,6 @@
             <div class="game-tag">Agilidad</div>
         </a>
         
-        <!-- Matemáticas -->
         <a href="javascript:void(0)" onclick="iniciarJuegoMatematicas()" class="game-card" style="--game-color: #22c55e;">
             <div class="game-icon-wrapper">🔢</div>
             <h3>Mente Rápida</h3>
@@ -133,7 +149,6 @@
             <div class="game-tag">Números</div>
         </a>
 
-        <!-- Reflejos (Nuevo) -->
         <a href="javascript:void(0)" onclick="iniciarJuegoReflejos()" class="game-card" style="--game-color: #f59e0b;">
             <div class="game-icon-wrapper">⚡</div>
             <h3>Reflejos</h3>
@@ -141,7 +156,6 @@
             <div class="game-tag">Velocidad</div>
         </a>
 
-        <!-- Fidget Spinner (Nuevo) -->
         <a href="javascript:void(0)" onclick="iniciarJuegoFidget()" class="game-card" style="--game-color: #06b6d4;">
             <div class="game-icon-wrapper">🌀</div>
             <h3>Fidget</h3>
@@ -779,6 +793,75 @@ function iniciarJuegoSnake() {
     
     window.addEventListener('keydown', keyHandler);
     window.snakeLoop = setInterval(drawGame, 120);
+}
+
+// ==================== FUNCIONES PARA JUEGOS DINÁMICOS ====================
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(name + "=")) {
+                cookieValue = decodeURIComponent(cookie.split("=")[1]);
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function iniciarJuego(juegoId, tipo) {
+    // Cargar juego según el tipo
+    switch(tipo) {
+        case 'quiz':
+            iniciarJuegoQuiz();
+            break;
+        case 'memoria':
+            iniciarJuegoMemoria();
+            break;
+        case 'matematicas':
+            iniciarJuegoMatematicas();
+            break;
+        case 'logica':
+            iniciarJuegoAdivinanza();
+            break;
+        default:
+            showToast('Juego no disponible', 'error');
+    }
+}
+
+function guardarPuntuacion(juegoId, puntuacion) {
+    fetch('/api/guardar-puntuacion/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            juego_id: juegoId,
+            puntuacion: puntuacion
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToast(`Puntuación guardada: ${data.puntuacion}`, 'success');
+            
+            // Mostrar logros desbloqueados
+            if (data.logros_desbloqueados && data.logros_desbloqueados.length > 0) {
+                data.logros_desbloqueados.forEach(logro => {
+                    showToast(`🎉 Logro desbloqueado: ${logro.icono} ${logro.nombre}`, 'success');
+                });
+            }
+        } else {
+            showToast('Error al guardar puntuación', 'error');
+        }
+    })
+    .catch(error => {
+        showToast('Error al guardar puntuación', 'error');
+    });
 }
 </script>
 {% endblock %}

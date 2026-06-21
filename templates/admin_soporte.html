@@ -1,0 +1,472 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Panel de Administración - Soporte{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin.css' %}?v=2">
+<style>
+.admin-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 30px 20px;
+}
+
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.admin-header h1 {
+    color: #f8fafc;
+    font-size: 2rem;
+    margin: 0;
+}
+
+.admin-header .back-link {
+    color: #94a3b8;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.admin-header .back-link:hover {
+    color: #7c3aed;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+}
+
+.stat-card .stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 5px;
+}
+
+.stat-card .stat-label {
+    color: #94a3b8;
+    font-size: 0.9rem;
+}
+
+.tickets-table {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.tickets-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tickets-table th {
+    background: rgba(124, 58, 237, 0.2);
+    color: #e2e8f0;
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+}
+
+.tickets-table td {
+    padding: 15px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    color: #94a3b8;
+}
+
+.tickets-table tr:hover {
+    background: rgba(255,255,255,0.02);
+}
+
+.priority-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.priority-baja {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+}
+
+.priority-media {
+    background: rgba(234, 179, 8, 0.2);
+    color: #eab308;
+}
+
+.priority-alta {
+    background: rgba(249, 115, 22, 0.2);
+    color: #f97316;
+}
+
+.priority-urgente {
+    background: rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+}
+
+.status-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.status-abierto {
+    background: rgba(59, 130, 246, 0.2);
+    color: #3b82f6;
+}
+
+.status-en_proceso {
+    background: rgba(234, 179, 8, 0.2);
+    color: #eab308;
+}
+
+.status-resuelto {
+    background: rgba(34, 197, 94, 0.2);
+    color: #22c55e;
+}
+
+.status-cerrado {
+    background: rgba(148, 163, 184, 0.2);
+    color: #94a3b8;
+}
+
+.btn-action {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-responder {
+    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+    color: white;
+}
+
+.btn-responder:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+}
+
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    z-index: 10000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-overlay.active {
+    display: flex;
+}
+
+.modal-content {
+    background: rgba(15, 23, 42, 0.95);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 30px;
+    max-width: 600px;
+    width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.modal-header h2 {
+    color: #f8fafc;
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: #94a3b8;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.modal-close:hover {
+    color: #f8fafc;
+}
+
+.modal-body textarea {
+    width: 100%;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 12px;
+    color: #e2e8f0;
+    font-size: 0.95rem;
+    resize: vertical;
+    min-height: 150px;
+    margin-bottom: 15px;
+}
+
+.modal-body textarea:focus {
+    outline: none;
+    border-color: rgba(124, 58, 237, 0.5);
+}
+
+.modal-body select {
+    width: 100%;
+    background: rgba(15, 23, 42, 0.8);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 8px;
+    padding: 12px;
+    color: #e2e8f0;
+    font-size: 0.95rem;
+    margin-bottom: 15px;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn-cancel {
+    background: rgba(148, 163, 184, 0.2);
+    color: #94a3b8;
+    border: 1px solid rgba(255,255,255,0.1);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-cancel:hover {
+    background: rgba(148, 163, 184, 0.3);
+}
+
+.btn-submit {
+    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+
+.btn-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>🎧 Panel de Soporte</h1>
+        <a href="{% url 'panel_admin' %}" class="back-link">← Volver al Panel Principal</a>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-number">{{ total_tickets }}</div>
+            <div class="stat-label">Total Tickets</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ tickets_abiertos }}</div>
+            <div class="stat-label">Abiertos</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ tickets_en_proceso }}</div>
+            <div class="stat-label">En Proceso</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">{{ tickets_resueltos }}</div>
+            <div class="stat-label">Resueltos</div>
+        </div>
+    </div>
+
+    <div class="tickets-table">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Asunto</th>
+                    <th>Prioridad</th>
+                    <th>Estado</th>
+                    <th>Fecha</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for ticket in tickets %}
+                <tr>
+                    <td>#{{ ticket.id }}</td>
+                    <td>{{ ticket.usuario.username|default:"Anónimo" }}</td>
+                    <td>{{ ticket.asunto }}</td>
+                    <td>
+                        <span class="priority-badge priority-{{ ticket.prioridad }}">
+                            {{ ticket.get_prioridad_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="status-badge status-{{ ticket.estado }}">
+                            {{ ticket.get_estado_display }}
+                        </span>
+                    </td>
+                    <td>{{ ticket.fecha_creacion|date:"d/m/Y H:i" }}</td>
+                    <td>
+                        <button class="btn-action btn-responder" onclick="abrirModalRespuesta({{ ticket.id }}, '{{ ticket.asunto|escapejs }}', '{{ ticket.descripcion|escapejs }}', '{{ ticket.estado }}')">
+                            Responder
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" style="text-align: center; padding: 30px;">
+                        No hay tickets de soporte
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Modal de Respuesta -->
+<div class="modal-overlay" id="modal-respuesta">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Responder Ticket</h2>
+            <button class="modal-close" onclick="cerrarModalRespuesta()">×</button>
+        </div>
+        <div class="modal-body">
+            <p style="color: #94a3b8; margin-bottom: 15px;">
+                <strong>Asunto:</strong> <span id="modal-asunto"></span>
+            </p>
+            <p style="color: #94a3b8; margin-bottom: 15px;">
+                <strong>Descripción:</strong> <span id="modal-descripcion"></span>
+            </p>
+            <label style="color: #e2e8f0; display: block; margin-bottom: 8px;">Estado:</label>
+            <select id="modal-estado">
+                <option value="en_proceso">En proceso</option>
+                <option value="resuelto">Resuelto</option>
+                <option value="cerrado">Cerrado</option>
+            </select>
+            <label style="color: #e2e8f0; display: block; margin-bottom: 8px;">Respuesta:</label>
+            <textarea id="modal-respuesta" placeholder="Escribe tu respuesta..."></textarea>
+        </div>
+        <div class="modal-footer">
+            <button class="btn-cancel" onclick="cerrarModalRespuesta()">Cancelar</button>
+            <button class="btn-submit" onclick="enviarRespuesta()">Enviar Respuesta</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let ticketActual = null;
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(name + "=")) {
+                cookieValue = decodeURIComponent(cookie.split("=")[1]);
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function abrirModalRespuesta(ticketId, asunto, descripcion, estado) {
+    ticketActual = ticketId;
+    document.getElementById('modal-asunto').textContent = asunto;
+    document.getElementById('modal-descripcion').textContent = descripcion;
+    document.getElementById('modal-estado').value = estado;
+    document.getElementById('modal-respuesta').value = '';
+    document.getElementById('modal-respuesta').classList.add('active');
+}
+
+function cerrarModalRespuesta() {
+    document.getElementById('modal-respuesta').classList.remove('active');
+    ticketActual = null;
+}
+
+function enviarRespuesta() {
+    const respuesta = document.getElementById('modal-respuesta').value.trim();
+    const estado = document.getElementById('modal-estado').value;
+    
+    if (!respuesta) {
+        alert('Por favor escribe una respuesta');
+        return;
+    }
+    
+    if (!ticketActual) {
+        alert('Error: No hay ticket seleccionado');
+        return;
+    }
+    
+    fetch(`/api/responder-ticket/${ticketActual}/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            respuesta: respuesta,
+            estado: estado
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Respuesta enviada exitosamente');
+            cerrarModalRespuesta();
+            location.reload();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        alert('Error al enviar respuesta');
+    });
+}
+</script>
+{% endblock %}

@@ -227,6 +227,20 @@
         </div>
     </div>
 
+    <!-- Enlaces rápidos a paneles de administración -->
+    <div class="stats-grid">
+        <a href="{% url 'admin_soporte' %}" class="stat-card" style="text-decoration: none; cursor: pointer;">
+            <div class="stat-icon"><i class="ti ti-headset"></i></div>
+            <div class="stat-value">🎧</div>
+            <div class="stat-label">Soporte</div>
+        </a>
+        <a href="{% url 'admin_sugerencias' %}" class="stat-card" style="text-decoration: none; cursor: pointer;">
+            <div class="stat-icon"><i class="ti ti-lightbulb"></i></div>
+            <div class="stat-value">💡</div>
+            <div class="stat-label">Sugerencias</div>
+        </a>
+    </div>
+
     <div class="recent-users-section">
         <h2><i class="ti ti-user-plus"></i> Usuarios Recientes</h2>
         <div class="users-table-container">

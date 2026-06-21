@@ -39,10 +39,6 @@
     <div class="hero-section">
         <h1 class="hero-title">Bienvenido a MiniAmigixV</h1>
         <p class="hero-subtitle">Tu espacio personal interactivo</p>
-        <div class="time-widget">
-            <i class="ti ti-clock"></i>
-            <span id="clock"></span>
-        </div>
         <button id="pwa-install-hero" class="pwa-install-hero-btn" style="display: none;">
             <i class="ti ti-download"></i>
             Instalar App
@@ -117,13 +113,6 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-function updateClock() {
-    const now = new Date();
-    document.getElementById("clock").innerText = now.toLocaleTimeString();
-}
-setInterval(updateClock, 1000);
-updateClock();
-
 // Configuración del Gráfico de Estadísticas
 document.addEventListener('DOMContentLoaded', function() {
     const ctx = document.getElementById('activityChart').getContext('2d');

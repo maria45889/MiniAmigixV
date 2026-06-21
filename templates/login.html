@@ -1,4 +1,5 @@
 {% load static %}
+{% load socialaccount %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -6,8 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Iniciar Sesión - MiniAmigixV</title>
     <!-- Favicon -->
-    <link rel="icon" href="{% static 'imagenes/logo.png' %}" type="image/png">
-    <link rel="shortcut icon" href="{% static 'imagenes/logo.png' %}" type="image/png">
+    <link rel="icon" href="{% static 'imagenes/logo_square.png' %}" type="image/png">
+    <link rel="shortcut icon" href="{% static 'imagenes/logo_square.png' %}" type="image/png">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <link rel="stylesheet" href="{% static 'css/configuraciones.css' %}">
     <link rel="stylesheet" href="{% static 'css/sidebar-neon.css' %}">
@@ -169,6 +170,9 @@
             {% endif %}
             <button class="login-action" type="submit">Entrar</button>
         </form>
+
+        <div class="separator"><span>O</span></div>
+
         <p class="login-footer">
             ¿No tienes cuenta? <a href="{% url 'register' %}">Regístrate aquí</a>
         </p>

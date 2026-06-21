@@ -94,6 +94,7 @@
                                 </div>
                             </div>
                             <div style="display: flex; gap: 5px;">
+                                <button class="btn-favorite" onclick="toggleFavorite({{ cancion.id }}, this)">❤️</button>
                                 <button class="btn-delete" style="background: none; border: none; font-size: 16px; cursor: pointer; opacity: 0.6; transition: 0.3s;" onclick="editSong({{ cancion.id }}, '{{ cancion.nombre|escapejs }}', '{{ cancion.artista|default:""|escapejs }}')">✏️</button>
                                 <button class="btn-delete" onclick="deleteSong({{ cancion.id }})">🗑️</button>
                             </div>
@@ -104,6 +105,66 @@
                     {% else %}
                         <p style="color: var(--text-muted); text-align: center; padding: 20px;">
                             <a href="{% url 'login' %}">Inicia sesión</a> para acceder a la matriz
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Playlists -->
+            <div class="music-section playlist-section" style="margin-top: 20px;">
+                <div class="playlist-header-neon">
+                    <h3 class="neon-title">TUS PLAYLISTS</h3>
+                    <button class="btn-create-playlist" onclick="crearPlaylist()">➕ Nueva</button>
+                </div>
+                <div class="playlist-items custom-scrollbar">
+                    {% if request.user.is_authenticated %}
+                        {% for playlist in playlists %}
+                        <div class="playlist-item">
+                            <div class="song-info">
+                                <div class="song-icon">📋</div>
+                                <div class="song-details">
+                                    <span class="song-name">{{ playlist.nombre }}</span>
+                                    <span class="song-freq">{{ playlist.canciones.count }} canciones</span>
+                                </div>
+                            </div>
+                            <button class="btn-delete" onclick="eliminarPlaylist({{ playlist.id }})">🗑️</button>
+                        </div>
+                        {% empty %}
+                        <p style="color: var(--text-muted); text-align: center; padding: 20px;">No tienes playlists</p>
+                        {% endfor %}
+                    {% else %}
+                        <p style="color: var(--text-muted); text-align: center; padding: 20px;">
+                            <a href="{% url 'login' %}">Inicia sesión</a> para ver tus playlists
+                        </p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Favoritos -->
+            <div class="music-section playlist-section" style="margin-top: 20px;">
+                <div class="playlist-header-neon">
+                    <h3 class="neon-title">❤️ FAVORITOS</h3>
+                    <span class="playlist-count">{{ favoritos|length }}</span>
+                </div>
+                <div class="playlist-items custom-scrollbar">
+                    {% if request.user.is_authenticated %}
+                        {% for cancion in favoritos %}
+                        <div class="playlist-item" data-id="{{ cancion.id }}" data-youtube-id="{{ cancion.youtube_id }}" data-name="{{ cancion.nombre }}" data-artist="{{ cancion.artista|default:"" }}">
+                            <div class="song-info" onclick="playSongFromItem({{ cancion.id }})">
+                                <div class="song-icon">💿</div>
+                                <div class="song-details">
+                                    <span class="song-name">{{ cancion.nombre }}{% if cancion.artista %} - {{ cancion.artista }}{% endif %}</span>
+                                    <span class="song-freq">FAVORITO</span>
+                                </div>
+                            </div>
+                            <button class="btn-delete" onclick="toggleFavorite({{ cancion.id }}, this)">❤️</button>
+                        </div>
+                        {% empty %}
+                        <p style="color: var(--text-muted); text-align: center; padding: 20px;">No tienes favoritos</p>
+                        {% endfor %}
+                    {% else %}
+                        <p style="color: var(--text-muted); text-align: center; padding: 20px;">
+                            <a href="{% url 'login' %}">Inicia sesión</a> para ver tus favoritos
                         </p>
                     {% endif %}
                 </div>
@@ -675,6 +736,102 @@ function getCookie(name) {
         }
     }
     return cookieValue;
+}
+
+// ==================== FUNCIONES DE PLAYLISTS Y FAVORITOS ====================
+
+function crearPlaylist() {
+    const nombre = prompt('Nombre de la playlist:');
+    if (!nombre) return;
+    
+    const descripcion = prompt('Descripción (opcional):') || '';
+    
+    fetch('/api/crear-playlist/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            nombre: nombre,
+            descripcion: descripcion
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Playlist creada exitosamente');
+            location.reload();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        alert('Error al crear playlist');
+    });
+}
+
+function agregarAPlaylist(playlistId, cancionId) {
+    fetch('/api/agregar-a-playlist/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            playlist_id: playlistId,
+            cancion_id: cancionId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Canción agregada a playlist');
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        alert('Error al agregar a playlist');
+    });
+}
+
+function toggleFavorite(cancionId, button) {
+    fetch('/api/toggle-favorito/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            cancion_id: cancionId
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (data.is_favorito) {
+                button.textContent = '❤️';
+                button.style.color = '#ff6b6b';
+            } else {
+                button.textContent = '🤍';
+                button.style.color = '#e2e8f0';
+            }
+            location.reload();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        alert('Error al toggle favorito');
+    });
+}
+
+function eliminarPlaylist(playlistId) {
+    if (!confirm('¿Estás seguro de eliminar esta playlist?')) return;
+    
+    // Implementar eliminación de playlist
+    alert('Función de eliminar playlist pendiente de implementación');
 }
 
 // ==================== INTEGRACIÓN CON MINI PLAYER GLOBAL ====================
