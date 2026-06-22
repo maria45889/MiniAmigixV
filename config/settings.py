@@ -62,9 +62,11 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
-    'allauth.socialaccount.providers.microsoft',
-    'allauth.socialaccount.providers.github',
     'webpush', # Añadir la aplicación webpush
+    # MongoEngine
+    'mongoengine',
+    # MongoDB App
+    'mongodb',
     # Project Apps
     'app.apps.AppConfig',
     'configuracion',
@@ -75,6 +77,9 @@ INSTALLED_APPS = [
     'soporte',
     'tutorial',
     'estudio.apps.EstudioConfig',
+    'rest_framework',
+    'rest_framework_simplejwt',
+    'apps.api',
 ]
 
 MIDDLEWARE = [
@@ -173,9 +178,7 @@ SOCIALACCOUNT_PROVIDERS = {
         'AUTH_PARAMS': {
             'prompt': 'select_account',
         },
-    },
-    'github': {},
-    'microsoft': {}
+    }
 }
 
 
@@ -249,3 +252,35 @@ ACCOUNT_LOGOUT_REDIRECT_URL = 'home' # Redirige a 'home' después de un logout
 WEBPUSH_VAPID_PRIVATE_KEY = os.getenv('WEBPUSH_VAPID_PRIVATE_KEY', 'TU_CLAVE_PRIVADA_AQUI')
 WEBPUSH_VAPID_PUBLIC_KEY = os.getenv('WEBPUSH_VAPID_PUBLIC_KEY', 'TU_CLAVE_PUBLICA_AQUI')
 WEBPUSH_CONTACT_EMAIL = os.getenv('WEBPUSH_CONTACT_EMAIL', 'tu_email@ejemplo.com')
+
+# Django REST Framework
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
+
+from datetime import timedelta
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
+    'ROTATE_REFRESH_TOKENS': False,
+    'BLACKLIST_AFTER_ROTATION': False,
+}
+
+# ==================== MONGODB CONFIGURATION ====================
+from mongoengine import connect
+
+# Conexión a MongoDB
+MONGODB_URI = os.getenv('MONGODB_URI', 'mongodb://localhost:27017/')
+MONGODB_NAME = os.getenv('MONGODB_NAME', 'miniamigixv_db')
+
+# Conectar a MongoDB
+try:
+    connect(db=MONGODB_NAME, host=MONGODB_URI, alias='default')
+    print(f"✓ Conectado a MongoDB: {MONGODB_NAME}")
+except Exception as e:
+    print(f"✗ Error al conectar a MongoDB: {str(e)}")
+
+# Configuración de MongoEngine
+MONGOENGINE_USER_DOCUMENT = 'mongoengine.django.auth.User'

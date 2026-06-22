@@ -25,6 +25,14 @@ class Perfil(models.Model):
     sonidos = models.BooleanField(default=True)
     # Sesión
     actividad_en_linea = models.BooleanField(default=True)
+    # Reloj inteligente
+    formato_reloj = models.CharField(max_length=10, choices=[
+        ('12h', '12 horas'),
+        ('24h', '24 horas'),
+    ], default='24h')
+    mostrar_segundos = models.BooleanField(default=True)
+    mostrar_fecha = models.BooleanField(default=True)
+    zona_horaria = models.CharField(max_length=50, default='UTC')
 
     def __str__(self):
         return self.usuario.username

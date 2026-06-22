@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{% static 'css/entretenimiento.css' %}?v=10">
+<link rel="stylesheet" href="{% static 'css/entretenimiento.css' %}?v=13">
 {% endblock %}
 
 {% block content %}
@@ -20,13 +20,11 @@
     <h1 class="entertain-page-title">🎭 Entretenimiento</h1>
     <p class="entertain-page-subtitle">Descubre películas, series, libros y teatro recomendados para ti</p>
 
-    <!-- Category Cards Carousel -->
-    <div class="cat-carousel-container">
-        <button class="trend-nav trend-nav-left cat-nav-btn" onclick="scrollCatCarousel(-1)">❮</button>
-        <div class="entertain-grid" id="cat-scroll">
+    <!-- Category Cards Grid -->
+    <div class="entertain-grid sortable-grid" id="cat-scroll" data-grid-id="entretenimiento">
 
         <!-- Películas -->
-        <div class="cat-card cat-card--peliculas" onclick="abrirModal('peliculas')">
+        <div class="cat-card cat-card--peliculas" onclick="abrirModal('peliculas')" data-id="peliculas">
             <span class="cat-tag">Popular</span>
             <div class="cat-icon">🎬</div>
             <h3>Películas</h3>
@@ -35,7 +33,7 @@
         </div>
 
         <!-- Series -->
-        <div class="cat-card cat-card--series" onclick="abrirModal('series')">
+        <div class="cat-card cat-card--series" onclick="abrirModal('series')" data-id="series">
             <span class="cat-tag">Trending</span>
             <div class="cat-icon">📺</div>
             <h3>Series</h3>
@@ -44,7 +42,7 @@
         </div>
 
         <!-- Libros -->
-        <div class="cat-card cat-card--libros" onclick="abrirModal('libros')">
+        <div class="cat-card cat-card--libros" onclick="abrirModal('libros')" data-id="libros">
             <span class="cat-tag">Nuevo</span>
             <div class="cat-icon">📚</div>
             <h3>Libros</h3>
@@ -53,7 +51,7 @@
         </div>
 
         <!-- Teatro -->
-        <div class="cat-card cat-card--teatro" onclick="abrirModal('teatro')">
+        <div class="cat-card cat-card--teatro" onclick="abrirModal('teatro')" data-id="teatro">
             <span class="cat-tag">Especial</span>
             <div class="cat-icon">🎭</div>
             <h3>Teatro</h3>
@@ -61,7 +59,6 @@
             <button class="cat-btn" type="button">Explorar →</button>
         </div>
 
-        </div>
     </div>
 
     <!-- Trending Section (Quick Preview) -->
@@ -219,28 +216,7 @@ function scrollTrending(dir) {
     scroll.scrollBy({ left: dir * 280, behavior: 'smooth' });
 }
 
-function scrollCatCarousel(dir) {
-    const scroll = document.getElementById('cat-scroll');
-    const card = scroll.querySelector('.cat-card');
-    if (card && scroll) {
-        const scrollAmount = card.offsetWidth + 28; // width + gap
-        scroll.scrollBy({ left: dir * scrollAmount, behavior: 'smooth' });
-    }
-}
-
 function checkScrollVisibility() {
-    // Check categories
-    const catScroll = document.getElementById('cat-scroll');
-    if (catScroll) {
-        const container = catScroll.closest('.cat-carousel-container');
-        if (container) {
-            const btns = container.querySelectorAll('.cat-nav-btn');
-            // If it can't scroll, hide arrows
-            const hide = catScroll.scrollWidth <= catScroll.clientWidth + 5;
-            btns.forEach(btn => btn.style.display = hide ? 'none' : 'flex');
-        }
-    }
-    
     // Check tendencias
     const trendScroll = document.getElementById('trending-scroll');
     if (trendScroll) {
@@ -250,9 +226,7 @@ function checkScrollVisibility() {
             // Hide if no overflow
             const hide = trendScroll.scrollWidth <= trendScroll.clientWidth + 5;
             btns.forEach(btn => {
-                if (!btn.classList.contains('cat-nav-btn')) { // ensure we don't grab wrong btns if nested
-                    btn.style.display = hide ? 'none' : 'flex';
-                }
+                btn.style.display = hide ? 'none' : 'flex';
             });
         }
     }

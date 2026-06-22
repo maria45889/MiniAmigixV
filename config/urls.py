@@ -17,6 +17,12 @@ urlpatterns = [
     # PWA Manifest
     path('manifest.json', TemplateView.as_view(template_name='manifest.json', content_type='application/json'), name='manifest'),
     
+    # API routes
+    path('api/', include('apps.api.urls')),
+    
+    # MongoDB Analytics
+    path('mongodb/', include('mongodb.urls')),
+    
     # Main Application
     path('', include('app.urls')),
 ]
@@ -24,3 +30,4 @@ urlpatterns = [
 # Serve PWA files in development
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

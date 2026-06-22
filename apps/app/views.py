@@ -19,7 +19,7 @@ import requests
 import random
 import datetime
 import yt_dlp
-from .models import ConversacionChat, MensajeChat, Cancion, PublicacionBlog, Playlist, Favorite
+from .models import ConversacionChat, MensajeChat, Cancion, PublicacionBlog, Playlist, Favorite, Game, Score, Achievement, UserAchievement, Category, Comment, EstadoAnimo
 from eventos.models import Evento
 from notificaciones.models import Notificacion
 from apps.mongodb.services import DualDatabaseService
@@ -95,7 +95,7 @@ def chat_api(request):
             eventos_contexto = "\n".join(eventos_proximos) if eventos_proximos else "No tienes eventos en los próximos 5 días."
             
             messages = [
-                {"role": "system", "content": f"Eres MiniAmigix, un asistente amigable y entusiasta. Responde en español de forma concisa. Usa emojis con moderación, solo cuando sea necesario para dar énfasis. 🌟\n\nEventos próximos del usuario:\n{eventos_contexto}\n\nCuando el usuario pregunte por sus eventos o agenda, recuérdale estos eventos. Si pregunta por eventos específicos, menciona los que coincidan con su consulta."}
+                {"role": "system", "content": f"Eres MiniAmigix, un asistente amigable y entusiasta creado en 2026. Responde en español de forma concisa. Usa emojis con moderación, solo cuando sea necesario para dar énfasis. 🌟\n\nEventos próximos del usuario:\n{eventos_contexto}\n\nCuando el usuario pregunte por sus eventos o agenda, recuérdale estos eventos. Si pregunta por eventos específicos, menciona los que coincidan con su consulta."}
             ]
             
             for msg in mensajes:
@@ -104,7 +104,7 @@ def chat_api(request):
         else:
             # For non-authenticated users, just use current message
             messages = [
-                {"role": "system", "content": "Eres MiniAmigix, un asistente amigable y entusiasta. Responde en español de forma concisa. Usa emojis con moderación. ✨"},
+                {"role": "system", "content": "Eres MiniAmigix, un asistente amigable y entusiasta creado en 2026. Responde en español de forma concisa. Usa emojis con moderación. ✨"},
                 {"role": "user", "content": message}
             ]
         
@@ -687,24 +687,48 @@ def add_song_api(request):
         return JsonResponse({'success': False, 'error': 'No autenticado'}, status=401)
     
     try:
-        data = json.loads(request.body)
-        nombre = data.get('nombre')
-        artista = data.get('artista', '')
-        youtube_url = data.get('youtube_url', '')
-        youtube_id = data.get('youtube_id', '')
-        
-        if not nombre:
-            return JsonResponse({'success': False, 'error': 'Nombre requerido'}, status=400)
-        
-        cancion = Cancion.objects.create(
-            usuario=request.user,
-            nombre=nombre,
-            artista=artista,
-            youtube_url=youtube_url,
-            youtube_id=youtube_id
-        )
-        
-        return JsonResponse({'success': True, 'cancion_id': cancion.id})
+        # Verificar si es FormData (con archivo) o JSON
+        if request.content_type and 'multipart/form-data' in request.content_type:
+            # Manejar subida de archivo
+            nombre = request.POST.get('nombre')
+            artista = request.POST.get('artista', '')
+            youtube_url = request.POST.get('youtube_url', '')
+            youtube_id = request.POST.get('youtube_id', '')
+            audio_file = request.FILES.get('audio_file')
+            
+            if not nombre:
+                return JsonResponse({'success': False, 'error': 'Nombre requerido'}, status=400)
+            
+            cancion = Cancion.objects.create(
+                usuario=request.user,
+                nombre=nombre,
+                artista=artista,
+                youtube_url=youtube_url,
+                youtube_id=youtube_id,
+                audio_file=audio_file
+            )
+            
+            return JsonResponse({'success': True, 'cancion_id': cancion.id})
+        else:
+            # Manejar JSON (compatibilidad con código existente)
+            data = json.loads(request.body)
+            nombre = data.get('nombre')
+            artista = data.get('artista', '')
+            youtube_url = data.get('youtube_url', '')
+            youtube_id = data.get('youtube_id', '')
+            
+            if not nombre:
+                return JsonResponse({'success': False, 'error': 'Nombre requerido'}, status=400)
+            
+            cancion = Cancion.objects.create(
+                usuario=request.user,
+                nombre=nombre,
+                artista=artista,
+                youtube_url=youtube_url,
+                youtube_id=youtube_id
+            )
+            
+            return JsonResponse({'success': True, 'cancion_id': cancion.id})
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
@@ -726,6 +750,129 @@ def stream_audio_api(request, youtube_id):
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 @require_http_methods(["GET"])
+def search_lyrics_api(request):
+    """API endpoint para buscar letras de canciones usando web scraping"""
+    song_name = request.GET.get('song', '')
+    artist = request.GET.get('artist', '')
+    
+    if not song_name:
+        return JsonResponse({'error': 'Nombre de canción requerido'}, status=400)
+    
+    try:
+        from bs4 import BeautifulSoup
+        search_term = f"{song_name} {artist}".strip()
+        
+        # Intentar buscar en Genius directamente sin API key
+        # Usar DuckDuckGo para buscar la página de Genius
+        search_query = f"{search_term} site:genius.com lyrics"
+        ddg_url = f"https://duckduckgo.com/html/?q={requests.utils.quote(search_query)}"
+        
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+        
+        try:
+            response = requests.get(ddg_url, headers=headers, timeout=10)
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, 'html.parser')
+                # Buscar enlaces de resultados
+                results = soup.find_all('a', class_='result__url', href=True)
+                for result in results:
+                    href = result['href']
+                    if 'genius.com' in href:
+                        # Extraer la letra de Genius
+                        try:
+                            lyrics_response = requests.get(href, headers=headers, timeout=10)
+                            if lyrics_response.status_code == 200:
+                                lyrics_soup = BeautifulSoup(lyrics_response.text, 'html.parser')
+                                # Genius almacena las letras en divs con data-lyrics-container
+                                lyrics_divs = lyrics_soup.find_all('div', {'data-lyrics-container': True})
+                                if lyrics_divs:
+                                    lyrics = '\n'.join([div.get_text(separator='\n') for div in lyrics_divs])
+                                    # Limpiar la letra (remover tags HTML)
+                                    lyrics = lyrics.strip()
+                                    if len(lyrics) > 50:  # Verificar que tenga contenido significativo
+                                        return JsonResponse({
+                                            'success': True,
+                                            'lyrics': lyrics,
+                                            'source': 'Genius',
+                                            'url': href
+                                        })
+                        except Exception as e:
+                            logger.warning(f"Error extrayendo de {href}: {str(e)}")
+                            continue
+        except Exception as e:
+            logger.warning(f"Error en búsqueda DuckDuckGo: {str(e)}")
+        
+        # Fallback: Intentar con Letras.com
+        try:
+            letras_search = f"https://www.letras.com/{artist.lower().replace(' ', '-')}/{song_name.lower().replace(' ', '-')}/"
+            response = requests.get(letras_search, headers=headers, timeout=10)
+            if response.status_code == 200:
+                soup = BeautifulSoup(response.text, 'html.parser')
+                lyrics_div = soup.find('div', class_='lyrics')
+                if lyrics_div:
+                    lyrics = lyrics_div.get_text(separator='\n').strip()
+                    if len(lyrics) > 50:
+                        return JsonResponse({
+                            'success': True,
+                            'lyrics': lyrics,
+                            'source': 'Letras.com',
+                            'url': letras_search
+                        })
+        except Exception as e:
+            logger.warning(f"Error en Letras.com: {str(e)}")
+        
+        # Si no se encontró nada, retornar mensaje informativo
+        return JsonResponse({
+            'success': False,
+            'error': 'No se encontró la letra',
+            'message': f'No se encontró la letra para "{search_term}". Intenta con el nombre exacto de la canción y artista.'
+        })
+        
+    except Exception as e:
+        logger.error(f"Error en search_lyrics_api: {str(e)}", exc_info=True)
+        return JsonResponse({'error': f'Error al buscar letras: {str(e)}'}, status=500)
+
+@login_required
+@require_http_methods(["GET"])
+def get_lyrics_api(request, song_id):
+    try:
+        cancion = Cancion.objects.get(id=song_id, usuario=request.user)
+        return JsonResponse({
+            'success': True,
+            'letra': cancion.letra,
+            'letra_sincronizada': cancion.letra_sincronizada
+        })
+    except Cancion.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Canción no encontrada'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+@login_required
+@require_http_methods(["POST"])
+def save_lyrics_api(request, song_id):
+    try:
+        data = json.loads(request.body)
+        letra = data.get('letra')
+        letra_sincronizada = data.get('letra_sincronizada')
+        
+        cancion = Cancion.objects.get(id=song_id, usuario=request.user)
+        
+        if letra is not None:
+            cancion.letra = letra
+        if letra_sincronizada is not None:
+            cancion.letra_sincronizada = letra_sincronizada
+            
+        cancion.save()
+        
+        return JsonResponse({'success': True})
+    except Cancion.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Canción no encontrada'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+@login_required
 def download_media_api(request):
     # Return JSON 401 for unauthenticated API calls to avoid HTML login redirects
     if not request.user.is_authenticated:
@@ -765,12 +912,14 @@ def download_media_api(request):
                 }],
             })
             expected_ext = 'mp3'
+            expected_mime = 'audio/mpeg'
         else:
             ydl_opts.update({
                 'format': 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
                 'merge_output_format': 'mp4',
             })
             expected_ext = 'mp4'
+            expected_mime = 'video/mp4'
             
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
@@ -778,58 +927,71 @@ def download_media_api(request):
             # Find the actual file generated in the temp directory to avoid path guessing errors
             files = [f for f in os.listdir(temp_dir) if os.path.isfile(os.path.join(temp_dir, f))]
             if not files:
+                try:
+                    shutil.rmtree(temp_dir)
+                except Exception:
+                    pass
                 raise Exception("No se pudo localizar el archivo descargado.")
 
             # Prefer the file matching the expected extension (mp3/mp4)
             final_filename = next((f for f in files if f.endswith(expected_ext)), files[0])
             final_path = os.path.join(temp_dir, final_filename)
 
-            if os.path.getsize(final_path) > 0:
-                file = open(final_path, 'rb')
-                response = FileResponse(file)
-
-                # Sanitize the title for the attachment header
-                title = info.get('title', 'descarga')
-                safe_title = "".join([c for c in title if c.isalnum() or c in (' ', '-', '_')]).strip()
-                response['Content-Disposition'] = f'attachment; filename="{safe_title}.{expected_ext}"'
-
-                # Add Content-Length and Content-Type
-                try:
-                    size = os.path.getsize(final_path)
-                    response['Content-Length'] = str(size)
-                except Exception:
-                    pass
-                ctype, _ = mimetypes.guess_type(final_path)
-                if ctype:
-                    response['Content-Type'] = ctype
-
-                # Ensure temporary directory is removed after response is closed
-                orig_close = response.close
-                def cleanup_and_close():
-                    try:
-                        orig_close()
-                    finally:
-                        try:
-                            file.close()
-                        except Exception:
-                            pass
-                        try:
-                            shutil.rmtree(temp_dir)
-                        except Exception:
-                            pass
-
-                response.close = cleanup_and_close
-
-                return response
-            else:
-                # Clean up temp dir on failure
+            file_size = os.path.getsize(final_path)
+            if file_size == 0:
                 try:
                     shutil.rmtree(temp_dir)
                 except Exception:
                     pass
-                return HttpResponse('Error: Archivo no generado o vacío', status=500)
+                raise Exception("El archivo descargado está vacío.")
+            
+            # Validate file size is reasonable (at least 1KB for audio/video)
+            if file_size < 1024:
+                try:
+                    shutil.rmtree(temp_dir)
+                except Exception:
+                    pass
+                raise Exception(f"El archivo descargado es demasiado pequeño ({file_size} bytes).")
+
+            # Open file in binary mode and create FileResponse
+            file = open(final_path, 'rb')
+            response = FileResponse(file, as_attachment=True)
+
+            # Sanitize the title for the attachment header
+            title = info.get('title', 'descarga')
+            safe_title = "".join([c for c in title if c.isalnum() or c in (' ', '-', '_')]).strip()
+            response['Content-Disposition'] = f'attachment; filename="{safe_title}.{expected_ext}"'
+
+            # Set Content-Length and Content-Type explicitly
+            response['Content-Length'] = str(file_size)
+            response['Content-Type'] = expected_mime
+
+            # Ensure temporary directory is removed after response is closed
+            orig_close = response.close
+            def cleanup_and_close():
+                try:
+                    orig_close()
+                finally:
+                    try:
+                        file.close()
+                    except Exception:
+                        pass
+                    try:
+                        shutil.rmtree(temp_dir)
+                    except Exception:
+                        pass
+
+            response.close = cleanup_and_close
+
+            return response
                 
     except Exception as e:
+        # Clean up temp dir on any error
+        try:
+            if 'temp_dir' in locals():
+                shutil.rmtree(temp_dir)
+        except Exception:
+            pass
         return HttpResponse(f'Error al procesar la descarga: {str(e)}', status=500)
 
 @login_required

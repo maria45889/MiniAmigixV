@@ -359,6 +359,82 @@
         color: white;
     }
 
+    /* ===== SECCIÓN DE COMENTARIOS ===== */
+    .comments-section {
+        margin-top: 20px;
+        padding-top: 20px;
+        border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    .comments-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 15px;
+        color: #94a3b8;
+        font-size: 0.9rem;
+    }
+    .comment-item {
+        background: rgba(15, 23, 42, 0.5);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 10px;
+        padding: 15px;
+        margin-bottom: 10px;
+    }
+    .comment-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+    }
+    .comment-author {
+        font-weight: 600;
+        color: #e2e8f0;
+        font-size: 0.85rem;
+    }
+    .comment-date {
+        color: #64748b;
+        font-size: 0.75rem;
+    }
+    .comment-content {
+        color: #94a3b8;
+        font-size: 0.9rem;
+        line-height: 1.5;
+    }
+    .comment-form {
+        margin-top: 15px;
+    }
+    .comment-input {
+        width: 100%;
+        background: rgba(15, 23, 42, 0.8);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 8px;
+        padding: 12px;
+        color: #e2e8f0;
+        font-size: 0.9rem;
+        resize: vertical;
+        min-height: 60px;
+    }
+    .comment-input:focus {
+        outline: none;
+        border-color: rgba(124, 58, 237, 0.5);
+    }
+    .btn-comment {
+        background: linear-gradient(135deg, #7c3aed, #06b6d4);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: all 0.3s ease;
+    }
+    .btn-comment:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+    }
+
     /* ===== TARJETA DE PUBLICACIÓN PERSONAL ===== */
     .pub-card {
         background: rgba(255, 255, 255, 0.04);
@@ -537,6 +613,25 @@
             <h2>📢 Noticias Globales</h2>
         </div>
 
+        {% if request.user.is_staff %}
+        <div style="margin-bottom: 20px; padding: 15px; background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 10px;">
+            <h3 style="color: #e2e8f0; margin: 0 0 10px 0; font-size: 1rem;">Gestionar Categorías</h3>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <input type="text" id="new-category-name" placeholder="Nombre de categoría" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 12px; color: #e2e8f0;">
+                <input type="text" id="new-category-icon" placeholder="Icono (emoji)" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 12px; color: #e2e8f0; width: 80px;">
+                <button class="btn-comment" onclick="crearCategoria()">Crear Categoría</button>
+            </div>
+            <div style="margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap;">
+                {% for categoria in categorias %}
+                <span style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 5px 12px; color: #e2e8f0; font-size: 0.85rem; display: flex; align-items: center; gap: 5px;">
+                    {{ categoria.icono }} {{ categoria.nombre }}
+                    <button onclick="eliminarCategoria({{ categoria.id }})" style="background: none; border: none; color: #f87171; cursor: pointer; font-size: 0.8rem;">×</button>
+                </span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
         {% for pub in noticias_globales %}
         <div class="noticia-card">
             <div class="badge-row">
@@ -547,6 +642,39 @@
             <h3>{{ pub.titulo }}</h3>
             <div class="meta">{{ pub.fecha_publicacion|date:"d M Y, H:i" }} · por {{ pub.usuario.username }}</div>
             <div class="body-text">{{ pub.contenido|linebreaksbr }}</div>
+
+            <!-- Sección de Comentarios -->
+            <div class="comments-section">
+                <div class="comments-header">
+                    <i class="fas fa-comments"></i>
+                    <span>{{ pub.comentarios_lista|length }} comentarios</span>
+                </div>
+                
+                {% if pub.comentarios_lista %}
+                    {% for comentario in pub.comentarios_lista %}
+                    <div class="comment-item">
+                        <div class="comment-header">
+                            <span class="comment-author">{{ comentario.usuario.username }}</span>
+                            <span class="comment-date">{{ comentario.fecha_creacion|date:"d M Y, H:i" }}</span>
+                        </div>
+                        <div class="comment-content">{{ comentario.contenido }}</div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p style="color: #64748b; font-size: 0.85rem; font-style: italic;">No hay comentarios aún</p>
+                {% endif %}
+                
+                {% if request.user.is_authenticated %}
+                <div class="comment-form">
+                    <textarea class="comment-input" id="comment-input-{{ pub.id }}" placeholder="Escribe un comentario..."></textarea>
+                    <button class="btn-comment" onclick="enviarComentario({{ pub.id }})">Enviar Comentario</button>
+                </div>
+                {% else %}
+                <p style="color: #64748b; font-size: 0.85rem;">
+                    <a href="{% url 'login' %}" style="color: #7c3aed;">Inicia sesión</a> para comentar
+                </p>
+                {% endif %}
+            </div>
 
             {% if request.user.is_staff and pub.usuario == request.user %}
             <div class="card-actions">
@@ -578,6 +706,34 @@
                 </div>
                 <div class="meta">{{ pub.fecha_publicacion|date:"d M Y, H:i" }}</div>
                 <div class="body-text">{{ pub.contenido|linebreaksbr }}</div>
+
+                <!-- Sección de Comentarios -->
+                <div class="comments-section">
+                    <div class="comments-header">
+                        <i class="fas fa-comments"></i>
+                        <span>{{ pub.comentarios_lista|length }} comentarios</span>
+                    </div>
+                    
+                    {% if pub.comentarios_lista %}
+                        {% for comentario in pub.comentarios_lista %}
+                        <div class="comment-item">
+                            <div class="comment-header">
+                                <span class="comment-author">{{ comentario.usuario.username }}</span>
+                                <span class="comment-date">{{ comentario.fecha_creacion|date:"d M Y, H:i" }}</span>
+                            </div>
+                            <div class="comment-content">{{ comentario.contenido }}</div>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <p style="color: #64748b; font-size: 0.85rem; font-style: italic;">No hay comentarios aún</p>
+                    {% endif %}
+                    
+                    <div class="comment-form">
+                        <textarea class="comment-input" id="comment-input-{{ pub.id }}" placeholder="Escribe un comentario..."></textarea>
+                        <button class="btn-comment" onclick="enviarComentario({{ pub.id }})">Enviar Comentario</button>
+                    </div>
+                </div>
+
                 <div class="card-actions">
                     <form method="POST" action="{% url 'eliminar_publicacion' pub.id %}" style="margin:0;">
                         {% csrf_token %}
@@ -600,4 +756,112 @@
     </div>
     {% endif %}
 </div>
+
+<script>
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(name + "=")) {
+                cookieValue = decodeURIComponent(cookie.split("=")[1]);
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function enviarComentario(publicacionId) {
+    const input = document.getElementById(`comment-input-${publicacionId}`);
+    const contenido = input.value.trim();
+    
+    if (!contenido) {
+        alert('Por favor escribe un comentario');
+        return;
+    }
+    
+    fetch('/blog/comentario/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            publicacion_id: publicacionId,
+            contenido: contenido
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Comentario enviado exitosamente');
+            location.reload();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        alert('Error al enviar comentario');
+    });
+}
+
+function crearCategoria() {
+    const nombre = document.getElementById('new-category-name').value.trim();
+    const icono = document.getElementById('new-category-icon').value.trim() || '📁';
+    
+    if (!nombre) {
+        alert('Por favor ingresa un nombre para la categoría');
+        return;
+    }
+    
+    fetch('/blog/categoria/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            nombre: nombre,
+            icono: icono
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Categoría creada exitosamente');
+            location.reload();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        alert('Error al crear categoría');
+    });
+}
+
+function eliminarCategoria(categoriaId) {
+    if (!confirm('¿Estás seguro de eliminar esta categoría?')) return;
+    
+    fetch(`/blog/categoria/${categoriaId}/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Categoría eliminada exitosamente');
+            location.reload();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        alert('Error al eliminar categoría');
+    });
+}
+</script>
 {% endblock %}

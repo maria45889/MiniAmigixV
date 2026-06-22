@@ -9,7 +9,10 @@
 
 {% block content %}
 <div class="sugerencias-container">
-    <h1>🔧 Panel de Administración - Sugerencias</h1>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1 style="margin: 0;">🔧 Panel de Administración - Sugerencias</h1>
+        <a href="{% url 'panel_admin' %}" style="color: #94a3b8; text-decoration: none; font-weight: 500; transition: color 0.3s;" onmouseover="this.style.color='#7c3aed'" onmouseout="this.style.color='#94a3b8'">← Volver al Panel Principal</a>
+    </div>
     
     <div class="admin-stats">
         <div class="stat-card">

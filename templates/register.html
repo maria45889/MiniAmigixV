@@ -154,19 +154,37 @@
             border: 1px solid rgba(255,255,255,0.06);
         }
         .social-button.google .icon { width: 18px; height: 18px; }
+        
         .separator {
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            margin: 1.9rem 0;
-            position: relative;
+            display: flex;
+            align-items: center;
             text-align: center;
+            margin: 1.5rem 0;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
-        .separator span {
-            background: rgba(15, 23, 42, 0.88);
-            padding: 0 14px;
-            color: var(--text-muted);
-            font-weight: 600;
-            position: relative;
-            top: 10px;
+        .separator::before, .separator::after {
+            content: '';
+            flex: 1;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .separator:not(:empty)::before {
+            margin-right: .5em;
+        }
+        .separator:not(:empty)::after {
+            margin-left: .5em;
+        }
+        
+        /* Fix auto-fill styles to blend with dark mode */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px #1e293b inset !important;
+            -webkit-text-fill-color: white !important;
+            transition: background-color 5000s ease-in-out 0s;
         }
         @media (max-width: 520px) {
             .login-card { padding: 1.8rem 1.5rem 2rem; }

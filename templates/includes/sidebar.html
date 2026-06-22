@@ -1,15 +1,20 @@
 {% load static %}
 <style>
     .sidebar-header {
-        padding: 1.5rem;
+        padding: 1rem 1rem 0.2rem;
         text-align: center;
     }
     .sidebar-header .logo {
         width: 100%;
-        max-width: 280px; /* Logo más grande */
+        max-width: 240px;
         height: auto;
         object-fit: contain;
         filter: drop-shadow(0 0 10px rgba(124, 58, 237, 0.2));
+        margin-bottom: 0.3rem;
+        border-radius: 10px;
+    }
+    .sidebar-header .logo-text {
+        display: none; /* Logo image already shows the name */
     }
 </style>
 <aside class="sidebar">
@@ -17,6 +22,8 @@
         <img src="{% static 'imagenes/logo.png' %}" alt="MiniAmigixV Logo" class="logo">
         <h1 class="logo-text">MiniAmigixV</h1>
     </div>
+
+
     <nav class="nav-group">
         <a href="/" class="nav-item {% if request.path == '/' %}active{% endif %}"><i data-lucide="home"></i> Inicio</a>
         <a href="{% url 'chat' %}" class="nav-item {% if request.resolver_match.url_name == 'chat' %}active{% endif %}"><i data-lucide="message-square"></i> Chat IA</a>
@@ -49,3 +56,5 @@
         <a href="{% url 'configuracion_view' %}" class="nav-item" title="Configuración"><i data-lucide="settings"></i></a>
     </div>
 </aside>
+
+

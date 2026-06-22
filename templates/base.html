@@ -13,10 +13,10 @@
     <meta name="description" content="MiniAmigixV - Tu espacio personal interactivo con IA, música, juegos y más">
     <meta name="application-name" content="MiniAmigixV">
     <!-- Favicon -->
-    <link rel="icon" href="{% static 'imagenes/logo.png' %}" type="image/png">
-    <link rel="shortcut icon" href="{% static 'imagenes/logo.png' %}" type="image/png">
+    <link rel="icon" href="{% static 'imagenes/logo_square.png' %}" type="image/png">
+    <link rel="shortcut icon" href="{% static 'imagenes/logo_square.png' %}" type="image/png">
     <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="{% static 'manifest.json' %}">
     <!-- Fuentes: Syne para títulos, Inter para UI -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syne:wght@700&display=swap" rel="stylesheet">
     <!-- Iconos: Lucide (Se recomienda descargar y servir localmente para evitar 'Tracking Prevention') -->
@@ -41,51 +41,83 @@
         /* Estilos para la cajita de sugerencias flotante */
         .suggestion-float {
             position: fixed;
-            bottom: 20px;
-            right: 20px;
-            width: 280px;
-            background: #111c2e;
-            border: 1px solid rgba(124, 58, 237, 0.3);
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            bottom: 25px;
+            right: 25px;
+            width: 300px;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.1);
             z-index: 9999;
             overflow: hidden;
-            transition: transform 0.3s ease, opacity 0.3s ease;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+        }
+        .suggestion-float:hover {
+            box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 20px rgba(124, 58, 237, 0.2);
+            border-color: rgba(124, 58, 237, 0.4);
         }
         .suggestion-header {
-            background: var(--accent-gradient, linear-gradient(135deg, #7c3aed, #06b6d4));
-            color: white;
-            padding: 10px 15px;
+            background: rgba(0, 0, 0, 0.2);
+            color: #fff;
+            padding: 14px 18px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-weight: 600;
             cursor: move;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .suggestion-header span:first-child {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: linear-gradient(135deg, #a78bfa, #22d3ee);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         .suggestion-body {
-            padding: 15px;
+            padding: 18px;
             display: none;
+            background: rgba(0, 0, 0, 0.1);
         }
         .suggestion-body textarea {
             width: 100%;
-            height: 100px;
-            background: rgba(0,0,0,0.2);
-            border: 1px solid var(--border-color, #2d3748);
-            border-radius: 8px;
+            height: 110px;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
             color: white;
-            padding: 10px;
+            padding: 12px;
             resize: none;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             font-family: inherit;
+            transition: all 0.3s ease;
+        }
+        .suggestion-body textarea:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            background: rgba(0,0,0,0.5);
+            box-shadow: inset 0 0 0 1px rgba(139, 92, 246, 0.5);
         }
         .suggestion-btn {
             width: 100%;
-            padding: 8px;
-            background: var(--accent-gradient, #7c3aed);
+            padding: 10px;
+            background: linear-gradient(135deg, #7c3aed, #06b6d4);
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
+            font-weight: 600;
             cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .suggestion-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(124, 58, 237, 0.4);
+        }
+        .suggestion-btn:active {
+            transform: translateY(0);
         }
 
         /* Botón flotante de música */
@@ -151,7 +183,7 @@
     </div>
 
     <!-- Global Floating Mini Player -->
-    <div id="mini-player" class="floating-mini-player" style="display: none;">
+    <div id="mini-player" class="floating-mini-player" style="display: block;">
         <div class="mini-player-header" id="mini-player-header">
             <div class="mini-player-song-info">
                 <div class="mini-player-vinyl" id="mini-player-vinyl"></div>
@@ -173,10 +205,10 @@
                 <div class="mini-player-progress-bar" id="mini-progress-bar"></div>
             </div>
             <div class="mini-player-controls">
-                <button class="btn-mini" onclick="globalPlayPrevious()" title="Anterior">⏮</button>
-                <button class="btn-mini play" id="mini-play-btn" onclick="globalTogglePause()" title="Reproducir/Pausar">▶</button>
-                <button class="btn-mini" onclick="globalPlayNext()" title="Siguiente">⏭</button>
-                <button class="btn-mini" onclick="globalToggleMute()" id="mini-mute-btn" title="Silenciar">🔊</button>
+                <button class="btn-mini" id="mini-prev-btn" title="Anterior">⏮</button>
+                <button class="btn-mini play" id="mini-play-btn" title="Reproducir/Pausar">▶</button>
+                <button class="btn-mini" id="mini-next-btn" title="Siguiente">⏭</button>
+                <button class="btn-mini" id="mini-mute-btn" title="Silenciar">🔊</button>
             </div>
         </div>
     </div>
@@ -355,28 +387,6 @@
             lucide.createIcons();
         }
 
-        function showPushNotification(title, message) {
-            if (!('Notification' in window) || Notification.permission !== 'granted') return;
-            try {
-                const notification = new Notification(title, {
-                    body: message,
-                    badge: '',
-                });
-                setTimeout(() => notification.close(), 5000);
-            } catch (e) {
-                console.error('Error showing push notification:', e);
-            }
-        }
-
-        function initPushNotifications() {
-            const serverPush = {{ perfil_notificaciones_push|yesno:'true,false' }};
-            const enabled = localStorage.getItem('push_notifications') === 'true' || (localStorage.getItem('push_notifications') === null && serverPush);
-            const hasPermission = 'Notification' in window && Notification.permission === 'granted';
-            if (enabled && hasPermission) {
-                showPushNotification('MiniAmigixV', 'Notificaciones push activas. Mantente al tanto de novedades.');
-            }
-        }
-
         const defaultTheme = localStorage.getItem("theme") || "{{ perfil_tema|default:'dark' }}";
         if (defaultTheme === "light") {
             document.body.classList.add("light");
@@ -385,14 +395,10 @@
             lucide.createIcons();
         }
 
-        initPushNotifications();
 
-        // Inicializar posición y drag para la caja de sugerencias
+        // Inicializar drag para la caja de sugerencias (sin forzar posición estática inicial)
         const suggestBox = document.getElementById("quick-suggestion");
         if (suggestBox) {
-            const rect = suggestBox.getBoundingClientRect();
-            suggestBox.style.top = rect.top + "px";
-            suggestBox.style.left = rect.left + "px";
             makeDraggable(suggestBox);
         }
 
@@ -584,9 +590,11 @@
         }
 
         // --- Controls ---
-        function globalTogglePause() {
+        window.globalTogglePause = function() {
+            console.log('globalTogglePause llamado');
             const fallbackAudio = document.querySelector('#mini-player-iframe audio');
             if (fallbackAudio) {
+                console.log('Usando fallback audio');
                 if (fallbackAudio.paused) {
                     fallbackAudio.play();
                     document.getElementById('mini-play-btn').textContent = '⏸';
@@ -598,6 +606,7 @@
             }
 
             if (!globalPlayer) {
+                console.log('globalPlayer no existe, youtubeId:', globalCurrentYoutubeId);
                 if (globalCurrentYoutubeId) {
                     // Inicializar el reproductor si estaba en memoria pero no cargado
                     createMiniPlayerYT(globalCurrentYoutubeId);
@@ -618,7 +627,7 @@
             }
         }
 
-        function globalToggleMute() {
+        window.globalToggleMute = function() {
             const fallbackAudio = document.querySelector('#mini-player-iframe audio');
             const muteBtn = document.getElementById('mini-mute-btn');
             if (fallbackAudio) {
@@ -639,26 +648,38 @@
             } catch(e) {}
         }
 
-        function globalPlayNext() {
+        window.globalPlayNext = function() {
+            console.log('globalPlayNext llamado');
             const items = Array.from(document.querySelectorAll('.playlist-item'));
-            if (items.length === 0) return;
+            if (items.length === 0) {
+                console.log('No hay playlist cargada');
+                return;
+            }
             const currentIndex = items.findIndex(item => item.dataset.youtubeId === globalCurrentYoutubeId);
             if (currentIndex >= 0 && currentIndex < items.length - 1) {
                 const next = items[currentIndex + 1];
                 globalPlaySong(next.dataset.youtubeId, next.dataset.name, next.dataset.artist);
                 // Update main page UI if on /musica/
                 updateMainPageUI(next.dataset.name, next.dataset.artist);
+            } else {
+                console.log('No hay más canciones o no se encontró la actual');
             }
         }
 
-        function globalPlayPrevious() {
+        window.globalPlayPrevious = function() {
+            console.log('globalPlayPrevious llamado');
             const items = Array.from(document.querySelectorAll('.playlist-item'));
-            if (items.length === 0) return;
+            if (items.length === 0) {
+                console.log('No hay playlist cargada');
+                return;
+            }
             const currentIndex = items.findIndex(item => item.dataset.youtubeId === globalCurrentYoutubeId);
             if (currentIndex > 0) {
                 const prev = items[currentIndex - 1];
                 globalPlaySong(prev.dataset.youtubeId, prev.dataset.name, prev.dataset.artist);
                 updateMainPageUI(prev.dataset.name, prev.dataset.artist);
+            } else {
+                console.log('Es la primera canción o no se encontró la actual');
             }
         }
 
@@ -668,7 +689,7 @@
         }
 
         // --- Video Toggle ---
-        function toggleMiniVideo() {
+        window.toggleMiniVideo = function() {
             const container = document.getElementById('mini-video-container');
             const btn = document.getElementById('mini-video-toggle');
             if (!container) return;
@@ -755,6 +776,48 @@
                 }
             } catch(e) {}
         }, 1000);
+
+        // --- Inicializar mini player drag y botones ---
+        document.addEventListener('DOMContentLoaded', function() {
+            initMiniPlayerDrag();
+            console.log('Mini player drag inicializado');
+
+            // Agregar event listeners a los botones
+            const prevBtn = document.getElementById('mini-prev-btn');
+            const playBtn = document.getElementById('mini-play-btn');
+            const nextBtn = document.getElementById('mini-next-btn');
+            const muteBtn = document.getElementById('mini-mute-btn');
+
+            console.log('Botones encontrados:', prevBtn, playBtn, nextBtn, muteBtn);
+            console.log('Funciones disponibles:', typeof globalPlayPrevious, typeof globalTogglePause, typeof globalPlayNext, typeof globalToggleMute);
+
+            if (prevBtn) {
+                prevBtn.addEventListener('click', function() {
+                    console.log('Botón anterior clickeado');
+                    globalPlayPrevious();
+                });
+            }
+            if (playBtn) {
+                playBtn.addEventListener('click', function() {
+                    console.log('Botón play/pause clickeado');
+                    globalTogglePause();
+                });
+            }
+            if (nextBtn) {
+                nextBtn.addEventListener('click', function() {
+                    console.log('Botón siguiente clickeado');
+                    globalPlayNext();
+                });
+            }
+            if (muteBtn) {
+                muteBtn.addEventListener('click', function() {
+                    console.log('Botón mute clickeado');
+                    globalToggleMute();
+                });
+            }
+
+            console.log('Event listeners agregados a los botones');
+        });
 
         // --- getCookie global ---
         function getCookie(name) {
@@ -869,7 +932,49 @@
         // Init drags
         initMiniPlayerDrag();
         initFloatBtnDrag();
+
+        // --- SORTABLE GRIDS GLOBALES ---
+        function initDraggableGrids() {
+            const grids = document.querySelectorAll(".sortable-grid");
+
+            grids.forEach((grid) => {
+                const id = grid.dataset.gridId;
+
+                // Restaurar orden guardado
+                const savedOrder = JSON.parse(localStorage.getItem("grid-" + id) || "null");
+
+                if (savedOrder) {
+                    savedOrder.forEach(key => {
+                        const el = grid.querySelector(`[data-id="${key}"]`);
+                        if (el) grid.appendChild(el);
+                    });
+                }
+
+                // Activar Sortable
+                new Sortable(grid, {
+                    animation: 150,
+                    ghostClass: "dragging",
+                    handle: ".nota-card, .cat-card, .dashboard-card", // Elementos arrastrables
+                    onEnd: function () {
+                        const order = [...grid.children].map(el => el.dataset.id).filter(id => id);
+                        localStorage.setItem("grid-" + id, JSON.stringify(order));
+                    }
+                });
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", initDraggableGrids);
     </script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <style>
+        .dragging {
+            opacity: 0.6;
+            transform: scale(0.98);
+            box-shadow: 0 0 20px rgba(124, 58, 237, 0.5) !important;
+            border-color: #7c3aed !important;
+            z-index: 9999;
+        }
+    </style>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

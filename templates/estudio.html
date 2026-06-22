@@ -4,26 +4,26 @@
 {% block title %}Estudio{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/estudios.css' %}">
+<link rel="stylesheet" href="{% static 'css/estudios.css' %}?v=4">
 {% endblock %}
 
 {% block content %}
 <div class="dashboard">
     <h1 style="font-family: var(--font-title); margin-bottom: 2rem;">📚 Estudio</h1>
     
-    <div class="study-grid">
+    <div class="study-grid sortable-grid" data-grid-id="estudio">
         <!-- Resumen de Texto -->
-        <div class="nota-card">
+        <div class="nota-card" data-id="resumen">
             <h3>📝 Resumen de Texto</h3>
             <p style="color: var(--text-muted);">Pega tu texto aquí para obtener un resumen automático usando IA.</p>
             <textarea id="textoInput" rows="6" placeholder="Escribe o pega el texto que quieres resumir..."></textarea>
-            <button onclick="resumirTexto()" style="margin-top: 10px; padding: 10px 20px; background: var(--accent-gradient); color: white; border: none; border-radius: 8px; cursor: pointer;">🤖 Resumir con IA</button>
+            <button class="btn-primary" onclick="resumirTexto()">🤖 Resumir con IA</button>
             <div id="resumenOutput" class="resumen-output" style="display: none;"></div>
         </div>
         
         <!-- Mini Calendario -->
-        <div class="nota-card">
-            <h3>� Mini Calendario</h3>
+        <div class="nota-card" data-id="calendario">
+            <h3>📅 Mini Calendario</h3>
             <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 10px;">
                 Haz clic en cualquier día para agregar un evento local (guardado en tu navegador)
             </p>
@@ -40,32 +40,52 @@
             </div>
         </div>
 
+        <!-- Cronómetro -->
+        <div class="nota-card" data-id="cronometro">
+            <h3>⏱️ Cronómetro</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 15px;">
+                Cronómetro para medir tu tiempo de estudio
+            </p>
+            <div class="cronometro-container">
+                <div id="cronometro-display">
+                    00:00:00
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px; margin-top: 15px;">
+                    <button class="cronometro-btn btn-iniciar" onclick="iniciarCronometro()" id="btn-iniciar">▶ Iniciar</button>
+                    <button class="cronometro-btn btn-pausar" onclick="pausarCronometro()" id="btn-pausar" style="display: none;">⏸ Pausar</button>
+                    <button class="cronometro-btn btn-reiniciar" onclick="reiniciarCronometro()">🔄 Reiniciar</button>
+                </div>
+            </div>
+            <div id="tiempos-guardados" style="margin-top: 15px;"></div>
+        </div>
+
         <!-- Modal para crear evento -->
         <div id="modal-evento" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
-            <div style="background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 12px; padding: 20px; max-width: 400px; width: 90%;">
+            <div style="width: 90%; max-width: 400px; padding: 25px; border-radius: 16px;">
                 <h3 style="color: #fff; margin-bottom: 15px;">📅 Agregar Evento</h3>
-                <p style="color: var(--text-muted); margin-bottom: 15px;">Fecha: <span id="fecha-seleccionada" style="color: #7c3aed;"></span></p>
-                <input type="text" id="evento-titulo" placeholder="Título del evento" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; background: rgba(255,255,255,0.04); color: var(--text-main);">
-                <textarea id="evento-descripcion" rows="3" placeholder="Descripción (opcional)" style="width: 100%; padding: 10px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; background: rgba(255,255,255,0.04); color: var(--text-main); resize: vertical;"></textarea>
+                <p style="color: var(--text-muted); margin-bottom: 15px;">Fecha: <span id="fecha-seleccionada" style="color: #06b6d4;"></span></p>
+                <input type="text" id="evento-titulo" placeholder="Título del evento" style="margin-bottom: 10px;">
+                <textarea id="evento-descripcion" rows="3" placeholder="Descripción (opcional)" style="margin-bottom: 15px; resize: vertical;"></textarea>
+                <div id="eventos-del-dia" style="margin-bottom: 15px; max-height: 150px; overflow-y: auto;"></div>
                 <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                    <button onclick="cerrarModalEvento()" style="padding: 10px 20px; background: rgba(255,255,255,0.1); color: white; border: none; border-radius: 8px; cursor: pointer;">Cancelar</button>
-                    <button onclick="guardarEvento()" style="padding: 10px 20px; background: var(--accent-gradient); color: white; border: none; border-radius: 8px; cursor: pointer;">Guardar</button>
+                    <button class="btn-primary" style="background: rgba(255,255,255,0.1);" onclick="cerrarModalEvento()">Cancelar</button>
+                    <button class="btn-primary" onclick="guardarEvento()">Guardar</button>
                 </div>
             </div>
         </div>
         
         <!-- Notas Rápidas -->
-        <div class="nota-card">
-            <h3>�💡 Notas Rápidas</h3>
-            <textarea id="notaInput" rows="3" placeholder="Escribe una nota rápida..." style="width: 100%; padding: 10px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; background: rgba(255,255,255,0.04); color: var(--text-main); resize: vertical; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word;"></textarea>
-            <button onclick="guardarNota()" style="margin-top: 10px; padding: 10px 20px; background: var(--accent-gradient); color: white; border: none; border-radius: 8px; cursor: pointer;">💾 Guardar</button>
+        <div class="nota-card" data-id="notas">
+            <h3>💡 Notas Rápidas</h3>
+            <textarea id="notaInput" rows="3" placeholder="Escribe una nota rápida..." style="resize: vertical; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word;"></textarea>
+            <button class="btn-primary" onclick="guardarNota()">💾 Guardar</button>
             <div id="notasGuardadas" style="margin-top: 15px;"></div>
         </div>
         
         <!-- Historial de Resúmenes -->
-        <div class="nota-card">
+        <div class="nota-card" data-id="historial">
             <h3>📋 Historial de Resúmenes</h3>
-            <div id="resumenesGuardados" style="margin-top: 15px;"></div>
+            <div id="resumenesGuardados" style="margin-top: 15px; max-height: 400px; overflow-y: auto;"></div>
         </div>
     </div>
 </div>
@@ -217,10 +237,12 @@ function cargarNotas() {
                 container.innerHTML = '<p style="color: var(--text-muted);">No hay notas guardadas</p>';
             } else {
                 container.innerHTML = data.notas.map(nota => `
-                    <div class="nota-item" style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin-bottom: 10px;">
+                    <div class="lista-item">
                         <p style="color: var(--text-main); margin-bottom: 5px;">${nota.contenido}</p>
-                        <small style="color: var(--text-muted);">${nota.fecha_creacion}</small>
-                        <button onclick="eliminarNota('${nota.id}')" style="background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; margin-left: 10px;">🗑️</button>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                            <small style="color: var(--text-muted);">${nota.fecha_creacion}</small>
+                            <button class="btn-danger" onclick="eliminarNota('${nota.id}')">🗑️ Eliminar</button>
+                        </div>
                     </div>
                 `).join('');
             }
@@ -267,8 +289,8 @@ function cargarResumenes() {
                 container.innerHTML = '<p style="color: var(--text-muted);">No hay resúmenes guardados</p>';
             } else {
                 container.innerHTML = data.resumenes.map(resumen => `
-                    <div class="resumen-item" style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 8px; margin-bottom: 10px;">
-                        <h4 style="color: #7c3aed; margin-bottom: 5px;">Texto original:</h4>
+                    <div class="lista-item">
+                        <h4 style="color: #06b6d4; margin-bottom: 5px;">Texto original:</h4>
                         <p style="color: var(--text-muted); font-style: italic; margin-bottom: 10px;">${resumen.texto_original}</p>
                         <h4 style="color: #7c3aed; margin-bottom: 5px;">Resumen:</h4>
                         <p style="color: var(--text-main); margin-bottom: 10px;">${resumen.resumen}</p>
@@ -353,10 +375,10 @@ function cargarEventosDelDia(fecha) {
         container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">No hay eventos para este día</p>';
     } else {
         container.innerHTML = eventosDelDia.map(evento => `
-            <div style="background: rgba(124, 58, 237, 0.1); padding: 10px; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid #7c3aed;">
+            <div class="lista-item" style="border-left: 3px solid #06b6d4; padding-left: 12px;">
                 <strong style="color: var(--text-main);">${evento.titulo}</strong>
                 ${evento.descripcion ? `<p style="color: var(--text-muted); margin: 5px 0 0 0; font-size: 0.85rem;">${evento.descripcion}</p>` : ''}
-                <button onclick="eliminarEvento(${evento.id})" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 0.8rem; margin-top: 5px;">Eliminar</button>
+                <button class="btn-danger" style="margin-top: 10px;" onclick="eliminarEvento(${evento.id})">Eliminar</button>
             </div>
         `).join('');
     }
@@ -371,5 +393,106 @@ function eliminarEvento(eventoId) {
         renderizarCalendario();
     }
 }
+
+// ==================== CRONÓMETRO ====================
+let cronometroInterval = null;
+let segundos = 0;
+let minutos = 0;
+let horas = 0;
+
+function iniciarCronometro() {
+    if (cronometroInterval) return;
+    
+    document.getElementById('btn-iniciar').style.display = 'none';
+    document.getElementById('btn-pausar').style.display = 'inline-block';
+    document.getElementById('cronometro-display').classList.add('running');
+    
+    cronometroInterval = setInterval(() => {
+        segundos++;
+        if (segundos >= 60) {
+            segundos = 0;
+            minutos++;
+            if (minutos >= 60) {
+                minutos = 0;
+                horas++;
+            }
+        }
+        actualizarDisplayCronometro();
+    }, 1000);
+}
+
+function pausarCronometro() {
+    if (cronometroInterval) {
+        clearInterval(cronometroInterval);
+        cronometroInterval = null;
+        document.getElementById('btn-iniciar').style.display = 'inline-block';
+        document.getElementById('btn-pausar').style.display = 'none';
+        document.getElementById('cronometro-display').classList.remove('running');
+        
+        // Guardar tiempo en localStorage
+        guardarTiempoCronometro();
+    }
+}
+
+function reiniciarCronometro() {
+    if (cronometroInterval) {
+        clearInterval(cronometroInterval);
+        cronometroInterval = null;
+    }
+    segundos = 0;
+    minutos = 0;
+    horas = 0;
+    actualizarDisplayCronometro();
+    document.getElementById('btn-iniciar').style.display = 'inline-block';
+    document.getElementById('btn-pausar').style.display = 'none';
+    document.getElementById('cronometro-display').classList.remove('running');
+}
+
+function actualizarDisplayCronometro() {
+    const display = document.getElementById('cronometro-display');
+    const horasStr = String(horas).padStart(2, '0');
+    const minutosStr = String(minutos).padStart(2, '0');
+    const segundosStr = String(segundos).padStart(2, '0');
+    display.textContent = `${horasStr}:${minutosStr}:${segundosStr}`;
+}
+
+function guardarTiempoCronometro() {
+    const tiempo = {
+        horas: horas,
+        minutos: minutos,
+        segundos: segundos,
+        fecha: new Date().toLocaleString()
+    };
+    
+    const tiempos = JSON.parse(localStorage.getItem('tiempos_cronometro') || '[]');
+    tiempos.unshift(tiempo);
+    localStorage.setItem('tiempos_cronometro', JSON.stringify(tiempos.slice(0, 10))); // Guardar solo los últimos 10
+    cargarTiemposGuardados();
+}
+
+function cargarTiemposGuardados() {
+    const tiempos = JSON.parse(localStorage.getItem('tiempos_cronometro') || '[]');
+    const container = document.getElementById('tiempos-guardados');
+    
+    if (tiempos.length === 0) {
+        container.innerHTML = '';
+    } else {
+        container.innerHTML = `
+            <h4 style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 10px;">Últimos tiempos:</h4>
+            ${tiempos.map(t => `
+                <div class="lista-item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; margin-bottom: 8px;">
+                    <span style="font-weight: bold; font-family: monospace; font-size: 1.1rem; color: #10b981;">${String(t.horas).padStart(2, '0')}:${String(t.minutos).padStart(2, '0')}:${String(t.segundos).padStart(2, '0')}</span>
+                    <span style="color: var(--text-muted); font-size: 0.85rem;">${t.fecha}</span>
+                </div>
+            `).join('')}
+        `;
+    }
+}
+
+// Cargar tiempos guardados al iniciar
+document.addEventListener('DOMContentLoaded', function() {
+    cargarTiemposGuardados();
+});
+
 </script>
 {% endblock %}

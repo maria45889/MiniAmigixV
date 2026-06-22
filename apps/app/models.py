@@ -55,6 +55,9 @@ class Cancion(models.Model):
     artista = models.CharField(max_length=200, blank=True, null=True)
     youtube_url = models.URLField(blank=True, null=True)
     youtube_id = models.CharField(max_length=50, blank=True, null=True)
+    audio_file = models.FileField(upload_to='music/', blank=True, null=True)
+    letra = models.TextField(blank=True, null=True)
+    letra_sincronizada = models.TextField(blank=True, null=True)
     fecha_agregada = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
