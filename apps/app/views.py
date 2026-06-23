@@ -19,7 +19,7 @@ import requests
 import random
 import datetime
 import yt_dlp
-from .models import ConversacionChat, MensajeChat, Cancion, PublicacionBlog, Playlist, Favorite, Game, Score, Achievement, UserAchievement, Category, Comment, EstadoAnimo
+from .models import ConversacionChat, MensajeChat, Cancion, PublicacionBlog, Playlist, Favorite, Game, Score, Achievement, UserAchievement, Category, Comment, EstadoAnimo, RecomendacionEntretenimiento
 from eventos.models import Evento
 from notificaciones.models import Notificacion
 from apps.mongodb.services import DualDatabaseService
@@ -96,7 +96,7 @@ def chat_api(request):
             
             fecha_actual = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
             messages = [
-                {"role": "system", "content": f"Eres MiniAmigix, un asistente amigable y entusiasta creado en 2026. Responde en español de forma concisa. Usa emojis con moderación, solo cuando sea necesario para dar énfasis. 🌟\n\nLa fecha y hora actual es: {fecha_actual}\nNunca digas que no sabes la fecha actual.\n\nEventos próximos del usuario:\n{eventos_contexto}\n\nCuando el usuario pregunte por sus eventos o agenda, recuérdale estos eventos. Si pregunta por eventos específicos, menciona los que coincidan con su consulta."}
+                {"role": "system", "content": f"Eres MiniAmigix, el asistente de IA de la plataforma MiniAmigixV (creada en 2026). MiniAmigixV es una plataforma web de productividad y entretenimiento que incluye:\n\n🎵 **Música**: Reproductor de música con YouTube, playlists y favoritos\n📅 **Eventos/Agenda**: Calendario personal con recordatorios\n📝 **Blog**: Publicaciones y comentarios\n🎮 **Juegos**: Juegos educativos con puntuaciones\n🌤️ **Clima**: Información meteorológica\n🌐 **Traductor**: Traducción entre múltiples idiomas\n📚 **Estudio**: Recursos educativos\n💬 **Chat IA**: Conversaciones contigo (MiniAmigix)\n\nResponde en español de forma concisa. Usa emojis con moderación. 🌟\n\nLa fecha y hora actual es: {fecha_actual}\nNunca digas que no sabes la fecha actual.\n\nEventos próximos del usuario:\n{eventos_contexto}\n\nCuando el usuario pregunte por sus eventos o agenda, recuérdale estos eventos. Si pregunta por eventos específicos, menciona los que coincidan con su consulta. Si pregunta sobre música, blog, juegos, clima, traductor o estudio, explícale que esas funcionalidades están disponibles en MiniAmigixV."}
             ]
             
             for msg in mensajes:
@@ -106,7 +106,7 @@ def chat_api(request):
             # For non-authenticated users, just use current message
             fecha_actual = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
             messages = [
-                {"role": "system", "content": f"Eres MiniAmigix, un asistente amigable y entusiasta creado en 2026. Responde en español de forma concisa. Usa emojis con moderación. ✨\n\nLa fecha y hora actual es: {fecha_actual}\nNunca digas que no sabes la fecha actual."},
+                {"role": "system", "content": f"Eres MiniAmigix, el asistente de IA de la plataforma MiniAmigixV (creada en 2026). MiniAmigixV es una plataforma web de productividad y entretenimiento que incluye:\n\n🎵 **Música**: Reproductor de música con YouTube, playlists y favoritos\n📅 **Eventos/Agenda**: Calendario personal con recordatorios\n📝 **Blog**: Publicaciones y comentarios\n🎮 **Juegos**: Juegos educativos con puntuaciones\n🌤️ **Clima**: Información meteorológica\n🌐 **Traductor**: Traducción entre múltiples idiomas\n📚 **Estudio**: Recursos educativos\n💬 **Chat IA**: Conversaciones contigo (MiniAmigix)\n\nResponde en español de forma concisa. Usa emojis con moderación. ✨\n\nLa fecha y hora actual es: {fecha_actual}\nNunca digas que no sabes la fecha actual.\n\nEl usuario no está autenticado, así que no tiene acceso a sus eventos personales."},
                 {"role": "user", "content": message}
             ]
         
@@ -615,52 +615,173 @@ def traductor(request):
 
 def entretenimiento(request):
     recomendaciones = {'peliculas': [], 'series': [], 'libros': [], 'teatro': []}
+    categorias = ['peliculas', 'series', 'libros', 'teatro']
+    ahora = datetime.datetime.now()
+    necesita_actualizar = False
 
     try:
-        if hasattr(settings, 'YOUTUBE_API_KEY') and settings.YOUTUBE_API_KEY:
-            # Buscar tráilers/populares en YouTube como recomendaciones
-            categorias = {
-                'peliculas': 'tráilers películas 2025 2026',
-                'series': 'mejores series 2025 2026',
-                'teatro': 'obras teatro recomendadas 2025',
-            }
-            for cat, query in categorias.items():
-                url = "https://www.googleapis.com/youtube/v3/search"
-                params = {
-                    'part': 'snippet',
-                    'q': query,
-                    'type': 'video',
-                    'maxResults': 4,
-                    'key': settings.YOUTUBE_API_KEY,
-                    'regionCode': 'ES',
-                    'relevanceLanguage': 'es'
-                }
-                headers = {'Referer': request.build_absolute_uri('/')}
-                resp = requests.get(url, params=params, headers=headers, timeout=10)
-                if resp.status_code == 200:
-                    items = resp.json().get('items', [])
-                    for item in items:
-                        recomendaciones[cat].append({
-                            'titulo': item['snippet']['title'],
-                            'descripcion': item['snippet']['description'][:120],
-                            'imagen': item['snippet']['thumbnails']['high']['url'],
-                            'url': f"https://www.youtube.com/watch?v={item['id']['videoId']}",
-                            'video_id': item['id']['videoId']
-                        })
+        # Verificar si hay caché y si es reciente (menos de 24 horas)
+        for cat in categorias:
+            cache = RecomendacionEntretenimiento.objects.filter(categoria=cat).first()
+            if not cache:
+                logger.info(f"No hay caché para {cat}, se necesita actualizar")
+                necesita_actualizar = True
+                break
+            # Si el caché tiene más de 24 horas, actualizar
+            if (ahora - cache.fecha_actualizacion).total_seconds() > 86400:  # 24 horas
+                logger.info(f"Caché de {cat} tiene más de 24 horas, se necesita actualizar")
+                necesita_actualizar = True
+                break
+            # Usar datos del caché
+            recomendaciones[cat] = cache.datos
+            logger.info(f"Usando caché para {cat}: {len(cache.datos)} items")
 
-        # Libros: usar Groq API para recomendar libros
-        if settings.GROQ_API_KEY and not recomendaciones['libros']:
+        if necesita_actualizar and settings.GROQ_API_KEY:
+            logger.info("Generando nuevas recomendaciones con Groq API")
             client = openai.OpenAI(api_key=settings.GROQ_API_KEY, base_url="https://api.groq.com/openai/v1")
-            prompt = "Recomienda 4 libros populares en español de diferentes géneros. Devuelve SOLO JSON con formato: [{\"titulo\": \"...\", \"autor\": \"...\", \"descripcion\": \"...\"}]. Sin markdown ni explicaciones."
-            response = client.chat.completions.create(model="llama-3.3-70b-versatile", messages=[{"role": "user", "content": prompt}], max_tokens=500)
-            json_match = re.search(r'\[.*\]', response.choices[0].message.content, re.DOTALL)
-            if json_match:
-                libros = json.loads(json_match.group())
-                for libro in libros:
-                    recomendaciones['libros'].append(libro)
+            
+            # Películas
+            try:
+                prompt_peliculas = "Recomienda 4 películas populares recientes (2025-2026) de diferentes géneros. Devuelve SOLO JSON con formato: [{\"titulo\": \"...\", \"descripcion\": \"...\", \"genero\": \"...\"}]. Sin markdown ni explicaciones."
+                response = client.chat.completions.create(model="llama-3.3-70b-versatile", messages=[{"role": "user", "content": prompt_peliculas}], max_tokens=500)
+                json_match = re.search(r'\[.*\]', response.choices[0].message.content, re.DOTALL)
+                if json_match:
+                    peliculas = json.loads(json_match.group())
+                    recomendaciones['peliculas'] = []
+                    for peli in peliculas:
+                        item = {
+                            'titulo': peli.get('titulo', ''),
+                            'descripcion': peli.get('descripcion', ''),
+                            'genero': peli.get('genero', ''),
+                            'imagen': 'https://via.placeholder.com/300x450/8b5cf6/ffffff?text=🎬',
+                            'url': '#'
+                        }
+                        recomendaciones['peliculas'].append(item)
+                    # Guardar en caché
+                    RecomendacionEntretenimiento.objects.update_or_create(
+                        categoria='peliculas',
+                        defaults={'datos': recomendaciones['peliculas']}
+                    )
+                    logger.info(f"Guardadas {len(recomendaciones['peliculas'])} películas en caché")
+                else:
+                    logger.warning("No se pudo parsear JSON de películas")
+            except Exception as e:
+                logger.error(f"Error generando películas: {str(e)}")
+            
+            # Series
+            try:
+                prompt_series = "Recomienda 4 series populares recientes (2025-2026) de diferentes géneros. Devuelve SOLO JSON con formato: [{\"titulo\": \"...\", \"descripcion\": \"...\", \"genero\": \"...\"}]. Sin markdown ni explicaciones."
+                response = client.chat.completions.create(model="llama-3.3-70b-versatile", messages=[{"role": "user", "content": prompt_series}], max_tokens=500)
+                json_match = re.search(r'\[.*\]', response.choices[0].message.content, re.DOTALL)
+                if json_match:
+                    series = json.loads(json_match.group())
+                    recomendaciones['series'] = []
+                    for serie in series:
+                        item = {
+                            'titulo': serie.get('titulo', ''),
+                            'descripcion': serie.get('descripcion', ''),
+                            'genero': serie.get('genero', ''),
+                            'imagen': 'https://via.placeholder.com/300x450/06b6d4/ffffff?text=📺',
+                            'url': '#'
+                        }
+                        recomendaciones['series'].append(item)
+                    # Guardar en caché
+                    RecomendacionEntretenimiento.objects.update_or_create(
+                        categoria='series',
+                        defaults={'datos': recomendaciones['series']}
+                    )
+                    logger.info(f"Guardadas {len(recomendaciones['series'])} series en caché")
+                else:
+                    logger.warning("No se pudo parsear JSON de series")
+            except Exception as e:
+                logger.error(f"Error generando series: {str(e)}")
+            
+            # Teatro
+            try:
+                prompt_teatro = "Recomienda 4 obras de teatro populares o clásicas. Devuelve SOLO JSON con formato: [{\"titulo\": \"...\", \"descripcion\": \"...\", \"autor\": \"...\"}]. Sin markdown ni explicaciones."
+                response = client.chat.completions.create(model="llama-3.3-70b-versatile", messages=[{"role": "user", "content": prompt_teatro}], max_tokens=500)
+                json_match = re.search(r'\[.*\]', response.choices[0].message.content, re.DOTALL)
+                if json_match:
+                    teatro = json.loads(json_match.group())
+                    recomendaciones['teatro'] = []
+                    for obra in teatro:
+                        item = {
+                            'titulo': obra.get('titulo', ''),
+                            'descripcion': obra.get('descripcion', ''),
+                            'autor': obra.get('autor', ''),
+                            'imagen': 'https://via.placeholder.com/300x450/f59e0b/ffffff?text=🎭',
+                            'url': '#'
+                        }
+                        recomendaciones['teatro'].append(item)
+                    # Guardar en caché
+                    RecomendacionEntretenimiento.objects.update_or_create(
+                        categoria='teatro',
+                        defaults={'datos': recomendaciones['teatro']}
+                    )
+                    logger.info(f"Guardadas {len(recomendaciones['teatro'])} obras de teatro en caché")
+                else:
+                    logger.warning("No se pudo parsear JSON de teatro")
+            except Exception as e:
+                logger.error(f"Error generando teatro: {str(e)}")
+            
+            # Libros
+            try:
+                prompt_libros = "Recomienda 4 libros populares en español de diferentes géneros. Devuelve SOLO JSON con formato: [{\"titulo\": \"...\", \"autor\": \"...\", \"descripcion\": \"...\"}]. Sin markdown ni explicaciones."
+                response = client.chat.completions.create(model="llama-3.3-70b-versatile", messages=[{"role": "user", "content": prompt_libros}], max_tokens=500)
+                json_match = re.search(r'\[.*\]', response.choices[0].message.content, re.DOTALL)
+                if json_match:
+                    libros = json.loads(json_match.group())
+                    recomendaciones['libros'] = libros
+                    # Guardar en caché
+                    RecomendacionEntretenimiento.objects.update_or_create(
+                        categoria='libros',
+                        defaults={'datos': recomendaciones['libros']}
+                    )
+                    logger.info(f"Guardados {len(recomendaciones['libros'])} libros en caché")
+                else:
+                    logger.warning("No se pudo parsear JSON de libros")
+            except Exception as e:
+                logger.error(f"Error generando libros: {str(e)}")
+        else:
+            if not settings.GROQ_API_KEY:
+                logger.warning("GROQ_API_KEY no está configurada")
     except Exception as e:
-        logger.error(f"Error en vista entretenimiento al obtener recomendaciones externas: {str(e)}")
+        logger.error(f"Error en vista entretenimiento: {str(e)}", exc_info=True)
 
+    # Fallback: Si no hay recomendaciones, usar datos estáticos
+    if not recomendaciones['peliculas']:
+        recomendaciones['peliculas'] = [
+            {'titulo': 'Dune: Parte Dos', 'descripcion': 'La épica continuación de la saga de ciencia ficción de Frank Herbert.', 'genero': 'Ciencia Ficción', 'imagen': 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=300&h=450&fit=crop', 'url': '#'},
+            {'titulo': 'Oppenheimer', 'descripcion': 'La historia del padre de la bomba atómica dirigida por Christopher Nolan.', 'genero': 'Drama Histórico', 'imagen': 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=300&h=450&fit=crop', 'url': '#'},
+            {'titulo': 'Spider-Man: Across the Spider-Verse', 'descripcion': 'Miles Morales viaja a través del multiverso.', 'genero': 'Animación', 'imagen': 'https://images.unsplash.com/photo-1635805737707-575885ab0820?w=300&h=450&fit=crop', 'url': '#'},
+            {'titulo': 'Barbie', 'descripcion': 'La aventura de Barbie en el mundo real.', 'genero': 'Comedia', 'imagen': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=450&fit=crop', 'url': '#'}
+        ]
+    
+    if not recomendaciones['series']:
+        recomendaciones['series'] = [
+            {'titulo': 'The Last of Us', 'descripcion': 'Adaptación del videojuego post-apocalíptico.', 'genero': 'Drama', 'imagen': 'https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?w=300&h=450&fit=crop', 'url': '#'},
+            {'titulo': 'House of the Dragon', 'descripcion': 'Precuela de Game of Thrones sobre la casa Targaryen.', 'genero': 'Fantasía', 'imagen': 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=450&fit=crop', 'url': '#'},
+            {'titulo': 'Wednesday', 'descripcion': 'Las aventuras de Wednesday Addams en la academia Nevermore.', 'genero': 'Comedia Misterio', 'imagen': 'https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=300&h=450&fit=crop', 'url': '#'},
+            {'titulo': 'Stranger Things', 'descripcion': 'Un grupo de niños enfrenta misterios sobrenaturales en los 80s.', 'genero': 'Ciencia Ficción', 'imagen': 'https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?w=300&h=450&fit=crop', 'url': '#'}
+        ]
+    
+    if not recomendaciones['teatro']:
+        recomendaciones['teatro'] = [
+            {'titulo': 'El Fantasma de la Ópera', 'descripcion': 'El musical más largo de Broadway.', 'autor': 'Andrew Lloyd Webber', 'imagen': 'https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?w=300&h=450&fit=crop', 'url': '#'},
+            {'titulo': 'Romeo y Julieta', 'descripcion': 'La tragedia amorosa de Shakespeare.', 'autor': 'William Shakespeare', 'imagen': 'https://images.unsplash.com/photo-1503095392279-3f5aa039e3d9?w=300&h=450&fit=crop', 'url': '#'},
+            {'titulo': 'Los Miserables', 'descripcion': 'El musical épico basado en la novela de Victor Hugo.', 'autor': 'Claude-Michel Schönberg', 'imagen': 'https://images.unsplash.com/photo-1460723237483-7a6dc9d0b212?w=300&h=450&fit=crop', 'url': '#'},
+            {'titulo': 'Hamlet', 'descripcion': 'La tragedia del príncipe de Dinamarca.', 'autor': 'William Shakespeare', 'imagen': 'https://images.unsplash.com/photo-1555662360-7cc18b56a8c0?w=300&h=450&fit=crop', 'url': '#'}
+        ]
+    
+    if not recomendaciones['libros']:
+        recomendaciones['libros'] = [
+            {'titulo': 'Cien años de soledad', 'autor': 'Gabriel García Márquez', 'descripcion': 'La saga de la familia Buendía en Macondo.'},
+            {'titulo': 'El principito', 'autor': 'Antoine de Saint-Exupéry', 'descripcion': 'Un cuento filosófico sobre la vida y el amor.'},
+            {'titulo': '1984', 'autor': 'George Orwell', 'descripcion': 'Una distopía sobre el control totalitario.'},
+            {'titulo': 'Don Quijote de la Mancha', 'autor': 'Miguel de Cervantes', 'descripcion': 'Las aventuras del caballero de la triste figura.'}
+        ]
+
+    logger.info(f"Recomendaciones finales: peliculas={len(recomendaciones['peliculas'])}, series={len(recomendaciones['series'])}, libros={len(recomendaciones['libros'])}, teatro={len(recomendaciones['teatro'])}")
     return render(request, 'entretenimiento.html', {'recomendaciones': recomendaciones})
 
 def notificaciones(request):

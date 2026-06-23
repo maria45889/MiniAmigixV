@@ -1,6 +1,18 @@
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
+from allauth.account.adapter import DefaultAccountAdapter
 from allauth.account.utils import user_email, user_username
+from django.conf import settings
 import re
+
+
+class AccountAdapter(DefaultAccountAdapter):
+    """
+    Adaptador personalizado para allauth account
+    """
+    def send_mail(self, template_prefix, email, context):
+        # Agregar site_url al contexto
+        context['site_url'] = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000')
+        return super().send_mail(template_prefix, email, context)
 
 class SocialAccountAdapter(DefaultSocialAccountAdapter):
     def populate_user(self, request, sociallogin, data):

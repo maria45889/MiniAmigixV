@@ -49,6 +49,23 @@ class EstadoAnimo(models.Model):
     class Meta:
         ordering = ['-fecha_registro']
 
+class RecomendacionEntretenimiento(models.Model):
+    categoria = models.CharField(max_length=50, choices=[
+        ('peliculas', 'Películas'),
+        ('series', 'Series'),
+        ('libros', 'Libros'),
+        ('teatro', 'Teatro'),
+    ])
+    datos = models.JSONField()
+    fecha_actualizacion = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Recomendaciones {self.categoria} - {self.fecha_actualizacion.strftime('%d/%m/%Y %H:%M')}"
+
+    class Meta:
+        verbose_name = "Recomendación de Entretenimiento"
+        verbose_name_plural = "Recomendaciones de Entretenimiento"
+
 class Cancion(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     nombre = models.CharField(max_length=200)

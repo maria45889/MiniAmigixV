@@ -55,15 +55,42 @@
 }
 
 /* ---------- CATEGORY CARDS ---------- */
-.entertain-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 14px;
+.cat-carousel-container {
+    position: relative;
+    display: flex;
+    align-items: center;
     margin-bottom: 2.5rem;
+}
+
+.entertain-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    gap: 14px;
+    padding: 10px 50px 20px 50px; /* Espacio para las flechas */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(124, 58, 237, 0.5) rgba(0, 0, 0, 0.2);
+    scroll-behavior: smooth;
+}
+
+.entertain-grid::-webkit-scrollbar {
+    height: 8px;
+}
+
+.entertain-grid::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+}
+
+.entertain-grid::-webkit-scrollbar-thumb {
+    background: rgba(124, 58, 237, 0.5);
+    border-radius: 10px;
 }
 
 .cat-card {
     position: relative;
+    flex: 0 0 350px; /* Tamaño fijo de 350px para forzar el scroll horizontal */
+    max-width: 100%;
     background: linear-gradient(145deg, rgba(15, 23, 42, 0.8), rgba(30, 41, 59, 0.4));
     backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
@@ -544,9 +571,44 @@
 .trend-nav-left { left: -10px; }
 .trend-nav-right { right: -10px; }
 
-/* Responsive adjustments */
+/* Category Navigation Arrows */
+.cat-nav {
+    position: absolute;
+    z-index: 100;
+    background: rgba(124, 58, 237, 0.9);
+    color: #fff;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    backdrop-filter: blur(12px);
+    transition: all 0.3s cubic-bezier(.22,.68,0,1.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.5);
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.cat-nav:hover {
+    background: rgba(236, 72, 153, 1);
+    border-color: rgba(236, 72, 153, 0.8);
+    transform: translateY(-50%) scale(1.15);
+}
+
+.cat-nav-left { left: 10px; }
+.cat-nav-right { right: 10px; }
+
 @media (max-width: 768px) {
     .entertain-grid {
-        grid-template-columns: 1fr;
+        padding-bottom: 20px;
+    }
+    
+    .cat-card {
+        flex: 0 0 85%;
+        max-width: none;
     }
 }

@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{% static 'css/entretenimiento.css' %}?v=13">
+<link rel="stylesheet" href="{% static 'css/entretenimiento.css' %}?v=15">
 {% endblock %}
 
 {% block content %}
@@ -21,44 +21,48 @@
     <p class="entertain-page-subtitle">Descubre películas, series, libros y teatro recomendados para ti</p>
 
     <!-- Category Cards Grid -->
-    <div class="entertain-grid sortable-grid" id="cat-scroll" data-grid-id="entretenimiento">
+    <div class="cat-carousel-container">
+        <button class="cat-nav cat-nav-left" onclick="scrollCat(-1)" aria-label="Anterior">❮</button>
+        <div class="entertain-grid sortable-grid" id="cat-scroll" data-grid-id="entretenimiento">
 
-        <!-- Películas -->
-        <div class="cat-card cat-card--peliculas" onclick="abrirModal('peliculas')" data-id="peliculas">
-            <span class="cat-tag">Popular</span>
-            <div class="cat-icon">🎬</div>
-            <h3>Películas</h3>
-            <p>Descubre los mejores estrenos y recomendaciones cinematográficas</p>
-            <button class="cat-btn" type="button">Explorar →</button>
+            <!-- Películas -->
+            <div class="cat-card cat-card--peliculas" onclick="abrirModal('peliculas')" data-id="peliculas">
+                <span class="cat-tag">Popular</span>
+                <div class="cat-icon">🎬</div>
+                <h3>Películas</h3>
+                <p>Descubre los mejores estrenos y recomendaciones cinematográficas</p>
+                <button class="cat-btn" type="button">Explorar →</button>
+            </div>
+
+            <!-- Series -->
+            <div class="cat-card cat-card--series" onclick="abrirModal('series')" data-id="series">
+                <span class="cat-tag">Trending</span>
+                <div class="cat-icon">📺</div>
+                <h3>Series</h3>
+                <p>Las mejores series que no puedes dejar de ver este año</p>
+                <button class="cat-btn" type="button">Explorar →</button>
+            </div>
+
+            <!-- Libros -->
+            <div class="cat-card cat-card--libros" onclick="abrirModal('libros')" data-id="libros">
+                <span class="cat-tag">Nuevo</span>
+                <div class="cat-icon">📚</div>
+                <h3>Libros</h3>
+                <p>Recomendaciones de lectura para todos los gustos</p>
+                <button class="cat-btn" type="button">Explorar →</button>
+            </div>
+
+            <!-- Teatro -->
+            <div class="cat-card cat-card--teatro" onclick="abrirModal('teatro')" data-id="teatro">
+                <span class="cat-tag">Especial</span>
+                <div class="cat-icon">🎭</div>
+                <h3>Teatro</h3>
+                <p>Obras de teatro imperdibles y recomendaciones escénicas</p>
+                <button class="cat-btn" type="button">Explorar →</button>
+            </div>
+
         </div>
-
-        <!-- Series -->
-        <div class="cat-card cat-card--series" onclick="abrirModal('series')" data-id="series">
-            <span class="cat-tag">Trending</span>
-            <div class="cat-icon">📺</div>
-            <h3>Series</h3>
-            <p>Las mejores series que no puedes dejar de ver este año</p>
-            <button class="cat-btn" type="button">Explorar →</button>
-        </div>
-
-        <!-- Libros -->
-        <div class="cat-card cat-card--libros" onclick="abrirModal('libros')" data-id="libros">
-            <span class="cat-tag">Nuevo</span>
-            <div class="cat-icon">📚</div>
-            <h3>Libros</h3>
-            <p>Recomendaciones de lectura para todos los gustos</p>
-            <button class="cat-btn" type="button">Explorar →</button>
-        </div>
-
-        <!-- Teatro -->
-        <div class="cat-card cat-card--teatro" onclick="abrirModal('teatro')" data-id="teatro">
-            <span class="cat-tag">Especial</span>
-            <div class="cat-icon">🎭</div>
-            <h3>Teatro</h3>
-            <p>Obras de teatro imperdibles y recomendaciones escénicas</p>
-            <button class="cat-btn" type="button">Explorar →</button>
-        </div>
-
+        <button class="cat-nav cat-nav-right" onclick="scrollCat(1)" aria-label="Siguiente">❯</button>
     </div>
 
     <!-- Trending Section (Quick Preview) -->
@@ -214,6 +218,11 @@ document.addEventListener('keydown', function(e) {
 function scrollTrending(dir) {
     const scroll = document.getElementById('trending-scroll');
     scroll.scrollBy({ left: dir * 280, behavior: 'smooth' });
+}
+
+function scrollCat(dir) {
+    const scroll = document.getElementById('cat-scroll');
+    scroll.scrollBy({ left: dir * 370, behavior: 'smooth' });
 }
 
 function checkScrollVisibility() {

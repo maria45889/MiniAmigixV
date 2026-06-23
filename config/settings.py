@@ -35,6 +35,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+# URL base del sitio para correos electrónicos y enlaces absolutos
+SITE_URL = os.getenv('SITE_URL', 'http://127.0.0.1:8000')
+
 # Configuración para túneles (ngrok) y HTTPS
 CSRF_TRUSTED_ORIGINS = [
     'https://yasmin-uncalumniative-demetria.ngrok-free.dev',
@@ -108,6 +111,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'notificaciones.context_processors.notificaciones_sin_leer',
                 'perfil.context_processors.perfil_settings',
+                'config.context_processors.site_url',
             ],
         },
     },
@@ -158,6 +162,11 @@ ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*']
 ACCOUNT_SESSION_REMEMBER = True
 ACCOUNT_UNIQUE_EMAIL = True
 
+# Configuración de email para allauth
+ACCOUNT_EMAIL_SUBJECT_PREFIX = ''
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'http'  # Cambiar a 'https' en producción
+ACCOUNT_ADAPTER = 'apps.app.adapters.AccountAdapter'
+
 # Auto-signup para redes sociales (evitar formulario adicional)
 SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_QUERY_EMAIL = True
@@ -166,7 +175,7 @@ SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 
 # Adaptador personalizado para generar username automáticamente
-SOCIALACCOUNT_ADAPTER = 'app.adapters.SocialAccountAdapter'
+SOCIALACCOUNT_ADAPTER = 'apps.app.adapters.SocialAccountAdapter'
 
 # Saltar la página de confirmación de inicio de sesión social ("Continuar")
 SOCIALACCOUNT_LOGIN_ON_GET = True
