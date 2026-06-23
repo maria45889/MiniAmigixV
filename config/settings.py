@@ -269,16 +269,16 @@ SIMPLE_JWT = {
 }
 
 # ==================== MONGODB CONFIGURATION ====================
-from mongoengine import connect
-
-# Conexión a MongoDB
 MONGODB_URI = os.getenv('MONGODB_URI', 'mongodb://localhost:27017/')
 MONGODB_NAME = os.getenv('MONGODB_NAME', 'miniamigixv_db')
 
-# Conectar a MongoDB
+# Conectar a MongoDB (opcional)
 try:
+    from mongoengine import connect
     connect(db=MONGODB_NAME, host=MONGODB_URI, alias='default')
     print(f"✓ Conectado a MongoDB: {MONGODB_NAME}")
+except ImportError:
+    print(f"⚠ mongoengine no está instalado. MongoDB no estará disponible.")
 except Exception as e:
     print(f"✗ Error al conectar a MongoDB: {str(e)}")
 

@@ -94,8 +94,9 @@ def chat_api(request):
             
             eventos_contexto = "\n".join(eventos_proximos) if eventos_proximos else "No tienes eventos en los próximos 5 días."
             
+            fecha_actual = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
             messages = [
-                {"role": "system", "content": f"Eres MiniAmigix, un asistente amigable y entusiasta creado en 2026. Responde en español de forma concisa. Usa emojis con moderación, solo cuando sea necesario para dar énfasis. 🌟\n\nEventos próximos del usuario:\n{eventos_contexto}\n\nCuando el usuario pregunte por sus eventos o agenda, recuérdale estos eventos. Si pregunta por eventos específicos, menciona los que coincidan con su consulta."}
+                {"role": "system", "content": f"Eres MiniAmigix, un asistente amigable y entusiasta creado en 2026. Responde en español de forma concisa. Usa emojis con moderación, solo cuando sea necesario para dar énfasis. 🌟\n\nLa fecha y hora actual es: {fecha_actual}\nNunca digas que no sabes la fecha actual.\n\nEventos próximos del usuario:\n{eventos_contexto}\n\nCuando el usuario pregunte por sus eventos o agenda, recuérdale estos eventos. Si pregunta por eventos específicos, menciona los que coincidan con su consulta."}
             ]
             
             for msg in mensajes:
@@ -103,8 +104,9 @@ def chat_api(request):
                 messages.append({"role": role, "content": msg.texto})
         else:
             # For non-authenticated users, just use current message
+            fecha_actual = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
             messages = [
-                {"role": "system", "content": "Eres MiniAmigix, un asistente amigable y entusiasta creado en 2026. Responde en español de forma concisa. Usa emojis con moderación. ✨"},
+                {"role": "system", "content": f"Eres MiniAmigix, un asistente amigable y entusiasta creado en 2026. Responde en español de forma concisa. Usa emojis con moderación. ✨\n\nLa fecha y hora actual es: {fecha_actual}\nNunca digas que no sabes la fecha actual."},
                 {"role": "user", "content": message}
             ]
         

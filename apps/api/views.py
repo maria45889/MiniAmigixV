@@ -49,8 +49,10 @@ class ChatSendView(APIView):
         conversacion.save()
 
         mensajes = list(MensajeChat.objects.filter(conversacion=conversacion).order_by('-fecha_creacion')[:10])[::-1]
+        from datetime import datetime
+        fecha_actual = datetime.now().strftime("%d/%m/%Y %H:%M")
         messages = [
-            {"role": "system", "content": "Eres MiniAmigix, un asistente amigable y entusiasta. Responde en español de forma concisa. Usa emojis con moderación. 🌟"}
+            {"role": "system", "content": f"Eres MiniAmigix, un asistente amigable y entusiasta. Responde en español de forma concisa. Usa emojis con moderación. 🌟\n\nLa fecha y hora actual es: {fecha_actual}\nNunca digas que no sabes la fecha actual."}
         ]
         
         for msg in mensajes:
