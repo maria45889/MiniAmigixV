@@ -11,9 +11,17 @@
 <div class="chat-wrapper">
     <!-- Panel de Chats (Izquierda) -->
     {% if not request.user.is_authenticated %}
-    <div class="alert-message">
-        <p>⚠️ No has iniciado sesión. El historial de chat no se guardará.</p>
-        <p><a href="{% url 'login' %}">Inicia sesión</a> o <a href="{% url 'register' %}">regístrate</a> para guardar tus conversaciones.</p>
+    <div class="privacy-banner" id="privacy-banner" role="status">
+        <div class="privacy-banner-content">
+            <i class="ti ti-alert-circle"></i>
+            <span>No has iniciado sesión. El historial no se guardará.</span>
+        </div>
+        <div class="privacy-banner-actions">
+            <a href="{% url 'login' %}" class="privacy-link">Iniciar sesión</a>
+            <button class="privacy-close" onclick="dismissPrivacyBanner()" aria-label="Cerrar aviso">
+                <i class="ti ti-x"></i>
+            </button>
+        </div>
     </div>
     {% endif %}
     <div class="chat-list">
@@ -251,5 +259,22 @@
     };
 
     elements.history.scrollTop = elements.history.scrollHeight;
+
+    // Privacy banner dismiss
+    function dismissPrivacyBanner() {
+        const banner = document.getElementById('privacy-banner');
+        if (banner) {
+            banner.style.display = 'none';
+            localStorage.setItem('privacyBannerDismissed', 'true');
+        }
+    }
+
+    // Check if banner was previously dismissed
+    if (localStorage.getItem('privacyBannerDismissed') === 'true') {
+        const banner = document.getElementById('privacy-banner');
+        if (banner) {
+            banner.style.display = 'none';
+        }
+    }
 </script>
 {% endblock %}
