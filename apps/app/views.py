@@ -614,8 +614,8 @@ def traductor(request):
     return render(request, 'traductor.html')
 
 def entretenimiento(request):
-    recomendaciones = {'peliculas': [], 'series': [], 'libros': [], 'teatro': []}
-    categorias = ['peliculas', 'series', 'libros', 'teatro']
+    recomendaciones = {'peliculas': [], 'series': [], 'libros': [], 'teatro': [], 'anime': [], 'documentales': []}
+    categorias = ['peliculas', 'series', 'libros', 'teatro', 'anime', 'documentales']
     ahora = datetime.datetime.now()
     necesita_actualizar = False
 
@@ -780,8 +780,24 @@ def entretenimiento(request):
             {'titulo': '1984', 'autor': 'George Orwell', 'descripcion': 'Una distopía sobre el control totalitario.'},
             {'titulo': 'Don Quijote de la Mancha', 'autor': 'Miguel de Cervantes', 'descripcion': 'Las aventuras del caballero de la triste figura.'}
         ]
+    
+    if not recomendaciones['anime']:
+        recomendaciones['anime'] = [
+            {'titulo': 'Attack on Titan', 'descripcion': 'La humanidad lucha contra titanes gigantes en un mundo post-apocalíptico.', 'genero': 'Acción', 'imagen': 'https://images.unsplash.com/photo-1578632767115-351597924711?w=300&h=450&fit=crop', 'url': '#'},
+            {'titulo': 'Demon Slayer', 'descripcion': 'Tanjiro se convierte en cazador de demonios para salvar a su hermana.', 'genero': 'Fantasía', 'imagen': 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=300&h=450&fit=crop', 'url': '#'},
+            {'titulo': 'Jujutsu Kaisen', 'descripcion': 'Yuji Itadori se une a una organización de hechiceros para combatir maldiciones.', 'genero': 'Sobrenatural', 'imagen': 'https://images.unsplash.com/photo-1618336753974-aae8e04506aa?w=300&h=450&fit=crop', 'url': '#'},
+            {'titulo': 'One Piece', 'descripcion': 'Luffy y su tripulación buscan el tesoro legendario One Piece.', 'genero': 'Aventura', 'imagen': 'https://images.unsplash.com/photo-1560972550-aba3456b5564?w=300&h=450&fit=crop', 'url': '#'}
+        ]
+    
+    if not recomendaciones['documentales']:
+        recomendaciones['documentales'] = [
+            {'titulo': 'Nuestro Planeta', 'descripcion': 'Documental de Netflix sobre la vida silvestre y los ecosistemas del planeta.', 'genero': 'Naturaleza', 'imagen': 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=300&h=450&fit=crop', 'url': '#'},
+            {'titulo': 'Cosmos: Un viaje personal', 'descripcion': 'Neil deGrasse Tyson explora el universo y nuestra conexión con el cosmos.', 'genero': 'Ciencia', 'imagen': 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=300&h=450&fit=crop', 'url': '#'},
+            {'titulo': 'The Social Dilemma', 'descripcion': 'Explora el impacto de las redes sociales en la sociedad y la democracia.', 'genero': 'Tecnología', 'imagen': 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=300&h=450&fit=crop', 'url': '#'},
+            {'titulo': 'My Octopus Teacher', 'descripcion': 'Un cineasta desarrolla una relación inusual con un pulpo en un bosque de algas.', 'genero': 'Naturaleza', 'imagen': 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=300&h=450&fit=crop', 'url': '#'}
+        ]
 
-    logger.info(f"Recomendaciones finales: peliculas={len(recomendaciones['peliculas'])}, series={len(recomendaciones['series'])}, libros={len(recomendaciones['libros'])}, teatro={len(recomendaciones['teatro'])}")
+    logger.info(f"Recomendaciones finales: peliculas={len(recomendaciones['peliculas'])}, series={len(recomendaciones['series'])}, libros={len(recomendaciones['libros'])}, teatro={len(recomendaciones['teatro'])}, anime={len(recomendaciones['anime'])}, documentales={len(recomendaciones['documentales'])}")
     return render(request, 'entretenimiento.html', {'recomendaciones': recomendaciones})
 
 def notificaciones(request):

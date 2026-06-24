@@ -294,7 +294,10 @@ function cargarResumenes() {
                         <p style="color: var(--text-muted); font-style: italic; margin-bottom: 10px;">${resumen.texto_original}</p>
                         <h4 style="color: #7c3aed; margin-bottom: 5px;">Resumen:</h4>
                         <p style="color: var(--text-main); margin-bottom: 10px;">${resumen.resumen}</p>
-                        <small style="color: var(--text-muted);">${resumen.fecha_creacion}</small>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                            <small style="color: var(--text-muted);">${resumen.fecha_creacion}</small>
+                            <button class="btn-danger" onclick="eliminarResumen('${resumen.id}')">🗑️ Eliminar</button>
+                        </div>
                     </div>
                 `).join('');
             }
@@ -302,6 +305,31 @@ function cargarResumenes() {
     })
     .catch(error => {
         console.error('Error:', error);
+    });
+}
+
+function eliminarResumen(resumenId) {
+    if (!confirm('¿Estás seguro de eliminar este resumen?')) {
+        return;
+    }
+    
+    fetch(`/estudio/api/eliminar-resumen/${resumenId}/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            cargarResumenes();
+        } else {
+            alert('Error al eliminar el resumen: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al eliminar el resumen');
     });
 }
 
