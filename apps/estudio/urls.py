@@ -8,4 +8,5 @@ urlpatterns = [
     path('api/resumir-texto/', views.resumir_texto, name='resumir_texto'),
     path('api/obtener-notas/', views.obtener_notas, name='obtener_notas'),
     path('api/obtener-resumenes/', views.obtener_resumenes, name='obtener_resumenes'),
+    path('api/eliminar-resumen/<uuid:resumen_id>/', views.eliminar_resumen, name='eliminar_resumen'),
 ]

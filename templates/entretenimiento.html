@@ -22,7 +22,6 @@
 
     <!-- Category Cards Grid -->
     <div class="cat-carousel-container">
-        <button class="cat-nav cat-nav-left" onclick="alert('Izquierda'); scrollCat(-1);" aria-label="Anterior" style="position: absolute; left: 5px; top: 50%; transform: translateY(-50%); z-index: 1000; background: #7c3aed; color: white; border: 2px solid white; border-radius: 50%; width: 50px; height: 50px; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center;">❮</button>
         <div class="entertain-grid sortable-grid" id="cat-scroll" data-grid-id="entretenimiento">
 
             <!-- Películas -->
@@ -62,8 +61,8 @@
             </div>
 
             <!-- Documentales -->
-            <div class="cat-card cat-card--peliculas" onclick="alert('Próximamente')" data-id="documentales">
-                <span class="cat-tag">Próximo</span>
+            <div class="cat-card cat-card--peliculas" onclick="abrirModal('documentales')" data-id="documentales">
+                <span class="cat-tag">Popular</span>
                 <div class="cat-icon">🎥</div>
                 <h3>Documentales</h3>
                 <p>Explora el mundo a través de documentales fascinantes</p>
@@ -71,8 +70,8 @@
             </div>
 
             <!-- Anime -->
-            <div class="cat-card cat-card--series" onclick="alert('Próximamente')" data-id="anime">
-                <span class="cat-tag">Próximo</span>
+            <div class="cat-card cat-card--series" onclick="abrirModal('anime')" data-id="anime">
+                <span class="cat-tag">Trending</span>
                 <div class="cat-icon">🎌</div>
                 <h3>Anime</h3>
                 <p>Las mejores series de anime y manga</p>
@@ -80,7 +79,6 @@
             </div>
 
         </div>
-        <button class="cat-nav cat-nav-right" onclick="scrollCat(1)" aria-label="Siguiente" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); z-index: 1000; background: #7c3aed; color: white; border: 2px solid white; border-radius: 50%; width: 50px; height: 50px; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center;">❯</button>
     </div>
 
     <!-- Trending Section (Quick Preview) -->
@@ -120,7 +118,9 @@ const nombres = {
     peliculas: '🎬 Películas',
     series: '📺 Series',
     libros: '📚 Libros',
-    teatro: '🎭 Teatro'
+    teatro: '🎭 Teatro',
+    anime: '🎌 Anime',
+    documentales: '🎥 Documentales'
 };
 
 // ============ MODAL ============

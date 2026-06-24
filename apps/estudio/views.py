@@ -4,12 +4,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 import json
 import os
-from openai import OpenAI
+import requests
 
 from .models import Nota, Resumen
-
-# Inicializar cliente de OpenAI
-client = OpenAI(api_key=os.getenv('OPENAI_API_KEY'))
 
 @login_required
 def estudio(request):
@@ -76,18 +73,8 @@ def resumir_texto(request):
             if not texto:
                 return JsonResponse({'success': False, 'error': 'El texto no puede estar vacío'})
             
-            # Usar OpenAI para generar el resumen
-            response = client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": "Eres un asistente que genera resúmenes concisos y claros de textos. Genera un resumen en español del texto proporcionado."},
-                    {"role": "user", "content": f"Por favor, genera un resumen conciso del siguiente texto:\n\n{texto}"}
-                ],
-                max_tokens=500,
-                temperature=0.7
-            )
-            
-            resumen = response.choices[0].message.content
+            # Algoritmo de resumen local (sin dependencias externas)
+            resumen = generar_resumen_local(texto)
             
             # Guardar el resumen en la base de datos
             resumen_obj = Resumen.objects.create(
@@ -105,6 +92,75 @@ def resumir_texto(request):
             return JsonResponse({'success': False, 'error': str(e)})
     
     return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
+def generar_resumen_local(texto):
+    """
+    Genera un resumen usando algoritmo de extracción local.
+    No requiere conexión a internet ni APIs externas.
+    """
+    import re
+    
+    # Dividir texto en oraciones
+    oraciones = re.split(r'[.!?]+', texto)
+    oraciones = [o.strip() for o in oraciones if o.strip()]
+    
+    if len(oraciones) <= 3:
+        return texto  # Texto muy corto, devolver original
+    
+    # Calcular puntuación de cada oración
+    puntuaciones = []
+    for i, oracion in enumerate(oraciones):
+        score = 0
+        
+        # Longitud ideal (entre 10 y 50 palabras)
+        palabras = oracion.split()
+        longitud = len(palabras)
+        if 10 <= longitud <= 50:
+            score += 3
+        elif 5 <= longitud < 10:
+            score += 1
+        elif longitud > 50:
+            score -= 1
+        
+        # Posición en el texto (primeras oraciones más importantes)
+        if i < 2:
+            score += 2
+        elif i < 5:
+            score += 1
+        
+        # Palabras clave importantes
+        palabras_clave = ['importante', 'principal', 'clave', 'esencial', 'fundamental', 
+                         'crucial', 'significativo', 'destacado', 'principalmente', 'básicamente']
+        for palabra in palabras_clave:
+            if palabra.lower() in oracion.lower():
+                score += 2
+        
+        # Evitar oraciones muy cortas o con poca información
+        if longitud < 3:
+            score -= 2
+            
+        puntuaciones.append((score, oracion))
+    
+    # Ordenar por puntuación y seleccionar las mejores
+    puntuaciones.sort(key=lambda x: x[0], reverse=True)
+    
+    # Seleccionar oraciones (máximo 3 o 40% del total)
+    num_oraciones = min(3, max(1, len(oraciones) // 3))
+    mejores_oraciones = [oracion for score, oracion in puntuaciones[:num_oraciones]]
+    
+    # Mantener orden original
+    resumen_oraciones = []
+    for oracion in oraciones:
+        if oracion in mejores_oraciones:
+            resumen_oraciones.append(oracion)
+    
+    resumen = '. '.join(resumen_oraciones) + '.'
+    
+    # Si el resumen es muy largo, acortarlo
+    if len(resumen) > 500:
+        resumen = resumen[:497] + '...'
+    
+    return resumen
 
 @csrf_exempt
 @login_required
@@ -142,6 +198,21 @@ def obtener_resumenes(request):
                 for resumen in resumenes
             ]
             return JsonResponse({'success': True, 'resumenes': resumenes_data})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
+@csrf_exempt
+@login_required
+def eliminar_resumen(request, resumen_id):
+    if request.method == 'DELETE':
+        try:
+            resumen = Resumen.objects.get(id=resumen_id, usuario=request.user)
+            resumen.delete()
+            return JsonResponse({'success': True})
+        except Resumen.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Resumen no encontrado'})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
     

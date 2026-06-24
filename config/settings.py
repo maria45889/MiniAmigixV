@@ -79,7 +79,7 @@ INSTALLED_APPS = [
     'sugerencias',
     'soporte',
     'tutorial',
-    'estudio.apps.EstudioConfig',
+    'estudio',
     'rest_framework',
     'rest_framework_simplejwt',
     'apps.api',
