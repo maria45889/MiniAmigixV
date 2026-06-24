@@ -69,6 +69,29 @@ def soporte_home(request):
         }
         badge = badge_styles.get(categoria, badge_styles["general"])
 
+        # Mapear categoría a prioridad del ticket
+        prioridad_map = {
+            "general": "media",
+            "bug": "alta",
+            "cuenta": "alta",
+            "sugerencia": "baja",
+            "otro": "media",
+        }
+        prioridad = prioridad_map.get(categoria, "media")
+
+        # Crear ticket en la base de datos
+        ticket = None
+        try:
+            ticket = TicketSoporte.objects.create(
+                asunto=f"[{categoria_texto}] {nombre}",
+                descripcion=mensaje,
+                prioridad=prioridad,
+                usuario=request.user if request.user.is_authenticated else None
+            )
+            logging.info(f"Ticket creado exitosamente: {ticket.id} - {ticket.asunto}")
+        except Exception as e:
+            logging.error(f"Error al crear ticket: {str(e)}", exc_info=True)
+
         asunto_email = f"🛟 [{categoria_texto}] Soporte de {nombre}"
 
         # Texto plano (fallback)
@@ -98,15 +121,15 @@ def soporte_home(request):
         })
 
         try:
-            email = EmailMultiAlternatives(
+            email_msg = EmailMultiAlternatives(
                 asunto_email,
                 contenido_texto,
                 settings.EMAIL_HOST_USER,
                 settings.ADMIN_EMAILS,
             )
-            email.attach_alternative(contenido_html, "text/html")
-            email.encoding = 'utf-8'
-            resultado = email.send()
+            email_msg.attach_alternative(contenido_html, "text/html")
+            email_msg.encoding = 'utf-8'
+            resultado = email_msg.send()
             
             # Verificar si el correo se envió correctamente
             if resultado == 0:
@@ -121,7 +144,7 @@ def soporte_home(request):
                         titulo='📧 Mensaje de soporte enviado',
                         mensaje=f'Tu mensaje de soporte sobre "{categoria_texto}" ha sido enviado. Te responderemos pronto.',
                         tipo='success',
-                        enlace='/soporte/'
+                        enlace='/soporte/lista_tickets/'
                     )
                 except Exception as e:
                     logging.error(f"Error al crear notificación de soporte: {str(e)}")
@@ -138,7 +161,15 @@ def soporte_home(request):
 @user_passes_test(lambda u: u.is_staff)
 def admin_tickets(request):
     tickets = TicketSoporte.objects.all().order_by('-fecha_creacion')
-    return render(request, 'soporte/admin_tickets.html', {'tickets': tickets})
+    abiertos = tickets.filter(estado='abierto').count()
+    en_proceso = tickets.filter(estado='en_proceso').count()
+    resueltos = tickets.filter(estado='resuelto').count()
+    return render(request, 'soporte/admin_tickets.html', {
+        'tickets': tickets,
+        'abiertos': abiertos,
+        'en_proceso': en_proceso,
+        'resueltos': resueltos
+    })
 
 @login_required
 @user_passes_test(lambda u: u.is_staff)
@@ -183,7 +214,8 @@ def responder_ticket(request, ticket_id):
                         titulo=f'🎉 Respuesta a tu ticket: {ticket.asunto}',
                         mensaje=f'Tu ticket ha recibido una respuesta: {respuesta}',
                         tipo='success',
-                        leida=False
+                        leida=False,
+                        enlace='/soporte/lista_tickets/'
                     )
                 except:
                     pass

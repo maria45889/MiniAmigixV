@@ -126,7 +126,8 @@ def responder_sugerencia(request, sugerencia_id):
                         titulo=f'🎉 Respuesta a tu sugerencia: {sugerencia.titulo}',
                         mensaje=f'Tu sugerencia ha recibido una respuesta: {respuesta}',
                         tipo='success',
-                        leida=False
+                        leida=False,
+                        enlace='/sugerencias/'
                     )
                 except:
                     pass
