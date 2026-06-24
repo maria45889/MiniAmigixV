@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{% static 'css/entretenimiento.css' %}?v=15">
+<link rel="stylesheet" href="{% static 'css/entretenimiento.css' %}?v=19">
 {% endblock %}
 
 {% block content %}
@@ -22,7 +22,7 @@
 
     <!-- Category Cards Grid -->
     <div class="cat-carousel-container">
-        <button class="cat-nav cat-nav-left" onclick="scrollCat(-1)" aria-label="Anterior">❮</button>
+        <button class="cat-nav cat-nav-left" onclick="alert('Izquierda'); scrollCat(-1);" aria-label="Anterior" style="position: absolute; left: 5px; top: 50%; transform: translateY(-50%); z-index: 1000; background: #7c3aed; color: white; border: 2px solid white; border-radius: 50%; width: 50px; height: 50px; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center;">❮</button>
         <div class="entertain-grid sortable-grid" id="cat-scroll" data-grid-id="entretenimiento">
 
             <!-- Películas -->
@@ -61,8 +61,26 @@
                 <button class="cat-btn" type="button">Explorar →</button>
             </div>
 
+            <!-- Documentales -->
+            <div class="cat-card cat-card--peliculas" onclick="alert('Próximamente')" data-id="documentales">
+                <span class="cat-tag">Próximo</span>
+                <div class="cat-icon">🎥</div>
+                <h3>Documentales</h3>
+                <p>Explora el mundo a través de documentales fascinantes</p>
+                <button class="cat-btn" type="button">Explorar →</button>
+            </div>
+
+            <!-- Anime -->
+            <div class="cat-card cat-card--series" onclick="alert('Próximamente')" data-id="anime">
+                <span class="cat-tag">Próximo</span>
+                <div class="cat-icon">🎌</div>
+                <h3>Anime</h3>
+                <p>Las mejores series de anime y manga</p>
+                <button class="cat-btn" type="button">Explorar →</button>
+            </div>
+
         </div>
-        <button class="cat-nav cat-nav-right" onclick="scrollCat(1)" aria-label="Siguiente">❯</button>
+        <button class="cat-nav cat-nav-right" onclick="scrollCat(1)" aria-label="Siguiente" style="position: absolute; right: 5px; top: 50%; transform: translateY(-50%); z-index: 1000; background: #7c3aed; color: white; border: 2px solid white; border-radius: 50%; width: 50px; height: 50px; font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center;">❯</button>
     </div>
 
     <!-- Trending Section (Quick Preview) -->
@@ -222,7 +240,16 @@ function scrollTrending(dir) {
 
 function scrollCat(dir) {
     const scroll = document.getElementById('cat-scroll');
-    scroll.scrollBy({ left: dir * 370, behavior: 'smooth' });
+    const cards = scroll.querySelectorAll('.cat-card');
+    const scrollAmount = 380; // ancho de tarjeta + gap
+    
+    if (dir === 1) {
+        // Scroll derecha
+        scroll.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    } else {
+        // Scroll izquierda
+        scroll.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    }
 }
 
 function checkScrollVisibility() {

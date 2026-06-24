@@ -611,6 +611,16 @@
                     // Inicializar el reproductor si estaba en memoria pero no cargado
                     createMiniPlayerYT(globalCurrentYoutubeId);
                     document.getElementById('mini-play-btn').textContent = '⏸';
+                } else {
+                    // No hay canción cargada, mostrar mensaje
+                    console.log('No hay canción cargada en el mini player');
+                    // Intentar cargar la primera canción de la playlist si existe
+                    const firstItem = document.querySelector('.playlist-item');
+                    if (firstItem) {
+                        globalPlaySong(firstItem.dataset.youtubeId, firstItem.dataset.name, firstItem.dataset.artist);
+                    } else {
+                        alert('Añade una canción a tu Matriz Sonora para empezar a escuchar.');
+                    }
                 }
                 return;
             }
