@@ -4,7 +4,7 @@
 {% block title %}Editar Perfil{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/profile.css' %}?v=4">
+<link rel="stylesheet" href="{% static 'css/profile.css' %}?v=5">
 {% endblock %}
 
 {% block content %}
@@ -15,7 +15,7 @@
         <p>Personaliza tu identidad en MiniAmigixV</p>
     </div>
     
-    <form method="POST" enctype="multipart/form-data" class="perfil-form-modern">
+    <form method="POST" action="{% url 'editar_perfil' %}" enctype="multipart/form-data" class="perfil-form-modern">
         {% csrf_token %}
         
         <div class="form-section">
@@ -77,8 +77,122 @@
         
         <div class="form-actions-modern">
             <a href="{% url 'perfil' %}" class="btn-cancel"><i data-lucide="x"></i> Cancelar</a>
-            <button type="submit" class="btn-save"><i data-lucide="save"></i> Guardar Cambios</button>
+            <button type="submit" class="btn-save" name="submit"><i data-lucide="save"></i> Guardar Cambios</button>
         </div>
     </form>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Aplicar tema guardado en localStorage inmediatamente
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
+        document.body.classList.add('light');
+    } else {
+        document.body.classList.remove('light');
+    }
+    
+    // Aplicar idioma guardado inmediatamente
+    const savedLang = localStorage.getItem('idioma') || 'es';
+    const translations = {
+        es: {
+            'home': 'Inicio',
+            'chat': 'Chat IA',
+            'music': 'Música',
+            'blog': 'Blog',
+            'games': 'Juegos',
+            'study': 'Estudio',
+            'events': 'Eventos',
+            'weather': 'Clima',
+            'translator': 'Traductor',
+            'entertainment': 'Entretenimiento',
+            'support': 'Soporte',
+            'admin': 'Centro de Administración General',
+            'profile': 'Perfil',
+            'settings': 'Configuración',
+            'logout': 'Cerrar Sesión',
+            'login': 'Iniciar Sesión',
+            'register': 'Registrarse'
+        },
+        en: {
+            'home': 'Home',
+            'chat': 'Chat AI',
+            'music': 'Music',
+            'blog': 'Blog',
+            'games': 'Games',
+            'study': 'Study',
+            'events': 'Events',
+            'weather': 'Weather',
+            'translator': 'Translator',
+            'entertainment': 'Entertainment',
+            'support': 'Support',
+            'admin': 'General Admin Center',
+            'profile': 'Profile',
+            'settings': 'Settings',
+            'logout': 'Logout',
+            'login': 'Login',
+            'register': 'Register'
+        }
+    };
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[savedLang] && translations[savedLang][key]) {
+            el.textContent = translations[savedLang][key];
+        }
+    });
+    
+    // Manejar envío del formulario
+    const form = document.querySelector('form');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const tema = document.getElementById('tema').value;
+            const idioma = document.getElementById('idioma').value;
+            
+            // Guardar en localStorage
+            localStorage.setItem('theme', tema);
+            localStorage.setItem('idioma', idioma);
+            
+            // Aplicar tema inmediatamente
+            if (tema === 'light') {
+                document.body.classList.add('light');
+            } else {
+                document.body.classList.remove('light');
+            }
+            
+            // Aplicar idioma inmediatamente
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[idioma] && translations[idioma][key]) {
+                    el.textContent = translations[idioma][key];
+                }
+            });
+            
+            // Llamar a la API para guardar en la base de datos
+            fetch('/api/update-language/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({ idioma: idioma })
+            }).catch(err => console.error('Error al cambiar idioma:', err));
+        });
+    }
+});
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(name + "=")) {
+                cookieValue = decodeURIComponent(cookie.split("=")[1]);
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
 {% endblock %}

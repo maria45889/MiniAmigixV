@@ -153,21 +153,50 @@ body {
 body.light {
     --bg-dark: #f8fafc;
     --panel-dark: #ffffff;
-    --border-color: rgba(0, 0, 0, 0.06);
+    --border-color: rgba(124, 58, 237, 0.2);
     --text-main: #1e293b;
     --text-muted: #64748b;
-    background-color: var(--bg-dark);
+    background: 
+        radial-gradient(circle at top left, rgba(124, 58, 237, 0.05), transparent 40%),
+        radial-gradient(circle at bottom right, rgba(6, 182, 212, 0.05), transparent 40%),
+        #f8fafc;
     color: var(--text-main);
 }
 
 body.light .navbar, body.light .page-content {
-    background-color: var(--bg-dark);
+    background-color: transparent;
+}
+
+body.light .sidebar {
+    background: rgba(255, 255, 255, 0.95);
+    border-right: 1px solid rgba(124, 58, 237, 0.15);
+    box-shadow: 2px 0 12px rgba(124, 58, 237, 0.1);
+}
+
+body.light .nav-item {
+    color: var(--text-muted);
+}
+
+body.light .nav-item:hover {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(6, 182, 212, 0.1));
+    color: #7c3aed;
+}
+
+body.light .nav-item.active {
+    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+    color: #fff;
 }
 
 body.light .digital-clock {
-    background: rgba(124, 58, 237, 0.08);
-    border-color: rgba(124, 58, 237, 0.15);
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(6, 182, 212, 0.1));
+    border: 1px solid rgba(124, 58, 237, 0.2);
     color: #7c3aed;
+}
+
+body.light .floating-mini-player {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.15);
 }
 
 /* ==================== GLOBAL FLOATING MINI PLAYER ==================== */
@@ -196,6 +225,30 @@ body.light .digital-clock {
         0 8px 32px rgba(0, 0, 0, 0.6),
         0 0 25px rgba(0, 255, 204, 0.15),
         inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.floating-mini-player.minimized {
+    width: auto;
+    min-width: 200px;
+    border-radius: 50px;
+    padding: 8px 15px;
+}
+
+.floating-mini-player.minimized .mini-player-header {
+    padding: 0;
+}
+
+.floating-mini-player.minimized .mini-player-song-info {
+    gap: 10px;
+}
+
+.floating-mini-player.minimized .mini-player-vinyl {
+    width: 35px;
+    height: 35px;
+}
+
+.floating-mini-player.minimized .mini-player-artist {
+    display: none;
 }
 
 .mini-player-header {
@@ -245,15 +298,6 @@ body.light .digital-clock {
 @keyframes miniVinylSpin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
-}
-
-.mini-player-title {
-    font-size: 13px;
-    font-weight: 600;
-    color: #e2e8f0;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
 }
 
 .mini-player-artist {
@@ -332,8 +376,65 @@ body.light .digital-clock {
 .btn-mini.video-btn {
     font-size: 16px;
     color: rgba(255, 255, 255, 0.4);
-    width: 28px;
-    height: 28px;
+}
+
+/* Video Controls */
+.video-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(6, 182, 212, 0.2));
+    border-top: 1px solid rgba(255, 255, 255, 0.15);
+    margin-top: 10px;
+    border-radius: 0 0 15px 15px;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.video-controls .btn-icon {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 22px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.video-controls .btn-icon:hover {
+    background: linear-gradient(135deg, rgba(0, 255, 204, 0.2), rgba(6, 182, 212, 0.2));
+    border-color: rgba(0, 255, 204, 0.6);
+    color: #00ffcc;
+    transform: scale(1.15) translateY(-2px);
+    box-shadow: 0 6px 25px rgba(0, 255, 204, 0.3);
+}
+
+.video-controls .btn-icon:active {
+    transform: scale(1.05);
+}
+
+.video-controls .btn-play-pause {
+    font-size: 28px;
+    background: linear-gradient(135deg, rgba(0, 255, 204, 0.2), rgba(6, 182, 212, 0.2));
+    border-color: rgba(0, 255, 204, 0.5);
+    color: #00ffcc;
+    width: 65px;
+    height: 65px;
+    box-shadow: 0 4px 20px rgba(0, 255, 204, 0.25);
+}
+
+.video-controls .btn-play-pause:hover {
+    background: linear-gradient(135deg, rgba(0, 255, 204, 0.3), rgba(6, 182, 212, 0.3));
+    border-color: rgba(0, 255, 204, 0.8);
+    box-shadow: 0 8px 30px rgba(0, 255, 204, 0.4);
 }
 
 .btn-mini.video-btn.active {

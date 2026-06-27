@@ -25,29 +25,29 @@
 
 
     <nav class="nav-group">
-        <a href="/" class="nav-item {% if request.path == '/' %}active{% endif %}"><i data-lucide="home"></i> Inicio</a>
-        <a href="{% url 'chat' %}" class="nav-item {% if request.resolver_match.url_name == 'chat' %}active{% endif %}"><i data-lucide="message-square"></i> Chat IA</a>
-        <a href="{% url 'musica' %}" class="nav-item {% if request.resolver_match.url_name == 'musica' %}active{% endif %}"><i data-lucide="music"></i> Música</a>
-        <a href="{% url 'juegos' %}" class="nav-item {% if request.resolver_match.url_name == 'juegos' %}active{% endif %}"><i data-lucide="gamepad-2"></i> Juegos</a>
-        <a href="{% url 'estudio' %}" class="nav-item {% if request.resolver_match.url_name == 'estudio' %}active{% endif %}"><i data-lucide="book-open"></i> Estudio</a>
-        <a href="{% url 'lista_eventos' %}" class="nav-item {% if request.resolver_match.url_name == 'lista_eventos' %}active{% endif %}"><i data-lucide="calendar"></i> Eventos</a>
-        <a href="{% url 'clima' %}" class="nav-item {% if request.resolver_match.url_name == 'clima' %}active{% endif %}"><i data-lucide="cloud-sun"></i> Clima</a>
-        <a href="{% url 'traductor' %}" class="nav-item {% if request.resolver_match.url_name == 'traductor' %}active{% endif %}"><i data-lucide="languages"></i> Traductor</a>
-        <a href="{% url 'entretenimiento' %}" class="nav-item {% if request.resolver_match.url_name == 'entretenimiento' %}active{% endif %}"><i data-lucide="sparkles"></i> Entretenimiento</a>
-        <a href="{% url 'blog' %}" class="nav-item {% if request.resolver_match.url_name == 'blog' %}active{% endif %}"><i data-lucide="file-text"></i> Blog</a>
-        <a href="{% url 'soporte' %}" class="nav-item {% if request.resolver_match.url_name == 'soporte' %}active{% endif %}"><i data-lucide="life-buoy"></i> Soporte</a>
+        <a href="/" class="nav-item {% if request.path == '/' %}active{% endif %}"><i data-lucide="home"></i> <span data-i18n="home">Inicio</span></a>
+        <a href="{% url 'chat' %}" class="nav-item {% if request.resolver_match.url_name == 'chat' %}active{% endif %}"><i data-lucide="message-square"></i> <span data-i18n="chat">Chat IA</span></a>
+        <a href="{% url 'musica' %}" class="nav-item {% if request.resolver_match.url_name == 'musica' %}active{% endif %}"><i data-lucide="music"></i> <span data-i18n="music">Música</span></a>
+        <a href="{% url 'juegos' %}" class="nav-item {% if request.resolver_match.url_name == 'juegos' %}active{% endif %}"><i data-lucide="gamepad-2"></i> <span data-i18n="games">Juegos</span></a>
+        <a href="{% url 'estudio' %}" class="nav-item {% if request.resolver_match.url_name == 'estudio' %}active{% endif %}"><i data-lucide="book-open"></i> <span data-i18n="study">Estudio</span></a>
+        <a href="{% url 'lista_eventos' %}" class="nav-item {% if request.resolver_match.url_name == 'lista_eventos' %}active{% endif %}"><i data-lucide="calendar"></i> <span data-i18n="events">Eventos</span></a>
+        <a href="{% url 'clima' %}" class="nav-item {% if request.resolver_match.url_name == 'clima' %}active{% endif %}"><i data-lucide="cloud-sun"></i> <span data-i18n="weather">Clima</span></a>
+        <a href="{% url 'traductor' %}" class="nav-item {% if request.resolver_match.url_name == 'traductor' %}active{% endif %}"><i data-lucide="languages"></i> <span data-i18n="translator">Traductor</span></a>
+        <a href="{% url 'entretenimiento' %}" class="nav-item {% if request.resolver_match.url_name == 'entretenimiento' %}active{% endif %}"><i data-lucide="sparkles"></i> <span data-i18n="entertainment">Entretenimiento</span></a>
+        <a href="{% url 'blog' %}" class="nav-item {% if request.resolver_match.url_name == 'blog' %}active{% endif %}"><i data-lucide="file-text"></i> <span data-i18n="blog">Blog</span></a>
+        <a href="{% url 'soporte' %}" class="nav-item {% if request.resolver_match.url_name == 'soporte' %}active{% endif %}"><i data-lucide="life-buoy"></i> <span data-i18n="support">Soporte</span></a>
         {% if user.is_authenticated and user.is_staff %}
-        <a href="{% url 'panel_admin' %}" class="nav-item" style="color: #c084fc; border-left-color: #c084fc;"><i data-lucide="shield-alert"></i> Centro de Administración General</a>
+        <a href="{% url 'panel_admin' %}" class="nav-item" style="color: #c084fc; border-left-color: #c084fc;"><i data-lucide="shield-alert"></i> <span data-i18n="admin">Centro de Administración General</span></a>
         {% endif %}
         {% if user.is_authenticated %}
         <form method="POST" action="{% url 'logout' %}" style="margin:0; padding:0;">
             {% csrf_token %}
             <button type="submit" class="nav-item" style="color: #ef4444; background:none; border:none; width:100%; text-align:left; cursor:pointer; font-size:inherit; font-family:inherit; padding: 10px 20px; display:flex; align-items:center; gap:8px;">
-                <i data-lucide="log-out"></i> Cerrar Sesión
+                <i data-lucide="log-out"></i> <span data-i18n="logout">Cerrar Sesión</span>
             </button>
         </form>
         {% else %}
-        <a href="{% url 'login' %}" class="nav-item" style="color: #10b981;"><i data-lucide="log-in"></i> Iniciar Sesión</a>
+        <a href="{% url 'login' %}" class="nav-item" style="color: #10b981;"><i data-lucide="log-in"></i> <span data-i18n="login">Iniciar Sesión</span></a>
         {% endif %}
     </nav>
     <div class="sidebar-footer">

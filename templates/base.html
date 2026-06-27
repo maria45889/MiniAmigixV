@@ -167,7 +167,7 @@
 
     <!-- Caja de Sugerencias Flotante -->
     <div id="quick-suggestion" class="suggestion-float">
-        <div class="suggestion-header" onclick="toggleSuggestion()">
+        <div class="suggestion-header" id="suggestion-header">
             <span>💡 Sugerencias</span>
             <span id="suggestion-icon"><i class="ti ti-chevron-up"></i></span>
         </div>
@@ -177,13 +177,12 @@
         </div>
     </div>
 
-    <!-- Botón flotante para abrir el minirreproductor (Aparece si hay canción guardada) -->
+    <!-- Global Mini Player Flotante -->
     <div id="music-float-btn" class="music-float-btn" style="display: none;" title="Abrir Reproductor">
         <span style="font-size: 20px;">🎵</span>
     </div>
 
-    <!-- Global Floating Mini Player -->
-    <div id="mini-player" class="floating-mini-player" style="display: block;">
+    <div id="mini-player" class="floating-mini-player" style="display: none;">
         <div class="mini-player-header" id="mini-player-header">
             <div class="mini-player-song-info">
                 <div class="mini-player-vinyl" id="mini-player-vinyl"></div>
@@ -193,12 +192,9 @@
                 </div>
             </div>
             <div class="mini-player-header-btns">
-                <button class="btn-mini video-btn" id="mini-video-toggle" onclick="toggleMiniVideo()" title="Ver/Ocultar Video">🎬</button>
-                <button class="btn-mini close-btn" onclick="toggleGlobalMiniPlayer()" title="Cerrar">✖</button>
+                <button class="btn-mini" onclick="toggleMiniPlayerVideo()" id="mini-video-btn" title="Mostrar/Ocultar Video">👁️</button>
+                <button class="btn-mini minimize-btn" onclick="toggleMiniPlayer()" title="Minimizar">−</button>
             </div>
-        </div>
-        <div class="mini-player-video-container" id="mini-video-container">
-            <div id="mini-player-iframe"></div>
         </div>
         <div class="mini-player-body">
             <div class="mini-player-progress">
@@ -308,10 +304,12 @@
 
         function makeDraggable(elmnt) {
             let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            let hasMoved = false;
             const header = elmnt.querySelector('.suggestion-header');
 
             header.onmousedown = function(e) {
                 e = e || window.event;
+                e.preventDefault(); // Prevent text selection drag
                 hasMoved = false;
                 const startX = e.clientX;
                 const startY = e.clientY;
@@ -321,6 +319,9 @@
                 document.onmouseup = function() {
                     document.onmouseup = null;
                     document.onmousemove = null;
+                    if (!hasMoved) {
+                        toggleSuggestion();
+                    }
                 };
 
                 document.onmousemove = function(e) {
@@ -381,19 +382,96 @@
             document.body.classList.toggle("light");
             const isLight = document.body.classList.contains("light");
             localStorage.setItem("theme", isLight ? "light" : "dark");
+            
             // Update theme icon in navbar
             const themeIcon = document.querySelector('.theme-btn i');
             if (themeIcon) themeIcon.setAttribute('data-lucide', isLight ? 'sun' : 'moon');
             lucide.createIcons();
+            
+            // Guardar tema en la base de datos si el usuario está autenticado
+            if (typeof fetch !== 'undefined') {
+                fetch('/api/update-theme/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken')
+                    },
+                    body: JSON.stringify({ tema: isLight ? 'light' : 'dark' })
+                }).catch(err => console.error('Error al guardar tema:', err));
+            }
         }
 
-        const defaultTheme = localStorage.getItem("theme") || "{{ perfil_tema|default:'dark' }}";
+        // Prioridad: localStorage > base de datos > dark
+        const localStorageTheme = localStorage.getItem("theme");
+        const dbTheme = "{{ perfil_tema|default:'dark' }}";
+        const defaultTheme = localStorageTheme || dbTheme || 'dark';
+        
         if (defaultTheme === "light") {
             document.body.classList.add("light");
             const icon = document.querySelector('.theme-btn i');
             if (icon) icon.setAttribute('data-lucide', 'sun');
-            lucide.createIcons();
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         }
+
+        // Sistema de traducciones
+        const translations = {
+            es: {
+                'home': 'Inicio',
+                'chat': 'Chat IA',
+                'music': 'Música',
+                'blog': 'Blog',
+                'games': 'Juegos',
+                'study': 'Estudio',
+                'events': 'Eventos',
+                'weather': 'Clima',
+                'translator': 'Traductor',
+                'entertainment': 'Entretenimiento',
+                'support': 'Soporte',
+                'admin': 'Centro de Administración General',
+                'profile': 'Perfil',
+                'settings': 'Configuración',
+                'logout': 'Cerrar Sesión',
+                'login': 'Iniciar Sesión',
+                'register': 'Registrarse'
+            },
+            en: {
+                'home': 'Home',
+                'chat': 'Chat AI',
+                'music': 'Music',
+                'blog': 'Blog',
+                'games': 'Games',
+                'study': 'Study',
+                'events': 'Events',
+                'weather': 'Weather',
+                'translator': 'Translator',
+                'entertainment': 'Entertainment',
+                'support': 'Support',
+                'admin': 'General Admin Center',
+                'profile': 'Profile',
+                'settings': 'Settings',
+                'logout': 'Logout',
+                'login': 'Login',
+                'register': 'Register'
+            }
+        };
+
+        function applyLanguage(lang) {
+            const currentLang = translations[lang] || translations['es'];
+            // Aplicar traducciones a elementos con data-i18n
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (currentLang[key]) {
+                    el.textContent = currentLang[key];
+                }
+            });
+            localStorage.setItem('idioma', lang);
+        }
+
+        // Aplicar idioma guardado o de la base de datos
+        const savedLang = localStorage.getItem('idioma') || "{{ perfil_idioma|default:'es' }}";
+        applyLanguage(savedLang);
 
 
         // Inicializar drag para la caja de sugerencias (sin forzar posición estática inicial)
@@ -402,331 +480,50 @@
             makeDraggable(suggestBox);
         }
 
+        // --- getCookie global ---
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.startsWith(name + "=")) {
+                        cookieValue = decodeURIComponent(cookie.split("=")[1]);
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
         // ==================== GLOBAL MINI PLAYER ====================
         let globalPlayer = null;
         let globalCurrentYoutubeId = null;
         let globalCurrentSongName = '';
         let globalCurrentArtist = '';
         let globalIsPaused = false;
-        let globalMiniVideoVisible = false;
 
         // Drag variables for mini player
         let mpDragging = false;
         let mpCurrentX, mpCurrentY, mpInitialX, mpInitialY;
         let mpXOffset = 0, mpYOffset = 0;
 
-        function onYouTubeIframeAPIReady() {
-            console.log('YouTube IFrame API lista (global)');
-            // Restaurar última canción del localStorage
-            restoreLastSong();
-        }
-
-        // --- localStorage ---
-        function saveCurrentSong() {
-            if (globalCurrentYoutubeId) {
-                localStorage.setItem('miniAmigix_lastSong', JSON.stringify({
-                    youtubeId: globalCurrentYoutubeId,
-                    name: globalCurrentSongName,
-                    artist: globalCurrentArtist
-                }));
-            }
-        }
-
-        function restoreLastSong() {
-            const saved = localStorage.getItem('miniAmigix_lastSong');
-            if (saved) {
-                try {
-                    const data = JSON.parse(saved);
-                    const titleEl = document.getElementById('mini-player-title');
-                    const artistEl = document.getElementById('mini-player-artist');
-                    if (titleEl) titleEl.textContent = data.name || 'Sin reproducción';
-                    if (artistEl) artistEl.textContent = data.artist || '';
-                    globalCurrentYoutubeId = data.youtubeId;
-                    globalCurrentSongName = data.name;
-                    globalCurrentArtist = data.artist;
-                    
-                    // Mostrar el botón flotante de música ya que hay una canción en memoria
-                    const floatBtn = document.getElementById('music-float-btn');
-                    if (floatBtn) floatBtn.style.display = 'flex';
-                } catch(e) {}
-            }
-        }
-
-        // --- Toggle mini player ---
-        function toggleGlobalMiniPlayer() {
+        function toggleMiniPlayer() {
             const mp = document.getElementById('mini-player');
+            const floatBtn = document.getElementById('music-float-btn');
             if (!mp) return;
+            
             if (mp.style.display === 'none' || !mp.style.display) {
                 mp.style.display = 'block';
+                if (floatBtn) floatBtn.style.display = 'none';
+                localStorage.setItem('miniPlayerVisible', 'true');
             } else {
                 mp.style.display = 'none';
+                if (floatBtn) floatBtn.style.display = 'flex';
+                localStorage.setItem('miniPlayerVisible', 'false');
             }
         }
 
-        // --- Play a song in the global mini player ---
-        function globalPlaySong(youtubeId, songName, artist) {
-            globalCurrentYoutubeId = youtubeId;
-            globalCurrentSongName = songName || '';
-            globalCurrentArtist = artist || '';
-
-            // Update UI
-            const titleEl = document.getElementById('mini-player-title');
-            const artistEl = document.getElementById('mini-player-artist');
-            const playBtn = document.getElementById('mini-play-btn');
-            const vinyl = document.getElementById('mini-player-vinyl');
-
-            if (titleEl) titleEl.textContent = songName || 'Sin título';
-            if (artistEl) artistEl.textContent = artist || '';
-            if (playBtn) playBtn.textContent = '⏸';
-            if (vinyl) vinyl.classList.add('spinning');
-
-            // Show mini player
-            const mp = document.getElementById('mini-player');
-            if (mp) mp.style.display = 'block';
-
-            // Save to localStorage
-            saveCurrentSong();
-
-            // Mostrar botón flotante
-            const floatBtn = document.getElementById('music-float-btn');
-            if (floatBtn) floatBtn.style.display = 'flex';
-
-            // Destroy existing player
-            if (globalPlayer) {
-                try { globalPlayer.destroy(); } catch(e) {}
-                globalPlayer = null;
-            }
-
-            // If video is visible, play in mini player video container
-            if (globalMiniVideoVisible) {
-                createMiniPlayerYT(youtubeId);
-            } else {
-                // Play in a hidden mini iframe
-                createMiniPlayerYT(youtubeId);
-            }
-
-            globalIsPaused = false;
-        }
-
-        function createMiniPlayerYT(youtubeId) {
-            const container = document.getElementById('mini-player-iframe');
-            if (!container) return;
-            container.innerHTML = '<div id="mini-yt-player"></div>';
-
-            globalPlayer = new YT.Player('mini-yt-player', {
-                height: globalMiniVideoVisible ? '180' : '1',
-                width: '100%',
-                videoId: youtubeId,
-                playerVars: {
-                    'autoplay': 1,
-                    'rel': 0,
-                    'modestbranding': 1,
-                    'iv_load_policy': 3,
-                    'disablekb': 1,
-                    'fs': 0,
-                    'origin': window.location.origin
-                },
-                events: {
-                    'onError': onGlobalPlayerError,
-                    'onStateChange': onGlobalPlayerStateChange
-                }
-            });
-        }
-
-        function onGlobalPlayerError(event) {
-            console.error('Error del reproductor global:', event.data);
-            if (event.data === 150 || event.data === 153) {
-                const container = document.getElementById('mini-player-iframe');
-                container.innerHTML = '<p style="color: #06b6d4; text-align: center; padding: 10px; font-size: 12px;">🔄 Extrayendo audio...</p>';
-
-                fetch(`/api/stream-audio/${globalCurrentYoutubeId}/`)
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.success && data.url) {
-                            container.innerHTML = `
-                                <audio controls autoplay style="width: 100%; border-radius: 10px; background: rgba(0,0,0,0.5);">
-                                    <source src="${data.url}" type="audio/mp4">
-                                </audio>
-                            `;
-                            const playBtn = document.getElementById('mini-play-btn');
-                            if (playBtn) playBtn.textContent = '⏸';
-                        } else {
-                            container.innerHTML = '<p style="color: #ef4444; text-align: center; padding: 10px; font-size: 12px;">No se pudo extraer el audio</p>';
-                        }
-                    })
-                    .catch(() => {
-                        container.innerHTML = '<p style="color: #ef4444; text-align: center; padding: 10px; font-size: 12px;">Error de conexión</p>';
-                    });
-            }
-        }
-
-        function onGlobalPlayerStateChange(event) {
-            const vinyl = document.getElementById('mini-player-vinyl');
-            const playBtn = document.getElementById('mini-play-btn');
-            if (!vinyl) return;
-
-            if (event.data === YT.PlayerState.PLAYING) {
-                vinyl.classList.add('spinning');
-                if (playBtn) playBtn.textContent = '⏸';
-                globalIsPaused = false;
-                // Also update main page vinyl if on /musica/
-                const mainVinyl = document.getElementById('vinyl-record');
-                if (mainVinyl) {
-                    mainVinyl.style.animationPlayState = 'running';
-                    mainVinyl.classList.add('spinning');
-                }
-            } else if (event.data === YT.PlayerState.PAUSED) {
-                vinyl.classList.remove('spinning');
-                if (playBtn) playBtn.textContent = '▶';
-                globalIsPaused = true;
-                const mainVinyl = document.getElementById('vinyl-record');
-                if (mainVinyl) mainVinyl.style.animationPlayState = 'paused';
-            } else if (event.data === YT.PlayerState.ENDED) {
-                vinyl.classList.remove('spinning');
-                if (playBtn) playBtn.textContent = '▶';
-                // Auto-play next if playlist exists
-                globalPlayNext();
-            }
-        }
-
-        // --- Controls ---
-        window.globalTogglePause = function() {
-            console.log('globalTogglePause llamado');
-            const fallbackAudio = document.querySelector('#mini-player-iframe audio');
-            if (fallbackAudio) {
-                console.log('Usando fallback audio');
-                if (fallbackAudio.paused) {
-                    fallbackAudio.play();
-                    document.getElementById('mini-play-btn').textContent = '⏸';
-                } else {
-                    fallbackAudio.pause();
-                    document.getElementById('mini-play-btn').textContent = '▶';
-                }
-                return;
-            }
-
-            if (!globalPlayer) {
-                console.log('globalPlayer no existe, youtubeId:', globalCurrentYoutubeId);
-                if (globalCurrentYoutubeId) {
-                    // Inicializar el reproductor si estaba en memoria pero no cargado
-                    createMiniPlayerYT(globalCurrentYoutubeId);
-                    document.getElementById('mini-play-btn').textContent = '⏸';
-                } else {
-                    // No hay canción cargada, mostrar mensaje
-                    console.log('No hay canción cargada en el mini player');
-                    // Intentar cargar la primera canción de la playlist si existe
-                    const firstItem = document.querySelector('.playlist-item');
-                    if (firstItem) {
-                        globalPlaySong(firstItem.dataset.youtubeId, firstItem.dataset.name, firstItem.dataset.artist);
-                    } else {
-                        alert('Añade una canción a tu Matriz Sonora para empezar a escuchar.');
-                    }
-                }
-                return;
-            }
-
-            if (typeof globalPlayer.getPlayerState !== 'function') return;
-            try {
-                if (globalPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
-                    globalPlayer.pauseVideo();
-                } else {
-                    globalPlayer.playVideo();
-                }
-            } catch(e) {
-                console.error('Error al pausar/reproducir', e);
-            }
-        }
-
-        window.globalToggleMute = function() {
-            const fallbackAudio = document.querySelector('#mini-player-iframe audio');
-            const muteBtn = document.getElementById('mini-mute-btn');
-            if (fallbackAudio) {
-                fallbackAudio.muted = !fallbackAudio.muted;
-                if (muteBtn) muteBtn.textContent = fallbackAudio.muted ? '🔇' : '🔊';
-                return;
-            }
-
-            if (!globalPlayer || typeof globalPlayer.isMuted !== 'function') return;
-            try {
-                if (globalPlayer.isMuted()) {
-                    globalPlayer.unMute();
-                    if (muteBtn) muteBtn.textContent = '🔊';
-                } else {
-                    globalPlayer.mute();
-                    if (muteBtn) muteBtn.textContent = '🔇';
-                }
-            } catch(e) {}
-        }
-
-        window.globalPlayNext = function() {
-            console.log('globalPlayNext llamado');
-            const items = Array.from(document.querySelectorAll('.playlist-item'));
-            if (items.length === 0) {
-                console.log('No hay playlist cargada');
-                return;
-            }
-            const currentIndex = items.findIndex(item => item.dataset.youtubeId === globalCurrentYoutubeId);
-            if (currentIndex >= 0 && currentIndex < items.length - 1) {
-                const next = items[currentIndex + 1];
-                globalPlaySong(next.dataset.youtubeId, next.dataset.name, next.dataset.artist);
-                // Update main page UI if on /musica/
-                updateMainPageUI(next.dataset.name, next.dataset.artist);
-            } else {
-                console.log('No hay más canciones o no se encontró la actual');
-            }
-        }
-
-        window.globalPlayPrevious = function() {
-            console.log('globalPlayPrevious llamado');
-            const items = Array.from(document.querySelectorAll('.playlist-item'));
-            if (items.length === 0) {
-                console.log('No hay playlist cargada');
-                return;
-            }
-            const currentIndex = items.findIndex(item => item.dataset.youtubeId === globalCurrentYoutubeId);
-            if (currentIndex > 0) {
-                const prev = items[currentIndex - 1];
-                globalPlaySong(prev.dataset.youtubeId, prev.dataset.name, prev.dataset.artist);
-                updateMainPageUI(prev.dataset.name, prev.dataset.artist);
-            } else {
-                console.log('Es la primera canción o no se encontró la actual');
-            }
-        }
-
-        function updateMainPageUI(songName, artist) {
-            const mainTitle = document.getElementById('current-song-title');
-            if (mainTitle) mainTitle.textContent = `${songName} ${artist ? '- ' + artist : ''}`;
-        }
-
-        // --- Video Toggle ---
-        window.toggleMiniVideo = function() {
-            const container = document.getElementById('mini-video-container');
-            const btn = document.getElementById('mini-video-toggle');
-            if (!container) return;
-
-            globalMiniVideoVisible = !globalMiniVideoVisible;
-
-            if (globalMiniVideoVisible) {
-                container.classList.add('expanded');
-                if (btn) btn.classList.add('active');
-                
-                // If player doesn't exist but we have a song, initialize it!
-                if (!globalPlayer && globalCurrentYoutubeId) {
-                    createMiniPlayerYT(globalCurrentYoutubeId);
-                    document.getElementById('mini-play-btn').textContent = '⏸';
-                } else if (globalPlayer && typeof globalPlayer.setSize === 'function') {
-                    try { globalPlayer.setSize('100%', 180); } catch(e) {}
-                }
-            } else {
-                container.classList.remove('expanded');
-                if (btn) btn.classList.remove('active');
-                if (globalPlayer && typeof globalPlayer.setSize === 'function') {
-                    try { globalPlayer.setSize('100%', 1); } catch(e) {}
-                }
-            }
-        }
-
-        // --- Mini Player Drag ---
         function initMiniPlayerDrag() {
             const mp = document.getElementById('mini-player');
             const mpHeader = document.getElementById('mini-player-header');
@@ -748,7 +545,6 @@
             const target = e.target;
             const header = document.getElementById('mini-player-header');
             if (target === header || header.contains(target)) {
-                // Don't drag when clicking buttons
                 if (target.tagName === 'BUTTON' || target.closest('button')) return;
                 mpDragging = true;
             }
@@ -773,175 +569,106 @@
             mpDragging = false;
         }
 
-        // --- Progress bar update ---
-        setInterval(() => {
-            if (!globalPlayer || typeof globalPlayer.getCurrentTime !== 'function') return;
-            try {
-                const current = globalPlayer.getCurrentTime();
-                const duration = globalPlayer.getDuration();
-                if (duration > 0) {
-                    const pct = (current / duration) * 100;
-                    const bar = document.getElementById('mini-progress-bar');
-                    if (bar) bar.style.width = pct + '%';
-                }
-            } catch(e) {}
-        }, 1000);
+        // Controles del mini player
+        window.globalTogglePause = function() {
+            // Llamar a la función del reproductor principal si existe
+            if (typeof togglePause === 'function') {
+                togglePause();
+            }
+        };
 
-        // --- Inicializar mini player drag y botones ---
+        window.globalPlayNext = function() {
+            if (typeof playNext === 'function') {
+                playNext();
+            }
+        };
+
+        window.globalPlayPrevious = function() {
+            if (typeof playPrevious === 'function') {
+                playPrevious();
+            }
+        };
+
+        window.globalToggleMute = function() {
+            if (typeof toggleMute === 'function') {
+                toggleMute();
+            }
+        };
+
+        window.toggleMiniPlayerVideo = function() {
+            // Redirigir a la página de música
+            window.location.href = '/musica/';
+        };
+
+        // Sincronizar mini player con el reproductor principal
+        function updateMiniPlayerUI(songName, artist) {
+            const titleEl = document.getElementById('mini-player-title');
+            const artistEl = document.getElementById('mini-player-artist');
+            const mp = document.getElementById('mini-player');
+            const floatBtn = document.getElementById('music-float-btn');
+            
+            if (titleEl) titleEl.textContent = songName || 'Sin reproducción';
+            if (artistEl) artistEl.textContent = artist || '';
+            
+            if (mp) mp.style.display = 'block';
+            if (floatBtn) floatBtn.style.display = 'none';
+            
+            // Guardar estado en localStorage
+            localStorage.setItem('miniPlayerSong', songName || '');
+            localStorage.setItem('miniPlayerArtist', artist || '');
+            localStorage.setItem('miniPlayerVisible', 'true');
+        }
+
+        function updateMiniPlayerPlayButton(isPlaying) {
+            const playBtn = document.getElementById('mini-play-btn');
+            if (playBtn) {
+                playBtn.textContent = isPlaying ? '⏸' : '▶';
+            }
+        }
+
+        function updateMiniPlayerProgress(percentage) {
+            const bar = document.getElementById('mini-progress-bar');
+            if (bar) bar.style.width = percentage + '%';
+        }
+
+        // Inicializar mini player
         document.addEventListener('DOMContentLoaded', function() {
             initMiniPlayerDrag();
-            console.log('Mini player drag inicializado');
-
+            
+            // Restaurar mini player desde localStorage si estaba visible
+            const savedSong = localStorage.getItem('miniPlayerSong');
+            const savedArtist = localStorage.getItem('miniPlayerArtist');
+            const savedVisible = localStorage.getItem('miniPlayerVisible');
+            
+            if (savedVisible === 'true' && savedSong) {
+                const titleEl = document.getElementById('mini-player-title');
+                const artistEl = document.getElementById('mini-player-artist');
+                const mp = document.getElementById('mini-player');
+                const floatBtn = document.getElementById('music-float-btn');
+                
+                if (titleEl) titleEl.textContent = savedSong;
+                if (artistEl) artistEl.textContent = savedArtist;
+                if (mp) mp.style.display = 'block';
+                if (floatBtn) floatBtn.style.display = 'none';
+            }
+            
             // Agregar event listeners a los botones
             const prevBtn = document.getElementById('mini-prev-btn');
             const playBtn = document.getElementById('mini-play-btn');
             const nextBtn = document.getElementById('mini-next-btn');
             const muteBtn = document.getElementById('mini-mute-btn');
 
-            console.log('Botones encontrados:', prevBtn, playBtn, nextBtn, muteBtn);
-            console.log('Funciones disponibles:', typeof globalPlayPrevious, typeof globalTogglePause, typeof globalPlayNext, typeof globalToggleMute);
+            if (prevBtn) prevBtn.addEventListener('click', globalPlayPrevious);
+            if (playBtn) playBtn.addEventListener('click', globalTogglePause);
+            if (nextBtn) nextBtn.addEventListener('click', globalPlayNext);
+            if (muteBtn) muteBtn.addEventListener('click', globalToggleMute);
 
-            if (prevBtn) {
-                prevBtn.addEventListener('click', function() {
-                    console.log('Botón anterior clickeado');
-                    globalPlayPrevious();
-                });
+            // Botón flotante
+            const floatBtn = document.getElementById('music-float-btn');
+            if (floatBtn) {
+                floatBtn.addEventListener('click', toggleMiniPlayer);
             }
-            if (playBtn) {
-                playBtn.addEventListener('click', function() {
-                    console.log('Botón play/pause clickeado');
-                    globalTogglePause();
-                });
-            }
-            if (nextBtn) {
-                nextBtn.addEventListener('click', function() {
-                    console.log('Botón siguiente clickeado');
-                    globalPlayNext();
-                });
-            }
-            if (muteBtn) {
-                muteBtn.addEventListener('click', function() {
-                    console.log('Botón mute clickeado');
-                    globalToggleMute();
-                });
-            }
-
-            console.log('Event listeners agregados a los botones');
         });
-
-        // --- getCookie global ---
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.startsWith(name + "=")) {
-                        cookieValue = decodeURIComponent(cookie.split("=")[1]);
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
-
-        // --- Music Float Btn Drag ---
-        let btnDragging = false;
-        let btnCurrentX = 0, btnCurrentY = 0, btnInitialX = 0, btnInitialY = 0;
-        let btnXOffset = 0, btnYOffset = 0;
-        let btnWasDragged = false; // To prevent click event after dragging
-
-        function initFloatBtnDrag() {
-            const btn = document.getElementById('music-float-btn');
-            if (!btn) return;
-
-            // Restaurar posición guardada
-            const savedPos = localStorage.getItem('miniAmigix_btnPos');
-            if (savedPos) {
-                try {
-                    const pos = JSON.parse(savedPos);
-                    btnXOffset = pos.x;
-                    btnYOffset = pos.y;
-                    btn.style.transform = `translate3d(${btnXOffset}px, ${btnYOffset}px, 0)`;
-                } catch(e) {}
-            }
-
-            btn.addEventListener('mousedown', btnDragStart);
-            btn.addEventListener('touchstart', btnDragStart, { passive: false });
-            document.addEventListener('mousemove', btnDrag);
-            document.addEventListener('touchmove', btnDrag, { passive: false });
-            document.addEventListener('mouseup', btnDragEnd);
-            document.addEventListener('touchend', btnDragEnd);
-            
-            // Override click behavior to prevent toggling player after dragging
-            btn.addEventListener('click', function(e) {
-                if (btnWasDragged) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return false;
-                }
-                toggleGlobalMiniPlayer();
-            });
-        }
-
-        function btnDragStart(e) {
-            const target = e.target.closest('#music-float-btn');
-            if (!target) return;
-            
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            
-            btnInitialX = clientX - btnXOffset;
-            btnInitialY = clientY - btnYOffset;
-            btnDragging = true;
-            btnWasDragged = false; // Reset drag flag
-        }
-
-        function btnDrag(e) {
-            if (!btnDragging) return;
-            e.preventDefault(); // Prevent scrolling on mobile
-            
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            
-            btnCurrentX = clientX - btnInitialX;
-            btnCurrentY = clientY - btnInitialY;
-            
-            // Si se movió más de 3 píxeles, consideramos que fue un arrastre y no un clic
-            if (Math.abs(clientX - btnInitialX - btnXOffset) > 3 || Math.abs(clientY - btnInitialY - btnYOffset) > 3) {
-                btnWasDragged = true;
-            }
-            
-            btnXOffset = btnCurrentX;
-            btnYOffset = btnCurrentY;
-            
-            const btn = document.getElementById('music-float-btn');
-            btn.style.transform = `translate3d(${btnCurrentX}px, ${btnCurrentY}px, 0)`;
-        }
-
-        function btnDragEnd() {
-            if (!btnDragging) return;
-            btnInitialX = btnCurrentX;
-            btnInitialY = btnCurrentY;
-            btnDragging = false;
-            
-            // Guardar posición en localStorage
-            if (btnWasDragged) {
-                localStorage.setItem('miniAmigix_btnPos', JSON.stringify({
-                    x: btnCurrentX,
-                    y: btnCurrentY
-                }));
-                
-                // Reset wasDragged flag a bit later so click event catches it
-                setTimeout(() => {
-                    btnWasDragged = false;
-                }, 100);
-            }
-        }
-
-        // Init drags
-        initMiniPlayerDrag();
-        initFloatBtnDrag();
 
         // --- SORTABLE GRIDS GLOBALES ---
         function initDraggableGrids() {

@@ -23,6 +23,21 @@
     overflow: hidden;
 }
 
+/* Modo Claro */
+body.light .perfil-banner {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 250, 252, 0.98));
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.15);
+}
+
+body.light .perfil-info h2 {
+    color: #1e293b;
+}
+
+body.light .perfil-info p {
+    color: #64748b;
+}
+
 .perfil-banner-glow {
     position: absolute;
     top: -50%;
