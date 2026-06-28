@@ -10,6 +10,39 @@
 }
 .alert-message a { color: #ffe082; text-decoration: underline; font-weight: 600; }
 
+/* Image Preview */
+.image-preview {
+    position: relative;
+    display: inline-block;
+    margin-right: 10px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.image-preview img {
+    max-width: 100px;
+    max-height: 100px;
+    border-radius: 8px;
+    border: 2px solid rgba(124, 58, 237, 0.5);
+}
+
+.remove-image {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 /* Privacy Banner - Dismissible */
 .privacy-banner {
     background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(239, 68, 68, 0.1));

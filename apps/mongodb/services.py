@@ -7,7 +7,7 @@ class DualDatabaseService:
     """Servicio para gestionar el sistema dual de bases de datos (SQLite + MongoDB)"""
     
     @staticmethod
-    def guardar_chat_mensaje(usuario, mensaje, respuesta=None, usar_mongodb=True):
+    def guardar_chat_mensaje(usuario, mensaje, respuesta=None, imagen_url=None, usar_mongodb=True):
         """
         Guarda mensaje de chat en ambas bases de datos
         - SQLite: Para datos críticos y relaciones
@@ -23,6 +23,7 @@ class DualDatabaseService:
                     usuario=usuario,
                     mensaje=mensaje,
                     respuesta=respuesta,
+                    imagen_url=imagen_url,
                     fecha_creacion=datetime.now()
                 )
                 chat_mongo.save()

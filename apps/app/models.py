@@ -18,6 +18,7 @@ class MensajeChat(models.Model):
     conversacion = models.ForeignKey(ConversacionChat, on_delete=models.CASCADE, related_name='mensajes')
     es_usuario = models.BooleanField(default=True)
     texto = models.TextField()
+    imagen = models.ImageField(upload_to='chat_images/', null=True, blank=True)
     emocion_detectada = models.CharField(max_length=50, blank=True, null=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
@@ -128,6 +129,7 @@ class PublicacionBlog(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     titulo = models.CharField(max_length=200)
     contenido = models.TextField()
+    imagen = models.ImageField(upload_to='blog_images/', null=True, blank=True)
     categoria = models.CharField(max_length=50, choices=[
         ('noticias', '📰 Noticias'),
         ('consejos', '💡 Consejos'),

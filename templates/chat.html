@@ -64,6 +64,11 @@
                     </div>
                     <div class="bubble {% if msg.es_usuario %}user{% else %}bot{% endif %}">
                         {{ msg.texto }}
+                        {% if msg.imagen %}
+                        <div style="margin-top: 10px;">
+                            <img src="{{ msg.imagen.url }}" alt="Imagen del mensaje" style="max-width: 100%; border-radius: 8px;">
+                        </div>
+                        {% endif %}
                         <span class="time">{{ msg.fecha_creacion|date:"H:i" }}</span>
                     </div>
                 </div>
@@ -105,6 +110,10 @@
 
         <div class="input-bar">
             <button class="icon-btn" onclick="toggleEmoji()">😊</button>
+            <button class="icon-btn" id="image-btn" title="Subir imagen">
+                <i class="ti ti-photo"></i>
+            </button>
+            <input type="file" id="image-input" accept="image/*" style="display: none;">
             <input type="text" id="user-input" class="msg-input" placeholder="Escribe un mensaje..." autocomplete="off">
             <button class="icon-btn" id="voice-btn" title="Silenciar">
                 <i class="ti ti-volume" id="voice-icon"></i>
@@ -126,8 +135,12 @@
         voiceIcon: document.getElementById('voice-icon'),
         typing: document.getElementById('typing-indicator'),
         picker: document.getElementById('emoji-picker'),
-        newChat: document.getElementById('new-chat-btn')
+        newChat: document.getElementById('new-chat-btn'),
+        imageBtn: document.getElementById('image-btn'),
+        imageInput: document.getElementById('image-input')
     };
+
+    let selectedImage = null;
 
     let isVoiceEnabled = true;
     const activeId = "{{ active_id }}";
@@ -142,6 +155,35 @@
 
     function toggleEmoji() { elements.picker.classList.toggle('open'); }
     function insertEmoji(e) { elements.input.value += e; elements.input.focus(); }
+
+    // Manejo de imágenes
+    elements.imageBtn.addEventListener('click', () => {
+        elements.imageInput.click();
+    });
+
+    elements.imageInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            selectedImage = file;
+            elements.imageBtn.style.color = '#7c3aed';
+            // Mostrar preview de la imagen
+            const preview = document.createElement('div');
+            preview.className = 'image-preview';
+            preview.innerHTML = `
+                <img src="${URL.createObjectURL(file)}" alt="Preview">
+                <button class="remove-image" onclick="removeImage()">×</button>
+            `;
+            elements.input.parentElement.insertBefore(preview, elements.input);
+        }
+    });
+
+    function removeImage() {
+        selectedImage = null;
+        elements.imageBtn.style.color = '';
+        elements.imageInput.value = '';
+        const preview = document.querySelector('.image-preview');
+        if (preview) preview.remove();
+    }
 
     function appendMessage(text, isUser) {
         const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -205,10 +247,29 @@
 
     async function sendMessage() {
         const text = elements.input.value.trim();
-        if (!text) return;
+        if (!text && !selectedImage) return;
 
-        appendMessage(text, true);
+        // Mostrar mensaje del usuario
+        if (text) {
+            appendMessage(text, true);
+        }
+        
+        // Mostrar imagen si existe
+        if (selectedImage) {
+            const imageMsg = document.createElement('div');
+            imageMsg.className = 'msg user';
+            imageMsg.innerHTML = `
+                <div class="avatar user">{{ request.user.username|slice:":1"|upper }}</div>
+                <div class="bubble user">
+                    <img src="${URL.createObjectURL(selectedImage)}" alt="Imagen enviada" style="max-width: 100%; border-radius: 8px;">
+                    <span class="time">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                </div>
+            `;
+            elements.history.insertBefore(imageMsg, elements.typing);
+        }
+
         elements.input.value = '';
+        removeImage();
         elements.picker.classList.remove('open');
 
         // Mostrar indicador de escritura
@@ -216,10 +277,16 @@
         elements.history.scrollTop = elements.history.scrollHeight;
 
         try {
+            // Preparar datos para enviar
+            const formData = new FormData();
+            formData.append('message', text);
+            if (activeId) formData.append('conversation_id', activeId);
+            if (selectedImage) formData.append('imagen', selectedImage);
+            
             const response = await fetch('/api/chat/', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
-                body: JSON.stringify({ message: text, conversation_id: activeId })
+                headers: { 'X-CSRFToken': getCookie('csrftoken') },
+                body: formData
             });
 
             elements.typing.style.display = 'none'; // Ocultar indicador de escritura

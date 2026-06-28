@@ -6,6 +6,7 @@ class ChatMessageMongo(Document):
     usuario = StringField(required=True)
     mensaje = StringField(required=True)
     respuesta = StringField()
+    imagen_url = StringField()  # URL de la imagen subida
     fecha_creacion = DateTimeField(default=datetime.now)
     
     meta = {

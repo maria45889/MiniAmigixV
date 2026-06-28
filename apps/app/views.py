@@ -10,6 +10,7 @@ from django.core.mail import send_mail
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from django.core.mail import EmailMultiAlternatives
+from django.core.files.storage import FileSystemStorage
 import json
 import os
 import re
@@ -31,12 +32,23 @@ logger = logging.getLogger(__name__)
 
 @require_http_methods(["POST"])
 def chat_api(request):
-    try:
-        data = json.loads(request.body)
-        message = data.get('message', '')
-        conv_id = data.get('conversation_id')
-    except (json.JSONDecodeError, AttributeError):
-        return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+    # Verificar si es FormData (con imagen) o JSON
+    content_type = request.content_type
+    
+    if 'multipart/form-data' in content_type:
+        # Manejar FormData con imagen
+        message = request.POST.get('message', '')
+        conv_id = request.POST.get('conversation_id')
+        imagen = request.FILES.get('imagen')
+    else:
+        # Manejar JSON normal
+        try:
+            data = json.loads(request.body)
+            message = data.get('message', '')
+            conv_id = data.get('conversation_id')
+            imagen = None
+        except (json.JSONDecodeError, AttributeError):
+            return JsonResponse({'error': 'Invalid JSON data'}, status=400)
     
     if not message:
         return JsonResponse({'error': 'No message provided'}, status=400)
@@ -54,11 +66,20 @@ def chat_api(request):
                 if not conversacion:
                     conversacion = ConversacionChat.objects.create(usuario=request.user, titulo='Chat Principal')
             
+            # Guardar imagen si existe
+            imagen_url = None
+            if imagen:
+                # Guardar imagen en media/blog_images/
+                fs = FileSystemStorage()
+                filename = fs.save(f'chat_images/{imagen.name}', imagen)
+                imagen_url = f'/media/{filename}'
+            
             # Save user message
             MensajeChat.objects.create(
                 conversacion=conversacion,
                 es_usuario=True,
-                texto=message
+                texto=message,
+                imagen=imagen
             )
             conversacion.save() # Forzamos la actualización de fecha_actualizacion (auto_now)
             
@@ -67,6 +88,7 @@ def chat_api(request):
                 usuario=request.user.username,
                 mensaje=message,
                 respuesta=None,
+                imagen_url=imagen_url,
                 usar_mongodb=True
             )
             
@@ -111,8 +133,32 @@ def chat_api(request):
                 {"role": "user", "content": message}
             ]
         
+        # Convertir imagen a base64 si existe
+        image_base64 = None
+        if imagen:
+            import base64
+            image_data = imagen.read()
+            image_base64 = base64.b64encode(image_data).decode('utf-8')
+            imagen.seek(0)  # Reset file pointer
+
         # Flexible client: Use Groq if key is available for faster inference, otherwise OpenAI, otherwise Ollama
-        if settings.GROQ_API_KEY:
+        # Nota: Vision API solo funciona con OpenAI, no con Groq u Ollama
+        if imagen and settings.OPENAI_API_KEY:
+            # Usar OpenAI Vision API cuando hay imagen
+            client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
+            model = "gpt-4o"  # Modelo que soporta visión
+            
+            # Modificar el último mensaje para incluir la imagen
+            if messages and messages[-1]['role'] == 'user':
+                last_message = messages[-1]
+                messages[-1] = {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": last_message['content']},
+                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"}}
+                    ]
+                }
+        elif settings.GROQ_API_KEY:
             client = openai.OpenAI(
                 api_key=settings.GROQ_API_KEY,
                 base_url="https://api.groq.com/openai/v1"
@@ -1326,6 +1372,7 @@ def crear_publicacion(request):
         titulo = request.POST.get('titulo')
         contenido = request.POST.get('contenido')
         categoria = request.POST.get('categoria', 'personal')
+        imagen = request.FILES.get('imagen')
         
         if not titulo or not contenido:
             return redirect('blog')
@@ -1345,6 +1392,7 @@ def crear_publicacion(request):
             usuario=request.user,
             titulo=titulo,
             contenido=contenido,
+            imagen=imagen,
             categoria=categoria,
             es_oficial=es_oficial,
             fijado=fijado,
