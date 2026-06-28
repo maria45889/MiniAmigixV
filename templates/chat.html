@@ -4,7 +4,7 @@
 {% block title %}Chat IA{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/chat.css' %}?v=3">
+<link rel="stylesheet" href="{% static 'css/pages/chat.css' %}?v=5">
 {% endblock %}
 
 {% block content %}
@@ -66,7 +66,7 @@
                         {{ msg.texto }}
                         {% if msg.imagen %}
                         <div style="margin-top: 10px;">
-                            <img src="{{ msg.imagen.url }}" alt="Imagen del mensaje" style="max-width: 100%; border-radius: 8px;">
+                            <img src="{{ msg.imagen.url }}" alt="Imagen del mensaje">
                         </div>
                         {% endif %}
                         <span class="time">{{ msg.fecha_creacion|date:"H:i" }}</span>
@@ -247,6 +247,7 @@
 
     async function sendMessage() {
         const text = elements.input.value.trim();
+        console.log('sendMessage llamado - text:', text, 'selectedImage:', selectedImage);
         if (!text && !selectedImage) return;
 
         // Mostrar mensaje del usuario
@@ -256,12 +257,13 @@
         
         // Mostrar imagen si existe
         if (selectedImage) {
+            console.log('Mostrando imagen en chat:', selectedImage);
             const imageMsg = document.createElement('div');
             imageMsg.className = 'msg user';
             imageMsg.innerHTML = `
                 <div class="avatar user">{{ request.user.username|slice:":1"|upper }}</div>
                 <div class="bubble user">
-                    <img src="${URL.createObjectURL(selectedImage)}" alt="Imagen enviada" style="max-width: 100%; border-radius: 8px;">
+                    <img src="${URL.createObjectURL(selectedImage)}" alt="Imagen enviada">
                     <span class="time">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                 </div>
             `;
@@ -269,7 +271,6 @@
         }
 
         elements.input.value = '';
-        removeImage();
         elements.picker.classList.remove('open');
 
         // Mostrar indicador de escritura
@@ -282,6 +283,10 @@
             formData.append('message', text);
             if (activeId) formData.append('conversation_id', activeId);
             if (selectedImage) formData.append('imagen', selectedImage);
+            
+            console.log('Enviando mensaje:', text);
+            console.log('Imagen seleccionada:', selectedImage);
+            console.log('FormData entries:', Array.from(formData.entries()));
             
             const response = await fetch('/api/chat/', {
                 method: 'POST',
@@ -311,10 +316,47 @@
             console.error('Error en la solicitud:', error); // Log the actual network error
             appendMessage("Lo siento, hubo un problema de conexión con el servidor. 😕", false);
         }
+        
+        // Limpiar imagen después del envío
+        removeImage();
     }
 
     elements.send.onclick = sendMessage;
     elements.input.onkeypress = (e) => { if (e.key === 'Enter') sendMessage(); };
+    
+    // Soporte para pegar imágenes con Ctrl+V
+    elements.input.addEventListener('paste', (e) => {
+        console.log('Evento paste detectado');
+        const items = e.clipboardData.items;
+        console.log('Items en clipboard:', items.length);
+        
+        let hasImage = false;
+        for (let i = 0; i < items.length; i++) {
+            console.log('Item', i, 'tipo:', items[i].type);
+            if (items[i].type.indexOf('image') !== -1) {
+                hasImage = true;
+                e.preventDefault();
+                const file = items[i].getAsFile();
+                console.log('Imagen pegada:', file);
+                selectedImage = file;
+                elements.imageBtn.style.color = '#7c3aed';
+                // Mostrar preview de la imagen
+                const preview = document.createElement('div');
+                preview.className = 'image-preview';
+                preview.innerHTML = `
+                    <img src="${URL.createObjectURL(file)}" alt="Preview">
+                    <button class="remove-image" onclick="removeImage()">×</button>
+                `;
+                elements.input.parentElement.insertBefore(preview, elements.input);
+                break;
+            }
+        }
+        
+        // Si hay imagen, prevenir que se pegue texto
+        if (hasImage) {
+            e.preventDefault();
+        }
+    });
     elements.voice.onclick = () => {
         isVoiceEnabled = !isVoiceEnabled;
         elements.voiceIcon.className = isVoiceEnabled ? 'ti ti-volume' : 'ti ti-volume-off';

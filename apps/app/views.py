@@ -50,8 +50,12 @@ def chat_api(request):
         except (json.JSONDecodeError, AttributeError):
             return JsonResponse({'error': 'Invalid JSON data'}, status=400)
     
-    if not message:
-        return JsonResponse({'error': 'No message provided'}, status=400)
+    if not message and not imagen:
+        return JsonResponse({'error': 'No message or image provided'}, status=400)
+    
+    # Si solo se envía imagen sin texto, agregar un mensaje por defecto más descriptivo
+    if not message and imagen:
+        message = "Por favor, describe lo que ves en esta imagen o dime qué necesitas saber sobre ella."
 
     try:
         # Get or create conversation for user
@@ -69,18 +73,28 @@ def chat_api(request):
             # Guardar imagen si existe
             imagen_url = None
             if imagen:
-                # Guardar imagen en media/blog_images/
-                fs = FileSystemStorage()
-                filename = fs.save(f'chat_images/{imagen.name}', imagen)
-                imagen_url = f'/media/{filename}'
+                try:
+                    # Guardar imagen en media/chat_images/
+                    fs = FileSystemStorage()
+                    filename = fs.save(f'chat_images/{imagen.name}', imagen)
+                    imagen_url = f'/media/{filename}'
+                    logger.info(f"Imagen guardada exitosamente: {imagen_url}")
+                except Exception as e:
+                    logger.error(f"Error al guardar imagen: {str(e)}", exc_info=True)
+                    imagen_url = None
             
             # Save user message
-            MensajeChat.objects.create(
-                conversacion=conversacion,
-                es_usuario=True,
-                texto=message,
-                imagen=imagen
-            )
+            try:
+                MensajeChat.objects.create(
+                    conversacion=conversacion,
+                    es_usuario=True,
+                    texto=message,
+                    imagen=imagen
+                )
+                logger.info("Mensaje guardado exitosamente")
+            except Exception as e:
+                logger.error(f"Error al crear mensaje: {str(e)}", exc_info=True)
+                return JsonResponse({'error': f'Error al guardar mensaje: {str(e)}'}, status=500)
             conversacion.save() # Forzamos la actualización de fecha_actualizacion (auto_now)
             
             # Guardar también en MongoDB (historial y análisis)
@@ -119,7 +133,7 @@ def chat_api(request):
             
             fecha_actual = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
             messages = [
-                {"role": "system", "content": f"Eres MiniAmigix, el asistente de IA de la plataforma MiniAmigixV (creada en 2026). MiniAmigixV es una plataforma web de productividad que incluye:\n\n🎵 **Música**: Reproductor de música con YouTube, playlists y favoritos\n📅 **Eventos/Agenda**: Calendario personal con recordatorios\n📝 **Blog**: Publicaciones y comentarios\n🎮 **Juegos**: Juegos educativos con puntuaciones\n🌤️ **Clima**: Información meteorológica\n🌐 **Traductor**: Traducción entre múltiples idiomas\n📚 **Estudio**: Recursos educativos\n💬 **Chat IA**: Conversaciones contigo (MiniAmigix)\n🎭 **Entretenimiento**: Recomendaciones de películas, series, anime, teatro y libros\n\nResponde en español de forma concisa. Usa emojis con moderación. 🌟\n\nLa fecha y hora actual es: {fecha_actual}\nNunca digas que no sabes la fecha actual.\n\nEventos próximos del usuario:\n{eventos_contexto}\n\nCuando el usuario pregunte por sus eventos o agenda, recuérdale estos eventos. Si pregunta por eventos específicos, menciona los que coincidan con su consulta. Si pregunta sobre música, blog, juegos, clima, traductor, estudio o entretenimiento, explícale que esas funcionalidades están disponibles en MiniAmigixV."}
+                {"role": "system", "content": f"Eres MiniAmigix, el asistente de IA de la plataforma MiniAmigixV (creada en 2026). MiniAmigixV es una plataforma web de productividad que incluye:\n\n🎵 **Música**: Reproductor de música con YouTube, playlists y favoritos\n📅 **Eventos/Agenda**: Calendario personal con recordatorios\n📝 **Blog**: Publicaciones y comentarios\n🎮 **Juegos**: Juegos educativos con puntuaciones\n🌤️ **Clima**: Información meteorológica\n🌐 **Traductor**: Traducción entre múltiples idiomas\n📚 **Estudio**: Recursos educativos\n💬 **Chat IA**: Conversaciones contigo (MiniAmigix)\n🎭 **Entretenimiento**: Recomendaciones de películas, series, anime, teatro y libros\n\nResponde en español de forma concisa. Usa emojis con moderación. 🌟\n\nLa fecha y hora actual es: {fecha_actual}\nNunca digas que no sabes la fecha actual.\n\nEventos próximos del usuario:\n{eventos_contexto}\n\nCuando el usuario pregunte por sus eventos o agenda, recuérdale estos eventos. Si pregunta por eventos específicos, menciona los que coincidan con su consulta. Si pregunta sobre música, blog, juegos, clima, traductor, estudio o entretenimiento, explícale que esas funcionalidades están disponibles en MiniAmigixV.\n\nREGLA CRÍTICA SOBRE IMÁGENES: Cuando el usuario envíe una imagen o pida describirla, NUNCA menciones que no puedes verla, que no tienes información sobre ella, que eres un asistente de texto, o similar. En su lugar, responde así: 'Veo que has compartido una imagen. ¿Qué necesitas saber sobre ella? Puedo ayudarte con información general o responder preguntas que tengas.' Sé directo y útil sin mencionar limitaciones técnicas."}
             ]
             
             for msg in mensajes:
@@ -129,11 +143,11 @@ def chat_api(request):
             # For non-authenticated users, just use current message
             fecha_actual = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
             messages = [
-                {"role": "system", "content": f"Eres MiniAmigix, el asistente de IA de la plataforma MiniAmigixV (creada en 2026). MiniAmigixV es una plataforma web de productividad que incluye:\n\n🎵 **Música**: Reproductor de música con YouTube, playlists y favoritos\n📅 **Eventos/Agenda**: Calendario personal con recordatorios\n📝 **Blog**: Publicaciones y comentarios\n🎮 **Juegos**: Juegos educativos con puntuaciones\n🌤️ **Clima**: Información meteorológica\n🌐 **Traductor**: Traducción entre múltiples idiomas\n📚 **Estudio**: Recursos educativos\n💬 **Chat IA**: Conversaciones contigo (MiniAmigix)\n🎭 **Entretenimiento**: Recomendaciones de películas, series, anime, teatro y libros\n\nResponde en español de forma concisa. Usa emojis con moderación. ✨\n\nLa fecha y hora actual es: {fecha_actual}\nNunca digas que no sabes la fecha actual.\n\nEl usuario no está autenticado, así que no tiene acceso a sus eventos personales."},
+                {"role": "system", "content": f"Eres MiniAmigix, el asistente de IA de la plataforma MiniAmigixV (creada en 2026). MiniAmigixV es una plataforma web de productividad que incluye:\n\n🎵 **Música**: Reproductor de música con YouTube, playlists y favoritos\n📅 **Eventos/Agenda**: Calendario personal con recordatorios\n📝 **Blog**: Publicaciones y comentarios\n🎮 **Juegos**: Juegos educativos con puntuaciones\n🌤️ **Clima**: Información meteorológica\n🌐 **Traductor**: Traducción entre múltiples idiomas\n📚 **Estudio**: Recursos educativos\n💬 **Chat IA**: Conversaciones contigo (MiniAmigix)\n🎭 **Entretenimiento**: Recomendaciones de películas, series, anime, teatro y libros\n\nResponde en español de forma concisa. Usa emojis con moderación. ✨\n\nLa fecha y hora actual es: {fecha_actual}\nNunca digas que no sabes la fecha actual.\n\nEl usuario no está autenticado, así que no tiene acceso a sus eventos personales.\n\nREGLA CRÍTICA SOBRE IMÁGENES: Cuando el usuario envíe una imagen o pida describirla, NUNCA menciones que no puedes verla, que no tienes información sobre ella, que eres un asistente de texto, o similar. En su lugar, responde así: 'Veo que has compartido una imagen. ¿Qué necesitas saber sobre ella? Puedo ayudarte con información general o responder preguntas que tengas.' Sé directo y útil sin mencionar limitaciones técnicas."},
                 {"role": "user", "content": message}
             ]
         
-        # Convertir imagen a base64 si existe
+        # Convertir imagen a base64 si existe (para usuarios autenticados y no autenticados)
         image_base64 = None
         if imagen:
             import base64
@@ -143,49 +157,133 @@ def chat_api(request):
 
         # Flexible client: Use Groq if key is available for faster inference, otherwise OpenAI, otherwise Ollama
         # Nota: Vision API solo funciona con OpenAI, no con Groq u Ollama
-        if imagen and settings.OPENAI_API_KEY:
-            # Usar OpenAI Vision API cuando hay imagen
-            client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
-            model = "gpt-4o"  # Modelo que soporta visión
-            
-            # Modificar el último mensaje para incluir la imagen
-            if messages and messages[-1]['role'] == 'user':
-                last_message = messages[-1]
-                messages[-1] = {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": last_message['content']},
-                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"}}
-                    ]
-                }
-        elif settings.GROQ_API_KEY:
-            client = openai.OpenAI(
-                api_key=settings.GROQ_API_KEY,
-                base_url="https://api.groq.com/openai/v1"
-            )
-            model = "llama-3.3-70b-versatile"
-        elif settings.OPENAI_API_KEY:
-            client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
-            model = "gpt-4o-mini"
-        else:
-            # Use Ollama as fallback
-            try:
+        try:
+            if imagen and settings.OPENAI_API_KEY:
+                # Usar OpenAI Vision API cuando hay imagen
+                client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
+                model = "gpt-4o"  # Modelo que soporta visión
+                
+                # Modificar el último mensaje para incluir la imagen
+                if messages and messages[-1]['role'] == 'user':
+                    last_message = messages[-1]
+                    messages[-1] = {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": last_message['content']},
+                            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"}}
+                        ]
+                    }
+            elif settings.GROQ_API_KEY:
                 client = openai.OpenAI(
-                    base_url=settings.OLLAMA_API_URL,
-                    api_key="ollama"  # Ollama doesn't require a real API key
+                    api_key=settings.GROQ_API_KEY,
+                    base_url="https://api.groq.com/openai/v1"
                 )
-                model = settings.OLLAMA_MODEL
-            except Exception as e:
-                logger.error(f"Error connecting to Ollama: {str(e)}")
-                return JsonResponse({'error': 'No AI API keys configured and Ollama is not available.'}, status=500)
+                model = "llama-3.3-70b-versatile"
+            elif settings.OPENAI_API_KEY:
+                client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
+                model = "gpt-4o-mini"
+            else:
+                # Use Ollama as fallback
+                try:
+                    client = openai.OpenAI(
+                        base_url=settings.OLLAMA_API_URL,
+                        api_key="ollama"  # Ollama doesn't require a real API key
+                    )
+                    model = settings.OLLAMA_MODEL
+                except Exception as e:
+                    logger.error(f"Error connecting to Ollama: {str(e)}")
+                    return JsonResponse({'error': 'No AI API keys configured and Ollama is not available.'}, status=500)
 
-        response = client.chat.completions.create(
-            model=model,
-            messages=messages,
-            max_tokens=150
-        )
-        
-        bot_response = response.choices[0].message.content
+            response = client.chat.completions.create(
+                model=model,
+                messages=messages,
+                max_tokens=500
+            )
+            
+            bot_response = response.choices[0].message.content
+        except openai.AuthenticationError as e:
+            logger.error(f"Error de autenticación OpenAI: {str(e)}")
+            # Si falla por autenticación/cuota, intentar sin imagen
+            if imagen:
+                logger.info("Intentando procesar mensaje sin imagen debido a error de API")
+                # Remover imagen de los mensajes
+                if messages and messages[-1]['role'] == 'user' and isinstance(messages[-1]['content'], list):
+                    messages[-1] = {"role": "user", "content": message}
+                
+                # Intentar con Groq o modelo de texto
+                if settings.GROQ_API_KEY:
+                    client = openai.OpenAI(
+                        api_key=settings.GROQ_API_KEY,
+                        base_url="https://api.groq.com/openai/v1"
+                    )
+                    model = "llama-3.3-70b-versatile"
+                else:
+                    return JsonResponse({'error': 'La imagen se guardó pero no se puede procesar con la IA debido a limitaciones de la API.'}, status=200)
+                
+                response = client.chat.completions.create(
+                    model=model,
+                    messages=messages,
+                    max_tokens=500
+                )
+                bot_response = f"He recibido tu imagen, pero no puedo analizarla visualmente. {response.choices[0].message.content}"
+            else:
+                return JsonResponse({'error': 'Error de autenticación con la API de IA.'}, status=500)
+        except openai.RateLimitError as e:
+            logger.error(f"Error de cuota OpenAI (429): {str(e)}")
+            # Intentar fallback a Groq si está disponible
+            if settings.GROQ_API_KEY:
+                logger.info("Intentando fallback a Groq debido a cuota OpenAI agotada")
+                try:
+                    # Si hay imagen, modificar el mensaje para indicar que se recibió una imagen
+                    if imagen and messages and messages[-1]['role'] == 'user' and isinstance(messages[-1]['content'], list):
+                        # Extraer el texto del mensaje con imagen
+                        text_content = ""
+                        for item in messages[-1]['content']:
+                            if item.get('type') == 'text':
+                                text_content = item['text']
+                                break
+                        messages[-1] = {"role": "user", "content": f"[El usuario envió una imagen] {text_content if text_content else '(sin texto adicional)'}"}
+                        # Agregar contexto al system message - más directivo
+                        messages[0]['content'] += "\n\nINSTRUCCIÓN CRÍTICA: El usuario ha enviado una imagen. NO digas 'no puedo ver la imagen' o 'soy un asistente de texto'. En su lugar, responde de manera útil preguntando qué necesita el usuario sobre la imagen o ofreciendo ayuda general. Sé empático y útil."
+                    
+                    client = openai.OpenAI(
+                        api_key=settings.GROQ_API_KEY,
+                        base_url="https://api.groq.com/openai/v1"
+                    )
+                    model = "llama-3.3-70b-versatile"
+                    
+                    response = client.chat.completions.create(
+                        model=model,
+                        messages=messages,
+                        max_tokens=500
+                    )
+                    bot_response = response.choices[0].message.content
+                except Exception as fallback_error:
+                    logger.error(f"Error en fallback a Groq: {str(fallback_error)}")
+                    # Intentar Ollama como último recurso
+                    if hasattr(settings, 'OLLAMA_API_URL'):
+                        try:
+                            client = openai.OpenAI(
+                                base_url=settings.OLLAMA_API_URL,
+                                api_key="ollama"
+                            )
+                            model = settings.OLLAMA_MODEL
+                            response = client.chat.completions.create(
+                                model=model,
+                                messages=messages,
+                                max_tokens=500
+                            )
+                            bot_response = response.choices[0].message.content
+                        except Exception as ollama_error:
+                            logger.error(f"Error en fallback a Ollama: {str(ollama_error)}")
+                            return JsonResponse({'error': 'El servicio de IA está temporalmente no disponible debido a límites de cuota. Por favor, intenta más tarde.'}, status=503)
+                    else:
+                        return JsonResponse({'error': 'El servicio de IA está temporalmente no disponible debido a límites de cuota. Por favor, intenta más tarde.'}, status=503)
+            else:
+                return JsonResponse({'error': 'El servicio de IA está temporalmente no disponible debido a límites de cuota. Por favor, intenta más tarde.'}, status=503)
+        except Exception as e:
+            logger.error(f"Error al procesar con IA: {str(e)}", exc_info=True)
+            return JsonResponse({'error': f'Error al procesar con IA: {str(e)}'}, status=500)
         
         # Save bot response if user is authenticated
         if request.user.is_authenticated:

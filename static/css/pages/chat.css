@@ -26,6 +26,15 @@
     border: 2px solid rgba(124, 58, 237, 0.5);
 }
 
+/* Imágenes en los mensajes del chat */
+.bubble img {
+    max-width: 150px;
+    max-height: 120px;
+    border-radius: 8px;
+    margin-top: 10px;
+    object-fit: contain;
+}
+
 .remove-image {
     position: absolute;
     top: -8px;
@@ -159,6 +168,7 @@
     flex-direction: column;
     background: rgba(0, 0, 0, 0.2);
     overflow-y: auto;
+    flex-shrink: 0;
 }
 
 .chat-list-header {
@@ -356,6 +366,8 @@
     outline: none;
     font-size: 14.5px;
     transition: all 0.3s ease;
+    user-select: text;
+    -webkit-user-select: text;
 }
 
 .msg-input::placeholder {
