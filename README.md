@@ -106,7 +106,7 @@ MiniAmigixV es una aplicación web moderna desarrollada con **Django** que integ
 
 ---
 
-# � Futuras Mejoras
+# 🚀 Futuras Mejoras
 
 * Notificaciones push — sistema de alertas en tiempo real para avisos, mensajes y novedades importantes.
 * Modo oscuro avanzado
@@ -116,7 +116,7 @@ MiniAmigixV es una aplicación web moderna desarrollada con **Django** que integ
 
 ---
 
-# �� Estructura del Proyecto
+# 📁 Estructura del Proyecto
 
 ```bash
 MiniAmigixV/

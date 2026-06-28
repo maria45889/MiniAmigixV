@@ -21,7 +21,7 @@ def crear_evento(request):
 
         if titulo and fecha:
             from datetime import datetime
-            fecha_evento = datetime.fromisoformat(fecha)
+            fecha_evento = timezone.make_aware(datetime.fromisoformat(fecha))
 
             # Validar que la fecha sea presente o futura
             if fecha_evento < timezone.now():

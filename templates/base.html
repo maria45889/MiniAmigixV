@@ -183,7 +183,7 @@
     </div>
 
     <div id="mini-player" class="floating-mini-player" style="display: none;">
-        <div class="mini-player-header" id="mini-player-header">
+        <div class="mini-player-header" id="mini-player-header" title="Arrástrame para mover el reproductor">
             <div class="mini-player-song-info">
                 <div class="mini-player-vinyl" id="mini-player-vinyl"></div>
                 <div style="min-width: 0; flex: 1;">
@@ -192,11 +192,14 @@
                 </div>
             </div>
             <div class="mini-player-header-btns">
-                <button class="btn-mini" onclick="toggleMiniPlayerVideo()" id="mini-video-btn" title="Mostrar/Ocultar Video">👁️</button>
+                <button class="btn-mini" onclick="toggleMiniPlayerVideo()" id="mini-video-btn" title="🎬 Ver video en mini reproductor">👁️</button>
                 <button class="btn-mini minimize-btn" onclick="toggleMiniPlayer()" title="Minimizar">−</button>
             </div>
         </div>
         <div class="mini-player-body">
+            <div id="mini-player-video-container" style="display: none; width: 100%; height: 180px; background: #000; margin-bottom: 10px; border-radius: 8px; overflow: hidden; position: relative; z-index: 0;">
+                <div id="mini-youtube-iframe"></div>
+            </div>
             <div class="mini-player-progress">
                 <div class="mini-player-progress-bar" id="mini-progress-bar"></div>
             </div>
@@ -385,8 +388,18 @@
             
             // Update theme icon in navbar
             const themeIcon = document.querySelector('.theme-btn i');
-            if (themeIcon) themeIcon.setAttribute('data-lucide', isLight ? 'sun' : 'moon');
-            lucide.createIcons();
+            if (themeIcon) {
+                themeIcon.setAttribute('data-lucide', isLight ? 'sun' : 'moon');
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            }
+            
+            // Update Tabler icons
+            const tablerIcon = document.querySelector('.theme-btn .ti');
+            if (tablerIcon) {
+                tablerIcon.className = isLight ? 'ti ti-sun' : 'ti ti-moon';
+            }
             
             // Guardar tema en la base de datos si el usuario está autenticado
             if (typeof fetch !== 'undefined') {
@@ -401,19 +414,36 @@
             }
         }
 
-        // Prioridad: localStorage > base de datos > dark
-        const localStorageTheme = localStorage.getItem("theme");
-        const dbTheme = "{{ perfil_tema|default:'dark' }}";
-        const defaultTheme = localStorageTheme || dbTheme || 'dark';
-        
-        if (defaultTheme === "light") {
-            document.body.classList.add("light");
-            const icon = document.querySelector('.theme-btn i');
-            if (icon) icon.setAttribute('data-lucide', 'sun');
-            if (typeof lucide !== 'undefined') {
-                lucide.createIcons();
+        // Aplicar tema guardado - Prioridad: localStorage > base de datos > dark
+        function applyTheme() {
+            const localStorageTheme = localStorage.getItem("theme");
+            const dbTheme = "{{ perfil_tema|default:'dark' }}";
+            const defaultTheme = localStorageTheme || dbTheme || 'dark';
+            
+            if (defaultTheme === "light") {
+                document.body.classList.add("light");
+            } else {
+                document.body.classList.remove("light");
+            }
+            
+            // Update icons
+            const isLight = document.body.classList.contains("light");
+            const lucideIcon = document.querySelector('.theme-btn i');
+            if (lucideIcon) {
+                lucideIcon.setAttribute('data-lucide', isLight ? 'sun' : 'moon');
+                if (typeof lucide !== 'undefined') {
+                    lucide.createIcons();
+                }
+            }
+            
+            const tablerIcon = document.querySelector('.theme-btn .ti');
+            if (tablerIcon) {
+                tablerIcon.className = isLight ? 'ti ti-sun' : 'ti ti-moon';
             }
         }
+        
+        // Aplicar tema inmediatamente
+        applyTheme();
 
         // Sistema de traducciones
         const translations = {
@@ -497,11 +527,85 @@
         }
 
         // ==================== GLOBAL MINI PLAYER ====================
+        // Suprimir advertencia de postMessage de YouTube en localhost
+        const originalError = console.error;
+        console.error = function(...args) {
+            if (typeof args[0] === 'string' && args[0].includes('postMessage') && args[0].includes('target origin')) {
+                return; // Ignorar advertencia de origen en localhost
+            }
+            originalError.apply(console, args);
+        };
+
+        // Interceptar errores de ventana para postMessage
+        const originalOnErrorHandler = window.onerror;
+        window.onerror = function(message, source, lineno, colno, error) {
+            if (typeof message === 'string' && message.includes('postMessage') && message.includes('target origin')) {
+                return true; // Prevenir que el error se muestre en consola
+            }
+            if (originalOnErrorHandler) {
+                return originalOnErrorHandler(message, source, lineno, colno, error);
+            }
+            return false;
+        };
+
+        // Cargar YouTube IFrame API para el mini player
+        var tag = document.createElement('script');
+        tag.src = "https://www.youtube.com/iframe_api";
+        var firstScriptTag = document.getElementsByTagName('script')[0];
+        firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
         let globalPlayer = null;
         let globalCurrentYoutubeId = null;
         let globalCurrentSongName = '';
         let globalCurrentArtist = '';
         let globalIsPaused = false;
+
+        // Función callback cuando la API de YouTube está lista
+        window.onYouTubeIframeAPIReady = function() {
+            console.log('YouTube API lista para mini player');
+            // Si hay un ID de YouTube cargado, inicializar el reproductor
+            if (globalCurrentYoutubeId) {
+                const videoContainer = document.getElementById('mini-player-video-container');
+                if (videoContainer && videoContainer.style.display !== 'none') {
+                    createMiniPlayerVideo(globalCurrentYoutubeId);
+                }
+            }
+        };
+
+        function createMiniPlayerVideo(youtubeId) {
+            if (!youtubeId) return;
+
+            const iframeContainer = document.getElementById('mini-youtube-iframe');
+            if (!iframeContainer) return;
+
+            if (globalPlayer) {
+                globalPlayer.destroy();
+            }
+
+            globalPlayer = new YT.Player('mini-youtube-iframe', {
+                height: '200',
+                width: '100%',
+                videoId: youtubeId,
+                playerVars: {
+                    'autoplay': 1,
+                    'rel': 0,
+                    'modestbranding': 1,
+                    'playsinline': 1
+                },
+                events: {
+                    'onStateChange': function(event) {
+                        if (event.data === YT.PlayerState.PLAYING) {
+                            updateMiniPlayerPlayButton(true);
+                        } else if (event.data === YT.PlayerState.PAUSED) {
+                            updateMiniPlayerPlayButton(false);
+                        }
+                    },
+                    'onError': function(event) {
+                        console.error('Error en mini player YouTube:', event.data);
+                    }
+                }
+            });
+        }
 
         // Drag variables for mini player
         let mpDragging = false;
@@ -535,9 +639,14 @@
             document.addEventListener('touchmove', mpDrag, { passive: false });
             document.addEventListener('mouseup', mpDragEnd);
             document.addEventListener('touchend', mpDragEnd);
+
+            console.log('Arrastre del mini player inicializado');
         }
 
         function mpDragStart(e) {
+            const mp = document.getElementById('mini-player');
+            if (!mp || mp.style.display === 'none') return;
+
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
             mpInitialX = clientX - mpXOffset;
@@ -547,6 +656,7 @@
             if (target === header || header.contains(target)) {
                 if (target.tagName === 'BUTTON' || target.closest('button')) return;
                 mpDragging = true;
+                console.log('Iniciando arrastre del mini player');
             }
         }
 
@@ -560,10 +670,15 @@
             mpXOffset = mpCurrentX;
             mpYOffset = mpCurrentY;
             const mp = document.getElementById('mini-player');
-            mp.style.transform = `translate3d(${mpCurrentX}px, ${mpCurrentY}px, 0)`;
+            if (mp) {
+                mp.style.transform = `translate3d(${mpCurrentX}px, ${mpCurrentY}px, 0)`;
+            }
         }
 
         function mpDragEnd() {
+            if (mpDragging) {
+                console.log('Terminando arrastre del mini player');
+            }
             mpInitialX = mpCurrentX;
             mpInitialY = mpCurrentY;
             mpDragging = false;
@@ -571,9 +686,26 @@
 
         // Controles del mini player
         window.globalTogglePause = function() {
-            // Llamar a la función del reproductor principal si existe
-            if (typeof togglePause === 'function') {
-                togglePause();
+            const videoContainer = document.getElementById('mini-player-video-container');
+
+            // Si el video está visible en el mini player, controlar el video del mini player
+            if (videoContainer && videoContainer.style.display !== 'none' && globalPlayer) {
+                try {
+                    if (globalPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
+                        globalPlayer.pauseVideo();
+                        updateMiniPlayerPlayButton(false);
+                    } else {
+                        globalPlayer.playVideo();
+                        updateMiniPlayerPlayButton(true);
+                    }
+                } catch (e) {
+                    console.error('Error controlando video del mini player:', e);
+                }
+            } else {
+                // Si no, controlar el reproductor principal
+                if (typeof togglePause === 'function') {
+                    togglePause();
+                }
             }
         };
 
@@ -590,14 +722,51 @@
         };
 
         window.globalToggleMute = function() {
-            if (typeof toggleMute === 'function') {
-                toggleMute();
+            const videoContainer = document.getElementById('mini-player-video-container');
+
+            // Si el video está visible en el mini player, controlar el video del mini player
+            if (videoContainer && videoContainer.style.display !== 'none' && globalPlayer) {
+                try {
+                    if (globalPlayer.isMuted()) {
+                        globalPlayer.unMute();
+                        document.getElementById('mini-mute-btn').textContent = '🔊';
+                    } else {
+                        globalPlayer.mute();
+                        document.getElementById('mini-mute-btn').textContent = '🔇';
+                    }
+                } catch (e) {
+                    console.error('Error controlando mute del mini player:', e);
+                }
+            } else {
+                // Si no, controlar el reproductor principal
+                if (typeof toggleMute === 'function') {
+                    toggleMute();
+                }
             }
         };
 
         window.toggleMiniPlayerVideo = function() {
-            // Redirigir a la página de música
-            window.location.href = '/musica/';
+            const videoContainer = document.getElementById('mini-player-video-container');
+            const videoBtn = document.getElementById('mini-video-btn');
+
+            if (!videoContainer) return;
+
+            if (videoContainer.style.display === 'none') {
+                // Mostrar video
+                videoContainer.style.display = 'block';
+                if (videoBtn) videoBtn.textContent = '👁️‍🗨️';
+
+                // Crear reproductor de YouTube si hay un ID de video
+                if (globalCurrentYoutubeId) {
+                    createMiniPlayerVideo(globalCurrentYoutubeId);
+                } else {
+                    console.log('No hay ID de YouTube para mostrar video');
+                }
+            } else {
+                // Ocultar video
+                videoContainer.style.display = 'none';
+                if (videoBtn) videoBtn.textContent = '👁️';
+            }
         };
 
         // Sincronizar mini player con el reproductor principal
@@ -606,17 +775,18 @@
             const artistEl = document.getElementById('mini-player-artist');
             const mp = document.getElementById('mini-player');
             const floatBtn = document.getElementById('music-float-btn');
-            
+
             if (titleEl) titleEl.textContent = songName || 'Sin reproducción';
             if (artistEl) artistEl.textContent = artist || '';
-            
-            if (mp) mp.style.display = 'block';
-            if (floatBtn) floatBtn.style.display = 'none';
-            
-            // Guardar estado en localStorage
+
+            // NO mostrar automáticamente el mini player - el usuario debe activarlo
+            // Solo mostrar el botón flotante para que el usuario sepa que hay música
+            if (floatBtn) floatBtn.style.display = 'flex';
+
+            // Guardar estado en localStorage pero NO mostrar automáticamente
             localStorage.setItem('miniPlayerSong', songName || '');
             localStorage.setItem('miniPlayerArtist', artist || '');
-            localStorage.setItem('miniPlayerVisible', 'true');
+            localStorage.setItem('miniPlayerVisible', 'false'); // Siempre false al iniciar
         }
 
         function updateMiniPlayerPlayButton(isPlaying) {
@@ -634,24 +804,20 @@
         // Inicializar mini player
         document.addEventListener('DOMContentLoaded', function() {
             initMiniPlayerDrag();
-            
-            // Restaurar mini player desde localStorage si estaba visible
+
+            // NO restaurar mini player automáticamente - el usuario debe activarlo
+            // Solo restaurar la información de la canción si existe
             const savedSong = localStorage.getItem('miniPlayerSong');
             const savedArtist = localStorage.getItem('miniPlayerArtist');
-            const savedVisible = localStorage.getItem('miniPlayerVisible');
-            
-            if (savedVisible === 'true' && savedSong) {
+
+            if (savedSong) {
                 const titleEl = document.getElementById('mini-player-title');
                 const artistEl = document.getElementById('mini-player-artist');
-                const mp = document.getElementById('mini-player');
-                const floatBtn = document.getElementById('music-float-btn');
-                
+
                 if (titleEl) titleEl.textContent = savedSong;
                 if (artistEl) artistEl.textContent = savedArtist;
-                if (mp) mp.style.display = 'block';
-                if (floatBtn) floatBtn.style.display = 'none';
             }
-            
+
             // Agregar event listeners a los botones
             const prevBtn = document.getElementById('mini-prev-btn');
             const playBtn = document.getElementById('mini-play-btn');

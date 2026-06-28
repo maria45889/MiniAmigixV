@@ -65,7 +65,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
-    'webpush', # Añadir la aplicación webpush
+    # 'webpush', # Temporalmente deshabilitado - incompatible con Django 6.0
     # MongoEngine
     'mongoengine',
     # MongoDB App
@@ -80,6 +80,8 @@ INSTALLED_APPS = [
     'soporte',
     'tutorial',
     'estudio',
+    'clima',
+    'traductor',
     'rest_framework',
     'rest_framework_simplejwt',
     'apps.api',
@@ -88,6 +90,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -112,6 +115,7 @@ TEMPLATES = [
                 'notificaciones.context_processors.notificaciones_sin_leer',
                 'perfil.context_processors.perfil_settings',
                 'config.context_processors.site_url',
+                'config.context_processors.user_theme',
             ],
         },
     },
@@ -215,6 +219,11 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'es'
 
+LANGUAGES = [
+    ('es', 'Español'),
+    ('en', 'English'),
+]
+
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
@@ -227,6 +236,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Media files (Avatars)
 MEDIA_URL = '/media/'
@@ -238,6 +248,8 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 GOOGLE_API_KEY = os.getenv("GEMINI_API_KEY")
 OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
+OLLAMA_API_URL = os.getenv("OLLAMA_API_URL", "http://localhost:11434")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.3")
 
 # Configuración de Email para Sugerencias
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

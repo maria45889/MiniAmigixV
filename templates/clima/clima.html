@@ -1,0 +1,331 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Clima{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/clima-glass.css' %}?v=1">
+<script src="https://unpkg.com/lucide@latest"></script>
+{% endblock %}
+
+{% block content %}
+<div class="clima-wrapper">
+    
+    <div class="cyber-header">
+        <h1 class="cyber-title">CLIMA</h1>
+        
+        <form id="clima-form" class="search-container">
+            <input type="text" id="ciudad-input" placeholder="ESCANEAR CIUDAD" class="search-input" value="" required autocomplete="off">
+            <button type="submit" class="search-btn">BUSCAR</button>
+        </form>
+        <button id="geo-btn" class="geo-btn">📍 MI UBICACIÓN</button>
+    </div>
+
+    <div id="loading" class="loading" style="display: none;">
+        <div class="loading-spinner"></div>
+        <p>ESCANEANDO ATMÓSFERA...</p>
+    </div>
+
+    <div id="error-msg" class="error-msg" style="display: none;"></div>
+
+    <div class="dashboard-grid" id="weather-dashboard" style="display: none;">
+        
+        <!-- COLUMN 1: MAIN WEATHER -->
+        <div class="cyber-panel zone-main">
+            <div class="panel-time" id="cyber-clock">00:00:00</div>
+            
+            <i id="weather-icon" data-lucide="sun" class="lucide-main" style="color: #fbbf24;"></i>
+            
+            <div class="audio-wave">
+                <span></span><span></span><span></span><span></span>
+            </div>
+            
+            <h2 class="main-temp" id="main-temp">--°</h2>
+            <div class="main-city" id="main-city">--</div>
+            <div class="main-desc" id="main-desc">--</div>
+        </div>
+
+        <!-- COLUMN 2: RADAR -->
+        <div class="cyber-panel zone-radar">
+            <div class="panel-title">RADAR MiniAmigixV</div>
+            
+            <div class="radar-container">
+                <div class="radar-sweep"></div>
+                <div class="blip blip-1"></div>
+                <div class="blip blip-2"></div>
+            </div>
+            
+            <div class="radar-anomalia">
+                <span>ANOMALÍA DETECTADA</span>
+                <span>0.04%</span>
+            </div>
+            <div class="anomalia-bar"><div class="anomalia-fill"></div></div>
+            
+            <div class="radar-informe">
+                <div class="informe-title"><div class="informe-dot"></div> INFORME DE ANÁLISIS</div>
+                <div class="informe-text">
+                    Utilizando tecnología de espectro orbital, el Radar MiniAmigixV escanea micro-variaciones en la ionósfera para predecir cambios climáticos con precisión cuántica.
+                </div>
+            </div>
+        </div>
+
+        <!-- COLUMN 3: RIGHT PANEL -->
+        <div class="right-column">
+            
+            <div class="cyber-panel zone-stats">
+                <div class="stat-item">
+                    <div class="stat-header">
+                        <span>HUMEDAD</span>
+                        <span class="stat-value" id="humidity-value" style="color: #00f0ff;">--%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill humedad" id="humidity-bar" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-header">
+                        <span>VIENTO</span>
+                        <span class="stat-value" id="wind-value" style="color: #22c55e;">-- km/h</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill viento" id="wind-bar" style="width: 0%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cyber-panel zone-forecast">
+                <div class="panel-title">PRONÓSTICO</div>
+                <div class="forecast-grid" id="forecast-grid">
+                    <div class="forecast-item">
+                        <div class="forecast-day">MAÑANA</div>
+                        <i data-lucide="sun" class="forecast-icon" style="color: #fbbf24;"></i>
+                        <div class="forecast-temp">--°C</div>
+                    </div>
+                    <div class="forecast-item">
+                        <div class="forecast-day">PRÓXIMO</div>
+                        <i data-lucide="cloud-rain" class="forecast-icon" style="color: #94a3b8;"></i>
+                        <div class="forecast-temp">--°C</div>
+                    </div>
+                    <div class="forecast-item">
+                        <div class="forecast-day">FIN SEM.</div>
+                        <i data-lucide="sun" class="forecast-icon" style="color: #fbbf24;"></i>
+                        <div class="forecast-temp">--°C</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cyber-panel zone-status">
+                <div class="status-title">
+                    <div class="status-dot"></div>
+                    FUENTE DE DATOS
+                </div>
+                <div class="status-msg">
+                    <b>OpenWeather API:</b> Datos meteorológicos en tiempo real. La precisión puede variar según la ubicación.
+                </div>
+            </div>
+            
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+    lucide.createIcons();
+    
+    function updateClock() {
+        const now = new Date();
+        const timeString = now.toLocaleTimeString('es-ES', { hour12: false });
+        const clockElement = document.getElementById('cyber-clock');
+        if (clockElement) {
+            clockElement.innerText = timeString;
+        }
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Obtener clima por ciudad
+    document.getElementById('clima-form').addEventListener('submit', async function(e) {
+        e.preventDefault();
+        const ciudad = document.getElementById('ciudad-input').value;
+        if (!ciudad) return;
+        
+        await obtenerClima(ciudad);
+    });
+
+    // Obtener clima por geolocalización
+    document.getElementById('geo-btn').addEventListener('click', async function() {
+        console.log('Botón de geolocalización presionado');
+        if (navigator.geolocation) {
+            console.log('Geolocalización soportada');
+            navigator.geolocation.getCurrentPosition(async function(position) {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                console.log('Coordenadas obtenidas:', lat, lon);
+                await obtenerClimaPorGeo(lat, lon);
+            }, function(error) {
+                console.error('Error de geolocalización:', error);
+                mostrarError('No se pudo obtener la ubicación. Por favor, permite el acceso a la ubicación.');
+            });
+        } else {
+            mostrarError('Geolocalización no soportada en este navegador.');
+        }
+    });
+
+    async function obtenerClima(ciudad) {
+        mostrarLoading(true);
+        try {
+            const response = await fetch(`/clima/api/obtener-clima/?ciudad=${ciudad}`);
+            const data = await response.json();
+            
+            if (data.success) {
+                actualizarUI(data.data);
+            } else {
+                mostrarError(data.error || 'Error al obtener el clima');
+            }
+        } catch (error) {
+            mostrarError('Error de conexión con el servidor');
+        } finally {
+            mostrarLoading(false);
+        }
+    }
+
+    async function obtenerClimaPorGeo(lat, lon) {
+        mostrarLoading(true);
+        try {
+            const response = await fetch(`/clima/api/geolocalizar/?lat=${lat}&lon=${lon}&from_geo=true`);
+            const data = await response.json();
+            
+            if (data.success) {
+                actualizarUI(data.data);
+                // Auto-rellenar el campo de búsqueda con la ciudad detectada
+                if (data.data.ciudad) {
+                    document.getElementById('ciudad-input').value = data.data.ciudad;
+                }
+            } else {
+                mostrarError(data.error || 'Error al obtener el clima');
+            }
+        } catch (error) {
+            mostrarError('Error de conexión con el servidor');
+        } finally {
+            mostrarLoading(false);
+        }
+    }
+
+    function actualizarUI(data) {
+        // Actualizar datos principales
+        document.getElementById('main-temp').textContent = Math.round(data.temperatura) + '°';
+        document.getElementById('main-city').textContent = data.ciudad;
+        document.getElementById('main-desc').textContent = data.descripcion;
+        
+        // Actualizar icono
+        const iconElement = document.getElementById('weather-icon');
+        const desc = data.descripcion.toLowerCase();
+        
+        if (desc.includes('clear') || desc.includes('soleado') || desc.includes('sun')) {
+            iconElement.setAttribute('data-lucide', 'sun');
+            iconElement.style.color = '#fbbf24';
+        } else if (desc.includes('cloud') || desc.includes('nubl') || desc.includes('overcast')) {
+            iconElement.setAttribute('data-lucide', 'cloud');
+            iconElement.style.color = '#e2e8f0';
+        } else if (desc.includes('rain') || desc.includes('lluvia') || desc.includes('drizzle')) {
+            iconElement.setAttribute('data-lucide', 'cloud-rain');
+            iconElement.style.color = '#94a3b8';
+        } else if (desc.includes('storm') || desc.includes('tormenta') || desc.includes('thunder')) {
+            iconElement.setAttribute('data-lucide', 'cloud-lightning');
+            iconElement.style.color = '#94a3b8';
+        } else if (desc.includes('snow') || desc.includes('nieve')) {
+            iconElement.setAttribute('data-lucide', 'snowflake');
+            iconElement.style.color = '#e2e8f0';
+        } else {
+            iconElement.setAttribute('data-lucide', 'cloud');
+            iconElement.style.color = '#e2e8f0';
+        }
+        
+        // Actualizar estadísticas
+        document.getElementById('humidity-value').textContent = (data.humedad || '--') + '%';
+        document.getElementById('humidity-bar').style.width = (data.humedad || 0) + '%';
+        
+        const windSpeed = data.viento_velocidad ? Math.round(data.viento_velocidad * 3.6) : 0; // Convertir m/s a km/h
+        document.getElementById('wind-value').textContent = windSpeed + ' km/h';
+        document.getElementById('wind-bar').style.width = Math.min(windSpeed, 100) + '%';
+        
+        // Actualizar pronóstico
+        const forecastGrid = document.getElementById('forecast-grid');
+        if (data.pronostico && data.pronostico.length > 0) {
+            forecastGrid.innerHTML = '';
+            const dias = ['MAÑANA', 'PRÓXIMO', 'FIN SEM.'];
+            
+            data.pronostico.slice(0, 3).forEach((dia, index) => {
+                const item = document.createElement('div');
+                item.className = 'forecast-item';
+                
+                const desc = dia.descripcion.toLowerCase();
+                let icon = 'cloud';
+                let color = '#e2e8f0';
+                
+                if (desc.includes('clear') || desc.includes('soleado') || desc.includes('sun')) {
+                    icon = 'sun';
+                    color = '#fbbf24';
+                } else if (desc.includes('rain') || desc.includes('lluvia')) {
+                    icon = 'cloud-rain';
+                    color = '#94a3b8';
+                }
+                
+                item.innerHTML = `
+                    <div class="forecast-day">${dias[index] || 'DÍA ' + (index + 1)}</div>
+                    <i data-lucide="${icon}" class="forecast-icon" style="color: ${color};"></i>
+                    <div class="forecast-temp">${Math.round(dia.temperatura_max)}°C</div>
+                `;
+                forecastGrid.appendChild(item);
+            });
+        }
+        
+        // Mostrar dashboard
+        document.getElementById('weather-dashboard').style.display = '';
+        document.getElementById('error-msg').style.display = 'none';
+        
+        // Recrear iconos
+        lucide.createIcons();
+    }
+
+    function mostrarLoading(show) {
+        document.getElementById('loading').style.display = show ? 'block' : 'none';
+        if (show) {
+            document.getElementById('weather-dashboard').style.display = 'none';
+        }
+    }
+
+    function mostrarError(message) {
+        const errorElement = document.getElementById('error-msg');
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+        document.getElementById('weather-dashboard').style.display = 'none';
+        document.getElementById('loading').style.display = 'none';
+    }
+
+    // Cargar clima inicial: detectar ubicación automáticamente
+    window.addEventListener('load', function() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                async function(position) {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+                    await obtenerClimaPorGeo(lat, lon);
+                },
+                function(error) {
+                    // Si el usuario deniega la ubicación, usar ciudad por defecto
+                    console.log('Geolocalización no disponible, usando ciudad por defecto');
+                    document.getElementById('ciudad-input').value = 'Madrid';
+                    obtenerClima('Madrid');
+                },
+                { timeout: 8000 }
+            );
+        } else {
+            // Navegador no soporta geolocalización
+            document.getElementById('ciudad-input').value = 'Madrid';
+            obtenerClima('Madrid');
+        }
+    });
+</script>
+{% endblock %}

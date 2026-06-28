@@ -336,3 +336,166 @@
         gap: 10px;
     }
 }
+
+/* ===== LIGHT MODE OVERRIDES ===== */
+body.light .blog-page-title,
+body.light .editor-card h2,
+body.light .section-title h2,
+body.light .noticia-card h3,
+body.light .pub-card h3 {
+    color: #1e293b !important;
+}
+
+body.light .editor-card {
+    background: rgba(255, 255, 255, 0.8) !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.05) !important;
+}
+
+body.light .editor-field label {
+    color: #64748b !important;
+}
+
+body.light .editor-field input,
+body.light .editor-field select,
+body.light .editor-textarea {
+    background: #ffffff !important;
+    color: #1e293b !important;
+    border: 1px solid rgba(0, 0, 0, 0.15) !important;
+}
+
+body.light .editor-field input:focus,
+body.light .editor-field select:focus,
+body.light .editor-textarea:focus {
+    border-color: #06b6d4 !important;
+    background: #ffffff !important;
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.15) !important;
+}
+
+body.light .editor-field input::placeholder,
+body.light .editor-textarea::placeholder {
+    color: #94a3b8 !important;
+}
+
+body.light .admin-opts {
+    background: rgba(124, 58, 237, 0.05) !important;
+    border: 1px dashed rgba(124, 58, 237, 0.4) !important;
+}
+
+body.light .admin-check {
+    color: #475569 !important;
+}
+
+body.light .admin-check:hover {
+    background: rgba(0,0,0,0.05) !important;
+}
+
+body.light .admin-check input[type="checkbox"] {
+    background: #ffffff !important;
+    border-color: #7c3aed !important;
+}
+
+body.light .admin-check input[type="checkbox"]:checked {
+    background: #7c3aed !important;
+}
+
+body.light .admin-link-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.9)) !important;
+    border: 1px solid rgba(234, 179, 8, 0.4) !important;
+    color: #b45309 !important;
+}
+
+body.light .admin-link-card .admin-link-info h3 {
+    color: #b45309 !important;
+}
+
+body.light .admin-link-card .admin-link-info p {
+    color: #64748b !important;
+}
+
+body.light .section-title {
+    border-bottom: 1px solid rgba(0,0,0,0.1) !important;
+}
+
+body.light .section-title .count-badge {
+    background: rgba(0,0,0,0.05) !important;
+    color: #64748b !important;
+}
+
+body.light .noticia-card {
+    background: rgba(255, 255, 255, 0.8) !important;
+    border: 1px solid rgba(6, 182, 212, 0.3) !important;
+}
+
+body.light .pub-card {
+    background: rgba(255, 255, 255, 0.7) !important;
+    border: 1px solid rgba(0,0,0,0.1) !important;
+}
+
+body.light .pub-card:hover {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-color: rgba(0,0,0,0.15) !important;
+}
+
+body.light .noticia-card .meta,
+body.light .pub-card .meta {
+    color: #64748b !important;
+}
+
+body.light .noticia-card .body-text,
+body.light .pub-card .body-text {
+    color: #475569 !important;
+}
+
+body.light .badge-cat {
+    background: rgba(0,0,0,0.05) !important;
+    color: #475569 !important;
+    border: 1px solid rgba(0,0,0,0.1) !important;
+}
+
+body.light .noticia-card .card-actions,
+body.light .pub-card .card-actions,
+body.light .comments-section {
+    border-color: rgba(0,0,0,0.1) !important;
+}
+
+body.light .comments-header {
+    color: #64748b !important;
+}
+
+body.light .comment-item {
+    background: rgba(255, 255, 255, 0.6) !important;
+    border: 1px solid rgba(0,0,0,0.05) !important;
+}
+
+body.light .comment-author {
+    color: #1e293b !important;
+}
+
+body.light .comment-content {
+    color: #475569 !important;
+}
+
+body.light .comment-input {
+    background: rgba(255, 255, 255, 0.9) !important;
+    border: 1px solid rgba(0,0,0,0.15) !important;
+    color: #1e293b !important;
+}
+
+body.light .comment-input:focus {
+    border-color: #7c3aed !important;
+}
+
+body.light .empty-state p,
+body.light .empty-state .empty-icon {
+    color: #64748b !important;
+}
+
+body.light .login-prompt {
+    background: rgba(0,0,0,0.03) !important;
+    border-color: rgba(0,0,0,0.1) !important;
+}
+
+body.light .login-prompt p {
+    color: #64748b !important;
+}

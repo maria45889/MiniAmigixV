@@ -10,7 +10,7 @@ urlpatterns = [
     
     # Authentication and Notifications
     path('accounts/', include('allauth.urls')),
-    path('webpush/', include('webpush.urls')),
+    # path('webpush/', include('webpush.urls')), # Temporalmente deshabilitado - incompatible con Django 6.0
 
     path('send-test-notification/', views.send_test_notification, name='send_test_notification'),
     

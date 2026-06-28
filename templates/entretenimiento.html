@@ -16,82 +16,147 @@
     <!-- Floating Particles Background -->
     <div class="entertain-particles" id="particles"></div>
 
-    <!-- Page Header -->
-    <h1 class="entertain-page-title">🎭 Entretenimiento</h1>
-    <p class="entertain-page-subtitle">Descubre películas, series, libros y teatro recomendados para ti</p>
+    <!-- Hero Section -->
+    <div class="ent-hero">
+        <div class="ent-hero-content">
+            <div class="ent-hero-badge">
+                <span class="ent-hero-badge-icon">✨</span>
+                <span>Nuevo diseño</span>
+            </div>
+            <h1 class="ent-hero-title">
+                <span class="ent-hero-title-main">Entretenimiento</span>
+                <span class="ent-hero-title-sub">Descubre películas, series, libros y mucho más</span>
+            </h1>
+            <p class="ent-hero-desc">Explora nuestro catálogo curado con las mejores recomendaciones personalizadas para ti</p>
+            <div class="ent-hero-stats">
+                <div class="ent-stat">
+                    <span class="ent-stat-number">6</span>
+                    <span class="ent-stat-label">Categorías</span>
+                </div>
+                <div class="ent-stat-divider"></div>
+                <div class="ent-stat">
+                    <span class="ent-stat-number">100+</span>
+                    <span class="ent-stat-label">Recomendaciones</span>
+                </div>
+                <div class="ent-stat-divider"></div>
+                <div class="ent-stat">
+                    <span class="ent-stat-number">24/7</span>
+                    <span class="ent-stat-label">Actualizado</span>
+                </div>
+            </div>
+        </div>
+        <div class="ent-hero-visual">
+            <div class="ent-hero-circle ent-hero-circle-1"></div>
+            <div class="ent-hero-circle ent-hero-circle-2"></div>
+            <div class="ent-hero-circle ent-hero-circle-3"></div>
+            <div class="ent-hero-emoji">🎬</div>
+        </div>
+    </div>
 
     <!-- Category Cards Grid -->
-    <div class="cat-carousel-container">
-        <div class="entertain-grid sortable-grid" id="cat-scroll" data-grid-id="entretenimiento">
+    <div class="ent-categories-section">
+        <div class="ent-section-header">
+            <h2 class="ent-section-title">Explorar por categoría</h2>
+            <p class="ent-section-subtitle">Encuentra exactamente lo que buscas</p>
+        </div>
+        <div class="ent-categories-grid">
 
             <!-- Películas -->
-            <div class="cat-card cat-card--peliculas" onclick="abrirModal('peliculas')" data-id="peliculas">
-                <span class="cat-tag">Popular</span>
-                <div class="cat-icon">🎬</div>
-                <h3>Películas</h3>
-                <p>Descubre los mejores estrenos y recomendaciones cinematográficas</p>
-                <button class="cat-btn" type="button">Explorar →</button>
+            <div class="ent-category-card ent-category-card--peliculas" onclick="abrirModal('peliculas')" data-id="peliculas">
+                <div class="ent-category-bg"></div>
+                <div class="ent-category-content">
+                    <div class="ent-category-icon">🎬</div>
+                    <h3>Películas</h3>
+                    <p>Estrenos y clásicos</p>
+                    <span class="ent-category-count">24 items</span>
+                </div>
+                <div class="ent-category-arrow">→</div>
             </div>
 
             <!-- Series -->
-            <div class="cat-card cat-card--series" onclick="abrirModal('series')" data-id="series">
-                <span class="cat-tag">Trending</span>
-                <div class="cat-icon">📺</div>
-                <h3>Series</h3>
-                <p>Las mejores series que no puedes dejar de ver este año</p>
-                <button class="cat-btn" type="button">Explorar →</button>
+            <div class="ent-category-card ent-category-card--series" onclick="abrirModal('series')" data-id="series">
+                <div class="ent-category-bg"></div>
+                <div class="ent-category-content">
+                    <div class="ent-category-icon">📺</div>
+                    <h3>Series</h3>
+                    <p>Las más populares</p>
+                    <span class="ent-category-count">32 items</span>
+                </div>
+                <div class="ent-category-arrow">→</div>
             </div>
 
             <!-- Libros -->
-            <div class="cat-card cat-card--libros" onclick="abrirModal('libros')" data-id="libros">
-                <span class="cat-tag">Nuevo</span>
-                <div class="cat-icon">📚</div>
-                <h3>Libros</h3>
-                <p>Recomendaciones de lectura para todos los gustos</p>
-                <button class="cat-btn" type="button">Explorar →</button>
+            <div class="ent-category-card ent-category-card--libros" onclick="abrirModal('libros')" data-id="libros">
+                <div class="ent-category-bg"></div>
+                <div class="ent-category-content">
+                    <div class="ent-category-icon">📚</div>
+                    <h3>Libros</h3>
+                    <p>Lecturas recomendadas</p>
+                    <span class="ent-category-count">18 items</span>
+                </div>
+                <div class="ent-category-arrow">→</div>
             </div>
 
             <!-- Teatro -->
-            <div class="cat-card cat-card--teatro" onclick="abrirModal('teatro')" data-id="teatro">
-                <span class="cat-tag">Especial</span>
-                <div class="cat-icon">🎭</div>
-                <h3>Teatro</h3>
-                <p>Obras de teatro imperdibles y recomendaciones escénicas</p>
-                <button class="cat-btn" type="button">Explorar →</button>
+            <div class="ent-category-card ent-category-card--teatro" onclick="abrirModal('teatro')" data-id="teatro">
+                <div class="ent-category-bg"></div>
+                <div class="ent-category-content">
+                    <div class="ent-category-icon">🎭</div>
+                    <h3>Teatro</h3>
+                    <p>Obras imperdibles</p>
+                    <span class="ent-category-count">12 items</span>
+                </div>
+                <div class="ent-category-arrow">→</div>
             </div>
 
             <!-- Documentales -->
-            <div class="cat-card cat-card--peliculas" onclick="abrirModal('documentales')" data-id="documentales">
-                <span class="cat-tag">Popular</span>
-                <div class="cat-icon">🎥</div>
-                <h3>Documentales</h3>
-                <p>Explora el mundo a través de documentales fascinantes</p>
-                <button class="cat-btn" type="button">Explorar →</button>
+            <div class="ent-category-card ent-category-card--documentales" onclick="abrirModal('documentales')" data-id="documentales">
+                <div class="ent-category-bg"></div>
+                <div class="ent-category-content">
+                    <div class="ent-category-icon">🎥</div>
+                    <h3>Documentales</h3>
+                    <p>Aprende y descubre</p>
+                    <span class="ent-category-count">15 items</span>
+                </div>
+                <div class="ent-category-arrow">→</div>
             </div>
 
             <!-- Anime -->
-            <div class="cat-card cat-card--series" onclick="abrirModal('anime')" data-id="anime">
-                <span class="cat-tag">Trending</span>
-                <div class="cat-icon">🎌</div>
-                <h3>Anime</h3>
-                <p>Las mejores series de anime y manga</p>
-                <button class="cat-btn" type="button">Explorar →</button>
+            <div class="ent-category-card ent-category-card--anime" onclick="abrirModal('anime')" data-id="anime">
+                <div class="ent-category-bg"></div>
+                <div class="ent-category-content">
+                    <div class="ent-category-icon">🎌</div>
+                    <h3>Anime</h3>
+                    <p>Japón animado</p>
+                    <span class="ent-category-count">28 items</span>
+                </div>
+                <div class="ent-category-arrow">→</div>
             </div>
 
         </div>
     </div>
 
-    <!-- Trending Section (Quick Preview) -->
-    <div class="trending-section" id="trending-section" style="display: none;">
-        <div class="trending-header">
-            <h2>🔥 Tendencias</h2>
-            <span class="trending-badge">En vivo</span>
+    <!-- Trending Section -->
+    <div class="ent-trending-section" id="trending-section" style="display: none;">
+        <div class="ent-section-header">
+            <div class="ent-section-header-left">
+                <h2 class="ent-section-title">🔥 Tendencias</h2>
+                <span class="ent-trending-badge">New</span>
+            </div>
+            <div class="ent-trending-nav">
+                <button class="ent-trending-nav-btn ent-trending-nav-btn--prev" onclick="scrollTrending(-1)">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M15 18l-6-6 6-6"/>
+                    </svg>
+                </button>
+                <button class="ent-trending-nav-btn ent-trending-nav-btn--next" onclick="scrollTrending(1)">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18l6-6-6-6"/>
+                    </svg>
+                </button>
+            </div>
         </div>
-        <div class="trending-carousel-container">
-            <button class="trend-nav trend-nav-left" onclick="scrollTrending(-1)">❮</button>
-            <div class="trending-scroll" id="trending-scroll"></div>
-            <button class="trend-nav trend-nav-right" onclick="scrollTrending(1)">❯</button>
-        </div>
+        <div class="ent-trending-scroll" id="trending-scroll"></div>
     </div>
 
 </div>
@@ -235,20 +300,8 @@ document.addEventListener('keydown', function(e) {
 
 function scrollTrending(dir) {
     const scroll = document.getElementById('trending-scroll');
-    scroll.scrollBy({ left: dir * 280, behavior: 'smooth' });
-}
-
-function scrollCat(dir) {
-    const scroll = document.getElementById('cat-scroll');
-    const cards = scroll.querySelectorAll('.cat-card');
-    const scrollAmount = 380; // ancho de tarjeta + gap
-    
-    if (dir === 1) {
-        // Scroll derecha
-        scroll.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-    } else {
-        // Scroll izquierda
-        scroll.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    if (scroll) {
+        scroll.scrollBy({ left: dir * 344, behavior: 'smooth' });
     }
 }
 
@@ -256,9 +309,9 @@ function checkScrollVisibility() {
     // Check tendencias
     const trendScroll = document.getElementById('trending-scroll');
     if (trendScroll) {
-        const container = trendScroll.closest('.trending-carousel-container');
+        const container = trendScroll.closest('.ent-trending-section');
         if (container) {
-            const btns = container.querySelectorAll('.trend-nav');
+            const btns = container.querySelectorAll('.ent-trending-nav-btn');
             // Hide if no overflow
             const hide = trendScroll.scrollWidth <= trendScroll.clientWidth + 5;
             btns.forEach(btn => {

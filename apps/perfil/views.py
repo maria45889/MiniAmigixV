@@ -35,18 +35,19 @@ def editar_perfil(request):
     perfil, created = Perfil.objects.get_or_create(usuario=request.user)
     
     if request.method == 'POST':
-        perfil.bio = request.POST.get('bio', '')
-        perfil.tema = request.POST.get('tema', 'dark')
-        perfil.idioma = request.POST.get('idioma', 'es')
+        # Actualizar campos
+        perfil.bio = request.POST.get('bio', perfil.bio or '')
+        perfil.tema = request.POST.get('tema', perfil.tema or 'dark')
+        perfil.idioma = request.POST.get('idioma', perfil.idioma or 'es')
         
         fecha_nacimiento = request.POST.get('fecha_nacimiento')
         if fecha_nacimiento:
             perfil.fecha_nacimiento = fecha_nacimiento
         
-        if 'avatar' in request.FILES:
+        if 'avatar' in request.FILES and request.FILES['avatar']:
             perfil.avatar = request.FILES['avatar']
         
         perfil.save()
-        return redirect('ver_perfil')
+        return redirect('perfil')
     
     return render(request, 'perfil/editar.html', {'perfil': perfil})

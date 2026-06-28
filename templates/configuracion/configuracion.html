@@ -96,7 +96,16 @@
                     <div class="custom-select-wrapper">
                         <select id="idioma" name="idioma" class="custom-select">
                             <option value="es" {% if perfil.idioma == 'es' %}selected{% endif %}>🇪🇸 Español</option>
-                            <option value="en" {% if perfil.idioma == 'en' %}selected{% endif %}>🇺🇸 English</option>
+                            <option value="en" {% if perfil.idioma == 'en' %}selected{% endif %}>�� English</option>
+                            <option value="fr" {% if perfil.idioma == 'fr' %}selected{% endif %}>🇫🇷 Français</option>
+                            <option value="de" {% if perfil.idioma == 'de' %}selected{% endif %}>🇩🇪 Deutsch</option>
+                            <option value="pt" {% if perfil.idioma == 'pt' %}selected{% endif %}>🇧🇷 Português</option>
+                            <option value="it" {% if perfil.idioma == 'it' %}selected{% endif %}>🇮🇹 Italiano</option>
+                            <option value="ja" {% if perfil.idioma == 'ja' %}selected{% endif %}>🇯🇵 日本語</option>
+                            <option value="ko" {% if perfil.idioma == 'ko' %}selected{% endif %}>🇰🇷 한국어</option>
+                            <option value="zh" {% if perfil.idioma == 'zh' %}selected{% endif %}>🇨🇳 中文</option>
+                            <option value="ru" {% if perfil.idioma == 'ru' %}selected{% endif %}>🇷🇺 Русский</option>
+                            <option value="ar" {% if perfil.idioma == 'ar' %}selected{% endif %}>🇸🇦 العربية</option>
                         </select>
                         <i data-lucide="chevron-down" class="custom-select-icon"></i>
                     </div>
@@ -112,6 +121,63 @@
                             <option value="dd/mm/yyyy">DD/MM/AAAA</option>
                             <option value="mm/dd/yyyy">MM/DD/AAAA</option>
                             <option value="yyyy-mm-dd">AAAA-MM-DD</option>
+                        </select>
+                        <i data-lucide="chevron-down" class="custom-select-icon"></i>
+                    </div>
+                </div>
+
+                <!-- Reloj Inteligente -->
+                <div class="form-group-flex">
+                    <div class="group-info">
+                        <h3>Formato de reloj</h3>
+                        <p>12 horas (AM/PM) o 24 horas.</p>
+                    </div>
+                    <div class="custom-select-wrapper">
+                        <select id="formato_reloj" name="formato_reloj" class="custom-select">
+                            <option value="12h" {% if perfil.formato_reloj == '12h' %}selected{% endif %}>12 horas (AM/PM)</option>
+                            <option value="24h" {% if perfil.formato_reloj == '24h' %}selected{% endif %}>24 horas</option>
+                        </select>
+                        <i data-lucide="chevron-down" class="custom-select-icon"></i>
+                    </div>
+                </div>
+
+                <div class="form-group-flex">
+                    <div class="group-info">
+                        <h3>Mostrar segundos</h3>
+                        <p>Incluye segundos en el reloj.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" name="mostrar_segundos" {% if perfil.mostrar_segundos %}checked{% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="form-group-flex">
+                    <div class="group-info">
+                        <h3>Mostrar fecha</h3>
+                        <p>Despliega la fecha junto al reloj.</p>
+                    </div>
+                    <label class="switch">
+                        <input type="checkbox" name="mostrar_fecha" {% if perfil.mostrar_fecha %}checked{% endif %}>
+                        <span class="slider"></span>
+                    </label>
+                </div>
+
+                <div class="form-group-flex">
+                    <div class="group-info">
+                        <h3>Zona horaria</h3>
+                        <p>Ajusta la zona horaria del reloj.</p>
+                    </div>
+                    <div class="custom-select-wrapper">
+                        <select id="zona_horaria" name="zona_horaria" class="custom-select">
+                            <option value="UTC" {% if perfil.zona_horaria == 'UTC' %}selected{% endif %}>UTC</option>
+                            <option value="America/Mexico_City" {% if perfil.zona_horaria == 'America/Mexico_City' %}selected{% endif %}>Ciudad de México</option>
+                            <option value="America/New_York" {% if perfil.zona_horaria == 'America/New_York' %}selected{% endif %}>Nueva York</option>
+                            <option value="America/Los_Angeles" {% if perfil.zona_horaria == 'America/Los_Angeles' %}selected{% endif %}>Los Ángeles</option>
+                            <option value="Europe/Madrid" {% if perfil.zona_horaria == 'Europe/Madrid' %}selected{% endif %}>Madrid</option>
+                            <option value="Europe/London" {% if perfil.zona_horaria == 'Europe/London' %}selected{% endif %}>Londres</option>
+                            <option value="Asia/Tokyo" {% if perfil.zona_horaria == 'Asia/Tokyo' %}selected{% endif %}>Tokio</option>
+                            <option value="Australia/Sydney" {% if perfil.zona_horaria == 'Australia/Sydney' %}selected{% endif %}>Sídney</option>
                         </select>
                         <i data-lucide="chevron-down" class="custom-select-icon"></i>
                     </div>
@@ -421,19 +487,28 @@
 <script>
 // ==================== TAB NAVIGATION ====================
 function switchTab(tab) {
+    const content = document.getElementById(`tab-${tab}`);
+    if (!content) {
+        if (tab !== 'general') switchTab('general');
+        return;
+    }
+    
     document.querySelectorAll('.config-tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.config-tab-content').forEach(c => {
         c.classList.remove('active');
         c.style.display = 'none';
     });
     
-    document.querySelector(`.config-tab[data-tab="${tab}"]`).classList.add('active');
-    const content = document.getElementById(`tab-${tab}`);
+    const tabButton = document.querySelector(`.config-tab[data-tab="${tab}"]`);
+    if (tabButton) tabButton.classList.add('active');
+    
     content.style.display = 'block';
     // Trigger animation
     requestAnimationFrame(() => content.classList.add('active'));
     
-    lucide.createIcons();
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
     localStorage.setItem('config_tab', tab);
 }
 
@@ -447,10 +522,18 @@ function selectTheme(tema) {
     document.querySelectorAll('.theme-option').forEach(b => b.classList.remove('active'));
     document.querySelector(`.theme-option[data-theme="${tema}"]`).classList.add('active');
     
-    if (tema === 'light') {
-        document.body.classList.add('light');
+    // Usar la función global applyTheme si está disponible
+    if (typeof applyTheme === 'function') {
+        localStorage.setItem('theme', tema);
+        applyTheme();
     } else {
-        document.body.classList.remove('light');
+        // Fallback
+        if (tema === 'light') {
+            document.body.classList.add('light');
+        } else {
+            document.body.classList.remove('light');
+        }
+        localStorage.setItem('theme', tema);
     }
 }
 
@@ -717,10 +800,15 @@ function showToast(message) {
     if (el) el.textContent = `${browser} en ${os}`;
 })();
 
-// Apply saved theme
-{% if perfil.tema == 'light' %}
-document.body.classList.add('light');
-{% endif %}
+// Apply saved theme using global function
+if (typeof applyTheme === 'function') {
+    applyTheme();
+} else {
+    // Fallback
+    {% if perfil.tema == 'light' %}
+    document.body.classList.add('light');
+    {% endif %}
+}
 
 // Restore date format
 const savedDateFmt = localStorage.getItem('formato_fecha');
@@ -739,6 +827,8 @@ if (successMsg) {
     }, 3000);
 }
 
-// Re-initialize icons after dynamic content
-lucide.createIcons();
+// Re-initialize icons after dynamic content if lucide is ready
+if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+}
 </script>

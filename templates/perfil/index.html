@@ -4,7 +4,220 @@
 {% block title %}Mi Perfil{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/profile.css' %}?v=3">
+<link rel="stylesheet" href="{% static 'css/profile.css' %}?v=4">
+<style>
+.perfil-container.modern {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 30px;
+}
+
+.perfil-banner {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(6, 182, 212, 0.2));
+    border-radius: 24px;
+    padding: 40px;
+    margin-bottom: 30px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+}
+
+.perfil-banner-glow {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 70%);
+    animation: glow 8s ease-in-out infinite;
+}
+
+@keyframes glow {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(10%, 10%); }
+}
+
+.perfil-header {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    position: relative;
+    z-index: 1;
+}
+
+.perfil-avatar-wrapper {
+    position: relative;
+}
+
+.perfil-avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid rgba(124, 58, 237, 0.5);
+    box-shadow: 0 0 30px rgba(124, 58, 237, 0.3);
+}
+
+.perfil-avatar.placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    background: rgba(124, 58, 237, 0.2);
+    border: 4px solid rgba(124, 58, 237, 0.5);
+}
+
+.perfil-info-top {
+    flex: 1;
+}
+
+.perfil-username {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #f8fafc;
+    margin: 0 0 10px 0;
+    background: linear-gradient(135deg, #f8fafc, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.perfil-bio {
+    color: #94a3b8;
+    font-size: 1.1rem;
+    margin: 0 0 20px 0;
+    line-height: 1.6;
+}
+
+.perfil-badges {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.badge {
+    background: rgba(255, 255, 255, 0.1);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    color: #e2e8f0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s;
+}
+
+.badge:hover {
+    background: rgba(124, 58, 237, 0.2);
+    border-color: rgba(124, 58, 237, 0.3);
+}
+
+.btn-edit-modern {
+    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+    color: white;
+    padding: 12px 24px;
+    border-radius: 12px;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+    transition: all 0.3s;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-edit-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+}
+
+.perfil-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-box {
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(20px);
+    border-radius: 16px;
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: all 0.3s;
+}
+
+.stat-box:hover {
+    transform: translateY(-5px);
+    border-color: rgba(124, 58, 237, 0.3);
+    box-shadow: 0 10px 30px rgba(124, 58, 237, 0.2);
+}
+
+.stat-icon {
+    width: 60px;
+    height: 60px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.event-icon {
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+}
+
+.notif-icon {
+    background: linear-gradient(135deg, #06b6d4, #0891b2);
+}
+
+.active-icon {
+    background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.stat-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-num {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #f8fafc;
+}
+
+.stat-text {
+    color: #94a3b8;
+    font-size: 0.95rem;
+}
+
+.bio-prompt {
+    background: rgba(6, 182, 212, 0.1);
+    border: 1px dashed rgba(6, 182, 212, 0.3);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #e2e8f0;
+}
+
+.bio-prompt a {
+    color: #06b6d4;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.bio-prompt a:hover {
+    text-decoration: underline;
+}
+</style>
 {% endblock %}
 
 {% block content %}

@@ -4,7 +4,126 @@
 {% block title %}AI Translation Core{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/traductor.css' %}?v=3">
+<link rel="stylesheet" href="{% static 'css/traductor.css' %}?v=5">
+<style>
+/* ---- Light Mode Overrides ---- */
+body.light .traductor-wrapper {
+    --tr-bg: #f8fafc;
+    --tr-panel: rgba(255, 255, 255, 0.85);
+    --tr-border: rgba(0, 0, 0, 0.1);
+    --tr-cyan: #0284c7;
+    --tr-purple: #9333ea;
+    --tr-text: #1e293b;
+    --tr-muted: #64748b;
+    background:
+        radial-gradient(circle at top right, rgba(2, 132, 199, 0.08), transparent 35%),
+        radial-gradient(circle at bottom left, rgba(147, 51, 234, 0.08), transparent 35%),
+        var(--tr-bg) !important;
+}
+
+body.light .traductor-wrapper::before {
+    background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(2, 132, 199, 0.03) 2px,
+        rgba(2, 132, 199, 0.03) 4px
+    ) !important;
+}
+
+body.light .lang-select {
+    background: #ffffff !important;
+    color: var(--tr-text) !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%230284c7' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E") !important;
+    border: 1px solid rgba(0, 0, 0, 0.1) !important;
+}
+
+body.light .lang-select option {
+    background: #ffffff !important;
+    color: var(--tr-text) !important;
+}
+
+body.light .lang-bar {
+    background: rgba(255, 255, 255, 0.5) !important;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+body.light .tr-card {
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05) !important;
+}
+
+body.light .text-panel:first-child {
+    border-right: 1px solid rgba(0, 0, 0, 0.05) !important;
+}
+
+body.light .output-panel {
+    background: rgba(2, 132, 199, 0.02) !important;
+}
+
+body.light .text-panel textarea {
+    color: var(--tr-text) !important;
+}
+
+body.light .text-panel textarea::placeholder {
+    color: rgba(0, 0, 0, 0.3) !important;
+}
+
+body.light .output-panel textarea {
+    color: var(--tr-cyan) !important;
+}
+
+body.light .btn-swap {
+    background: rgba(2, 132, 199, 0.08) !important;
+    box-shadow: 0 0 10px rgba(2, 132, 199, 0.1) !important;
+    color: var(--tr-cyan) !important;
+}
+
+body.light .btn-swap:hover {
+    color: #ffffff !important;
+    background: var(--tr-cyan) !important;
+}
+
+body.light .history-item {
+    background: rgba(255, 255, 255, 0.8) !important;
+    border-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+body.light .history-original {
+    color: #334155 !important;
+}
+
+body.light .engine-status .status-card {
+    background: rgba(255, 255, 255, 0.7) !important;
+    border: 1px solid rgba(0,0,0,0.05) !important;
+}
+
+body.light .engine-status .status-label {
+    color: var(--tr-muted) !important;
+}
+
+body.light .chip {
+    background: rgba(0,0,0,0.05) !important;
+    border: 1px solid rgba(0,0,0,0.1) !important;
+    color: var(--tr-text) !important;
+}
+
+body.light .chip:hover {
+    background: rgba(2, 132, 199, 0.1) !important;
+    color: var(--tr-cyan) !important;
+    border-color: var(--tr-cyan) !important;
+}
+
+body.light .history-title {
+    color: var(--tr-text) !important;
+}
+
+@media (max-width: 768px) {
+    body.light .text-panel:first-child { 
+        border-right: none !important; 
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important; 
+    }
+}
+</style>
 {% endblock %}
 
 {% block content %}
@@ -12,8 +131,8 @@
 
     <!-- Header -->
     <div class="tr-header">
-        <h1>AI TRANSLATION CORE</h1>
-        <div class="tr-subtitle">MINIAMIGIXV LANGUAGE MATRIX • NEURAL ENGINE v3.0</div>
+        <h1>TRADUCTOR</h1>
+        <div class="tr-subtitle">MiniAmigixV</div>
     </div>
 
     <!-- Main Translation Card -->
@@ -98,15 +217,6 @@
         <div class="status-card">
             <span class="status-label">IDIOMA DETECTADO</span>
             <span class="status-value cyan" id="detectedLang">—</span>
-        </div>
-        <div class="status-card">
-            <span class="status-label">CONFIANZA</span>
-            <span class="status-value amber" id="confidenceVal">—</span>
-            <div class="confidence-bar"><div class="confidence-fill" id="confidenceBar"></div></div>
-        </div>
-        <div class="status-card">
-            <span class="status-label">LATENCIA</span>
-            <span class="status-value purple" id="latencyVal">—</span>
         </div>
     </div>
 
@@ -245,26 +355,29 @@ async function traducir() {
     const startTime = performance.now();
 
     try {
-        const response = await fetch('{% url "traductor" %}', {
+        const response = await fetch('/traductor/api/traducir/', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'X-Requested-With': 'XMLHttpRequest',
+                'Content-Type': 'application/x-www-form-urlencoded',
                 'X-CSRFToken': '{{ csrf_token }}'
             },
-            body: JSON.stringify({ texto, origen, destino })
+            body: new URLSearchParams({
+                texto: texto,
+                idioma_origen: origen,
+                idioma_destino: destino
+            })
         });
         const data = await response.json();
         const elapsed = Math.round(performance.now() - startTime);
 
-        if (data.error) {
-            resultado.value = 'ERROR: ' + data.error;
+        if (!data.success) {
+            resultado.value = 'ERROR: ' + (data.error || 'Error desconocido');
             updateStatus('ERROR', '—', 0, elapsed);
         } else {
-            resultado.value = data.traduccion;
+            resultado.value = data.data.texto_traducido;
             updateStatus('ACTIVE', langNames[origen] || origen, 97, elapsed);
             document.getElementById('outputInfo').textContent = `${langNames[origen]} → ${langNames[destino]}`;
-            agregarAlHistorial(texto, data.traduccion, origen, destino);
+            agregarAlHistorial(texto, data.data.texto_traducido, origen, destino);
         }
     } catch (err) {
         resultado.value = 'ERROR DE CONEXIÓN';
@@ -285,17 +398,11 @@ function updateStatus(status, lang, confidence, latency) {
         statusEl.innerHTML = '<span class="status-dot" style="background:#ef4444;box-shadow:0 0 8px #ef4444"></span> ERROR';
     }
     document.getElementById('detectedLang').textContent = lang;
-    document.getElementById('confidenceVal').textContent = confidence > 0 ? confidence + '%' : '—';
-    document.getElementById('confidenceBar').style.width = confidence + '%';
-    document.getElementById('latencyVal').textContent = latency > 0 ? latency + 'ms' : '—';
 }
 
 function resetStatus() {
     document.getElementById('statusVal').innerHTML = '<span class="status-dot green"></span> ACTIVE';
     document.getElementById('detectedLang').textContent = '—';
-    document.getElementById('confidenceVal').textContent = '—';
-    document.getElementById('confidenceBar').style.width = '0';
-    document.getElementById('latencyVal').textContent = '—';
 }
 
 // ===== HISTORY =====

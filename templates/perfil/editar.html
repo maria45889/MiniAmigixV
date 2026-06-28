@@ -66,8 +66,17 @@
                     <label for="idioma"><i data-lucide="globe"></i> Idioma</label>
                     <div class="select-wrapper">
                         <select id="idioma" name="idioma">
-                            <option value="es" {% if perfil.idioma == 'es' %}selected{% endif %}>Español</option>
-                            <option value="en" {% if perfil.idioma == 'en' %}selected{% endif %}>English</option>
+                            <option value="es" {% if perfil.idioma == 'es' %}selected{% endif %}>🇪🇸 Español</option>
+                            <option value="en" {% if perfil.idioma == 'en' %}selected{% endif %}>🇬🇧 English</option>
+                            <option value="fr" {% if perfil.idioma == 'fr' %}selected{% endif %}>🇫🇷 Français</option>
+                            <option value="de" {% if perfil.idioma == 'de' %}selected{% endif %}>🇩🇪 Deutsch</option>
+                            <option value="pt" {% if perfil.idioma == 'pt' %}selected{% endif %}>🇧🇷 Português</option>
+                            <option value="it" {% if perfil.idioma == 'it' %}selected{% endif %}>🇮🇹 Italiano</option>
+                            <option value="ja" {% if perfil.idioma == 'ja' %}selected{% endif %}>🇯🇵 日本語</option>
+                            <option value="ko" {% if perfil.idioma == 'ko' %}selected{% endif %}>🇰🇷 한국어</option>
+                            <option value="zh" {% if perfil.idioma == 'zh' %}selected{% endif %}>🇨🇳 中文</option>
+                            <option value="ru" {% if perfil.idioma == 'ru' %}selected{% endif %}>🇷🇺 Русский</option>
+                            <option value="ar" {% if perfil.idioma == 'ar' %}selected{% endif %}>🇸🇦 العربية</option>
                         </select>
                         <i data-lucide="chevron-down" class="select-icon"></i>
                     </div>
@@ -83,15 +92,20 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Aplicar tema guardado en localStorage inmediatamente
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light') {
-        document.body.classList.add('light');
-    } else {
-        document.body.classList.remove('light');
-    }
+// Aplicar tema inmediatamente (antes de DOMContentLoaded para evitar parpadeo)
+(function() {
+    const localStorageTheme = localStorage.getItem('theme');
+    const dbTheme = "{{ perfil.tema|default:'dark' }}";
+    const defaultTheme = localStorageTheme || dbTheme || 'dark';
     
+    if (defaultTheme === "light") {
+        document.body.classList.add("light");
+    } else {
+        document.body.classList.remove("light");
+    }
+})();
+
+document.addEventListener('DOMContentLoaded', function() {
     // Aplicar idioma guardado inmediatamente
     const savedLang = localStorage.getItem('idioma') || 'es';
     const translations = {

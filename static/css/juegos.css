@@ -453,3 +453,136 @@
         gap: 8px;
     }
 }
+
+/* ==========================================================================
+   LIGHT MODE OVERRIDES
+   ========================================================================== */
+
+/* Game Cards */
+body.light .game-card {
+    background: rgba(255, 255, 255, 0.75);
+    border-color: rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    color: #1e293b;
+}
+body.light .game-card:hover {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(0, 0, 0, 0.12);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1), 0 0 15px var(--game-color, rgba(124, 58, 237, 0.3));
+}
+body.light .game-card h3 {
+    color: #0f172a;
+}
+body.light .game-card p {
+    color: #64748b;
+}
+body.light .game-icon-wrapper {
+    background: rgba(0, 0, 0, 0.04);
+    box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.05);
+}
+body.light .game-card:hover .game-icon-wrapper {
+    background: rgba(0, 0, 0, 0.06);
+}
+body.light .game-tag {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+/* Arena Modal */
+body.light .game-modal-overlay {
+    background: rgba(255, 255, 255, 0.5);
+}
+body.light .game-arena {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.97), rgba(241, 245, 249, 0.98));
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+}
+body.light .game-arena-content {
+    color: #1e293b;
+}
+body.light .game-close-btn {
+    background: rgba(0, 0, 0, 0.06);
+    color: #475569;
+}
+body.light .game-close-btn:hover {
+    background: #ef4444;
+    color: white;
+}
+
+/* Game Box */
+body.light .game-box {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.08);
+}
+body.light .game-question {
+    color: #0f172a;
+}
+
+/* Inputs */
+body.light .game-input {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.15);
+    color: #0f172a;
+}
+body.light .game-input:focus {
+    border-color: #7c3aed;
+    box-shadow: 0 0 15px rgba(124, 58, 237, 0.15);
+}
+body.light .game-input::placeholder {
+    color: #94a3b8;
+}
+
+/* Option Buttons */
+body.light .game-option-btn {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    color: #1e293b;
+}
+body.light .game-option-btn:hover {
+    background: rgba(124, 58, 237, 0.08);
+    border-color: #7c3aed;
+}
+
+/* Outline Button */
+body.light .game-btn-outline {
+    border-color: rgba(0, 0, 0, 0.2);
+    color: #475569;
+}
+body.light .game-btn-outline:hover {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.3);
+}
+
+/* Score Board */
+body.light .game-score-board {
+    color: #64748b;
+}
+body.light .game-score-board span {
+    color: #0f172a;
+}
+body.light .game-arena-subtitle {
+    color: #64748b;
+}
+
+/* Memory Cards */
+body.light .memory-card-back {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: #7c3aed;
+    box-shadow: 0 0 15px rgba(124, 58, 237, 0.2);
+}
+
+/* Snake Board */
+body.light .snake-board {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(139, 92, 246, 0.3);
+}
+body.light .snake-cell {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+/* Scrollbar */
+body.light .game-arena::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.04);
+}
+body.light .game-arena::-webkit-scrollbar-thumb {
+    background: rgba(124, 58, 237, 0.3);
+}

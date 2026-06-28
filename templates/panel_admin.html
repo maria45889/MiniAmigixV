@@ -4,177 +4,353 @@
 {% block title %}Panel de Administración{% endblock %}
 
 {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/admin-modern.css' %}?v=3">
 <style>
     .admin-dashboard {
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
-        padding: 20px;
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 28px !important;
+        padding: 24px !important;
+        animation: fadeIn 0.6s ease-out !important;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
     
     .admin-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: rgba(17, 28, 46, 0.7);
-        backdrop-filter: blur(10px);
-        padding: 20px 30px;
-        border-radius: 20px;
-        border: 1px solid rgba(124, 58, 237, 0.2);
+        display: flex !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        background: rgba(20, 20, 35, 0.6) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        padding: 28px 36px !important;
+        border-radius: 24px !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+        position: relative !important;
+        overflow: hidden !important;
+    }
+    
+    .admin-header::before {
+        content: '' !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 3px !important;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
     }
     
     .admin-header h1 {
-        font-family: 'Syne', sans-serif;
-        font-size: 28px;
-        margin: 0;
-        background: var(--accent-gradient, linear-gradient(135deg, #7c3aed, #06b6d4));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        font-family: 'Syne', sans-serif !important;
+        font-size: 32px !important;
+        margin: 0 !important;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        -webkit-background-clip: text !important;
+        -webkit-text-fill-color: transparent !important;
+        background-clip: text !important;
+        font-weight: 800 !important;
+        letter-spacing: -0.5px !important;
     }
     
     .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 20px;
+        display: grid !important;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)) !important;
+        gap: 24px !important;
     }
     
     .stat-card {
-        background: rgba(17, 28, 46, 0.7);
-        border: 1px solid rgba(124, 58, 237, 0.2);
-        border-radius: 16px;
-        padding: 24px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        background: rgba(20, 20, 35, 0.6) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 20px !important;
+        padding: 28px 24px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        text-align: center !important;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+        position: relative !important;
+        overflow: hidden !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
     }
     
     .stat-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(124, 58, 237, 0.15);
-        border-color: rgba(6, 182, 212, 0.5);
+        transform: translateY(-8px) scale(1.02) !important;
+        box-shadow: 0 12px 40px rgba(102, 126, 234, 0.2) !important;
+        border-color: rgba(102, 126, 234, 0.3) !important;
     }
     
     .stat-icon {
-        font-size: 32px;
-        margin-bottom: 15px;
-        background: var(--accent-gradient, linear-gradient(135deg, #7c3aed, #06b6d4));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        font-size: 42px !important;
+        margin-bottom: 16px !important;
+        width: 70px !important;
+        height: 70px !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        background: rgba(102, 126, 234, 0.1) !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .stat-card:hover .stat-icon {
+        transform: scale(1.1) rotate(5deg) !important;
     }
     
     .stat-value {
-        font-size: 36px;
-        font-weight: 700;
-        font-family: 'Syne', sans-serif;
-        color: white;
-        margin-bottom: 5px;
+        font-size: 42px !important;
+        font-weight: 800 !important;
+        font-family: 'Syne', sans-serif !important;
+        color: white !important;
+        margin-bottom: 8px !important;
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
     }
     
     .stat-label {
-        font-size: 14px;
-        color: #94a3b8;
-        font-weight: 500;
-        text-transform: uppercase;
-        letter-spacing: 1px;
+        font-size: 15px !important;
+        color: #e2e8f0 !important;
+        font-weight: 600 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1.5px !important;
     }
-
-    .recent-users-section {
-        background: rgba(17, 28, 46, 0.7);
-        border: 1px solid rgba(124, 58, 237, 0.2);
-        border-radius: 20px;
-        padding: 24px;
-        margin-top: 10px;
+    
+    .admin-section {
+        background: rgba(20, 20, 35, 0.6) !important;
+        backdrop-filter: blur(20px) !important;
+        -webkit-backdrop-filter: blur(20px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 24px !important;
+        padding: 28px !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
+        position: relative !important;
+        overflow: hidden !important;
     }
-
-    .recent-users-section h2 {
-        font-family: 'Syne', sans-serif;
-        font-size: 20px;
-        margin-top: 0;
-        margin-bottom: 20px;
-        color: white;
-        display: flex;
-        align-items: center;
-        gap: 10px;
+    
+    .admin-section::before {
+        content: '' !important;
+        position: absolute !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        height: 3px !important;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
     }
-
-    .users-table-container {
-        overflow-x: auto;
+    
+    .admin-section h2 {
+        font-family: 'Syne', sans-serif !important;
+        font-size: 22px !important;
+        margin-top: 0 !important;
+        margin-bottom: 24px !important;
+        color: white !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 12px !important;
+        font-weight: 700 !important;
     }
-
-    .users-table {
-        width: 100%;
-        border-collapse: collapse;
+    
+    .admin-section h2 i {
+        font-size: 24px !important;
+        color: #667eea !important;
     }
-
-    .users-table th {
-        text-align: left;
-        padding: 12px 15px;
-        color: #94a3b8;
-        font-weight: 500;
-        font-size: 14px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    
+    .table-container {
+        overflow-x: auto !important;
+        border-radius: 16px !important;
     }
-
-    .users-table td {
-        padding: 15px;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-        color: #f1f5f9;
-        font-size: 15px;
+    
+    .admin-table {
+        width: 100% !important;
+        border-collapse: separate !important;
+        border-spacing: 0 !important;
     }
-
-    .users-table tbody tr:hover {
-        background: rgba(124, 58, 237, 0.05);
+    
+    .admin-table thead {
+        background: rgba(102, 126, 234, 0.1) !important;
     }
-
-    .user-badge {
-        display: inline-block;
-        padding: 4px 10px;
-        border-radius: 20px;
-        font-size: 12px;
-        font-weight: 600;
-        background: rgba(6, 182, 212, 0.1);
-        color: #06b6d4;
-        border: 1px solid rgba(6, 182, 212, 0.2);
+    
+    .admin-table th {
+        text-align: left !important;
+        padding: 16px 20px !important;
+        color: white !important;
+        font-weight: 800 !important;
+        font-size: 15px !important;
+        text-transform: uppercase !important;
+        letter-spacing: 1px !important;
+        border-bottom: 2px solid rgba(102, 126, 234, 0.2) !important;
     }
-
-    .user-badge.admin {
-        background: rgba(124, 58, 237, 0.1);
-        color: #c084fc;
-        border: 1px solid rgba(124, 58, 237, 0.2);
+    
+    .admin-table td {
+        padding: 18px 20px !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+        color: #ffffff !important;
+        font-size: 16px !important;
+        font-weight: 500 !important;
+        transition: all 0.3s ease !important;
     }
-
-    .refresh-indicator {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 16px;
-        background: rgba(6, 182, 212, 0.1);
-        border: 1px solid rgba(6, 182, 212, 0.2);
-        border-radius: 20px;
-        color: #06b6d4;
-        font-size: 13px;
-        cursor: pointer;
-        transition: all 0.3s ease;
+    
+    .admin-table tbody tr:hover {
+        background: rgba(102, 126, 234, 0.05) !important;
+        transform: scale(1.01) !important;
     }
-
-    .refresh-indicator:hover {
-        background: rgba(6, 182, 212, 0.2);
+    
+    .admin-table tbody tr:hover td {
+        color: white !important;
     }
-
-    .refresh-indicator i {
-        transition: transform 0.5s ease;
+    
+    .user-avatar {
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 50% !important;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        font-weight: 700 !important;
+        font-size: 16px !important;
+        color: white !important;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) !important;
+        flex-shrink: 0 !important;
     }
-
-    .refresh-indicator.spinning i {
-        animation: spin 1s linear infinite;
+    
+    .user-cell {
+        display: flex !important;
+        align-items: center !important;
+        gap: 14px !important;
     }
-
-    @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
+    
+    .badge {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        padding: 8px 16px !important;
+        border-radius: 50px !important;
+        font-size: 12px !important;
+        font-weight: 700 !important;
+        text-transform: uppercase !important;
+        letter-spacing: 0.5px !important;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
+    }
+    
+    .badge-admin {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+    }
+    
+    .badge-staff {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
+        color: white !important;
+    }
+    
+    .badge-active {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%) !important;
+        color: #0a0a0f !important;
+    }
+    
+    .btn {
+        padding: 10px 20px !important;
+        border: none !important;
+        border-radius: 12px !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        text-decoration: none !important;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+        color: white !important;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) !important;
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-2px) !important;
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
+    }
+    
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.1) !important;
+        color: white !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    }
+    
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.15) !important;
+        border-color: rgba(102, 126, 234, 0.3) !important;
+    }
+    
+    .refresh-btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 10px !important;
+        padding: 12px 24px !important;
+        background: rgba(79, 172, 254, 0.15) !important;
+        border: 1px solid rgba(79, 172, 254, 0.3) !important;
+        border-radius: 50px !important;
+        color: #4facfe !important;
+        font-size: 14px !important;
+        font-weight: 600 !important;
+        cursor: pointer !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .refresh-btn:hover {
+        background: rgba(79, 172, 254, 0.25) !important;
+        transform: translateY(-2px) !important;
+        box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3) !important;
+    }
+    
+    .back-link {
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        color: #e2e8f0 !important;
+        text-decoration: none !important;
+        font-size: 16px !important;
+        font-weight: 600 !important;
+        padding: 10px 20px !important;
+        border-radius: 12px !important;
+        transition: all 0.3s ease !important;
+    }
+    
+    .back-link:hover {
+        color: #667eea !important;
+        background: rgba(102, 126, 234, 0.1) !important;
+    }
+    
+    .quick-link-card {
+        text-decoration: none !important;
+        cursor: pointer !important;
+        position: relative !important;
+    }
+    
+    .quick-link-card::after {
+        content: '' !important;
+        position: absolute !important;
+        inset: 0 !important;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)) !important;
+        opacity: 0 !important;
+        transition: opacity 0.3s ease !important;
+        border-radius: 20px !important;
+    }
+    
+    .quick-link-card:hover::after {
+        opacity: 1 !important;
     }
 </style>
 {% endblock %}
@@ -184,13 +360,13 @@
     <div class="admin-header">
         <h1>Centro de Administración General</h1>
         <div style="display: flex; gap: 12px; align-items: center;">
-            <div class="refresh-indicator" id="refresh-btn" onclick="refreshStats()">
+            <button class="refresh-btn" id="refresh-btn" onclick="refreshStats()">
                 <i class="ti ti-refresh"></i>
                 <span id="refresh-text">Actualizar</span>
-            </div>
-            <div class="user-badge admin">
+            </button>
+            <span class="badge badge-admin">
                 <i class="ti ti-shield-check"></i> Super Administrador
-            </div>
+            </span>
         </div>
     </div>
 
@@ -229,22 +405,22 @@
 
     <!-- Enlaces rápidos a paneles de administración -->
     <div class="stats-grid">
-        <a href="{% url 'admin_soporte' %}" class="stat-card" style="text-decoration: none; cursor: pointer;">
+        <a href="{% url 'admin_soporte' %}" class="stat-card quick-link-card">
             <div class="stat-icon"><i class="ti ti-headset"></i></div>
             <div class="stat-value">🎧</div>
             <div class="stat-label">Soporte</div>
         </a>
-        <a href="{% url 'admin_sugerencias' %}" class="stat-card" style="text-decoration: none; cursor: pointer;">
+        <a href="{% url 'admin_sugerencias' %}" class="stat-card quick-link-card">
             <div class="stat-icon"><i class="ti ti-lightbulb"></i></div>
             <div class="stat-value">💡</div>
             <div class="stat-label">Sugerencias</div>
         </a>
     </div>
 
-    <div class="recent-users-section">
+    <div class="admin-section">
         <h2><i class="ti ti-user-plus"></i> Usuarios Recientes</h2>
-        <div class="users-table-container">
-            <table class="users-table">
+        <div class="table-container">
+            <table class="admin-table">
                 <thead>
                     <tr>
                         <th>Usuario</th>
@@ -258,10 +434,8 @@
                     {% for u in ultimos_usuarios %}
                     <tr>
                         <td>
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <div style="width: 32px; height: 32px; border-radius: 50%; background: var(--accent-gradient); display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px;">
-                                    {{ u.username.0|upper }}
-                                </div>
+                            <div class="user-cell">
+                                <div class="user-avatar">{{ u.username.0|upper }}</div>
                                 {{ u.username }}
                             </div>
                         </td>
@@ -269,16 +443,16 @@
                         <td>{{ u.date_joined|date:"d M Y, H:i" }}</td>
                         <td>
                             {% if u.is_superuser %}
-                                <span class="user-badge admin">Superadmin</span>
+                                <span class="badge badge-admin">Superadmin</span>
                             {% elif u.is_staff %}
-                                <span class="user-badge">Staff</span>
+                                <span class="badge badge-staff">Staff</span>
                             {% else %}
-                                <span class="user-badge" style="background: rgba(16, 185, 129, 0.1); color: #34d399; border-color: rgba(16, 185, 129, 0.2);">Activo</span>
+                                <span class="badge badge-active">Activo</span>
                             {% endif %}
                         </td>
                         <td>
                             {% if u.email %}
-                            <a href="{% url 'panel_admin_email_user' u.id %}" class="btn-secondary" style="padding: 8px 12px; font-size: 13px;">✉️ Enviar correo</a>
+                            <a href="{% url 'panel_admin_email_user' u.id %}" class="btn btn-secondary" style="padding: 8px 12px; font-size: 13px;">✉️ Enviar correo</a>
                             {% else %}
                             <span style="color: #64748b; font-size: 13px;">Sin email</span>
                             {% endif %}
@@ -286,7 +460,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="5" style="text-align: center; color: #64748b;">No hay usuarios registrados.</td>
+                        <td colspan="5" style="text-align: center; color: #64748b; padding: 40px;">No hay usuarios registrados.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -294,10 +468,45 @@
         </div>
     </div>
 
-    <div class="recent-users-section">
+    <div class="admin-section">
+        <h2><i class="ti ti-users"></i> Visitantes Recientes (Sin cuenta)</h2>
+        <div class="table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Fecha Última Interacción</th>
+                        <th>Total Sugerencias</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for v in ultimos_visitantes %}
+                    <tr>
+                        <td>
+                            <div class="user-cell">
+                                <div class="user-avatar" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">{{ v.nombre.0|upper }}</div>
+                                {{ v.nombre }}
+                            </div>
+                        </td>
+                        <td>{{ v.email|default:"<span style='color: #64748b; font-style: italic;'>Sin correo</span>"|safe }}</td>
+                        <td>{{ v.fecha_ultima_interaccion|date:"d M Y, H:i" }}</td>
+                        <td>{{ v.total_sugerencias }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" style="text-align: center; color: #64748b;">No hay visitantes registrados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="admin-section">
         <h2><i class="ti ti-bell"></i> Notificaciones Recientes</h2>
-        <div class="users-table-container">
-            <table class="users-table">
+        <div class="table-container">
+            <table class="admin-table">
                 <thead>
                     <tr>
                         <th>Usuario</th>
@@ -315,15 +524,15 @@
                         <td>{{ notif.mensaje|truncatechars:50 }}</td>
                         <td>
                             {% if notif.tipo == 'info' %}
-                                <span class="user-badge">ℹ️ Info</span>
+                                <span class="badge badge-info">ℹ️ Info</span>
                             {% elif notif.tipo == 'success' %}
-                                <span class="user-badge" style="background: rgba(16, 185, 129, 0.1); color: #34d399; border-color: rgba(16, 185, 129, 0.2);">✅ Éxito</span>
+                                <span class="badge badge-success">✅ Éxito</span>
                             {% elif notif.tipo == 'warning' %}
-                                <span class="user-badge" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; border-color: rgba(245, 158, 11, 0.2);">⚠️ Advertencia</span>
+                                <span class="badge badge-warning">⚠️ Advertencia</span>
                             {% elif notif.tipo == 'error' %}
-                                <span class="user-badge" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border-color: rgba(239, 68, 68, 0.2);">❌ Error</span>
+                                <span class="badge badge-error">❌ Error</span>
                             {% elif notif.tipo == 'evento' %}
-                                <span class="user-badge" style="background: rgba(124, 58, 237, 0.1); color: #c084fc; border-color: rgba(124, 58, 237, 0.2);">📅 Evento</span>
+                                <span class="badge badge-admin">📅 Evento</span>
                             {% endif %}
                         </td>
                         <td>{{ notif.fecha_creacion|date:"d M Y, H:i" }}</td>
@@ -367,6 +576,64 @@
                 document.querySelector('.stat-card:nth-child(4) .stat-value').textContent = data.total_publicaciones;
                 document.querySelector('.stat-card:nth-child(5) .stat-value').textContent = data.total_eventos;
                 document.querySelector('.stat-card:nth-child(6) .stat-value').textContent = data.total_notificaciones;
+
+                // Update users table
+                const usersTableBody = document.querySelector('.users-table tbody');
+                if (usersTableBody && data.ultimos_usuarios) {
+                    usersTableBody.innerHTML = '';
+                    data.ultimos_usuarios.forEach(u => {
+                        const row = document.createElement('tr');
+                        let estadoBadge = '';
+                        if (u.is_superuser) {
+                            estadoBadge = '<span class="user-badge admin">Superadmin</span>';
+                        } else if (u.is_staff) {
+                            estadoBadge = '<span class="user-badge">Staff</span>';
+                        } else {
+                            estadoBadge = '<span class="user-badge" style="background: rgba(16, 185, 129, 0.1); color: #34d399; border-color: rgba(16, 185, 129, 0.2);">Activo</span>';
+                        }
+
+                        const emailDisplay = u.email ? u.email : "<span style='color: #64748b; font-style: italic;'>Sin correo</span>";
+                        const emailAction = u.email ? `<a href="/panel-admin/user-email/${u.id}/" class="btn btn-secondary" style="padding: 8px 12px; font-size: 13px;">✉️ Enviar correo</a>` : '<span style="color: #64748b; font-size: 13px;">Sin email</span>';
+
+                        row.innerHTML = `
+                            <td>
+                                <div class="user-cell">
+                                    <div class="user-avatar">${u.username.charAt(0).toUpperCase()}</div>
+                                    ${u.username}
+                                </div>
+                            </td>
+                            <td>${emailDisplay}</td>
+                            <td>${u.date_joined}</td>
+                            <td>${estadoBadge}</td>
+                            <td>${emailAction}</td>
+                        `;
+                        usersTableBody.appendChild(row);
+                    });
+                }
+
+                // Update visitors table
+                const allTables = document.querySelectorAll('.users-table tbody');
+                if (allTables.length > 1 && data.ultimos_visitantes) {
+                    const visitorsTableBody = allTables[1]; // Second table is visitors
+                    visitorsTableBody.innerHTML = '';
+                    data.ultimos_visitantes.forEach(v => {
+                        const row = document.createElement('tr');
+                        const emailDisplay = v.email ? v.email : "<span style='color: #64748b; font-style: italic;'>Sin correo</span>";
+
+                        row.innerHTML = `
+                            <td>
+                                <div class="user-cell">
+                                    <div class="user-avatar" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">${v.nombre.charAt(0).toUpperCase()}</div>
+                                    ${v.nombre}
+                                </div>
+                            </td>
+                            <td>${emailDisplay}</td>
+                            <td>${v.fecha_ultima_interaccion}</td>
+                            <td>${v.total_sugerencias}</td>
+                        `;
+                        visitorsTableBody.appendChild(row);
+                    });
+                }
 
                 refreshText.textContent = 'Actualizado';
                 setTimeout(() => {

@@ -4,7 +4,7 @@
 {% block title %}Juegos{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/juegos.css' %}?v=2">
+<link rel="stylesheet" href="{% static 'css/juegos.css' %}?v=3">
 <style>
 .toast-container {
     position: fixed;
@@ -177,6 +177,22 @@
             <h3>Respiración</h3>
             <p>Relájate y encuentra tu centro.</p>
             <div class="game-tag">Mindfulness</div>
+        </a>
+
+        <!-- 3 en Raya (Nuevo) -->
+        <a href="javascript:void(0)" onclick="iniciarJuegoTresEnRaya()" class="game-card" style="--game-color: #ef4444;">
+            <div class="game-icon-wrapper">❌⭕</div>
+            <h3>3 en Raya</h3>
+            <p>El clásico juego de estrategia.</p>
+            <div class="game-tag">Estrategia</div>
+        </a>
+
+        <!-- Ajedrez (Nuevo) -->
+        <a href="javascript:void(0)" onclick="iniciarJuegoAjedrez()" class="game-card" style="--game-color: #10b981;">
+            <div class="game-icon-wrapper">♟️</div>
+            <h3>Ajedrez</h3>
+            <p>El juego de estrategia por excelencia.</p>
+            <div class="game-tag">Estrategia</div>
         </a>
     </div>
 </div>
@@ -863,5 +879,308 @@ function guardarPuntuacion(juegoId, puntuacion) {
         showToast('Error al guardar puntuación', 'error');
     });
 }
+
+// ==================== JUEGO DE 3 EN RAYA ====================
+function iniciarJuegoTresEnRaya() {
+    const container = prepararJuego();
+    
+    window.tablero = ['', '', '', '', '', '', '', '', ''];
+    window.jugadorActual = 'X';
+    window.juegoActivo = true;
+    window.movimientos = 0;
+    
+    container.innerHTML = `
+        <div class="game-arena-title">❌⭕ 3 en Raya</div>
+        <div class="game-arena-subtitle">Jugador (X) vs CPU (O)</div>
+        
+        <div class="game-box" style="height: 350px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: transparent; border: none;">
+            <div id="tres-en-raya-tablero" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 300px; height: 300px;">
+                ${window.tablero.map((cell, index) => `
+                    <div class="tres-en-raya-celda" data-index="${index}" onclick="hacerMovimiento(${index})" 
+                         style="background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.2); 
+                                border-radius: 12px; display: flex; align-items: center; justify-content: center; 
+                                font-size: 3rem; font-weight: bold; cursor: pointer; transition: all 0.2s;">
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+        
+        <div class="game-score-board">
+            <div id="tres-en-raya-estado">Tu turno (X)</div>
+            <button onclick="reiniciarTresEnRaya()" style="margin-top: 10px; padding: 10px 20px; background: #ef4444; border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: bold;">Reiniciar</button>
+        </div>
+    `;
+    
+    window.actualizarTableroTresEnRaya();
+}
+
+window.hacerMovimiento = function(index) {
+    if (!window.juegoActivo || window.tablero[index] !== '' || window.jugadorActual !== 'X') return;
+    
+    window.tablero[index] = 'X';
+    window.movimientos++;
+    window.actualizarTableroTresEnRaya();
+    
+    if (window.verificarVictoria('X')) {
+        window.juegoActivo = false;
+        document.getElementById('tres-en-raya-estado').textContent = '¡Ganaste! 🎉';
+        showToast('¡Ganaste! 🎉', 'success');
+        return;
+    }
+    
+    if (window.movimientos === 9) {
+        window.juegoActivo = false;
+        document.getElementById('tres-en-raya-estado').textContent = '¡Empate!';
+        showToast('¡Empate!', 'info');
+        return;
+    }
+    
+    window.jugadorActual = 'O';
+    document.getElementById('tres-en-raya-estado').textContent = 'Turno de CPU (O)';
+    
+    setTimeout(() => {
+        window.movimientoCPU();
+    }, 500);
+};
+
+window.movimientoCPU = function() {
+    if (!window.juegoActivo) return;
+    
+    let mejorMovimiento = window.buscarMejorMovimiento();
+    
+    if (mejorMovimiento !== -1) {
+        window.tablero[mejorMovimiento] = 'O';
+        window.movimientos++;
+        window.actualizarTableroTresEnRaya();
+        
+        if (window.verificarVictoria('O')) {
+            window.juegoActivo = false;
+            document.getElementById('tres-en-raya-estado').textContent = 'CPU ganó 😢';
+            showToast('CPU ganó 😢', 'error');
+            return;
+        }
+        
+        if (window.movimientos === 9) {
+            window.juegoActivo = false;
+            document.getElementById('tres-en-raya-estado').textContent = '¡Empate!';
+            showToast('¡Empate!', 'info');
+            return;
+        }
+    }
+    
+    window.jugadorActual = 'X';
+    document.getElementById('tres-en-raya-estado').textContent = 'Tu turno (X)';
+};
+
+window.buscarMejorMovimiento = function() {
+    const combinacionesGanadoras = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
+    ];
+    
+    for (let combo of combinacionesGanadoras) {
+        const [a, b, c] = combo;
+        if (window.tablero[a] === 'O' && window.tablero[b] === 'O' && window.tablero[c] === '') return c;
+        if (window.tablero[a] === 'O' && window.tablero[c] === 'O' && window.tablero[b] === '') return b;
+        if (window.tablero[b] === 'O' && window.tablero[c] === 'O' && window.tablero[a] === '') return a;
+    }
+    
+    for (let combo of combinacionesGanadoras) {
+        const [a, b, c] = combo;
+        if (window.tablero[a] === 'X' && window.tablero[b] === 'X' && window.tablero[c] === '') return c;
+        if (window.tablero[a] === 'X' && window.tablero[c] === 'X' && window.tablero[b] === '') return b;
+        if (window.tablero[b] === 'X' && window.tablero[c] === 'X' && window.tablero[a] === '') return a;
+    }
+    
+    if (window.tablero[4] === '') return 4;
+    
+    const esquinas = [0, 2, 6, 8];
+    for (let esquina of esquinas) {
+        if (window.tablero[esquina] === '') return esquina;
+    }
+    
+    for (let i = 0; i < 9; i++) {
+        if (window.tablero[i] === '') return i;
+    }
+    
+    return -1;
+};
+
+window.verificarVictoria = function(jugador) {
+    const combinacionesGanadoras = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
+    ];
+    
+    for (let combo of combinacionesGanadoras) {
+        const [a, b, c] = combo;
+        if (window.tablero[a] === jugador && window.tablero[b] === jugador && window.tablero[c] === jugador) {
+            return true;
+        }
+    }
+    return false;
+};
+
+window.actualizarTableroTresEnRaya = function() {
+    const celdas = document.querySelectorAll('.tres-en-raya-celda');
+    celdas.forEach((celda, index) => {
+        celda.textContent = window.tablero[index];
+        if (window.tablero[index] === 'X') {
+            celda.style.color = '#ef4444';
+        } else if (window.tablero[index] === 'O') {
+            celda.style.color = '#3b82f6';
+        }
+    });
+};
+
+window.reiniciarTresEnRaya = function() {
+    window.tablero = ['', '', '', '', '', '', '', '', ''];
+    window.jugadorActual = 'X';
+    window.juegoActivo = true;
+    window.movimientos = 0;
+    window.actualizarTableroTresEnRaya();
+    document.getElementById('tres-en-raya-estado').textContent = 'Tu turno (X)';
+};
+
+// ==================== JUEGO DE AJEDREZ ====================
+function iniciarJuegoAjedrez() {
+    const container = prepararJuego();
+    
+    window.tableroAjedrez = [
+        ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
+        ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+        ['', '', '', '', '', '', '', ''],
+        ['', '', '', '', '', '', '', ''],
+        ['', '', '', '', '', '', '', ''],
+        ['', '', '', '', '', '', '', ''],
+        ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+        ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
+    ];
+    window.jugadorAjedrez = 'blanco';
+    window.juegoActivoAjedrez = true;
+    window.celdaSeleccionada = null;
+    
+    container.innerHTML = `
+        <div class="game-arena-title">♟️ Ajedrez</div>
+        <div class="game-arena-subtitle">Blancas vs Negras</div>
+        
+        <div class="game-box" style="height: 520px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: transparent; border: none;">
+            <div id="ajedrez-tablero" style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; width: 480px; height: 480px; border: 4px solid #8b4513; border-radius: 4px;">
+                ${window.tableroAjedrez.map((row, rowIndex) =>
+                    row.map((cell, colIndex) => `
+                        <div class="ajedrez-celda" data-row="${rowIndex}" data-col="${colIndex}" onclick="seleccionarCelda(${rowIndex}, ${colIndex})"
+                             style="background: ${(rowIndex + colIndex) % 2 === 0 ? '#f0d9b5' : '#b58863'};
+                                    border-radius: 2px; display: flex; align-items: center; justify-content: center;
+                                    font-size: 2.5rem; font-weight: bold; cursor: pointer; transition: all 0.2s;">
+                            ${window.obtenerSimboloPieza(cell)}
+                        </div>
+                    `).join('')
+                ).join('')}
+            </div>
+        </div>
+        
+        <div class="game-score-board">
+            <div id="ajedrez-estado">Turno: Blancas</div>
+            <button onclick="reiniciarAjedrez()" style="margin-top: 10px; padding: 10px 20px; background: #10b981; border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: bold;">Reiniciar</button>
+        </div>
+    `;
+}
+
+window.obtenerSimboloPieza = function(pieza) {
+    const simbolos = {
+        'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚', 'p': '♟',
+        'R': '♖', 'N': '♘', 'B': '♗', 'Q': '♕', 'K': '♔', 'P': '♙'
+    };
+    return simbolos[pieza] || '';
+};
+
+window.seleccionarCelda = function(row, col) {
+    if (!window.juegoActivoAjedrez) return;
+    
+    const pieza = window.tableroAjedrez[row][col];
+    const esBlanca = pieza === pieza.toUpperCase();
+    const esPiezaBlanca = esBlanca && pieza !== '';
+    const esPiezaNegra = !esBlanca && pieza !== '';
+    
+    if (window.celdaSeleccionada === null) {
+        if ((window.jugadorAjedrez === 'blanco' && esPiezaBlanca) || (window.jugadorAjedrez === 'negro' && esPiezaNegra)) {
+            window.celdaSeleccionada = { row, col };
+            window.resaltarCelda(row, col, true);
+        }
+    } else {
+        if (window.celdaSeleccionada.row === row && window.celdaSeleccionada.col === col) {
+            window.celdaSeleccionada = null;
+            window.actualizarTableroAjedrez();
+        } else if ((window.jugadorAjedrez === 'blanco' && esPiezaBlanca) || (window.jugadorAjedrez === 'negro' && esPiezaNegra)) {
+            window.celdaSeleccionada = { row, col };
+            window.actualizarTableroAjedrez();
+            window.resaltarCelda(row, col, true);
+        } else {
+            window.moverPieza(window.celdaSeleccionada.row, window.celdaSeleccionada.col, row, col);
+            window.celdaSeleccionada = null;
+        }
+    }
+};
+
+window.moverPieza = function(fromRow, fromCol, toRow, toCol) {
+    const pieza = window.tableroAjedrez[fromRow][fromCol];
+    window.tableroAjedrez[toRow][toCol] = pieza;
+    window.tableroAjedrez[fromRow][fromCol] = '';
+    
+    window.actualizarTableroAjedrez();
+    
+    if (pieza.toLowerCase() === 'k') {
+        window.juegoActivoAjedrez = false;
+        const ganador = window.jugadorAjedrez === 'blanco' ? 'Blancas' : 'Negras';
+        document.getElementById('ajedrez-estado').textContent = `¡${ganador} ganaron! 🎉`;
+        showToast(`¡${ganador} ganaron! 🎉`, 'success');
+        return;
+    }
+    
+    window.jugadorAjedrez = window.jugadorAjedrez === 'blanco' ? 'negro' : 'blanco';
+    document.getElementById('ajedrez-estado').textContent = `Turno: ${window.jugadorAjedrez === 'blanco' ? 'Blancas' : 'Negras'}`;
+};
+
+window.resaltarCelda = function(row, col, resaltar) {
+    const celdas = document.querySelectorAll('.ajedrez-celda');
+    const index = row * 8 + col;
+    if (celdas[index]) {
+        celdas[index].style.background = resaltar ? '#ffff00' : ((row + col) % 2 === 0 ? '#f0d9b5' : '#b58863');
+    }
+};
+
+window.actualizarTableroAjedrez = function() {
+    const celdas = document.querySelectorAll('.ajedrez-celda');
+    celdas.forEach((celda, index) => {
+        const row = Math.floor(index / 8);
+        const col = index % 8;
+        const pieza = window.tableroAjedrez[row][col];
+        celda.textContent = window.obtenerSimboloPieza(pieza);
+        celda.style.background = (row + col) % 2 === 0 ? '#f0d9b5' : '#b58863';
+        celda.style.color = pieza === pieza.toUpperCase() ? '#ffffff' : '#000000';
+    });
+};
+
+window.reiniciarAjedrez = function() {
+    window.tableroAjedrez = [
+        ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
+        ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+        ['', '', '', '', '', '', '', ''],
+        ['', '', '', '', '', '', '', ''],
+        ['', '', '', '', '', '', '', ''],
+        ['', '', '', '', '', '', '', ''],
+        ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+        ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
+    ];
+    window.jugadorAjedrez = 'blanco';
+    window.juegoActivoAjedrez = true;
+    window.celdaSeleccionada = null;
+    window.actualizarTableroAjedrez();
+    document.getElementById('ajedrez-estado').textContent = 'Turno: Blancas';
+};
+
+
 </script>
 {% endblock %}

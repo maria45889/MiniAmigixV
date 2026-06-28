@@ -200,6 +200,47 @@ body.light .floating-mini-player {
 }
 
 /* ==================== GLOBAL FLOATING MINI PLAYER ==================== */
+.music-float-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.9), rgba(6, 182, 212, 0.9));
+    border: 2px solid rgba(0, 255, 204, 0.4);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 9999;
+    box-shadow:
+        0 4px 20px rgba(124, 58, 237, 0.4),
+        0 0 15px rgba(0, 255, 204, 0.3);
+    transition: all 0.3s ease;
+    animation: pulse-glow 2s infinite;
+}
+
+.music-float-btn:hover {
+    transform: scale(1.1);
+    box-shadow:
+        0 6px 25px rgba(124, 58, 237, 0.6),
+        0 0 20px rgba(0, 255, 204, 0.5);
+}
+
+@keyframes pulse-glow {
+    0%, 100% {
+        box-shadow:
+            0 4px 20px rgba(124, 58, 237, 0.4),
+            0 0 15px rgba(0, 255, 204, 0.3);
+    }
+    50% {
+        box-shadow:
+            0 4px 20px rgba(124, 58, 237, 0.6),
+            0 0 25px rgba(0, 255, 204, 0.5);
+    }
+}
+
 .floating-mini-player {
     position: fixed;
     bottom: 80px;
@@ -215,9 +256,10 @@ body.light .floating-mini-player {
         0 0 15px rgba(0, 255, 204, 0.08),
         inset 0 1px 0 rgba(255, 255, 255, 0.05);
     z-index: 9998;
-    overflow: hidden;
+    overflow: hidden !important;
     transition: box-shadow 0.3s ease;
     user-select: none;
+    max-height: 500px;
 }
 
 .floating-mini-player:hover {
@@ -257,8 +299,13 @@ body.light .floating-mini-player {
     align-items: center;
     padding: 12px 15px;
     background: linear-gradient(135deg, rgba(124, 58, 237, 0.3), rgba(6, 182, 212, 0.3));
-    cursor: move;
+    cursor: grab !important;
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    user-select: none;
+}
+
+.mini-player-header:active {
+    cursor: grabbing !important;
 }
 
 .mini-player-song-info {
@@ -316,6 +363,7 @@ body.light .floating-mini-player {
 
 .mini-player-body {
     padding: 10px 15px 14px;
+    position: relative;
 }
 
 .mini-player-controls {
@@ -323,6 +371,9 @@ body.light .floating-mini-player {
     justify-content: center;
     align-items: center;
     gap: 12px;
+    position: relative;
+    width: 100%;
+    z-index: 1;
 }
 
 .btn-mini {

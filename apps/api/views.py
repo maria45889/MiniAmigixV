@@ -8,6 +8,7 @@ from app.models import ConversacionChat, MensajeChat
 from django.conf import settings
 import openai
 from notificaciones.models import Notificacion
+from perfil.models import Perfil
 import logging
 
 logger = logging.getLogger(__name__)
@@ -66,7 +67,16 @@ class ChatSendView(APIView):
             client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
             model = "gpt-4o-mini"
         else:
-            return Response({'error': 'No AI API keys configured.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            # Use Ollama as fallback
+            try:
+                client = openai.OpenAI(
+                    base_url=settings.OLLAMA_API_URL,
+                    api_key="ollama"
+                )
+                model = settings.OLLAMA_MODEL
+            except Exception as e:
+                logger.error(f"Error connecting to Ollama: {str(e)}")
+                return Response({'error': 'No AI API keys configured and Ollama is not available.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
         try:
             response = client.chat.completions.create(
@@ -94,3 +104,17 @@ class ChatSendView(APIView):
         except Exception as e:
             logger.error(f"Error en ChatSendView: {str(e)}", exc_info=True)
             return Response({'error': 'Error procesando respuesta'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class UpdateLanguageView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    def post(self, request):
+        idioma = request.data.get('idioma')
+        if not idioma:
+            return Response({'error': 'Idioma no proporcionado'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        perfil, created = Perfil.objects.get_or_create(usuario=request.user)
+        perfil.idioma = idioma
+        perfil.save()
+        
+        return Response({'success': True, 'idioma': idioma})

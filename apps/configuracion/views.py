@@ -37,6 +37,11 @@ def configuracion_view(request):
         perfil.animaciones = request.POST.get('animaciones') == 'on'
         perfil.sonidos = request.POST.get('sonidos') == 'on'
         perfil.actividad_en_linea = request.POST.get('actividad_en_linea') == 'on'
+        # Reloj inteligente
+        perfil.formato_reloj = request.POST.get('formato_reloj', perfil.formato_reloj)
+        perfil.mostrar_segundos = request.POST.get('mostrar_segundos') == 'on'
+        perfil.mostrar_fecha = request.POST.get('mostrar_fecha') == 'on'
+        perfil.zona_horaria = request.POST.get('zona_horaria', perfil.zona_horaria)
         perfil.save()
         
         messages.success(request, 'Configuración actualizada correctamente.')

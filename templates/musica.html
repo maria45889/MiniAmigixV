@@ -53,7 +53,7 @@
                     <!-- Controles de Video -->
                     <div class="video-controls">
                         <button class="btn-icon" onclick="playPrevious()" title="Anterior">⏮</button>
-                        <button class="btn-icon btn-play-pause" onclick="togglePause()" title="Reproducir/Pausar">▶️</button>
+                        <button class="btn-icon btn-play-pause" id="main-play-pause-btn" onclick="togglePause()" title="Reproducir/Pausar">▶️</button>
                         <button class="btn-icon" onclick="playNext()" title="Siguiente">⏭</button>
                         <button class="btn-icon" onclick="toggleMute()" title="Silenciar">🔊</button>
                     </div>
@@ -142,101 +142,154 @@
 {% endblock %}
 {% block extra_js %}
 <script>
-// Cargar YouTube IFrame API
-var tag = document.createElement('script');
-tag.src = "https://www.youtube.com/iframe_api";
-var firstScriptTag = document.getElementsByTagName('script')[0];
-firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
+// Cargar YouTube IFrame API (ya se carga en base.html, pero lo mantenemos por compatibilidad)
 let currentPlayingId = null;
 let currentAudio = null;
 let player = null;
+let playerReady = false;
 let progressInterval = null;
-
-function onYouTubeIframeAPIReady() {
-    console.log('YouTube IFrame API lista');
-}
+let buttonSyncInterval = null;
+const isAuthenticated = {{ request.user.is_authenticated|lower }};
 
 function onPlayerError(event) {
     console.error('Error del reproductor de YouTube:', event.data);
     const iframeContainer = document.getElementById('player-wrapper');
-    
+
     if (event.data === 150 || event.data === 153) {
         // Video no se puede incrustar - mostrar mensaje y botón para ver en YouTube
-        const youtubeId = currentPlayingId ? 
+        const youtubeId = currentPlayingId ?
             document.querySelector(`.playlist-item[data-id="${currentPlayingId}"]`)?.dataset.youtubeId : null;
-        
-        iframeContainer.innerHTML = `
-            <div style="text-align: center; padding: 30px;">
-                <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 16px;">🚫 Este video no se puede reproducir aquí</p>
-                <p style="color: #94a3b8; margin-bottom: 20px; font-size: 14px;">El creador bloqueó la incrustación en otras webs</p>
-                <button class="btn-primary" onclick="window.open('https://www.youtube.com/watch?v=${youtubeId}', '_blank')" style="margin-top: 10px;">
-                    🎬 Ver en YouTube
-                </button>
-            </div>
-        `;
-        
-        // Intentar extraer audio si el usuario está autenticado
-        if (youtubeId && document.querySelector('meta[name="csrf-token"]')) {
+
+        console.log('Usuario autenticado:', isAuthenticated);
+        console.log('YouTube ID:', youtubeId);
+
+        if (isAuthenticated && youtubeId) {
+            console.log('Iniciando extracción de audio para:', youtubeId);
+            // Mostrar mensaje de carga mientras se extrae audio
+            iframeContainer.innerHTML = `
+                <div style="text-align: center; padding: 30px;">
+                    <p style="color: #06b6d4; margin-bottom: 15px; font-size: 16px;">🔄 Extrayendo audio...</p>
+                    <p style="color: #94a3b8; margin-bottom: 20px; font-size: 14px;">Intentando reproducir solo el audio</p>
+                </div>
+            `;
+
             fetch(`/api/stream-audio/${youtubeId}/`)
                 .then(response => {
+                    console.log('Respuesta del servidor:', response.status);
                     if (response.status === 401) {
-                        console.log('Usuario no autenticado, no se puede extraer audio');
+                        console.log('Usuario no autenticado');
+                        showYouTubeError(youtubeId);
                         return null;
                     }
                     return response.json();
                 })
                 .then(data => {
+                    console.log('Datos recibidos:', data);
+                    console.log('data.success:', data.success);
+                    console.log('data.url:', data.url);
                     if (data && data.success && data.url) {
+                        // Limpiar audio anterior si existe
+                        if (currentAudio) {
+                            currentAudio.pause();
+                            currentAudio = null;
+                        }
+
                         iframeContainer.innerHTML = `
                             <div style="text-align: center; padding: 30px;">
                                 <p style="color: #06b6d4; margin-bottom: 20px; font-weight: 600; font-size: 18px;">🎶 ¡Audio Extraído con Éxito!</p>
-                                <audio id="local-audio-player" autoplay controls style="width: 100%; border-radius: 10px;">
+                                <audio id="local-audio-player" style="width: 100%; border-radius: 10px; display: none;">
                                     <source src="${data.url}" type="audio/mp4">
                                 </audio>
+                                <p style="color: #94a3b8; font-size: 14px;">Usa los controles de abajo para reproducir/pausar</p>
                             </div>
                         `;
-                        
+
                         // Configurar el audio local para sincronización
-                        const audioPlayer = document.getElementById('local-audio-player');
-                        if (audioPlayer) {
-                            currentAudio = audioPlayer;
-                            const vinyl = document.getElementById('vinyl-record');
-                            const pauseBtn = document.querySelector('.btn-play-pause');
-                            
-                            audioPlayer.addEventListener('play', () => {
+                        setTimeout(() => {
+                            const audioPlayer = document.getElementById('local-audio-player');
+                            if (audioPlayer) {
+                                currentAudio = audioPlayer;
+                                const vinyl = document.getElementById('vinyl-record');
+                                const pauseBtn = document.getElementById('main-play-pause-btn');
+
+                                console.log('Botón encontrado:', pauseBtn);
+                                console.log('Estado inicial del botón:', pauseBtn ? pauseBtn.textContent : 'null');
+
+                                // Forzar estado inicial del botón a pausa
+                                if (pauseBtn) {
+                                    pauseBtn.textContent = '⏸';
+                                    console.log('Botón forzado a ⏸, nuevo valor:', pauseBtn.textContent);
+                                }
                                 if (vinyl) {
                                     vinyl.style.animationPlayState = 'running';
                                     vinyl.classList.add('spinning');
                                 }
-                                if (pauseBtn) pauseBtn.textContent = '⏸';
-                                startProgressUpdate();
-                            });
-                            
-                            audioPlayer.addEventListener('pause', () => {
-                                if (vinyl) vinyl.style.animationPlayState = 'paused';
-                                if (pauseBtn) pauseBtn.textContent = '▶️';
-                                stopProgressUpdate();
-                            });
-                            
-                            audioPlayer.addEventListener('ended', () => {
-                                if (vinyl) vinyl.style.animationPlayState = 'paused';
-                                if (pauseBtn) pauseBtn.textContent = '▶️';
-                                stopProgressUpdate();
-                                playNext();
-                            });
-                            
-                            audioPlayer.addEventListener('timeupdate', () => {
-                                if (audioPlayer.duration > 0) {
-                                    updateProgressBar(audioPlayer.currentTime, audioPlayer.duration);
-                                }
-                            });
-                        }
+
+                                audioPlayer.addEventListener('play', () => {
+                                    console.log('Evento play disparado');
+                                    if (vinyl) {
+                                        vinyl.style.animationPlayState = 'running';
+                                        vinyl.classList.add('spinning');
+                                    }
+                                    if (pauseBtn) {
+                                        pauseBtn.textContent = '⏸';
+                                        console.log('Botón actualizado a ⏸ en evento play');
+                                    }
+                                    startProgressUpdate();
+                                });
+
+                                audioPlayer.addEventListener('pause', () => {
+                                    console.log('Evento pause disparado');
+                                    if (vinyl) vinyl.style.animationPlayState = 'paused';
+                                    if (pauseBtn) {
+                                        pauseBtn.textContent = '▶️';
+                                        console.log('Botón actualizado a ▶️ en evento pause');
+                                    }
+                                    stopProgressUpdate();
+                                });
+
+                                audioPlayer.addEventListener('ended', () => {
+                                    console.log('Evento ended disparado');
+                                    if (vinyl) vinyl.style.animationPlayState = 'paused';
+                                    if (pauseBtn) pauseBtn.textContent = '▶️';
+                                    stopProgressUpdate();
+                                    playNext();
+                                });
+
+                                audioPlayer.addEventListener('timeupdate', () => {
+                                    if (audioPlayer.duration > 0) {
+                                        updateProgressBar(audioPlayer.currentTime, audioPlayer.duration);
+                                    }
+                                });
+
+                                audioPlayer.addEventListener('error', (e) => {
+                                    console.error('Error en reproductor de audio:', e);
+                                });
+
+                                // Iniciar reproducción manualmente después de configurar eventos
+                                audioPlayer.play().then(() => {
+                                    console.log('Audio iniciado correctamente');
+                                }).catch(e => {
+                                    console.log('Autoplay bloqueado por el navegador, esperando interacción del usuario');
+                                    // Si autoplay falla, actualizar botón a play
+                                    if (pauseBtn) pauseBtn.textContent = '▶️';
+                                    if (vinyl) vinyl.style.animationPlayState = 'paused';
+                                });
+                            }
+                        }, 100);
+                    } else {
+                        // No se pudo extraer audio, mostrar error normal
+                        console.log('No se pudo extraer audio, condición falsa');
+                        showYouTubeError(youtubeId);
                     }
                 })
                 .catch(error => {
                     console.error("Error obteniendo audio:", error);
+                    showYouTubeError(youtubeId);
                 });
+        } else {
+            // Usuario no autenticado, mostrar error normal
+            showYouTubeError(youtubeId);
         }
     } else if (event.data === 2) {
         // Parámetro inválido
@@ -254,23 +307,47 @@ function onPlayerError(event) {
     }
 }
 
+function showYouTubeError(youtubeId) {
+    const iframeContainer = document.getElementById('player-wrapper');
+    iframeContainer.innerHTML = `
+        <div style="text-align: center; padding: 30px;">
+            <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 16px;">🚫 Este video no se puede reproducir aquí</p>
+            <p style="color: #94a3b8; margin-bottom: 20px; font-size: 14px;">El creador bloqueó la incrustación en otras webs</p>
+            <button class="btn-primary" onclick="window.open('https://www.youtube.com/watch?v=${youtubeId}', '_blank')" style="margin-top: 10px;">
+                🎬 Ver en YouTube
+            </button>
+        </div>
+    `;
+}
+
 function onPlayerStateChange(event) {
+    console.log('onPlayerStateChange llamado, event.data:', event.data);
     const vinyl = document.getElementById('vinyl-record');
-    const pauseBtn = document.querySelector('.btn-play-pause');
-    
+    const pauseBtn = document.getElementById('main-play-pause-btn');
+
+    console.log('Botón en onPlayerStateChange:', pauseBtn ? pauseBtn.textContent : 'null');
+
     if (event.data === YT.PlayerState.PLAYING) {
+        console.log('Estado PLAYING detectado');
         if (vinyl) {
             vinyl.style.animationPlayState = 'running';
             vinyl.classList.add('spinning');
         }
-        if (pauseBtn) pauseBtn.textContent = '⏸';
+        if (pauseBtn) {
+            pauseBtn.textContent = '⏸';
+            console.log('Botón actualizado a ⏸ en onPlayerStateChange');
+        }
         startProgressUpdate();
     } else {
+        console.log('Estado NO PLAYING detectado:', event.data);
         if (vinyl) vinyl.style.animationPlayState = 'paused';
-        if (pauseBtn) pauseBtn.textContent = '▶️';
+        if (pauseBtn) {
+            pauseBtn.textContent = '▶️';
+            console.log('Botón actualizado a ▶️ en onPlayerStateChange');
+        }
         stopProgressUpdate();
     }
-    
+
     if (event.data === YT.PlayerState.ENDED) {
         playNext();
     }
@@ -279,22 +356,23 @@ function onPlayerStateChange(event) {
 // ==================== ACTUALIZACIÓN DE PROGRESO ====================
 function startProgressUpdate() {
     if (progressInterval) clearInterval(progressInterval);
-    
+    if (buttonSyncInterval) clearInterval(buttonSyncInterval);
+
     progressInterval = setInterval(() => {
         let currentTime = 0;
         let duration = 0;
-        
+
         // Obtener tiempo del reproductor de YouTube
         if (player && typeof player.getCurrentTime === 'function') {
             currentTime = player.getCurrentTime();
             duration = player.getDuration() || 0;
-        } 
+        }
         // Obtener tiempo del reproductor de audio local
         else if (currentAudio && currentAudio.duration > 0) {
             currentTime = currentAudio.currentTime;
             duration = currentAudio.duration;
         }
-        
+
         if (duration > 0) {
             updateProgressBar(currentTime, duration);
             // Sincronizar con mini player global
@@ -304,12 +382,42 @@ function startProgressUpdate() {
             }
         }
     }, 100);
+
+    // Sincronizar botón de play/pause periódicamente
+    buttonSyncInterval = setInterval(() => {
+        const pauseBtn = document.getElementById('main-play-pause-btn');
+        if (!pauseBtn) return;
+
+        // Verificar estado de YouTube
+        if (player && playerReady && typeof player.getPlayerState === 'function') {
+            try {
+                const state = player.getPlayerState();
+                if (state === YT.PlayerState.PLAYING && pauseBtn.textContent !== '⏸') {
+                    pauseBtn.textContent = '⏸';
+                } else if (state !== YT.PlayerState.PLAYING && pauseBtn.textContent !== '▶️') {
+                    pauseBtn.textContent = '▶️';
+                }
+            } catch (e) {}
+        }
+        // Verificar estado de audio local
+        else if (currentAudio) {
+            if (!currentAudio.paused && pauseBtn.textContent !== '⏸') {
+                pauseBtn.textContent = '⏸';
+            } else if (currentAudio.paused && pauseBtn.textContent !== '▶️') {
+                pauseBtn.textContent = '▶️';
+            }
+        }
+    }, 200);
 }
 
 function stopProgressUpdate() {
     if (progressInterval) {
         clearInterval(progressInterval);
         progressInterval = null;
+    }
+    if (buttonSyncInterval) {
+        clearInterval(buttonSyncInterval);
+        buttonSyncInterval = null;
     }
 }
 
@@ -373,46 +481,72 @@ function seekAudio(event) {
 
 // ==================== CONTROLES DEL REPRODUCTOR ====================
 function togglePause() {
-    const pauseBtn = document.querySelector('.btn-play-pause');
-    
-    // Si hay reproductor de YouTube, controlar ese
-    if (player && typeof player.getPlayerState === 'function') {
+    const pauseBtn = document.getElementById('main-play-pause-btn');
+
+    // Verificar si el reproductor de YouTube realmente está en el DOM
+    const youtubeIframe = document.getElementById('youtube-iframe');
+    const isYouTubeInDOM = youtubeIframe !== null && youtubeIframe.querySelector('iframe');
+
+    // Si hay reproductor de YouTube en el DOM, controlar ese
+    if (player && playerReady && isYouTubeInDOM && typeof player.getPlayerState === 'function') {
         try {
             if (player.getPlayerState() !== YT.PlayerState.PLAYING) {
                 player.playVideo();
                 if (pauseBtn) pauseBtn.textContent = '⏸';
                 if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(true);
+                syncMiniPlayerVideoState(true);
             } else {
                 player.pauseVideo();
                 if (pauseBtn) pauseBtn.textContent = '▶️';
                 if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(false);
+                syncMiniPlayerVideoState(false);
             }
         } catch (e) {
             console.error("Error al pausar/reproducir YouTube", e);
         }
         return;
     }
-    
+
     // Si hay audio local, controlar ese
     if (currentAudio) {
         if (currentAudio.paused) {
             currentAudio.play();
             if (pauseBtn) pauseBtn.textContent = '⏸';
             if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(true);
+            syncMiniPlayerVideoState(true);
         } else {
             currentAudio.pause();
             if (pauseBtn) pauseBtn.textContent = '▶️';
             if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(false);
+            syncMiniPlayerVideoState(false);
         }
         return;
     }
-    
+
     // Si no hay ningún reproductor, reproducir la primera canción
     const firstItem = document.querySelector('.playlist-item');
     if (firstItem) {
         playSongFromItem(firstItem.dataset.id);
     } else {
         alert('Añade una canción a tu Matriz Sonora para empezar a escuchar.');
+    }
+}
+
+// Sincronizar estado del video del mini player con el reproductor principal
+function syncMiniPlayerVideoState(isPlaying) {
+    if (typeof globalPlayer !== 'undefined' && globalPlayer) {
+        const videoContainer = document.getElementById('mini-player-video-container');
+        if (videoContainer && videoContainer.style.display !== 'none') {
+            try {
+                if (isPlaying) {
+                    globalPlayer.playVideo();
+                } else {
+                    globalPlayer.pauseVideo();
+                }
+            } catch (e) {
+                console.error('Error sincronizando mini player video:', e);
+            }
+        }
     }
 }
 
@@ -445,6 +579,33 @@ function playPrevious() {
     } else if (currentIndex === 0 && items.length > 0) {
         // Ir al final si estamos al principio
         playSongFromItem(items[items.length - 1].dataset.id);
+    }
+}
+
+function toggleMute() {
+    const muteBtn = document.querySelector('button[onclick="toggleMute()"]');
+
+    // Si hay reproductor de YouTube, controlar ese
+    if (player && playerReady && typeof player.isMuted === 'function') {
+        try {
+            if (player.isMuted()) {
+                player.unMute();
+                if (muteBtn) muteBtn.textContent = '🔊';
+            } else {
+                player.mute();
+                if (muteBtn) muteBtn.textContent = '🔇';
+            }
+        } catch (e) {
+            console.error("Error al silenciar YouTube", e);
+        }
+        return;
+    }
+
+    // Si hay audio local, controlar ese
+    if (currentAudio) {
+        currentAudio.muted = !currentAudio.muted;
+        if (muteBtn) muteBtn.textContent = currentAudio.muted ? '🔇' : '🔊';
+        return;
     }
 }
 
@@ -557,9 +718,9 @@ function searchLyricsForSong(songName, artist, songId) {
 }
 
 function fetchFromLRCLIB(songName, artist, songId, container) {
-    container.innerHTML = '<p style="color: var(--text-muted);">Buscando letra en LRCLIB...</p>';
-    
-    let searchArtist = artist || ""; 
+    container.innerHTML = '<p style="color: var(--text-muted);">Buscando letra sincronizada...</p>';
+
+    let searchArtist = artist || "";
     let searchSong = songName || "";
 
     if (!artist && searchSong.includes("-")) {
@@ -580,20 +741,20 @@ function fetchFromLRCLIB(songName, artist, songId, container) {
     searchSong = searchSong.trim();
 
     const query = `${searchArtist} ${searchSong}`.trim();
-    
+
     fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(query)}`)
         .then(response => response.json())
         .then(data => {
             if (data && data.length > 0) {
-                // Preferimos la que tenga syncedLyrics
-                let bestMatch = data.find(item => item.syncedLyrics) || data[0];
-                
-                if (bestMatch.syncedLyrics) {
-                    renderSyncedLyrics(bestMatch.syncedLyrics, container);
-                    saveLyricsToDB(songId, bestMatch.plainLyrics, bestMatch.syncedLyrics);
-                } else if (bestMatch.plainLyrics) {
-                    renderPlainLyrics(bestMatch.plainLyrics, container);
-                    saveLyricsToDB(songId, bestMatch.plainLyrics, null);
+                // Priorizar letras sincronizadas
+                let syncedMatch = data.find(item => item.syncedLyrics);
+
+                if (syncedMatch) {
+                    renderSyncedLyrics(syncedMatch.syncedLyrics, container);
+                    saveLyricsToDB(songId, syncedMatch.plainLyrics, syncedMatch.syncedLyrics);
+                } else if (data[0].plainLyrics) {
+                    // Si no hay sincronizadas en LRCLIB, intentar con otra fuente
+                    fetchFromNetEase(songName, artist, songId, container, data[0].plainLyrics);
                 } else {
                     showLyricsNotFound(songName, artist);
                 }
@@ -603,6 +764,31 @@ function fetchFromLRCLIB(songName, artist, songId, container) {
         })
         .catch(err => {
             showLyricsNotFound(songName, artist);
+        });
+}
+
+function fetchFromNetEase(songName, artist, songId, container, fallbackLyrics) {
+    container.innerHTML = '<p style="color: var(--text-muted);">Buscando letra sincronizada en NetEase...</p>';
+
+    const query = `${artist} ${songName}`.trim();
+    // Usar el proxy del backend para evitar CORS
+    fetch(`/api/netease-lyrics/?song=${encodeURIComponent(songName)}&artist=${encodeURIComponent(artist)}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data && data.success && data.syncedLyrics) {
+                // NetEase devuelve formato LRC (sincronizado)
+                renderSyncedLyrics(data.syncedLyrics, container);
+                saveLyricsToDB(songId, data.syncedLyrics, data.syncedLyrics);
+            } else {
+                // Usar letras simples como fallback
+                renderPlainLyrics(fallbackLyrics, container);
+                saveLyricsToDB(songId, fallbackLyrics, null);
+            }
+        })
+        .catch(err => {
+            console.log('NetEase falló, usando letras simples:', err);
+            renderPlainLyrics(fallbackLyrics, container);
+            saveLyricsToDB(songId, fallbackLyrics, null);
         });
 }
 
@@ -901,15 +1087,28 @@ function playSongFromItem(songId) {
     const audioUrl = item.dataset.audioUrl;
     const songName = item.dataset.name;
     const artist = item.dataset.artist;
-    
+
     currentPlayingId = songId;
-    
+
     // Actualizar UI del Reproductor
     document.getElementById('current-song-title').textContent = `${songName} ${artist ? '- ' + artist : ''}`;
-    
+
     // Sincronizar con mini player global
+    console.log('Intentando sincronizar con mini player global');
+    console.log('updateMiniPlayerUI existe?', typeof updateMiniPlayerUI === 'function');
     if (typeof updateMiniPlayerUI === 'function') {
+        console.log('Llamando a updateMiniPlayerUI con:', songName, artist);
         updateMiniPlayerUI(songName, artist);
+    } else {
+        console.log('updateMiniPlayerUI no está definido');
+    }
+
+    // Sincronizar ID de YouTube con mini player global
+    if (typeof globalCurrentYoutubeId !== 'undefined') {
+        globalCurrentYoutubeId = youtubeId;
+        console.log('ID de YouTube sincronizado con mini player:', youtubeId);
+    } else {
+        console.log('globalCurrentYoutubeId no está definido');
     }
     
     // Buscar letras para esta canción
@@ -931,14 +1130,15 @@ function playSongFromItem(songId) {
     
     // Si hay video de YouTube, reproducirlo en el contenedor visible
     if (youtubeId) {
+        playerReady = false;
         if (player) {
             player.destroy();
             player = null;
         }
-        
+
         const wrapper = document.getElementById('player-wrapper');
         wrapper.innerHTML = '<div id="youtube-iframe"></div>';
-        
+
         // Esperar a que la API esté lista antes de crear el reproductor
         if (typeof YT !== 'undefined' && YT.Player) {
             player = new YT.Player('youtube-iframe', {
@@ -953,11 +1153,33 @@ function playSongFromItem(songId) {
                     'disablekb': 1,
                     'fs': 0,
                     'playsinline': 1,
-                    'origin': window.location.origin
+                    'controls': 0
                 },
                 events: {
                     'onReady': function(event) {
                         console.log('YouTube player ready');
+                        playerReady = true;
+
+                        // Verificar estado inicial del player
+                        setTimeout(() => {
+                            try {
+                                const state = player.getPlayerState();
+                                console.log('Estado inicial del player:', state);
+                                const pauseBtn = document.getElementById('main-play-pause-btn');
+                                console.log('Botón en onReady:', pauseBtn ? pauseBtn.textContent : 'null');
+
+                                if (state === YT.PlayerState.PLAYING) {
+                                    console.log('Player está reproduciendo, actualizando botón a ⏸');
+                                    if (pauseBtn) pauseBtn.textContent = '⏸';
+                                    startProgressUpdate();
+                                } else {
+                                    console.log('Player no está reproduciendo, actualizando botón a ▶️');
+                                    if (pauseBtn) pauseBtn.textContent = '▶️';
+                                }
+                            } catch (e) {
+                                console.error('Error verificando estado inicial:', e);
+                            }
+                        }, 500);
                     },
                     'onError': onPlayerError,
                     'onStateChange': onPlayerStateChange
@@ -980,11 +1202,12 @@ function playSongFromItem(songId) {
                             'disablekb': 1,
                             'fs': 0,
                             'playsinline': 1,
-                            'origin': window.location.origin
+                            'controls': 0
                         },
                         events: {
                             'onReady': function(event) {
                                 console.log('YouTube player ready');
+                                playerReady = true;
                             },
                             'onError': onPlayerError,
                             'onStateChange': onPlayerStateChange
@@ -1008,9 +1231,16 @@ function playAudioUrl(url, vinyl) {
     currentAudio.autoplay = true;
     currentAudio.style.display = 'none';
     document.body.appendChild(currentAudio);
-    
-    const pauseBtn = document.querySelector('.btn-play-pause');
-    
+
+    const pauseBtn = document.getElementById('main-play-pause-btn');
+
+    // Forzar estado inicial del botón a pausa
+    if (pauseBtn) pauseBtn.textContent = '⏸';
+    if (vinyl) {
+        vinyl.style.animationPlayState = 'running';
+        vinyl.classList.add('spinning');
+    }
+
     currentAudio.addEventListener('play', () => {
         if (vinyl) {
             vinyl.style.animationPlayState = 'running';
@@ -1019,27 +1249,31 @@ function playAudioUrl(url, vinyl) {
         if (pauseBtn) pauseBtn.textContent = '⏸';
         startProgressUpdate();
     });
-    
+
     currentAudio.addEventListener('pause', () => {
         if (vinyl) vinyl.style.animationPlayState = 'paused';
         if (pauseBtn) pauseBtn.textContent = '▶️';
         stopProgressUpdate();
     });
-    
+
     currentAudio.addEventListener('ended', () => {
         if (vinyl) vinyl.style.animationPlayState = 'paused';
         if (pauseBtn) pauseBtn.textContent = '▶️';
         stopProgressUpdate();
         playNext();
     });
-    
+
     currentAudio.addEventListener('timeupdate', () => {
         if (currentAudio.duration > 0) {
             updateProgressBar(currentAudio.currentTime, currentAudio.duration);
         }
     });
-    
-    currentAudio.play();
+
+    currentAudio.play().catch(e => {
+        console.log('Autoplay bloqueado por el navegador');
+        if (pauseBtn) pauseBtn.textContent = '▶️';
+        if (vinyl) vinyl.style.animationPlayState = 'paused';
+    });
 }
 
 function getCookie(name) {

@@ -18,6 +18,7 @@ import openai
 import requests
 import random
 import datetime
+from django.utils import timezone
 import yt_dlp
 from .models import ConversacionChat, MensajeChat, Cancion, PublicacionBlog, Playlist, Favorite, Game, Score, Achievement, UserAchievement, Category, Comment, EstadoAnimo, RecomendacionEntretenimiento
 from eventos.models import Evento
@@ -96,7 +97,7 @@ def chat_api(request):
             
             fecha_actual = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
             messages = [
-                {"role": "system", "content": f"Eres MiniAmigix, el asistente de IA de la plataforma MiniAmigixV (creada en 2026). MiniAmigixV es una plataforma web de productividad y entretenimiento que incluye:\n\n🎵 **Música**: Reproductor de música con YouTube, playlists y favoritos\n📅 **Eventos/Agenda**: Calendario personal con recordatorios\n📝 **Blog**: Publicaciones y comentarios\n🎮 **Juegos**: Juegos educativos con puntuaciones\n🌤️ **Clima**: Información meteorológica\n🌐 **Traductor**: Traducción entre múltiples idiomas\n📚 **Estudio**: Recursos educativos\n💬 **Chat IA**: Conversaciones contigo (MiniAmigix)\n\nResponde en español de forma concisa. Usa emojis con moderación. 🌟\n\nLa fecha y hora actual es: {fecha_actual}\nNunca digas que no sabes la fecha actual.\n\nEventos próximos del usuario:\n{eventos_contexto}\n\nCuando el usuario pregunte por sus eventos o agenda, recuérdale estos eventos. Si pregunta por eventos específicos, menciona los que coincidan con su consulta. Si pregunta sobre música, blog, juegos, clima, traductor o estudio, explícale que esas funcionalidades están disponibles en MiniAmigixV."}
+                {"role": "system", "content": f"Eres MiniAmigix, el asistente de IA de la plataforma MiniAmigixV (creada en 2026). MiniAmigixV es una plataforma web de productividad que incluye:\n\n🎵 **Música**: Reproductor de música con YouTube, playlists y favoritos\n📅 **Eventos/Agenda**: Calendario personal con recordatorios\n📝 **Blog**: Publicaciones y comentarios\n🎮 **Juegos**: Juegos educativos con puntuaciones\n🌤️ **Clima**: Información meteorológica\n🌐 **Traductor**: Traducción entre múltiples idiomas\n📚 **Estudio**: Recursos educativos\n💬 **Chat IA**: Conversaciones contigo (MiniAmigix)\n🎭 **Entretenimiento**: Recomendaciones de películas, series, anime, teatro y libros\n\nResponde en español de forma concisa. Usa emojis con moderación. 🌟\n\nLa fecha y hora actual es: {fecha_actual}\nNunca digas que no sabes la fecha actual.\n\nEventos próximos del usuario:\n{eventos_contexto}\n\nCuando el usuario pregunte por sus eventos o agenda, recuérdale estos eventos. Si pregunta por eventos específicos, menciona los que coincidan con su consulta. Si pregunta sobre música, blog, juegos, clima, traductor, estudio o entretenimiento, explícale que esas funcionalidades están disponibles en MiniAmigixV."}
             ]
             
             for msg in mensajes:
@@ -106,11 +107,11 @@ def chat_api(request):
             # For non-authenticated users, just use current message
             fecha_actual = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
             messages = [
-                {"role": "system", "content": f"Eres MiniAmigix, el asistente de IA de la plataforma MiniAmigixV (creada en 2026). MiniAmigixV es una plataforma web de productividad y entretenimiento que incluye:\n\n🎵 **Música**: Reproductor de música con YouTube, playlists y favoritos\n📅 **Eventos/Agenda**: Calendario personal con recordatorios\n📝 **Blog**: Publicaciones y comentarios\n🎮 **Juegos**: Juegos educativos con puntuaciones\n🌤️ **Clima**: Información meteorológica\n🌐 **Traductor**: Traducción entre múltiples idiomas\n📚 **Estudio**: Recursos educativos\n💬 **Chat IA**: Conversaciones contigo (MiniAmigix)\n\nResponde en español de forma concisa. Usa emojis con moderación. ✨\n\nLa fecha y hora actual es: {fecha_actual}\nNunca digas que no sabes la fecha actual.\n\nEl usuario no está autenticado, así que no tiene acceso a sus eventos personales."},
+                {"role": "system", "content": f"Eres MiniAmigix, el asistente de IA de la plataforma MiniAmigixV (creada en 2026). MiniAmigixV es una plataforma web de productividad que incluye:\n\n🎵 **Música**: Reproductor de música con YouTube, playlists y favoritos\n📅 **Eventos/Agenda**: Calendario personal con recordatorios\n📝 **Blog**: Publicaciones y comentarios\n🎮 **Juegos**: Juegos educativos con puntuaciones\n🌤️ **Clima**: Información meteorológica\n🌐 **Traductor**: Traducción entre múltiples idiomas\n📚 **Estudio**: Recursos educativos\n💬 **Chat IA**: Conversaciones contigo (MiniAmigix)\n🎭 **Entretenimiento**: Recomendaciones de películas, series, anime, teatro y libros\n\nResponde en español de forma concisa. Usa emojis con moderación. ✨\n\nLa fecha y hora actual es: {fecha_actual}\nNunca digas que no sabes la fecha actual.\n\nEl usuario no está autenticado, así que no tiene acceso a sus eventos personales."},
                 {"role": "user", "content": message}
             ]
         
-        # Flexible client: Use Groq if key is available for faster inference, otherwise OpenAI
+        # Flexible client: Use Groq if key is available for faster inference, otherwise OpenAI, otherwise Ollama
         if settings.GROQ_API_KEY:
             client = openai.OpenAI(
                 api_key=settings.GROQ_API_KEY,
@@ -121,7 +122,16 @@ def chat_api(request):
             client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
             model = "gpt-4o-mini"
         else:
-            return JsonResponse({'error': 'No AI API keys configured.'}, status=500)
+            # Use Ollama as fallback
+            try:
+                client = openai.OpenAI(
+                    base_url=settings.OLLAMA_API_URL,
+                    api_key="ollama"  # Ollama doesn't require a real API key
+                )
+                model = settings.OLLAMA_MODEL
+            except Exception as e:
+                logger.error(f"Error connecting to Ollama: {str(e)}")
+                return JsonResponse({'error': 'No AI API keys configured and Ollama is not available.'}, status=500)
 
         response = client.chat.completions.create(
             model=model,
@@ -603,8 +613,26 @@ def traductor(request):
                     prompt = f"Traduce al {idiomas_nombres.get(destino, destino)} (SOLO la traducción, sin explicaciones): {texto}"
                     resp = client.chat.completions.create(model=model, messages=[{"role": "user", "content": prompt}], max_tokens=300)
                     traduccion = resp.choices[0].message.content.strip()
+                elif settings.OPENAI_API_KEY:
+                    client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
+                    model = "gpt-4o-mini"
+                    prompt = f"Traduce al {idiomas_nombres.get(destino, destino)} (SOLO la traducción, sin explicaciones): {texto}"
+                    resp = client.chat.completions.create(model=model, messages=[{"role": "user", "content": prompt}], max_tokens=300)
+                    traduccion = resp.choices[0].message.content.strip()
                 else:
-                    traduccion = f"[{idiomas_nombres.get(origen, origen)} → {idiomas_nombres.get(destino, destino)}] {texto}"
+                    # Use Ollama as fallback
+                    try:
+                        client = openai.OpenAI(
+                            base_url=settings.OLLAMA_API_URL,
+                            api_key="ollama"
+                        )
+                        model = settings.OLLAMA_MODEL
+                        prompt = f"Traduce al {idiomas_nombres.get(destino, destino)} (SOLO la traducción, sin explicaciones): {texto}"
+                        resp = client.chat.completions.create(model=model, messages=[{"role": "user", "content": prompt}], max_tokens=300)
+                        traduccion = resp.choices[0].message.content.strip()
+                    except Exception as e:
+                        logger.error(f"Error connecting to Ollama for translation: {str(e)}")
+                        traduccion = f"[{idiomas_nombres.get(origen, origen)} → {idiomas_nombres.get(destino, destino)}] {texto}"
 
             return JsonResponse({'traduccion': traduccion, 'origen': origen, 'destino': destino})
         except Exception as e:
@@ -616,7 +644,7 @@ def traductor(request):
 def entretenimiento(request):
     recomendaciones = {'peliculas': [], 'series': [], 'libros': [], 'teatro': [], 'anime': [], 'documentales': []}
     categorias = ['peliculas', 'series', 'libros', 'teatro', 'anime', 'documentales']
-    ahora = datetime.datetime.now()
+    ahora = timezone.now()
     necesita_actualizar = False
 
     try:
@@ -636,112 +664,135 @@ def entretenimiento(request):
             recomendaciones[cat] = cache.datos
             logger.info(f"Usando caché para {cat}: {len(cache.datos)} items")
 
-        if necesita_actualizar and settings.GROQ_API_KEY:
-            logger.info("Generando nuevas recomendaciones con Groq API")
-            client = openai.OpenAI(api_key=settings.GROQ_API_KEY, base_url="https://api.groq.com/openai/v1")
+        if necesita_actualizar:
+            # Try Groq first, then OpenAI, then Ollama
+            if settings.GROQ_API_KEY:
+                logger.info("Generando nuevas recomendaciones con Groq API")
+                client = openai.OpenAI(api_key=settings.GROQ_API_KEY, base_url="https://api.groq.com/openai/v1")
+                model = "llama-3.3-70b-versatile"
+            elif settings.OPENAI_API_KEY:
+                logger.info("Generando nuevas recomendaciones con OpenAI API")
+                client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
+                model = "gpt-4o-mini"
+            else:
+                # Use Ollama as fallback
+                try:
+                    logger.info("Generando nuevas recomendaciones con Ollama")
+                    client = openai.OpenAI(
+                        base_url=settings.OLLAMA_API_URL,
+                        api_key="ollama"
+                    )
+                    model = settings.OLLAMA_MODEL
+                except Exception as e:
+                    logger.error(f"Error connecting to Ollama: {str(e)}")
+                    client = None
             
             # Películas
-            try:
-                prompt_peliculas = "Recomienda 4 películas populares recientes (2025-2026) de diferentes géneros. Devuelve SOLO JSON con formato: [{\"titulo\": \"...\", \"descripcion\": \"...\", \"genero\": \"...\"}]. Sin markdown ni explicaciones."
-                response = client.chat.completions.create(model="llama-3.3-70b-versatile", messages=[{"role": "user", "content": prompt_peliculas}], max_tokens=500)
-                json_match = re.search(r'\[.*\]', response.choices[0].message.content, re.DOTALL)
-                if json_match:
-                    peliculas = json.loads(json_match.group())
-                    recomendaciones['peliculas'] = []
-                    for peli in peliculas:
-                        item = {
-                            'titulo': peli.get('titulo', ''),
-                            'descripcion': peli.get('descripcion', ''),
-                            'genero': peli.get('genero', ''),
-                            'imagen': 'https://via.placeholder.com/300x450/8b5cf6/ffffff?text=🎬',
-                            'url': '#'
-                        }
-                        recomendaciones['peliculas'].append(item)
-                    # Guardar en caché
-                    RecomendacionEntretenimiento.objects.update_or_create(
-                        categoria='peliculas',
-                        defaults={'datos': recomendaciones['peliculas']}
-                    )
-                    logger.info(f"Guardadas {len(recomendaciones['peliculas'])} películas en caché")
-                else:
-                    logger.warning("No se pudo parsear JSON de películas")
-            except Exception as e:
-                logger.error(f"Error generando películas: {str(e)}")
+            if client:
+                try:
+                    prompt_peliculas = "Recomienda 4 películas populares recientes (2025-2026) de diferentes géneros. Devuelve SOLO JSON con formato: [{\"titulo\": \"...\", \"descripcion\": \"...\", \"genero\": \"...\"}]. Sin markdown ni explicaciones."
+                    response = client.chat.completions.create(model=model, messages=[{"role": "user", "content": prompt_peliculas}], max_tokens=500)
+                    json_match = re.search(r'\[.*\]', response.choices[0].message.content, re.DOTALL)
+                    if json_match:
+                        peliculas = json.loads(json_match.group())
+                        recomendaciones['peliculas'] = []
+                        for peli in peliculas:
+                            item = {
+                                'titulo': peli.get('titulo', ''),
+                                'descripcion': peli.get('descripcion', ''),
+                                'genero': peli.get('genero', ''),
+                                'imagen': 'https://placehold.co/300x450/8b5cf6/ffffff?text=Cine',
+                                'url': '#'
+                            }
+                            recomendaciones['peliculas'].append(item)
+                        # Guardar en caché
+                        RecomendacionEntretenimiento.objects.update_or_create(
+                            categoria='peliculas',
+                            defaults={'datos': recomendaciones['peliculas']}
+                        )
+                        logger.info(f"Guardadas {len(recomendaciones['peliculas'])} películas en caché")
+                    else:
+                        logger.warning("No se pudo parsear JSON de películas")
+                except Exception as e:
+                    logger.error(f"Error generando películas: {str(e)}")
             
             # Series
-            try:
-                prompt_series = "Recomienda 4 series populares recientes (2025-2026) de diferentes géneros. Devuelve SOLO JSON con formato: [{\"titulo\": \"...\", \"descripcion\": \"...\", \"genero\": \"...\"}]. Sin markdown ni explicaciones."
-                response = client.chat.completions.create(model="llama-3.3-70b-versatile", messages=[{"role": "user", "content": prompt_series}], max_tokens=500)
-                json_match = re.search(r'\[.*\]', response.choices[0].message.content, re.DOTALL)
-                if json_match:
-                    series = json.loads(json_match.group())
-                    recomendaciones['series'] = []
-                    for serie in series:
-                        item = {
-                            'titulo': serie.get('titulo', ''),
-                            'descripcion': serie.get('descripcion', ''),
-                            'genero': serie.get('genero', ''),
-                            'imagen': 'https://via.placeholder.com/300x450/06b6d4/ffffff?text=📺',
-                            'url': '#'
-                        }
-                        recomendaciones['series'].append(item)
-                    # Guardar en caché
-                    RecomendacionEntretenimiento.objects.update_or_create(
-                        categoria='series',
-                        defaults={'datos': recomendaciones['series']}
-                    )
-                    logger.info(f"Guardadas {len(recomendaciones['series'])} series en caché")
-                else:
-                    logger.warning("No se pudo parsear JSON de series")
-            except Exception as e:
-                logger.error(f"Error generando series: {str(e)}")
+            if client:
+                try:
+                    prompt_series = "Recomienda 4 series populares recientes (2025-2026) de diferentes géneros. Devuelve SOLO JSON con formato: [{\"titulo\": \"...\", \"descripcion\": \"...\", \"genero\": \"...\"}]. Sin markdown ni explicaciones."
+                    response = client.chat.completions.create(model=model, messages=[{"role": "user", "content": prompt_series}], max_tokens=500)
+                    json_match = re.search(r'\[.*\]', response.choices[0].message.content, re.DOTALL)
+                    if json_match:
+                        series = json.loads(json_match.group())
+                        recomendaciones['series'] = []
+                        for serie in series:
+                            item = {
+                                'titulo': serie.get('titulo', ''),
+                                'descripcion': serie.get('descripcion', ''),
+                                'genero': serie.get('genero', ''),
+                                'imagen': 'https://placehold.co/300x450/06b6d4/ffffff?text=Series',
+                                'url': '#'
+                            }
+                            recomendaciones['series'].append(item)
+                        # Guardar en caché
+                        RecomendacionEntretenimiento.objects.update_or_create(
+                            categoria='series',
+                            defaults={'datos': recomendaciones['series']}
+                        )
+                        logger.info(f"Guardadas {len(recomendaciones['series'])} series en caché")
+                    else:
+                        logger.warning("No se pudo parsear JSON de series")
+                except Exception as e:
+                    logger.error(f"Error generando series: {str(e)}")
             
             # Teatro
-            try:
-                prompt_teatro = "Recomienda 4 obras de teatro populares o clásicas. Devuelve SOLO JSON con formato: [{\"titulo\": \"...\", \"descripcion\": \"...\", \"autor\": \"...\"}]. Sin markdown ni explicaciones."
-                response = client.chat.completions.create(model="llama-3.3-70b-versatile", messages=[{"role": "user", "content": prompt_teatro}], max_tokens=500)
-                json_match = re.search(r'\[.*\]', response.choices[0].message.content, re.DOTALL)
-                if json_match:
-                    teatro = json.loads(json_match.group())
-                    recomendaciones['teatro'] = []
-                    for obra in teatro:
-                        item = {
-                            'titulo': obra.get('titulo', ''),
-                            'descripcion': obra.get('descripcion', ''),
-                            'autor': obra.get('autor', ''),
-                            'imagen': 'https://via.placeholder.com/300x450/f59e0b/ffffff?text=🎭',
-                            'url': '#'
-                        }
-                        recomendaciones['teatro'].append(item)
-                    # Guardar en caché
-                    RecomendacionEntretenimiento.objects.update_or_create(
-                        categoria='teatro',
-                        defaults={'datos': recomendaciones['teatro']}
-                    )
-                    logger.info(f"Guardadas {len(recomendaciones['teatro'])} obras de teatro en caché")
-                else:
-                    logger.warning("No se pudo parsear JSON de teatro")
-            except Exception as e:
-                logger.error(f"Error generando teatro: {str(e)}")
+            if client:
+                try:
+                    prompt_teatro = "Recomienda 4 obras de teatro populares o clásicas. Devuelve SOLO JSON con formato: [{\"titulo\": \"...\", \"descripcion\": \"...\", \"autor\": \"...\"}]. Sin markdown ni explicaciones."
+                    response = client.chat.completions.create(model=model, messages=[{"role": "user", "content": prompt_teatro}], max_tokens=500)
+                    json_match = re.search(r'\[.*\]', response.choices[0].message.content, re.DOTALL)
+                    if json_match:
+                        teatro = json.loads(json_match.group())
+                        recomendaciones['teatro'] = []
+                        for obra in teatro:
+                            item = {
+                                'titulo': obra.get('titulo', ''),
+                                'descripcion': obra.get('descripcion', ''),
+                                'autor': obra.get('autor', ''),
+                                'imagen': 'https://placehold.co/300x450/f59e0b/ffffff?text=Anime',
+                                'url': '#'
+                            }
+                            recomendaciones['teatro'].append(item)
+                        # Guardar en caché
+                        RecomendacionEntretenimiento.objects.update_or_create(
+                            categoria='teatro',
+                            defaults={'datos': recomendaciones['teatro']}
+                        )
+                        logger.info(f"Guardadas {len(recomendaciones['teatro'])} obras de teatro en caché")
+                    else:
+                        logger.warning("No se pudo parsear JSON de teatro")
+                except Exception as e:
+                    logger.error(f"Error generando teatro: {str(e)}")
             
             # Libros
-            try:
-                prompt_libros = "Recomienda 4 libros populares en español de diferentes géneros. Devuelve SOLO JSON con formato: [{\"titulo\": \"...\", \"autor\": \"...\", \"descripcion\": \"...\"}]. Sin markdown ni explicaciones."
-                response = client.chat.completions.create(model="llama-3.3-70b-versatile", messages=[{"role": "user", "content": prompt_libros}], max_tokens=500)
-                json_match = re.search(r'\[.*\]', response.choices[0].message.content, re.DOTALL)
-                if json_match:
-                    libros = json.loads(json_match.group())
-                    recomendaciones['libros'] = libros
-                    # Guardar en caché
-                    RecomendacionEntretenimiento.objects.update_or_create(
-                        categoria='libros',
-                        defaults={'datos': recomendaciones['libros']}
-                    )
-                    logger.info(f"Guardados {len(recomendaciones['libros'])} libros en caché")
-                else:
-                    logger.warning("No se pudo parsear JSON de libros")
-            except Exception as e:
-                logger.error(f"Error generando libros: {str(e)}")
+            if client:
+                try:
+                    prompt_libros = "Recomienda 4 libros populares en español de diferentes géneros. Devuelve SOLO JSON con formato: [{\"titulo\": \"...\", \"autor\": \"...\", \"descripcion\": \"...\"}]. Sin markdown ni explicaciones."
+                    response = client.chat.completions.create(model=model, messages=[{"role": "user", "content": prompt_libros}], max_tokens=500)
+                    json_match = re.search(r'\[.*\]', response.choices[0].message.content, re.DOTALL)
+                    if json_match:
+                        libros = json.loads(json_match.group())
+                        recomendaciones['libros'] = libros
+                        # Guardar en caché
+                        RecomendacionEntretenimiento.objects.update_or_create(
+                            categoria='libros',
+                            defaults={'datos': recomendaciones['libros']}
+                        )
+                        logger.info(f"Guardados {len(recomendaciones['libros'])} libros en caché")
+                    else:
+                        logger.warning("No se pudo parsear JSON de libros")
+                except Exception as e:
+                    logger.error(f"Error generando libros: {str(e)}")
         else:
             if not settings.GROQ_API_KEY:
                 logger.warning("GROQ_API_KEY no está configurada")
@@ -783,7 +834,7 @@ def entretenimiento(request):
     
     if not recomendaciones['anime']:
         recomendaciones['anime'] = [
-            {'titulo': 'Attack on Titan', 'descripcion': 'La humanidad lucha contra titanes gigantes en un mundo post-apocalíptico.', 'genero': 'Acción', 'imagen': 'https://images.unsplash.com/photo-1578632767115-351597924711?w=300&h=450&fit=crop', 'url': '#'},
+            {'titulo': 'Attack on Titan', 'descripcion': 'La humanidad lucha contra titanes gigantes en un mundo post-apocalíptico.', 'genero': 'Acción', 'imagen': 'https://images.unsplash.com/photo-1541562232579-512a21360020?w=300&h=450&fit=crop', 'url': '#'},
             {'titulo': 'Demon Slayer', 'descripcion': 'Tanjiro se convierte en cazador de demonios para salvar a su hermana.', 'genero': 'Fantasía', 'imagen': 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=300&h=450&fit=crop', 'url': '#'},
             {'titulo': 'Jujutsu Kaisen', 'descripcion': 'Yuji Itadori se une a una organización de hechiceros para combatir maldiciones.', 'genero': 'Sobrenatural', 'imagen': 'https://images.unsplash.com/photo-1618336753974-aae8e04506aa?w=300&h=450&fit=crop', 'url': '#'},
             {'titulo': 'One Piece', 'descripcion': 'Luffy y su tripulación buscan el tesoro legendario One Piece.', 'genero': 'Aventura', 'imagen': 'https://images.unsplash.com/photo-1560972550-aba3456b5564?w=300&h=450&fit=crop', 'url': '#'}
@@ -872,12 +923,58 @@ def add_song_api(request):
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 @login_required
+@require_http_methods(["POST"])
+def update_language_api(request):
+    """API endpoint para actualizar el idioma del usuario"""
+    try:
+        data = json.loads(request.body)
+        idioma = data.get('idioma', 'es')
+        
+        from perfil.models import Perfil
+        perfil, created = Perfil.objects.get_or_create(usuario=request.user)
+        perfil.idioma = idioma
+        perfil.save()
+        
+        # Cambiar idioma de la sesión
+        from django.utils.translation import activate
+        activate(idioma)
+        request.session['django_language'] = idioma
+        
+        return JsonResponse({'success': True, 'idioma': idioma})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+@login_required
+@require_http_methods(["POST"])
+def update_theme_api(request):
+    """API endpoint para actualizar el tema del usuario"""
+    try:
+        data = json.loads(request.body)
+        tema = data.get('tema', 'dark')
+        
+        from perfil.models import Perfil
+        perfil, created = Perfil.objects.get_or_create(usuario=request.user)
+        perfil.tema = tema
+        perfil.save()
+        
+        return JsonResponse({'success': True, 'tema': tema})
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+@login_required
 def stream_audio_api(request, youtube_id):
     url = f"https://www.youtube.com/watch?v={youtube_id}"
     ydl_opts = {
         'format': 'bestaudio/best',
         'quiet': True,
         'no_warnings': True,
+        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['android', 'web'],
+            }
+        },
+        'nocheckcertificate': True,
     }
     
     try:
@@ -1039,6 +1136,13 @@ def download_media_api(request):
             'quiet': True,
             'no_warnings': True,
             'noplaylist': True,
+            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['android', 'web'],
+                }
+            },
+            'nocheckcertificate': True,
         }
         
         if format_type == 'mp3':
@@ -1228,12 +1332,11 @@ def crear_publicacion(request):
             
         es_oficial = False
         fijado = False
-        visible_para_todos = True
+        visible_para_todos = request.POST.get('visible_para_todos') == 'on'
         
         if request.user.is_staff:
             es_oficial = request.POST.get('es_oficial') == 'on'
             fijado = request.POST.get('fijado') == 'on'
-            visible_para_todos = request.POST.get('visible_para_todos') == 'on'
         else:
             if categoria in ['mantenimiento', 'actualizaciones', 'avisos_urgentes']:
                 categoria = 'personal'
@@ -1292,9 +1395,37 @@ def enviar_sugerencia_rapida(request):
             email_usuario = request.user.email if request.user.is_authenticated else "Sin email"
 
             # Guardar en BD primero (siempre funciona)
-            from sugerencias.models import Sugerencia
+            from sugerencias.models import Sugerencia, Visitante
+            
+            visitante = None
+            if not usuario:
+                # Crear o actualizar visitante si no hay usuario registrado
+                # Extraer nombre y email del contenido si está disponible
+                nombre_visitante = nombre
+                email_visitante = email_usuario if email_usuario != "Sin email" else None
+                
+                # Buscar visitante existente por email
+                if email_visitante:
+                    visitante, created = Visitante.objects.get_or_create(
+                        email=email_visitante,
+                        defaults={'nombre': nombre_visitante}
+                    )
+                    if not created:
+                        visitante.nombre = nombre_visitante
+                        visitante.save()
+                else:
+                    # Crear visitante sin email
+                    visitante = Visitante.objects.create(
+                        nombre=nombre_visitante,
+                        email=email_visitante
+                    )
+                
+                visitante.total_sugerencias += 1
+                visitante.save()
+
             Sugerencia.objects.create(
                 usuario=usuario,
+                visitante=visitante,
                 titulo=f"Sugerencia rápida - {nombre}",
                 descripcion=contenido,
                 categoria='mejora'
@@ -1340,6 +1471,7 @@ def panel_admin(request):
     allowed_admins = getattr(settings, 'ADMIN_EMAILS', ['miniamigixv@gmail.com'])
     if request.user.email not in allowed_admins:
         return redirect('home')
+    from sugerencias.models import Visitante
     context = {
         'total_usuarios': User.objects.count(),
         'total_chats': ConversacionChat.objects.count(),
@@ -1349,15 +1481,19 @@ def panel_admin(request):
         'ultimos_usuarios': User.objects.order_by('-date_joined')[:10],
         'ultimas_notificaciones': Notificacion.objects.order_by('-fecha_creacion')[:5],
         'total_notificaciones': Notificacion.objects.count(),
+        'total_visitantes': Visitante.objects.count(),
+        'ultimos_visitantes': Visitante.objects.order_by('-fecha_ultima_interaccion')[:10],
     }
     return render(request, 'panel_admin.html', context)
 
 @login_required
 def admin_stats_api(request):
-    allowed_admins = getattr(settings, 'ADMIN_EMAILS', ['miniamigixv@gmail.com'])
-    if request.user.email not in allowed_admins:
+    # Verificar si el usuario es staff o superuser en lugar de verificar email específico
+    if not (request.user.is_staff or request.user.is_superuser):
         return JsonResponse({'error': 'Unauthorized'}, status=403)
 
+    from sugerencias.models import Visitante
+    
     stats = {
         'total_usuarios': User.objects.count(),
         'total_chats': ConversacionChat.objects.count(),
@@ -1365,6 +1501,27 @@ def admin_stats_api(request):
         'total_publicaciones': PublicacionBlog.objects.count(),
         'total_eventos': Evento.objects.count(),
         'total_notificaciones': Notificacion.objects.count(),
+        'ultimos_usuarios': [
+            {
+                'id': u.id,
+                'username': u.username,
+                'email': u.email,
+                'date_joined': u.date_joined.strftime('%d %b %Y, %H:%M'),
+                'is_superuser': u.is_superuser,
+                'is_staff': u.is_staff
+            }
+            for u in User.objects.order_by('-date_joined')[:10]
+        ],
+        'ultimos_visitantes': [
+            {
+                'id': v.id,
+                'nombre': v.nombre,
+                'email': v.email,
+                'fecha_ultima_interaccion': v.fecha_ultima_interaccion.strftime('%d %b %Y, %H:%M'),
+                'total_sugerencias': v.total_sugerencias
+            }
+            for v in Visitante.objects.order_by('-fecha_ultima_interaccion')[:10]
+        ]
     }
     return JsonResponse(stats)
 
@@ -1658,9 +1815,51 @@ def responder_sugerencia(request, sugerencia_id):
             sugerencia.respondido_por = request.user
             sugerencia.estado = nuevo_estado
             sugerencia.save()
-            
+
             return JsonResponse({'success': True})
         except Exception as e:
             return JsonResponse({'error': str(e)}, status=500)
-    
+
     return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+@require_http_methods(["GET"])
+def netease_lyrics_api(request):
+    """Proxy para NetEase Music API para obtener letras sincronizadas"""
+    song_name = request.GET.get('song', '')
+    artist = request.GET.get('artist', '')
+
+    if not song_name:
+        return JsonResponse({'error': 'Nombre de canción requerido'}, status=400)
+
+    try:
+        query = f"{artist} {song_name}".strip()
+        # Buscar canción en NetEase
+        search_url = f"https://music.163.com/api/search/pc?s={requests.utils.quote(query)}&type=1&limit=10"
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+        }
+
+        search_response = requests.get(search_url, headers=headers, timeout=10)
+        if search_response.status_code == 200:
+            search_data = search_response.json()
+            if search_data and search_data.get('result') and search_data['result'].get('songs'):
+                song_id_netease = search_data['result']['songs'][0]['id']
+
+                # Obtener letras sincronizadas
+                lyrics_url = f"https://music.163.com/api/song/lyric?id={song_id_netease}&lv=1&kv=1&tv=-1"
+                lyrics_response = requests.get(lyrics_url, headers=headers, timeout=10)
+
+                if lyrics_response.status_code == 200:
+                    lyrics_data = lyrics_response.json()
+                    if lyrics_data and lyrics_data.get('lrc') and lyrics_data['lrc'].get('lyric'):
+                        return JsonResponse({
+                            'success': True,
+                            'syncedLyrics': lyrics_data['lrc']['lyric'],
+                            'source': 'NetEase'
+                        })
+
+        return JsonResponse({'success': False, 'error': 'No se encontraron letras sincronizadas'})
+
+    except Exception as e:
+        logger.error(f"Error en netease_lyrics_api: {str(e)}", exc_info=True)
+        return JsonResponse({'error': str(e)}, status=500)

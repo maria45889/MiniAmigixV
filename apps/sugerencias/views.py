@@ -83,7 +83,20 @@ Mensaje:
 @user_passes_test(lambda u: u.is_staff)
 def admin_sugerencias(request):
     sugerencias = Sugerencia.objects.all().order_by('-fecha_creacion')
-    return render(request, 'sugerencias/admin_sugerencias.html', {'sugerencias': sugerencias})
+    
+    # Calcular estadísticas
+    total_sugerencias = sugerencias.count()
+    sugerencias_pendientes = sugerencias.filter(estado='pendiente').count()
+    sugerencias_en_revision = sugerencias.filter(estado='en_revision').count()
+    sugerencias_aprobadas = sugerencias.filter(estado='aprobada').count()
+    
+    return render(request, 'admin_sugerencias.html', {
+        'sugerencias': sugerencias,
+        'total_sugerencias': total_sugerencias,
+        'sugerencias_pendientes': sugerencias_pendientes,
+        'sugerencias_en_revision': sugerencias_en_revision,
+        'sugerencias_aprobadas': sugerencias_aprobadas
+    })
 
 @login_required
 @user_passes_test(lambda u: u.is_staff)

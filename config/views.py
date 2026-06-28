@@ -11,7 +11,7 @@ def send_test_notification(request):
             payload = {
                 "head": "¡Notificación de Prueba MiniAmigixV!",
                 "body": "Esta es una notificación push de prueba enviada desde tu servidor Django.",
-                "icon": "/static/logo.svg", # Asegúrate de que esta ruta sea accesible
+                "icon": "/static/imagenes/logo.png", # Asegúrate de que esta ruta sea accesible
                 "url": "/" # URL a la que redirigirá al hacer clic
             }
             send_user_notification(user=request.user, payload=payload, ttl=1000)
