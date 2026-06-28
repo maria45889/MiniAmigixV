@@ -8,3 +8,8 @@ db.sqlite3
 media/
 static_collected/
 *.log
+*.mp3
+*.webm
+*.mp4
+*.avi
+*.mkv
