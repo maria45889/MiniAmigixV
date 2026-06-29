@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nueva Sugerencia - MiniAmigixV</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .header p {
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .info-section {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid #e2e8f0;
+        }
+        .info-row {
+            margin-bottom: 12px;
+            color: #555555;
+            font-size: 15px;
+        }
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+        .info-row strong {
+            color: #333333;
+            font-weight: 600;
+        }
+        .message-box {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-left: 4px solid #667eea;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        .message-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #667eea;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+        }
+        .message-text {
+            color: #333333;
+            font-size: 15px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+        .category-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 25px;
+            text-align: center;
+            border-top: 1px solid #e0e0e0;
+        }
+        .footer p {
+            color: #666666;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            padding: 12px 30px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 20px;
+            font-size: 15px;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+        @media only screen and (max-width: 600px) {
+            .container {
+                width: 100%;
+                border-radius: 0;
+            }
+            .header {
+                padding: 20px;
+            }
+            .header h1 {
+                font-size: 24px;
+            }
+            .content {
+                padding: 25px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💡 Nueva Sugerencia</h1>
+            <p>MiniAmigixV - Sistema de Sugerencias</p>
+        </div>
+        
+        <div class="content">
+            <div class="info-section">
+                <div class="info-row">
+                    <strong>👤 De:</strong> {{ nombre }}
+                </div>
+                <div class="info-row">
+                    <strong>📧 Email:</strong> <a href="mailto:{{ email }}" style="color: #667eea; text-decoration: none;">{{ email }}</a>
+                </div>
+                <div class="info-row">
+                    <strong>📅 Fecha:</strong> {{ fecha }}
+                </div>
+                <div class="info-row">
+                    <strong>🏷️ Categoría:</strong> <span class="category-badge">{{ categoria }}</span>
+                </div>
+            </div>
+            
+            <div class="message-box">
+                <div class="message-label">Sugerencia</div>
+                <p class="message-text">{{ mensaje }}</p>
+            </div>
+            
+            <div style="text-align: center;">
+                <a href="mailto:{{ email }}?subject=Re: Tu sugerencia - MiniAmigixV" class="btn">↩️ Responder al Usuario</a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© 2026 MiniAmigixV - Sistema de Sugerencias</p>
+            <p style="font-size: 11px; color: #999;">Este mensaje fue enviado automáticamente desde el formulario de sugerencias</p>
+        </div>
+    </div>
+</body>
+</html>

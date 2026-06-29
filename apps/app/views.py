@@ -1703,11 +1703,11 @@ def panel_admin_email_user(request, user_id):
                 'message': message,
             })
 
-        html_message = render_to_string('email_admin_response.html', {
-            'recipient': user_target,
-            'subject': subject,
+        html_message = render_to_string('emails/admin_response.html', {
             'message': message,
             'sender': request.user,
+            'fecha': timezone.now().strftime('%d/%m/%Y %H:%M'),
+            'site_url': getattr(settings, 'SITE_URL', 'http://localhost:8000'),
         })
         plain_message = strip_tags(html_message)
 

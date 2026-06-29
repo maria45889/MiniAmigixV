@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evento Creado - MiniAmigixV</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .header p {
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .greeting {
+            font-size: 18px;
+            color: #333333;
+            margin-bottom: 20px;
+        }
+        .event-card {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+            border-left: 4px solid #667eea;
+        }
+        .event-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #333333;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .event-icon {
+            font-size: 28px;
+        }
+        .event-detail {
+            margin-bottom: 12px;
+            color: #555555;
+            font-size: 15px;
+        }
+        .event-detail strong {
+            color: #333333;
+            font-weight: 600;
+        }
+        .reminder-box {
+            background-color: #e8f5e9;
+            border: 1px solid #c8e6c9;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 25px 0;
+            text-align: center;
+        }
+        .reminder-box p {
+            color: #2e7d32;
+            font-size: 14px;
+            margin: 0;
+        }
+        .reminder-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 25px;
+            text-align: center;
+            border-top: 1px solid #e0e0e0;
+        }
+        .footer p {
+            color: #666666;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            padding: 12px 30px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 20px;
+            font-size: 15px;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+        @media only screen and (max-width: 600px) {
+            .container {
+                width: 100%;
+                border-radius: 0;
+            }
+            .header {
+                padding: 20px;
+            }
+            .header h1 {
+                font-size: 24px;
+            }
+            .content {
+                padding: 25px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎉 Evento Creado Exitosamente</h1>
+            <p>MiniAmigixV - Tu Asistente Personal</p>
+        </div>
+        
+        <div class="content">
+            <p class="greeting">Hola {{ username }},</p>
+            
+            <p style="color: #555555; font-size: 15px; margin-bottom: 20px;">
+                ¡Tu evento ha sido programado correctamente! Aquí están los detalles:
+            </p>
+            
+            <div class="event-card">
+                <div class="event-title">
+                    <span class="event-icon">📅</span>
+                    {{ titulo }}
+                </div>
+                
+                <div class="event-detail">
+                    <strong>📆 Fecha:</strong> {{ fecha }}
+                </div>
+                
+                <div class="event-detail">
+                    <strong>📝 Descripción:</strong> {{ descripcion|default:"Sin descripción" }}
+                </div>
+            </div>
+            
+            <div class="reminder-box">
+                <div class="reminder-icon">🔔</div>
+                <p>Te enviaremos recordatorios automáticos antes del evento para que no te olvides.</p>
+            </div>
+            
+            <div style="text-align: center;">
+                <a href="{{ site_url }}/eventos/" class="btn">Ver Mis Eventos</a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>¿Tienes preguntas? Contáctanos en <a href="mailto:soporte@miniamigixv.com">soporte@miniamigixv.com</a></p>
+            <p>© 2026 MiniAmigixV. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>

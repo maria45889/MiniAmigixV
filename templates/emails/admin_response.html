@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Respuesta de MiniAmigixV</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            color: #ffffff;
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        .header p {
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+        .content {
+            padding: 40px 30px;
+        }
+        .message-box {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-left: 4px solid #667eea;
+            border-radius: 8px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        .message-text {
+            color: #333333;
+            font-size: 15px;
+            line-height: 1.7;
+            white-space: pre-wrap;
+        }
+        .info-box {
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 25px 0;
+        }
+        .info-box p {
+            color: #555555;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+        .info-box p:last-child {
+            margin-bottom: 0;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            padding: 25px;
+            text-align: center;
+            border-top: 1px solid #e0e0e0;
+        }
+        .footer p {
+            color: #666666;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+        .footer a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .footer a:hover {
+            text-decoration: underline;
+        }
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #ffffff;
+            padding: 12px 30px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            margin-top: 20px;
+            font-size: 15px;
+        }
+        .btn:hover {
+            opacity: 0.9;
+        }
+        @media only screen and (max-width: 600px) {
+            .container {
+                width: 100%;
+                border-radius: 0;
+            }
+            .header {
+                padding: 20px;
+            }
+            .header h1 {
+                font-size: 24px;
+            }
+            .content {
+                padding: 25px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📨 Respuesta de MiniAmigixV</h1>
+            <p>Panel de Administración</p>
+        </div>
+        
+        <div class="content">
+            <p style="color: #555555; font-size: 15px; margin-bottom: 20px;">
+                Hola,
+            </p>
+            
+            <div class="message-box">
+                <p class="message-text">{{ message|linebreaksbr }}</p>
+            </div>
+            
+            <div class="info-box">
+                <p>👤 <strong>Enviado por:</strong> {{ sender.username }}</p>
+                <p>📅 <strong>Fecha:</strong> {{ fecha|default:"Hoy" }}</p>
+                <p>🔧 <strong>Desde:</strong> Panel de Administración de MiniAmigixV</p>
+            </div>
+            
+            <div style="text-align: center;">
+                <a href="{{ site_url }}" class="btn">🌐 Visitar MiniAmigixV</a>
+            </div>
+        </div>
+        
+        <div class="footer">
+            <p>© 2026 MiniAmigixV - Tu asistente personal interactivo</p>
+            <p style="font-size: 11px; color: #999;">Si no esperabas este correo, puedes ignorarlo.</p>
+        </div>
+    </div>
+</body>
+</html>

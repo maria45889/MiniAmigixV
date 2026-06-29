@@ -361,14 +361,6 @@
         font-weight: 600;
         border: 1px solid rgba(234, 179, 8, 0.3);
     }
-    .badge-cat {
-        background: rgba(255,255,255,0.08);
-        color: #cbd5e1;
-        padding: 3px 10px;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        border: 1px solid rgba(255,255,255,0.1);
-    }
     .noticia-card h3 {
         color: #f8fafc;
         font-size: 1.6rem;
@@ -600,28 +592,16 @@
     {% if request.user.is_authenticated %}
     <div class="editor-card">
         <h2>✍️ Escribir Publicación</h2>
-        <form method="POST" action="{% url 'crear_publicacion' %}" class="editor-form">
+        <form method="POST" action="{% url 'crear_publicacion' %}" class="editor-form" enctype="multipart/form-data">
             {% csrf_token %}
-            <div class="editor-row">
-                <div class="editor-field">
-                    <label for="titulo">Título</label>
-                    <input type="text" id="titulo" name="titulo" placeholder="¿De qué quieres escribir hoy?" required>
-                </div>
-                <div class="editor-field">
-                    <label for="categoria">Categoría</label>
-                    <select id="categoria" name="categoria">
-                        <option value="personal">📝 Personal</option>
-                        <option value="noticias">📰 Noticias</option>
-                        <option value="consejos">💡 Consejos</option>
-                        <option value="tutorial">🎯 Tutorial</option>
-                        <option value="anuncios">🚀 Anuncios</option>
-                        {% if request.user.is_staff %}
-                        <option value="mantenimiento">⚙️ Mantenimiento</option>
-                        <option value="actualizaciones">🔄 Actualizaciones</option>
-                        <option value="avisos_urgentes">⚠️ Avisos Urgentes</option>
-                        {% endif %}
-                    </select>
-                </div>
+            <div class="editor-field">
+                <label for="titulo">Título</label>
+                <input type="text" id="titulo" name="titulo" placeholder="¿De qué quieres escribir hoy?" required>
+            </div>
+
+            <div class="editor-field">
+                <label for="imagen">Imagen (opcional)</label>
+                <input type="file" id="imagen" name="imagen" accept="image/*" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; padding: 12px; color: #e2e8f0;">
             </div>
 
             <div class="editor-field">
@@ -662,34 +642,20 @@
             <h2>📢 Noticias Globales</h2>
         </div>
 
-        {% if request.user.is_staff %}
-        <div style="margin-bottom: 20px; padding: 15px; background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.3); border-radius: 10px;">
-            <h3 style="color: #e2e8f0; margin: 0 0 10px 0; font-size: 1rem;">Gestionar Categorías</h3>
-            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                <input type="text" id="new-category-name" placeholder="Nombre de categoría" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 12px; color: #e2e8f0;">
-                <input type="text" id="new-category-icon" placeholder="Icono (emoji)" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 8px 12px; color: #e2e8f0; width: 80px;">
-                <button class="btn-comment" onclick="crearCategoria()">Crear Categoría</button>
-            </div>
-            <div style="margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap;">
-                {% for categoria in categorias %}
-                <span style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; padding: 5px 12px; color: #e2e8f0; font-size: 0.85rem; display: flex; align-items: center; gap: 5px;">
-                    {{ categoria.icono }} {{ categoria.nombre }}
-                    <button onclick="eliminarCategoria({{ categoria.id }})" style="background: none; border: none; color: #f87171; cursor: pointer; font-size: 0.8rem;">×</button>
-                </span>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
 
         {% for pub in noticias_globales %}
         <div class="noticia-card">
             <div class="badge-row">
                 <span class="badge-oficial"><i class="fas fa-shield-alt"></i> Administración</span>
                 {% if pub.fijado %}<span class="badge-pin"><i class="fas fa-thumbtack"></i> Fijado</span>{% endif %}
-                <span class="badge-cat">{{ pub.get_categoria_display }}</span>
             </div>
             <h3>{{ pub.titulo }}</h3>
             <div class="meta">{{ pub.fecha_publicacion|date:"d M Y, H:i" }} · por {{ pub.usuario.username }}</div>
+            {% if pub.imagen %}
+            <div style="margin: 15px 0;">
+                <img src="{{ pub.imagen.url }}" alt="{{ pub.titulo }}" style="max-width: 100%; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+            </div>
+            {% endif %}
             <div class="body-text">{{ pub.contenido|linebreaksbr }}</div>
 
             <!-- Sección de Comentarios -->
@@ -751,9 +717,13 @@
             <div class="pub-card">
                 <div class="pub-top">
                     <h3>{{ pub.titulo }}</h3>
-                    <span class="badge-cat">{{ pub.get_categoria_display }}</span>
                 </div>
                 <div class="meta">{{ pub.fecha_publicacion|date:"d M Y, H:i" }}</div>
+                {% if pub.imagen %}
+                <div style="margin: 15px 0;">
+                    <img src="{{ pub.imagen.url }}" alt="{{ pub.titulo }}" style="max-width: 100%; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                </div>
+                {% endif %}
                 <div class="body-text">{{ pub.contenido|linebreaksbr }}</div>
 
                 <!-- Sección de Comentarios -->
@@ -856,61 +826,5 @@ function enviarComentario(publicacionId) {
     });
 }
 
-function crearCategoria() {
-    const nombre = document.getElementById('new-category-name').value.trim();
-    const icono = document.getElementById('new-category-icon').value.trim() || '📁';
-    
-    if (!nombre) {
-        alert('Por favor ingresa un nombre para la categoría');
-        return;
-    }
-    
-    fetch('/blog/categoria/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({
-            nombre: nombre,
-            icono: icono
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Categoría creada exitosamente');
-            location.reload();
-        } else {
-            alert('Error: ' + data.error);
-        }
-    })
-    .catch(error => {
-        alert('Error al crear categoría');
-    });
-}
-
-function eliminarCategoria(categoriaId) {
-    if (!confirm('¿Estás seguro de eliminar esta categoría?')) return;
-    
-    fetch(`/blog/categoria/${categoriaId}/`, {
-        method: 'DELETE',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken')
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            alert('Categoría eliminada exitosamente');
-            location.reload();
-        } else {
-            alert('Error: ' + data.error);
-        }
-    })
-    .catch(error => {
-        alert('Error al eliminar categoría');
-    });
-}
 </script>
 {% endblock %}

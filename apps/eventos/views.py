@@ -3,8 +3,9 @@ from .models import Evento
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
 from notificaciones.models import Notificacion
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
+from django.template.loader import render_to_string
 import logging
 
 logger = logging.getLogger(__name__)
@@ -55,16 +56,26 @@ def crear_evento(request):
                         enlace='/eventos/'
                     )
 
-                    # Enviar email de confirmación
+                    # Enviar email de confirmación con HTML
                     if request.user.email:
                         try:
-                            send_mail(
-                                f'📅 Evento creado: {titulo}',
-                                f'Hola {request.user.username},\n\nTu evento "{titulo}" ha sido creado exitosamente.\n\nFecha: {fecha_evento.strftime("%d/%m/%Y %H:%M")}\nDescripción: {descripcion or "Sin descripción"}\n\nTe enviaremos recordatorios automáticos antes del evento.\n\nSaludos,\nMiniAmigixV',
-                                settings.DEFAULT_FROM_EMAIL,
-                                [request.user.email],
-                                fail_silently=True,
-                            )
+                            subject = f'📅 Evento creado: {titulo}'
+                            from_email = settings.DEFAULT_FROM_EMAIL
+                            to_email = [request.user.email]
+                            
+                            # Renderizar HTML
+                            html_content = render_to_string('emails/evento_creado.html', {
+                                'username': request.user.username,
+                                'titulo': titulo,
+                                'fecha': fecha_evento.strftime("%d/%m/%Y %H:%M"),
+                                'descripcion': descripcion or "Sin descripción",
+                                'site_url': getattr(settings, 'SITE_URL', 'http://localhost:8000')
+                            })
+                            
+                            # Crear email con HTML
+                            email = EmailMultiAlternatives(subject, '', from_email, to_email)
+                            email.attach_alternative(html_content, 'text/html')
+                            email.send(fail_silently=False)
                         except Exception as e:
                             logger.error(f'Error al enviar email de confirmación: {str(e)}')
 

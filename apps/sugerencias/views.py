@@ -28,7 +28,7 @@ def crear_sugerencia(request):
             
             # Enviar email al administrador
             try:
-                contenido_html = render_to_string('email_sugerencia.html', {
+                contenido_html = render_to_string('emails/sugerencia.html', {
                     'nombre': request.user.username if request.user.is_authenticated else 'Usuario anónimo',
                     'email': request.user.email if request.user.is_authenticated else 'No proporcionado',
                     'mensaje': descripcion,

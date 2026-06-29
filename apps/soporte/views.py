@@ -108,15 +108,11 @@ def soporte_home(request):
 
         # Renderizar plantilla HTML
         fecha_actual = timezone.now().strftime("%d/%m/%Y a las %H:%M")
-        contenido_html = render_to_string("email_soporte.html", {
+        contenido_html = render_to_string("emails/soporte.html", {
             "nombre": nombre,
             "email": email,
             "mensaje": mensaje,
             "categoria": categoria_texto,
-            "categoria_emoji": badge["emoji"],
-            "badge_bg": badge["bg"],
-            "badge_border": badge["border"],
-            "badge_color": badge["color"],
             "fecha": fecha_actual,
         })
 
