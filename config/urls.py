@@ -23,6 +23,9 @@ urlpatterns = [
     # MongoDB Analytics
     path('mongodb/', include('mongodb.urls')),
     
+    # Blog
+    path('blog/', include('apps.blog.urls')),
+    
     # Main Application
     path('', include('app.urls')),
 ]

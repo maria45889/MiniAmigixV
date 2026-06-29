@@ -21,7 +21,7 @@ import random
 import datetime
 from django.utils import timezone
 import yt_dlp
-from .models import ConversacionChat, MensajeChat, Cancion, PublicacionBlog, Playlist, Favorite, Game, Score, Achievement, UserAchievement, Category, Comment, EstadoAnimo, RecomendacionEntretenimiento
+from .models import ConversacionChat, MensajeChat, Cancion, Playlist, Favorite, Game, Score, Achievement, UserAchievement, EstadoAnimo, RecomendacionEntretenimiento
 from eventos.models import Evento
 from notificaciones.models import Notificacion
 from apps.mongodb.services import DualDatabaseService
@@ -405,7 +405,7 @@ def home(request):
     # Estadísticas del usuario
     if request.user.is_authenticated:
         context['stats_chats'] = ConversacionChat.objects.filter(usuario=request.user).count()
-        context['stats_notas'] = PublicacionBlog.objects.filter(usuario=request.user).count()
+        context['stats_notas'] = 0
         context['stats_eventos'] = Evento.objects.count()  # Evento es global, no tiene campo usuario
         context['stats_canciones'] = Cancion.objects.filter(usuario=request.user).count()
         
@@ -1429,103 +1429,6 @@ def edit_song_api(request, song_id):
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
-# ==================== VISTAS DEL BLOG ====================
-def blog(request):
-    noticias_globales = PublicacionBlog.objects.filter(
-        es_oficial=True, 
-        publicado=True
-    )
-    if not request.user.is_staff:
-        noticias_globales = noticias_globales.filter(visible_para_todos=True)
-    
-    mis_publicaciones = []
-    if request.user.is_authenticated:
-        mis_publicaciones = PublicacionBlog.objects.filter(
-            usuario=request.user,
-            publicado=True,
-            es_oficial=False
-        )
-    
-    # Obtener categorías dinámicas
-    categorias = Category.objects.all()
-    
-    # Obtener comentarios para cada publicación
-    for publicacion in noticias_globales:
-        publicacion.comentarios_lista = publicacion.comentarios.all()[:5]
-    
-    for publicacion in mis_publicaciones:
-        publicacion.comentarios_lista = publicacion.comentarios.all()[:5]
-    
-    return render(request, 'blog.html', {
-        'noticias_globales': noticias_globales,
-        'mis_publicaciones': mis_publicaciones,
-        'categorias': categorias
-    })
-
-def crear_publicacion(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
-    
-    if request.method == 'POST':
-        titulo = request.POST.get('titulo')
-        contenido = request.POST.get('contenido')
-        categoria = request.POST.get('categoria', 'personal')
-        imagen = request.FILES.get('imagen')
-        
-        if not titulo or not contenido:
-            return redirect('blog')
-            
-        es_oficial = False
-        fijado = False
-        visible_para_todos = request.POST.get('visible_para_todos') == 'on'
-        
-        if request.user.is_staff:
-            es_oficial = request.POST.get('es_oficial') == 'on'
-            fijado = request.POST.get('fijado') == 'on'
-        else:
-            if categoria in ['mantenimiento', 'actualizaciones', 'avisos_urgentes']:
-                categoria = 'personal'
-        
-        PublicacionBlog.objects.create(
-            usuario=request.user,
-            titulo=titulo,
-            contenido=contenido,
-            imagen=imagen,
-            categoria=categoria,
-            es_oficial=es_oficial,
-            fijado=fijado,
-            visible_para_todos=visible_para_todos
-        )
-        
-        return redirect('blog')
-    
-    return redirect('blog')
-
-def eliminar_publicacion(request, publicacion_id):
-    if not request.user.is_authenticated:
-        return redirect('login')
-    if request.method == 'POST':
-        try:
-            publicacion = PublicacionBlog.objects.get(id=publicacion_id, usuario=request.user)
-            publicacion.delete()
-        except PublicacionBlog.DoesNotExist:
-            pass
-    return redirect('blog')
-
-@require_http_methods(["DELETE"])
-def delete_publicacion_api(request, publicacion_id):
-    if not request.user.is_authenticated:
-        return JsonResponse({'success': False, 'error': 'No autenticado'}, status=401)
-    
-    try:
-        publicacion = PublicacionBlog.objects.get(id=publicacion_id, usuario=request.user)
-        publicacion.delete()
-        return JsonResponse({'success': True})
-    except PublicacionBlog.DoesNotExist:
-        return JsonResponse({'success': False, 'error': 'Publicación no encontrada'}, status=404)
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=500)
-
 @csrf_exempt
 def enviar_sugerencia_rapida(request):
     if request.method == 'POST':
@@ -1622,7 +1525,7 @@ def panel_admin(request):
         'total_usuarios': User.objects.count(),
         'total_chats': ConversacionChat.objects.count(),
         'total_canciones': Cancion.objects.count(),
-        'total_publicaciones': PublicacionBlog.objects.count(),
+        'total_publicaciones': 0,
         'total_eventos': Evento.objects.count(),
         'ultimos_usuarios': User.objects.order_by('-date_joined')[:10],
         'ultimas_notificaciones': Notificacion.objects.order_by('-fecha_creacion')[:5],
@@ -1644,7 +1547,7 @@ def admin_stats_api(request):
         'total_usuarios': User.objects.count(),
         'total_chats': ConversacionChat.objects.count(),
         'total_canciones': Cancion.objects.count(),
-        'total_publicaciones': PublicacionBlog.objects.count(),
+        'total_publicaciones': 0,
         'total_eventos': Evento.objects.count(),
         'total_notificaciones': Notificacion.objects.count(),
         'ultimos_usuarios': [
@@ -1739,91 +1642,6 @@ def panel_admin_email_user(request, user_id):
     return render(request, 'panel_admin_email_user.html', {
         'user_target': user_target,
     })
-
-def crear_comentario(request):
-    if not request.user.is_authenticated:
-        return JsonResponse({'error': 'No autenticado'}, status=401)
-    
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            publicacion_id = data.get('publicacion_id')
-            contenido = data.get('contenido', '').strip()
-            padre_id = data.get('padre_id', None)
-            
-            if not contenido:
-                return JsonResponse({'error': 'El contenido es requerido'}, status=400)
-            
-            publicacion = PublicacionBlog.objects.get(id=publicacion_id, publicado=True)
-            
-            comentario = Comment.objects.create(
-                publicacion=publicacion,
-                usuario=request.user,
-                contenido=contenido
-            )
-            
-            if padre_id:
-                comentario.padre = Comment.objects.get(id=padre_id)
-                comentario.save()
-            
-            return JsonResponse({
-                'success': True,
-                'comentario_id': comentario.id,
-                'usuario': request.user.username,
-                'contenido': contenido,
-                'fecha': comentario.fecha_creacion.strftime('%d/%m/%Y %H:%M')
-            })
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
-    
-    return JsonResponse({'error': 'Método no permitido'}, status=405)
-
-def crear_categoria(request):
-    if not request.user.is_authenticated or not request.user.is_staff:
-        return JsonResponse({'error': 'No autorizado'}, status=403)
-    
-    if request.method == 'POST':
-        try:
-            data = json.loads(request.body)
-            nombre = data.get('nombre', '').strip()
-            icono = data.get('icono', '📁')
-            descripcion = data.get('descripcion', '').strip()
-            
-            if not nombre:
-                return JsonResponse({'error': 'El nombre es requerido'}, status=400)
-            
-            categoria = Category.objects.create(
-                nombre=nombre,
-                icono=icono,
-                descripcion=descripcion
-            )
-            
-            return JsonResponse({
-                'success': True,
-                'categoria_id': categoria.id,
-                'nombre': categoria.nombre,
-                'icono': categoria.icono
-            })
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
-    
-    return JsonResponse({'error': 'Método no permitido'}, status=405)
-
-def eliminar_categoria(request, categoria_id):
-    if not request.user.is_authenticated or not request.user.is_staff:
-        return JsonResponse({'error': 'No autorizado'}, status=403)
-    
-    if request.method == 'DELETE':
-        try:
-            categoria = Category.objects.get(id=categoria_id)
-            categoria.delete()
-            return JsonResponse({'success': True})
-        except Category.DoesNotExist:
-            return JsonResponse({'error': 'Categoría no encontrada'}, status=404)
-        except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
-    
-    return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 def guardar_puntuacion(request):
     if not request.user.is_authenticated:

@@ -99,13 +99,6 @@
                 <p>Revisa el pronóstico y las condiciones actuales.</p>
             </div>
         </a>
-        <a href="{% url 'blog' %}" class="card">
-            <div class="card-icon-wrapper blog-icon"><span class="emoji">📝</span></div>
-            <div class="card-content">
-                <h3>Blog</h3>
-                <p>Lee, escribe y comparte tus ideas con la comunidad.</p>
-            </div>
-        </a>
     </div>
 </div>
 {% endblock %}
@@ -131,10 +124,10 @@ document.addEventListener('DOMContentLoaded', function() {
     new Chart(ctx, {
         type: 'bar',
         data: {
-            labels: ['Chats', 'Blog', 'Eventos', 'Música'],
+            labels: ['Chats', 'Eventos', 'Música'],
             datasets: [{
                 label: 'Actividad',
-                data: [dataChats, dataNotas, dataEventos, dataCanciones],
+                data: [dataChats, dataEventos, dataCanciones],
                 backgroundColor: gradient,
                 borderRadius: 8,
                 borderSkipped: false,

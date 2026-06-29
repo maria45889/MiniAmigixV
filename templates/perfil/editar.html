@@ -22,6 +22,11 @@
             <h3 class="section-title">Información Básica</h3>
             
             <div class="form-group-modern">
+                <label for="username"><i data-lucide="user"></i> Nombre de Usuario</label>
+                <input type="text" id="username" name="username" value="{{ perfil.usuario.username }}" placeholder="Tu nombre de usuario">
+            </div>
+            
+            <div class="form-group-modern">
                 <label for="bio"><i data-lucide="align-left"></i> Biografía</label>
                 <textarea id="bio" name="bio" rows="4" placeholder="Escribe algo interesante sobre ti...">{{ perfil.bio }}</textarea>
             </div>
@@ -94,8 +99,9 @@
 <script>
 // Aplicar tema inmediatamente (antes de DOMContentLoaded para evitar parpadeo)
 (function() {
-    const localStorageTheme = localStorage.getItem('theme');
+    // Prioridad: valor de la BD (ya que estamos en la página de editar perfil)
     const dbTheme = "{{ perfil.tema|default:'dark' }}";
+    const localStorageTheme = localStorage.getItem('theme');
     const defaultTheme = localStorageTheme || dbTheme || 'dark';
     
     if (defaultTheme === "light") {
@@ -106,8 +112,20 @@
 })();
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Sincronizar localStorage con los valores de la BD al cargar la página de edición
+    const dbTheme = "{{ perfil.tema|default:'dark' }}";
+    const dbIdioma = "{{ perfil.idioma|default:'es' }}";
+    
+    // Si localStorage no tiene valores o tiene valores diferentes, sincronizar desde la BD
+    if (!localStorage.getItem('theme')) {
+        localStorage.setItem('theme', dbTheme);
+    }
+    if (!localStorage.getItem('idioma')) {
+        localStorage.setItem('idioma', dbIdioma);
+    }
+    
     // Aplicar idioma guardado inmediatamente
-    const savedLang = localStorage.getItem('idioma') || 'es';
+    const savedLang = localStorage.getItem('idioma') || dbIdioma;
     const translations = {
         es: {
             'home': 'Inicio',
@@ -162,7 +180,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const tema = document.getElementById('tema').value;
             const idioma = document.getElementById('idioma').value;
             
-            // Guardar en localStorage
+            // IMPORTANTE: Guardar en localStorage ANTES de que el formulario se envíe
+            // Esto asegura que después del redirect, los valores estén actualizados
             localStorage.setItem('theme', tema);
             localStorage.setItem('idioma', idioma);
             
@@ -181,15 +200,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
             
-            // Llamar a la API para guardar en la base de datos
-            fetch('/api/update-language/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: JSON.stringify({ idioma: idioma })
-            }).catch(err => console.error('Error al cambiar idioma:', err));
+            // NO llamar a la API por separado - el formulario POST ya guarda todo
+            // La llamada fetch a /api/update-language/ causaba conflictos con la navegación
         });
     }
 });

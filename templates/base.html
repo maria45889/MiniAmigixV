@@ -414,11 +414,17 @@
             }
         }
 
-        // Aplicar tema guardado - Prioridad: localStorage > base de datos > dark
+        // Aplicar tema guardado - Prioridad: base de datos > localStorage > dark
         function applyTheme() {
             const localStorageTheme = localStorage.getItem("theme");
             const dbTheme = "{{ perfil_tema|default:'dark' }}";
+            {% if user.is_authenticated %}
+            // Para usuarios autenticados, la BD es la fuente de verdad
+            const defaultTheme = dbTheme;
+            localStorage.setItem('theme', dbTheme);
+            {% else %}
             const defaultTheme = localStorageTheme || dbTheme || 'dark';
+            {% endif %}
             
             if (defaultTheme === "light") {
                 document.body.classList.add("light");
@@ -499,8 +505,17 @@
             localStorage.setItem('idioma', lang);
         }
 
-        // Aplicar idioma guardado o de la base de datos
-        const savedLang = localStorage.getItem('idioma') || "{{ perfil_idioma|default:'es' }}";
+        // Aplicar idioma guardado - Prioridad: base de datos > localStorage > 'es'
+        const dbLang = "{{ perfil_idioma|default:'es' }}";
+        const localLang = localStorage.getItem('idioma');
+        // Si el usuario está autenticado, usar el valor de la BD como fuente de verdad
+        {% if user.is_authenticated %}
+        const savedLang = dbLang;
+        // Sincronizar localStorage con el valor de la BD
+        localStorage.setItem('idioma', dbLang);
+        {% else %}
+        const savedLang = localLang || dbLang;
+        {% endif %}
         applyLanguage(savedLang);
 
 

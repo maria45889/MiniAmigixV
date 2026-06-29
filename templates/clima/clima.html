@@ -4,7 +4,7 @@
 {% block title %}Clima{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/clima-glass.css' %}?v=1">
+<link rel="stylesheet" href="{% static 'css/pages/clima-glass.css' %}?v=1">
 <script src="https://unpkg.com/lucide@latest"></script>
 {% endblock %}
 
@@ -37,7 +37,7 @@
             <i id="weather-icon" data-lucide="sun" class="lucide-main" style="color: #fbbf24;"></i>
             
             <div class="audio-wave">
-                <span></span><span></span><span></span><span></span>
+                <span></span><span></span><span></span><span></span><span></span>
             </div>
             
             <h2 class="main-temp" id="main-temp">--°</h2>
@@ -120,7 +120,7 @@
                     FUENTE DE DATOS
                 </div>
                 <div class="status-msg">
-                    <b>OpenWeather API:</b> Datos meteorológicos en tiempo real. La precisión puede variar según la ubicación.
+                    <b>OpenWeather:</b> Servicio que nos da la información del clima de cualquier ciudad del mundo. Muestra la temperatura actual, humedad, viento y el pronóstico para los próximos días.
                 </div>
             </div>
             
@@ -213,42 +213,79 @@
     }
 
     function actualizarUI(data) {
-        // Actualizar datos principales
-        document.getElementById('main-temp').textContent = Math.round(data.temperatura) + '°';
-        document.getElementById('main-city').textContent = data.ciudad;
-        document.getElementById('main-desc').textContent = data.descripcion;
+        // Actualizar datos principales con animación
+        const tempElement = document.getElementById('main-temp');
+        const cityElement = document.getElementById('main-city');
+        const descElement = document.getElementById('main-desc');
         
-        // Actualizar icono
+        // Animación de temperatura
+        tempElement.style.opacity = '0';
+        tempElement.style.transform = 'translateY(20px)';
+        
+        setTimeout(() => {
+            tempElement.textContent = Math.round(data.temperatura) + '°';
+            tempElement.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+            tempElement.style.opacity = '1';
+            tempElement.style.transform = 'translateY(0)';
+        }, 100);
+        
+        cityElement.textContent = data.ciudad;
+        descElement.textContent = data.descripcion;
+        
+        // Actualizar icono con colores mejorados
         const iconElement = document.getElementById('weather-icon');
         const desc = data.descripcion.toLowerCase();
         
         if (desc.includes('clear') || desc.includes('soleado') || desc.includes('sun')) {
             iconElement.setAttribute('data-lucide', 'sun');
             iconElement.style.color = '#fbbf24';
+            iconElement.style.filter = 'drop-shadow(0 0 40px rgba(251, 191, 36, 0.6))';
         } else if (desc.includes('cloud') || desc.includes('nubl') || desc.includes('overcast')) {
             iconElement.setAttribute('data-lucide', 'cloud');
             iconElement.style.color = '#e2e8f0';
+            iconElement.style.filter = 'drop-shadow(0 0 40px rgba(226, 232, 240, 0.4))';
         } else if (desc.includes('rain') || desc.includes('lluvia') || desc.includes('drizzle')) {
             iconElement.setAttribute('data-lucide', 'cloud-rain');
             iconElement.style.color = '#94a3b8';
+            iconElement.style.filter = 'drop-shadow(0 0 40px rgba(148, 163, 184, 0.5))';
         } else if (desc.includes('storm') || desc.includes('tormenta') || desc.includes('thunder')) {
             iconElement.setAttribute('data-lucide', 'cloud-lightning');
-            iconElement.style.color = '#94a3b8';
+            iconElement.style.color = '#fbbf24';
+            iconElement.style.filter = 'drop-shadow(0 0 40px rgba(251, 191, 36, 0.6))';
         } else if (desc.includes('snow') || desc.includes('nieve')) {
             iconElement.setAttribute('data-lucide', 'snowflake');
             iconElement.style.color = '#e2e8f0';
+            iconElement.style.filter = 'drop-shadow(0 0 40px rgba(226, 232, 240, 0.5))';
+        } else if (desc.includes('mist') || desc.includes('fog') || desc.includes('niebla')) {
+            iconElement.setAttribute('data-lucide', 'cloud-fog');
+            iconElement.style.color = '#94a3b8';
+            iconElement.style.filter = 'drop-shadow(0 0 40px rgba(148, 163, 184, 0.4))';
         } else {
             iconElement.setAttribute('data-lucide', 'cloud');
             iconElement.style.color = '#e2e8f0';
+            iconElement.style.filter = 'drop-shadow(0 0 40px rgba(226, 232, 240, 0.4))';
         }
         
-        // Actualizar estadísticas
-        document.getElementById('humidity-value').textContent = (data.humedad || '--') + '%';
-        document.getElementById('humidity-bar').style.width = (data.humedad || 0) + '%';
+        // Actualizar estadísticas con animación
+        const humidityValue = document.getElementById('humidity-value');
+        const humidityBar = document.getElementById('humidity-bar');
+        const windValue = document.getElementById('wind-value');
+        const windBar = document.getElementById('wind-bar');
         
-        const windSpeed = data.viento_velocidad ? Math.round(data.viento_velocidad * 3.6) : 0; // Convertir m/s a km/h
-        document.getElementById('wind-value').textContent = windSpeed + ' km/h';
-        document.getElementById('wind-bar').style.width = Math.min(windSpeed, 100) + '%';
+        humidityValue.textContent = (data.humedad || '--') + '%';
+        humidityBar.style.width = '0%';
+        
+        setTimeout(() => {
+            humidityBar.style.width = (data.humedad || 0) + '%';
+        }, 200);
+        
+        const windSpeed = data.viento_velocidad ? Math.round(data.viento_velocidad * 3.6) : 0;
+        windValue.textContent = windSpeed + ' km/h';
+        windBar.style.width = '0%';
+        
+        setTimeout(() => {
+            windBar.style.width = Math.min(windSpeed, 100) + '%';
+        }, 300);
         
         // Actualizar pronóstico
         const forecastGrid = document.getElementById('forecast-grid');
@@ -259,30 +296,56 @@
             data.pronostico.slice(0, 3).forEach((dia, index) => {
                 const item = document.createElement('div');
                 item.className = 'forecast-item';
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(20px)';
                 
                 const desc = dia.descripcion.toLowerCase();
                 let icon = 'cloud';
                 let color = '#e2e8f0';
+                let filter = 'drop-shadow(0 0 15px rgba(226, 232, 240, 0.3))';
                 
                 if (desc.includes('clear') || desc.includes('soleado') || desc.includes('sun')) {
                     icon = 'sun';
                     color = '#fbbf24';
+                    filter = 'drop-shadow(0 0 15px rgba(251, 191, 36, 0.5))';
                 } else if (desc.includes('rain') || desc.includes('lluvia')) {
                     icon = 'cloud-rain';
                     color = '#94a3b8';
+                    filter = 'drop-shadow(0 0 15px rgba(148, 163, 184, 0.4))';
+                } else if (desc.includes('storm') || desc.includes('tormenta')) {
+                    icon = 'cloud-lightning';
+                    color = '#fbbf24';
+                    filter = 'drop-shadow(0 0 15px rgba(251, 191, 36, 0.5))';
                 }
                 
                 item.innerHTML = `
                     <div class="forecast-day">${dias[index] || 'DÍA ' + (index + 1)}</div>
-                    <i data-lucide="${icon}" class="forecast-icon" style="color: ${color};"></i>
+                    <i data-lucide="${icon}" class="forecast-icon" style="color: ${color}; filter: ${filter};"></i>
                     <div class="forecast-temp">${Math.round(dia.temperatura_max)}°C</div>
                 `;
                 forecastGrid.appendChild(item);
+                
+                // Animación escalonada
+                setTimeout(() => {
+                    item.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                }, 100 + (index * 150));
             });
         }
         
-        // Mostrar dashboard
-        document.getElementById('weather-dashboard').style.display = '';
+        // Mostrar dashboard con animación
+        const dashboard = document.getElementById('weather-dashboard');
+        dashboard.style.display = '';
+        dashboard.style.opacity = '0';
+        dashboard.style.transform = 'translateY(30px)';
+        
+        setTimeout(() => {
+            dashboard.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+            dashboard.style.opacity = '1';
+            dashboard.style.transform = 'translateY(0)';
+        }, 50);
+        
         document.getElementById('error-msg').style.display = 'none';
         
         // Recrear iconos
@@ -290,18 +353,52 @@
     }
 
     function mostrarLoading(show) {
-        document.getElementById('loading').style.display = show ? 'block' : 'none';
+        const loadingElement = document.getElementById('loading');
+        const dashboard = document.getElementById('weather-dashboard');
+        
         if (show) {
-            document.getElementById('weather-dashboard').style.display = 'none';
+            loadingElement.style.display = 'flex';
+            loadingElement.style.opacity = '0';
+            dashboard.style.opacity = '0';
+            
+            setTimeout(() => {
+                loadingElement.style.transition = 'opacity 0.3s ease';
+                loadingElement.style.opacity = '1';
+            }, 10);
+            
+            setTimeout(() => {
+                dashboard.style.display = 'none';
+            }, 300);
+        } else {
+            loadingElement.style.opacity = '0';
+            setTimeout(() => {
+                loadingElement.style.display = 'none';
+            }, 300);
         }
     }
 
     function mostrarError(message) {
         const errorElement = document.getElementById('error-msg');
+        const dashboard = document.getElementById('weather-dashboard');
+        const loading = document.getElementById('loading');
+        
         errorElement.textContent = message;
         errorElement.style.display = 'block';
-        document.getElementById('weather-dashboard').style.display = 'none';
-        document.getElementById('loading').style.display = 'none';
+        errorElement.style.opacity = '0';
+        errorElement.style.transform = 'translateY(-20px)';
+        
+        dashboard.style.opacity = '0';
+        loading.style.display = 'none';
+        
+        setTimeout(() => {
+            errorElement.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+            errorElement.style.opacity = '1';
+            errorElement.style.transform = 'translateY(0)';
+        }, 10);
+        
+        setTimeout(() => {
+            dashboard.style.display = 'none';
+        }, 300);
     }
 
     // Cargar clima inicial: detectar ubicación automáticamente

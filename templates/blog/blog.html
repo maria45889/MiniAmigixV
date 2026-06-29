@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Blog{% endblock %}
+
+{% block extra_head %}
+<meta charset="UTF-8">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/blog.css' %}?v=1">
+{% endblock %}
+
+{% block content %}
+<div class="blog-container">
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="blog-header">
+        <h1><i data-lucide="file-text"></i> Blog</h1>
+        <p>Comparte tus ideas con la comunidad</p>
+    </div>
+
+    {% if user.is_authenticated %}
+    <div class="create-post-section">
+        <button class="btn-create-post" onclick="toggleCreatePost()">
+            <i data-lucide="plus"></i> Nueva Publicación
+        </button>
+        
+        <div id="create-post-form" class="create-post-form" style="display: none;">
+            <form id="post-form" method="POST" action="{% url 'crear_publicacion' %}" enctype="multipart/form-data">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="titulo">Título</label>
+                    <input type="text" id="titulo" name="titulo" required autocomplete="off">
+                </div>
+                <div class="form-group">
+                    <label for="contenido">Contenido</label>
+                    <textarea id="contenido" name="contenido" rows="5" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="categoria">Categoría</label>
+                    <select id="categoria" name="categoria">
+                        <option value="personal">📝 Personal</option>
+                        <option value="consejos">💡 Consejos</option>
+                        <option value="tutorial">🎯 Tutorial</option>
+                        {% if user.is_staff %}
+                        <option value="noticias">📰 Noticias</option>
+                        <option value="anuncios">🚀 Anuncios</option>
+                        <option value="mantenimiento">⚙️ Mantenimiento</option>
+                        <option value="actualizaciones">🔄 Actualizaciones</option>
+                        <option value="avisos_urgentes">⚠️ Avisos Urgentes</option>
+                        {% endif %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="imagen">Imagen (opcional)</label>
+                    <input type="file" id="imagen" name="imagen" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="visible_para_todos" checked>
+                        Visible para todos
+                    </label>
+                </div>
+                {% if user.is_staff %}
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="es_oficial">
+                        Publicación oficial
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" name="fijado">
+                        Fijar publicación
+                    </label>
+                </div>
+                {% endif %}
+                <div class="form-actions">
+                    <button type="button" class="btn-cancel" onclick="toggleCreatePost()">Cancelar</button>
+                    <button type="submit" class="btn-submit">Publicar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="blog-sections">
+        <div class="blog-section">
+            <h2><i data-lucide="globe"></i> Noticias Globales</h2>
+            <div class="posts-grid">
+                {% for post in noticias_globales %}
+                <div class="post-card {% if post.fijado %}pinned{% endif %}">
+                    {% if post.fijado %}
+                    <div class="pinned-badge"><i data-lucide="pin"></i> Fijado</div>
+                    {% endif %}
+                    {% if post.imagen %}
+                    <img src="{{ post.imagen.url }}" alt="{{ post.titulo }}" class="post-image">
+                    {% endif %}
+                    <div class="post-content">
+                        <div class="post-category">{{ post.get_categoria_display }}</div>
+                        <h3>{{ post.titulo }}</h3>
+                        <p class="post-excerpt">{{ post.contenido|truncatewords:30 }}</p>
+                        <div class="post-meta">
+                            <span><i data-lucide="user"></i> {{ post.usuario.username }}</span>
+                            <span><i data-lucide="calendar"></i> {{ post.fecha_publicacion|date:"d/m/Y H:i" }}</span>
+                        </div>
+                        <div class="post-actions">
+                            <button class="btn-read-more" onclick="togglePostContent({{ post.id }})">Leer más</button>
+                            {% if post.usuario == user %}
+                            <button class="btn-delete" onclick="deletePost({{ post.id }})"><i data-lucide="trash-2"></i></button>
+                            {% endif %}
+                        </div>
+                        <div id="post-content-{{ post.id }}" class="post-full-content" style="display: none;">
+                            <p>{{ post.contenido|linebreaks }}</p>
+                        </div>
+                        <div class="comments-section">
+                            <div class="comments-list">
+                                {% for comentario in post.comentarios_lista %}
+                                <div class="comment">
+                                    <div class="comment-header">
+                                        <strong>{{ comentario.usuario.username }}</strong>
+                                        <span>{{ comentario.fecha_creacion|date:"d/m/Y H:i" }}</span>
+                                    </div>
+                                    <p>{{ comentario.contenido }}</p>
+                                </div>
+                                {% empty %}
+                                <p class="no-comments">Sin comentarios</p>
+                                {% endfor %}
+                            </div>
+                            {% if user.is_authenticated %}
+                            <div class="comment-form">
+                                <textarea id="comment-{{ post.id }}" placeholder="Escribe un comentario..."></textarea>
+                                <button onclick="addComment({{ post.id }})">Comentar</button>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="no-posts">No hay publicaciones globales</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        {% if user.is_authenticated %}
+        <div class="blog-section">
+            <h2><i data-lucide="user"></i> Mis Publicaciones</h2>
+            <div class="posts-grid">
+                {% for post in mis_publicaciones %}
+                <div class="post-card">
+                    {% if post.imagen %}
+                    <img src="{{ post.imagen.url }}" alt="{{ post.titulo }}" class="post-image">
+                    {% endif %}
+                    <div class="post-content">
+                        <div class="post-category">{{ post.get_categoria_display }}</div>
+                        <h3>{{ post.titulo }}</h3>
+                        <p class="post-excerpt">{{ post.contenido|truncatewords:30 }}</p>
+                        <div class="post-meta">
+                            <span><i data-lucide="calendar"></i> {{ post.fecha_publicacion|date:"d/m/Y H:i" }}</span>
+                        </div>
+                        <div class="post-actions">
+                            <button class="btn-read-more" onclick="togglePostContent({{ post.id }})">Leer más</button>
+                            <button class="btn-delete" onclick="deletePost({{ post.id }})"><i data-lucide="trash-2"></i></button>
+                        </div>
+                        <div id="post-content-{{ post.id }}" class="post-full-content" style="display: none;">
+                            <p>{{ post.contenido|linebreaks }}</p>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="no-posts">No tienes publicaciones</p>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Handler para el formulario de crear post
+    const postForm = document.getElementById('post-form');
+    if (postForm) {
+        postForm.addEventListener('submit', function(e) {
+            const titulo = document.getElementById('titulo').value.trim();
+            const contenido = document.getElementById('contenido').value.trim();
+            
+            console.log('Formulario submit - Título:', titulo);
+            console.log('Formulario submit - Contenido:', contenido);
+            console.log('Formulario submit - Longitud título:', titulo.length);
+            console.log('Formulario submit - Longitud contenido:', contenido.length);
+            
+            if (!titulo || !contenido) {
+                e.preventDefault();
+                alert('Por favor, completa el título y el contenido');
+                return false;
+            }
+            
+            // Permitir que el formulario se envíe normalmente
+            return true;
+        });
+    }
+});
+
+function toggleCreatePost() {
+    const form = document.getElementById('create-post-form');
+    form.style.display = form.style.display === 'none' ? 'block' : 'none';
+}
+
+function togglePostContent(postId) {
+    const content = document.getElementById('post-content-' + postId);
+    content.style.display = content.style.display === 'none' ? 'block' : 'none';
+}
+
+function deletePost(postId) {
+    if (confirm('¿Estás seguro de eliminar esta publicación?')) {
+        fetch(`/blog/api/delete-publicacion/${postId}/`, {
+            method: 'DELETE',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error al eliminar: ' + data.error);
+            }
+        })
+        .catch(error => alert('Error: ' + error));
+    }
+}
+
+function addComment(postId) {
+    const textarea = document.getElementById('comment-' + postId);
+    const contenido = textarea.value.trim();
+    
+    if (!contenido) {
+        alert('Escribe un comentario');
+        return;
+    }
+    
+    fetch('/blog/comentario/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({
+            post_id: postId,
+            contenido: contenido
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => alert('Error: ' + error));
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.startsWith(name + "=")) {
+                cookieValue = decodeURIComponent(cookie.split("=")[1]);
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

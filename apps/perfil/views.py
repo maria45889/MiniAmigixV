@@ -35,19 +35,44 @@ def editar_perfil(request):
     perfil, created = Perfil.objects.get_or_create(usuario=request.user)
     
     if request.method == 'POST':
-        # Actualizar campos
-        perfil.bio = request.POST.get('bio', perfil.bio or '')
-        perfil.tema = request.POST.get('tema', perfil.tema or 'dark')
-        perfil.idioma = request.POST.get('idioma', perfil.idioma or 'es')
+        try:
+            # Actualizar campos
+            username = request.POST.get('username', '').strip()
+            if username and username != perfil.usuario.username:
+                # Verificar que el username no esté en uso
+                if not User.objects.filter(username=username).exists():
+                    perfil.usuario.username = username
+                    perfil.usuario.save()
+            
+            # Fix bio: handle "None" string and empty values
+            bio = request.POST.get('bio', '')
+            if bio is None or bio.strip().lower() == 'none':
+                bio = ''
+            perfil.bio = bio.strip()
+            
+            perfil.tema = request.POST.get('tema', 'dark') or 'dark'
+            perfil.idioma = request.POST.get('idioma', 'es') or 'es'
+            
+            fecha_nacimiento = request.POST.get('fecha_nacimiento', '').strip()
+            if fecha_nacimiento:
+                perfil.fecha_nacimiento = fecha_nacimiento
+            
+            if 'avatar' in request.FILES and request.FILES['avatar']:
+                perfil.avatar = request.FILES['avatar']
+            
+            perfil.save()
+            
+            from django.contrib import messages
+            messages.success(request, '¡Perfil actualizado correctamente!')
+        except Exception as e:
+            from django.contrib import messages
+            messages.error(request, f'Error al guardar el perfil: {str(e)}')
         
-        fecha_nacimiento = request.POST.get('fecha_nacimiento')
-        if fecha_nacimiento:
-            perfil.fecha_nacimiento = fecha_nacimiento
-        
-        if 'avatar' in request.FILES and request.FILES['avatar']:
-            perfil.avatar = request.FILES['avatar']
-        
-        perfil.save()
         return redirect('perfil')
+    
+    # Fix: if bio is "None" string, clean it before showing
+    if perfil.bio and perfil.bio.strip().lower() == 'none':
+        perfil.bio = ''
+        perfil.save()
     
     return render(request, 'perfil/editar.html', {'perfil': perfil})
