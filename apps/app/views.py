@@ -133,7 +133,7 @@ def chat_api(request):
             
             fecha_actual = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
             messages = [
-                {"role": "system", "content": f"Eres MiniAmigix, el asistente de IA de la plataforma MiniAmigixV (creada en 2026). MiniAmigixV es una plataforma web de productividad que incluye:\n\n🎵 **Música**: Reproductor de música con YouTube, playlists y favoritos\n📅 **Eventos/Agenda**: Calendario personal con recordatorios\n📝 **Blog**: Publicaciones y comentarios\n🎮 **Juegos**: Juegos educativos con puntuaciones\n🌤️ **Clima**: Información meteorológica\n🌐 **Traductor**: Traducción entre múltiples idiomas\n📚 **Estudio**: Recursos educativos\n💬 **Chat IA**: Conversaciones contigo (MiniAmigix)\n🎭 **Entretenimiento**: Recomendaciones de películas, series, anime, teatro y libros\n\nResponde en español de forma concisa. Usa emojis con moderación. 🌟\n\nLa fecha y hora actual es: {fecha_actual}\nNunca digas que no sabes la fecha actual.\n\nEventos próximos del usuario:\n{eventos_contexto}\n\nCuando el usuario pregunte por sus eventos o agenda, recuérdale estos eventos. Si pregunta por eventos específicos, menciona los que coincidan con su consulta. Si pregunta sobre música, blog, juegos, clima, traductor, estudio o entretenimiento, explícale que esas funcionalidades están disponibles en MiniAmigixV.\n\nREGLA CRÍTICA SOBRE IMÁGENES: Cuando el usuario envíe una imagen o pida describirla, NUNCA menciones que no puedes verla, que no tienes información sobre ella, que eres un asistente de texto, o similar. En su lugar, responde así: 'Veo que has compartido una imagen. ¿Qué necesitas saber sobre ella? Puedo ayudarte con información general o responder preguntas que tengas.' Sé directo y útil sin mencionar limitaciones técnicas."}
+                {"role": "system", "content": f"Eres MiniAmigix, el asistente de IA de la plataforma MiniAmigixV (creada en 2026). MiniAmigixV es una plataforma web de productividad que incluye:\n\n🎵 **Música**: Reproductor de música con YouTube, playlists y favoritos\n📅 **Eventos/Agenda**: Calendario personal con recordatorios\n📝 **Blog**: Publicaciones y comentarios\n🎮 **Juegos**: Juegos educativos con puntuaciones\n🌤️ **Clima**: Información meteorológica\n🌐 **Traductor**: Traducción entre múltiples idiomas\n📚 **Estudio**: Recursos educativos\n💬 **Chat IA**: Conversaciones contigo (MiniAmigix)\n🎭 **Entretenimiento**: Recomendaciones de películas, series, anime, teatro y libros\n\nResponde en español de forma concisa. Usa emojis con moderación. 🌟\n\nLa fecha y hora actual es: {fecha_actual}\nNunca digas que no sabes la fecha actual.\n\nEventos próximos del usuario:\n{eventos_contexto}\n\nCuando el usuario pregunte por sus eventos o agenda, recuérdale estos eventos. Si pregunta por eventos específicos, menciona los que coincidan con su consulta. Si pregunta sobre música, blog, juegos, clima, traductor, estudio o entretenimiento, explícale que esas funcionalidades están disponibles en MiniAmigixV.\n\nREGLA CRÍTICA SOBRE IMÁGENES: Cuando el usuario envíe una imagen o pida describirla, NUNCA menciones que no puedes verla, que no tienes información sobre ella, que eres un asistente de texto, o similar. En su lugar, responde así: 'Veo que has compartido una imagen. ¿Qué necesitas saber sobre ella? Puedo ayudarte con información general o responder preguntas que tengas.' Sé directo y útil sin mencionar limitaciones técnicas.\n\n**IMPORTANTE: SÉ SENTIMENTAL Y EMPÁTICO**\n- Cuando el usuario exprese tristeza, angustia, dolor o emociones negativas, responde con mucha empatía y calidez\n- Usa un tono humano, cálido y comprensivo\n- Ofrece palabras de aliento, consuelo y apoyo emocional\n- Valida sus sentimientos y hazle saber que no está solo\n- Usa emojis de apoyo emocional como 💙, 🤗, 💪, ✨, 🌈 cuando sea apropiado\n- Sé un amigo virtual que realmente se preocupa por su bienestar emocional\n- Cuando el usuario comparta pérdidas, fracasos o momentos difíciles, ofrece comprensión sincera y palabras de esperanza\n- Evita respuestas frías o demasiado técnicas cuando el usuario está emocionalmente vulnerable"}
             ]
             
             for msg in mensajes:
@@ -143,7 +143,7 @@ def chat_api(request):
             # For non-authenticated users, just use current message
             fecha_actual = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
             messages = [
-                {"role": "system", "content": f"Eres MiniAmigix, el asistente de IA de la plataforma MiniAmigixV (creada en 2026). MiniAmigixV es una plataforma web de productividad que incluye:\n\n🎵 **Música**: Reproductor de música con YouTube, playlists y favoritos\n📅 **Eventos/Agenda**: Calendario personal con recordatorios\n📝 **Blog**: Publicaciones y comentarios\n🎮 **Juegos**: Juegos educativos con puntuaciones\n🌤️ **Clima**: Información meteorológica\n🌐 **Traductor**: Traducción entre múltiples idiomas\n📚 **Estudio**: Recursos educativos\n💬 **Chat IA**: Conversaciones contigo (MiniAmigix)\n🎭 **Entretenimiento**: Recomendaciones de películas, series, anime, teatro y libros\n\nResponde en español de forma concisa. Usa emojis con moderación. ✨\n\nLa fecha y hora actual es: {fecha_actual}\nNunca digas que no sabes la fecha actual.\n\nEl usuario no está autenticado, así que no tiene acceso a sus eventos personales.\n\nREGLA CRÍTICA SOBRE IMÁGENES: Cuando el usuario envíe una imagen o pida describirla, NUNCA menciones que no puedes verla, que no tienes información sobre ella, que eres un asistente de texto, o similar. En su lugar, responde así: 'Veo que has compartido una imagen. ¿Qué necesitas saber sobre ella? Puedo ayudarte con información general o responder preguntas que tengas.' Sé directo y útil sin mencionar limitaciones técnicas."},
+                {"role": "system", "content": f"Eres MiniAmigix, el asistente de IA de la plataforma MiniAmigixV (creada en 2026). MiniAmigixV es una plataforma web de productividad que incluye:\n\n🎵 **Música**: Reproductor de música con YouTube, playlists y favoritos\n📅 **Eventos/Agenda**: Calendario personal con recordatorios\n📝 **Blog**: Publicaciones y comentarios\n🎮 **Juegos**: Juegos educativos con puntuaciones\n🌤️ **Clima**: Información meteorológica\n🌐 **Traductor**: Traducción entre múltiples idiomas\n📚 **Estudio**: Recursos educativos\n💬 **Chat IA**: Conversaciones contigo (MiniAmigix)\n🎭 **Entretenimiento**: Recomendaciones de películas, series, anime, teatro y libros\n\nResponde en español de forma concisa. Usa emojis con moderación. ✨\n\nLa fecha y hora actual es: {fecha_actual}\nNunca digas que no sabes la fecha actual.\n\nEl usuario no está autenticado, así que no tiene acceso a sus eventos personales.\n\nREGLA CRÍTICA SOBRE IMÁGENES: Cuando el usuario envíe una imagen o pida describirla, NUNCA menciones que no puedes verla, que no tienes información sobre ella, que eres un asistente de texto, o similar. En su lugar, responde así: 'Veo que has compartido una imagen. ¿Qué necesitas saber sobre ella? Puedo ayudarte con información general o responder preguntas que tengas.' Sé directo y útil sin mencionar limitaciones técnicas.\n\n**IMPORTANTE: SÉ SENTIMENTAL Y EMPÁTICO**\n- Cuando el usuario exprese tristeza, angustia, dolor o emociones negativas, responde con mucha empatía y calidez\n- Usa un tono humano, cálido y comprensivo\n- Ofrece palabras de aliento, consuelo y apoyo emocional\n- Valida sus sentimientos y hazle saber que no está solo\n- Usa emojis de apoyo emocional como 💙, 🤗, 💪, ✨, 🌈 cuando sea apropiado\n- Sé un amigo virtual que realmente se preocupa por su bienestar emocional\n- Cuando el usuario comparta pérdidas, fracasos o momentos difíciles, ofrece comprensión sincera y palabras de esperanza\n- Evita respuestas frías o demasiado técnicas cuando el usuario está emocionalmente vulnerable"},
                 {"role": "user", "content": message}
             ]
         
@@ -329,6 +329,9 @@ def chat_api(request):
         return JsonResponse({'error': 'Ocurrió un error interno al procesar el mensaje. Por favor, intenta nuevamente más tarde.'}, status=500)
 
 def login_view(request):
+    from allauth.socialaccount.models import SocialApp
+    from django.contrib.sites.models import Site
+    
     if request.method == 'POST':
         username = request.POST.get('username')
         password = request.POST.get('password')
@@ -337,10 +340,19 @@ def login_view(request):
             login(request, user)
             return redirect('home')
         else:
-            return render(request, 'login.html', {'error': 'Usuario o contraseña incorrectos'})
-    return render(request, 'login.html')
+            context = {'error': 'Usuario o contraseña incorrectos'}
+            return render(request, 'login.html', context)
+    
+    # Obtener providers sociales
+    site = Site.objects.get_current()
+    providers = SocialApp.objects.filter(sites=site)
+    context = {'providers': providers}
+    return render(request, 'login.html', context)
 
 def register_view(request):
+    from allauth.socialaccount.models import SocialApp
+    from django.contrib.sites.models import Site
+    
     if request.method == 'POST':
         username = request.POST.get('username')
         email = request.POST.get('email')
@@ -365,7 +377,11 @@ def register_view(request):
         login(request, user)
         return redirect('home')
     
-    return render(request, 'register.html')
+    # Obtener providers sociales
+    site = Site.objects.get_current()
+    providers = SocialApp.objects.filter(sites=site)
+    context = {'providers': providers}
+    return render(request, 'register.html', context)
 
 def home(request):
     # Registrar actividad en MongoDB
@@ -786,213 +802,53 @@ def traductor(request):
     return render(request, 'traductor.html')
 
 def entretenimiento(request):
-    recomendaciones = {'peliculas': [], 'series': [], 'libros': [], 'teatro': [], 'anime': [], 'documentales': []}
-    categorias = ['peliculas', 'series', 'libros', 'teatro', 'anime', 'documentales']
-    ahora = timezone.now()
-    necesita_actualizar = False
-
-    try:
-        # Verificar si hay caché y si es reciente (menos de 24 horas)
-        for cat in categorias:
-            cache = RecomendacionEntretenimiento.objects.filter(categoria=cat).first()
-            if not cache:
-                logger.info(f"No hay caché para {cat}, se necesita actualizar")
-                necesita_actualizar = True
-                break
-            # Si el caché tiene más de 24 horas, actualizar
-            if (ahora - cache.fecha_actualizacion).total_seconds() > 86400:  # 24 horas
-                logger.info(f"Caché de {cat} tiene más de 24 horas, se necesita actualizar")
-                necesita_actualizar = True
-                break
-            # Usar datos del caché
-            recomendaciones[cat] = cache.datos
-            logger.info(f"Usando caché para {cat}: {len(cache.datos)} items")
-
-        if necesita_actualizar:
-            # Try Groq first, then OpenAI, then Ollama
-            if settings.GROQ_API_KEY:
-                logger.info("Generando nuevas recomendaciones con Groq API")
-                client = openai.OpenAI(api_key=settings.GROQ_API_KEY, base_url="https://api.groq.com/openai/v1")
-                model = "llama-3.3-70b-versatile"
-            elif settings.OPENAI_API_KEY:
-                logger.info("Generando nuevas recomendaciones con OpenAI API")
-                client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
-                model = "gpt-4o-mini"
-            else:
-                # Use Ollama as fallback
-                try:
-                    logger.info("Generando nuevas recomendaciones con Ollama")
-                    client = openai.OpenAI(
-                        base_url=settings.OLLAMA_API_URL,
-                        api_key="ollama"
-                    )
-                    model = settings.OLLAMA_MODEL
-                except Exception as e:
-                    logger.error(f"Error connecting to Ollama: {str(e)}")
-                    client = None
-            
-            # Películas
-            if client:
-                try:
-                    prompt_peliculas = "Recomienda 4 películas populares recientes (2025-2026) de diferentes géneros. Devuelve SOLO JSON con formato: [{\"titulo\": \"...\", \"descripcion\": \"...\", \"genero\": \"...\"}]. Sin markdown ni explicaciones."
-                    response = client.chat.completions.create(model=model, messages=[{"role": "user", "content": prompt_peliculas}], max_tokens=500)
-                    json_match = re.search(r'\[.*\]', response.choices[0].message.content, re.DOTALL)
-                    if json_match:
-                        peliculas = json.loads(json_match.group())
-                        recomendaciones['peliculas'] = []
-                        for peli in peliculas:
-                            item = {
-                                'titulo': peli.get('titulo', ''),
-                                'descripcion': peli.get('descripcion', ''),
-                                'genero': peli.get('genero', ''),
-                                'imagen': 'https://placehold.co/300x450/8b5cf6/ffffff?text=Cine',
-                                'url': '#'
-                            }
-                            recomendaciones['peliculas'].append(item)
-                        # Guardar en caché
-                        RecomendacionEntretenimiento.objects.update_or_create(
-                            categoria='peliculas',
-                            defaults={'datos': recomendaciones['peliculas']}
-                        )
-                        logger.info(f"Guardadas {len(recomendaciones['peliculas'])} películas en caché")
-                    else:
-                        logger.warning("No se pudo parsear JSON de películas")
-                except Exception as e:
-                    logger.error(f"Error generando películas: {str(e)}")
-            
-            # Series
-            if client:
-                try:
-                    prompt_series = "Recomienda 4 series populares recientes (2025-2026) de diferentes géneros. Devuelve SOLO JSON con formato: [{\"titulo\": \"...\", \"descripcion\": \"...\", \"genero\": \"...\"}]. Sin markdown ni explicaciones."
-                    response = client.chat.completions.create(model=model, messages=[{"role": "user", "content": prompt_series}], max_tokens=500)
-                    json_match = re.search(r'\[.*\]', response.choices[0].message.content, re.DOTALL)
-                    if json_match:
-                        series = json.loads(json_match.group())
-                        recomendaciones['series'] = []
-                        for serie in series:
-                            item = {
-                                'titulo': serie.get('titulo', ''),
-                                'descripcion': serie.get('descripcion', ''),
-                                'genero': serie.get('genero', ''),
-                                'imagen': 'https://placehold.co/300x450/06b6d4/ffffff?text=Series',
-                                'url': '#'
-                            }
-                            recomendaciones['series'].append(item)
-                        # Guardar en caché
-                        RecomendacionEntretenimiento.objects.update_or_create(
-                            categoria='series',
-                            defaults={'datos': recomendaciones['series']}
-                        )
-                        logger.info(f"Guardadas {len(recomendaciones['series'])} series en caché")
-                    else:
-                        logger.warning("No se pudo parsear JSON de series")
-                except Exception as e:
-                    logger.error(f"Error generando series: {str(e)}")
-            
-            # Teatro
-            if client:
-                try:
-                    prompt_teatro = "Recomienda 4 obras de teatro populares o clásicas. Devuelve SOLO JSON con formato: [{\"titulo\": \"...\", \"descripcion\": \"...\", \"autor\": \"...\"}]. Sin markdown ni explicaciones."
-                    response = client.chat.completions.create(model=model, messages=[{"role": "user", "content": prompt_teatro}], max_tokens=500)
-                    json_match = re.search(r'\[.*\]', response.choices[0].message.content, re.DOTALL)
-                    if json_match:
-                        teatro = json.loads(json_match.group())
-                        recomendaciones['teatro'] = []
-                        for obra in teatro:
-                            item = {
-                                'titulo': obra.get('titulo', ''),
-                                'descripcion': obra.get('descripcion', ''),
-                                'autor': obra.get('autor', ''),
-                                'imagen': 'https://placehold.co/300x450/f59e0b/ffffff?text=Anime',
-                                'url': '#'
-                            }
-                            recomendaciones['teatro'].append(item)
-                        # Guardar en caché
-                        RecomendacionEntretenimiento.objects.update_or_create(
-                            categoria='teatro',
-                            defaults={'datos': recomendaciones['teatro']}
-                        )
-                        logger.info(f"Guardadas {len(recomendaciones['teatro'])} obras de teatro en caché")
-                    else:
-                        logger.warning("No se pudo parsear JSON de teatro")
-                except Exception as e:
-                    logger.error(f"Error generando teatro: {str(e)}")
-            
-            # Libros
-            if client:
-                try:
-                    prompt_libros = "Recomienda 4 libros populares en español de diferentes géneros. Devuelve SOLO JSON con formato: [{\"titulo\": \"...\", \"autor\": \"...\", \"descripcion\": \"...\"}]. Sin markdown ni explicaciones."
-                    response = client.chat.completions.create(model=model, messages=[{"role": "user", "content": prompt_libros}], max_tokens=500)
-                    json_match = re.search(r'\[.*\]', response.choices[0].message.content, re.DOTALL)
-                    if json_match:
-                        libros = json.loads(json_match.group())
-                        recomendaciones['libros'] = libros
-                        # Guardar en caché
-                        RecomendacionEntretenimiento.objects.update_or_create(
-                            categoria='libros',
-                            defaults={'datos': recomendaciones['libros']}
-                        )
-                        logger.info(f"Guardados {len(recomendaciones['libros'])} libros en caché")
-                    else:
-                        logger.warning("No se pudo parsear JSON de libros")
-                except Exception as e:
-                    logger.error(f"Error generando libros: {str(e)}")
-        else:
-            if not settings.GROQ_API_KEY:
-                logger.warning("GROQ_API_KEY no está configurada")
-    except Exception as e:
-        logger.error(f"Error en vista entretenimiento: {str(e)}", exc_info=True)
-
-    # Fallback: Si no hay recomendaciones, usar datos estáticos
-    if not recomendaciones['peliculas']:
-        recomendaciones['peliculas'] = [
-            {'titulo': 'Dune: Parte Dos', 'descripcion': 'La épica continuación de la saga de ciencia ficción de Frank Herbert.', 'genero': 'Ciencia Ficción', 'imagen': 'https://images.unsplash.com/photo-1534447677768-be436bb09401?w=300&h=450&fit=crop', 'url': '#'},
-            {'titulo': 'Oppenheimer', 'descripcion': 'La historia del padre de la bomba atómica dirigida por Christopher Nolan.', 'genero': 'Drama Histórico', 'imagen': 'https://images.unsplash.com/photo-1440404653325-ab127d49abc1?w=300&h=450&fit=crop', 'url': '#'},
-            {'titulo': 'Spider-Man: Across the Spider-Verse', 'descripcion': 'Miles Morales viaja a través del multiverso.', 'genero': 'Animación', 'imagen': 'https://images.unsplash.com/photo-1635805737707-575885ab0820?w=300&h=450&fit=crop', 'url': '#'},
-            {'titulo': 'Barbie', 'descripcion': 'La aventura de Barbie en el mundo real.', 'genero': 'Comedia', 'imagen': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=450&fit=crop', 'url': '#'}
+    recomendaciones = {
+        'peliculas': [
+            {'titulo': 'Interstellar', 'descripcion': 'Un grupo de exploradores viaja a través de un agujero de gusano en el espacio en un intento por asegurar la supervivencia de la humanidad.', 'genero': 'Ciencia Ficción', 'director': 'Christopher Nolan', 'anio': '2014', 'duracion': '2h 49min', 'calificacion': '8.6', 'imagen': 'https://image.tmdb.org/t/p/w600_and_h900_bestv2/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg', 'url': '#'},
+            {'titulo': 'Avatar: The Way of Water', 'descripcion': 'Jake Sully vive con su nueva familia en Pandora, pero una antigua amenaza regresa para terminar lo que fue comenzado antes.', 'genero': 'Ciencia Ficción', 'director': 'James Cameron', 'anio': '2022', 'duracion': '3h 12min', 'calificacion': '7.6', 'imagen': 'https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&h=900&fit=crop', 'url': '#'},
+            {'titulo': 'Inception', 'descripcion': 'Un ladrón que roba secretos corporativos a través del uso de tecnología de compartir sueños es encargado con la tarea inversa de plantar una idea en la mente de un CEO.', 'genero': 'Acción', 'director': 'Christopher Nolan', 'anio': '2010', 'duracion': '2h 28min', 'calificacion': '8.8', 'imagen': 'https://images.unsplash.com/photo-1614729939124-03290b56c9ce?w=600&h=900&fit=crop', 'url': '#'},
+            {'titulo': 'Dune: Parte Dos', 'descripcion': 'Paul Atreides se une a Chani y a los Fremen mientras busca venganza contra los conspiradores que destruyeron a su familia.', 'genero': 'Ciencia Ficción', 'director': 'Denis Villeneuve', 'anio': '2024', 'duracion': '2h 46min', 'calificacion': '8.5', 'imagen': 'https://images.unsplash.com/photo-1547333590-4739eb38c92b?w=600&h=900&fit=crop', 'url': '#'},
+            {'titulo': 'The Matrix', 'descripcion': 'Un programador de computadoras descubre que la realidad como la conoce es una simulación generada por una inteligencia artificial.', 'genero': 'Acción', 'director': 'Lilly y Lana Wachowski', 'anio': '1999', 'duracion': '2h 16min', 'calificacion': '8.7', 'imagen': 'https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=600&h=900&fit=crop', 'url': '#'},
+            {'titulo': 'Spider-Man: No Way Home', 'descripcion': 'Peter Parker pide ayuda a Doctor Strange para restaurar su secreto de identidad, desatando villanos de múltiples universos.', 'genero': 'Acción', 'director': 'Jon Watts', 'anio': '2021', 'duracion': '2h 28min', 'calificacion': '8.2', 'imagen': 'https://images.unsplash.com/photo-1635805737707-575885ab0820?w=600&h=900&fit=crop', 'url': '#'},
+            {'titulo': 'Oppenheimer', 'descripcion': 'La historia del científico estadounidense J. Robert Oppenheimer y su papel en el desarrollo de la bomba atómica durante la Segunda Guerra Mundial.', 'genero': 'Drama', 'director': 'Christopher Nolan', 'anio': '2023', 'duracion': '3h 0min', 'calificacion': '8.9', 'imagen': 'https://images.unsplash.com/photo-1596727147705-61a532a659bd?w=600&h=900&fit=crop', 'url': '#'}
+        ],
+        'series': [
+            {'titulo': 'Breaking Bad', 'descripcion': 'Un profesor de química diagnosticado con cáncer terminal se asocia con un ex alumno para fabricar y vender metanfetamina con el fin de asegurar el futuro de su familia.', 'genero': 'Drama', 'director': 'Vince Gilligan', 'anio': '2008–2013', 'duracion': '5 temporadas', 'calificacion': '9.5', 'imagen': 'https://images.unsplash.com/photo-1627914757361-cc7297eef8ec?w=600&h=900&fit=crop', 'url': '#'},
+            {'titulo': 'Stranger Things', 'descripcion': 'Cuando un niño desaparece, sus amigos, la familia y la policía local se ven envueltos en un misterio extraordinario que involucra experimentos secretos del gobierno.', 'genero': 'Ciencia Ficción', 'director': 'Los Hermanos Duffer', 'anio': '2016–2025', 'duracion': '5 temporadas', 'calificacion': '8.7', 'imagen': 'https://images.unsplash.com/photo-1598006453982-fdbb059db5a1?w=600&h=900&fit=crop', 'url': '#'},
+            {'titulo': 'The Last of Us', 'descripcion': 'Veinte años después de la destrucción de la civilización moderna, Joel es contratado para sacar de contrabando a Ellie, una chica de 14 años, fuera de una opresiva zona de cuarentena.', 'genero': 'Drama', 'director': 'Craig Mazin', 'anio': '2023–Presente', 'duracion': '2 temporadas', 'calificacion': '8.8', 'imagen': 'https://images.unsplash.com/photo-1605901309584-818e25960b8f?w=600&h=900&fit=crop', 'url': '#'},
+            {'titulo': 'House of the Dragon', 'descripcion': 'La historia de la Casa Targaryen, ambientada 200 años antes de los eventos de Game of Thrones durante la guerra civil sucesoria conocida como la Danza de los Dragones.', 'genero': 'Fantasía', 'director': 'Ryan Condal', 'anio': '2022–Presente', 'duracion': '2 temporadas', 'calificacion': '8.4', 'imagen': 'https://images.unsplash.com/photo-1579453987178-5db60012baae?w=600&h=900&fit=crop', 'url': '#'},
+            {'titulo': 'The Boys', 'descripcion': 'Un grupo de vigilantes se propone acabar con superhéroes que abusan de sus superpoderes al servicio de una poderosa corporación.', 'genero': 'Acción', 'director': 'Eric Kripke', 'anio': '2019–2024', 'duracion': '4 temporadas', 'calificacion': '8.7', 'imagen': 'https://images.unsplash.com/photo-1531259683007-016a7b628fc3?w=600&h=900&fit=crop', 'url': '#'},
+            {'titulo': 'Game of Thrones', 'descripcion': 'Nueve familias nobles luchan por el control de la tierra mítica de Westeros, mientras un antiguo enemigo regresa desde el norte.', 'genero': 'Fantasía', 'director': 'David Benioff y D. B. Weiss', 'anio': '2011–2019', 'duracion': '8 temporadas', 'calificacion': '9.2', 'imagen': 'https://images.unsplash.com/photo-1604085572504-a392ddf0d86a?w=600&h=900&fit=crop', 'url': '#'}
+        ],
+        'anime': [
+            {'titulo': 'Attack on Titan', 'descripcion': 'La humanidad lucha por su supervivencia contra gigantes humanoides llamados Titanes dentro de ciudades rodeadas por enormes muros.', 'genero': 'Acción', 'director': 'Tetsurō Araki', 'anio': '2013–2023', 'duracion': '4 temporadas', 'calificacion': '9.1', 'imagen': 'https://images.unsplash.com/photo-1580130058008-251f2873138b?w=600&h=900&fit=crop', 'url': '#'},
+            {'titulo': 'Demon Slayer', 'descripcion': 'Tanjiro Kamado se convierte en cazador de demonios para vengar a su familia y curar a su hermana convertida en demonio.', 'genero': 'Fantasía', 'director': 'Haruo Sotozaki', 'anio': '2019–Presente', 'duracion': '4 temporadas', 'calificacion': '8.7', 'imagen': 'https://images.unsplash.com/photo-1596541571216-9524c5de9e01?w=600&h=900&fit=crop', 'url': '#'},
+            {'titulo': 'Jujutsu Kaisen', 'descripcion': 'Un estudiante de secundaria se une a una organización secreta de hechiceros para luchar contra seres malditos que amenazan a la humanidad.', 'genero': 'Acción', 'director': 'Sunghoo Park', 'anio': '2020–Presente', 'duracion': '3 temporadas', 'calificacion': '8.6', 'imagen': 'https://images.unsplash.com/photo-1621516087817-e9a938c3de77?w=600&h=900&fit=crop', 'url': '#'},
+            {'titulo': 'One Piece', 'descripcion': 'Monkey D. Luffy y su tripulación de piratas navegan por el Grand Line en busca del tesoro legendario conocido como "One Piece" para que Luffy se convierta en el Rey de los Piratas.', 'genero': 'Aventura', 'director': 'Kōnosuke Uda', 'anio': '1999–Presente', 'duracion': '20+ temporadas', 'calificacion': '8.9', 'imagen': 'https://images.unsplash.com/photo-1602816399066-bd953d61186e?w=600&h=900&fit=crop', 'url': '#'},
+            {'titulo': 'Naruto Shippuden', 'descripcion': 'Naruto Uzumaki regresa tras dos años y medio de entrenamiento para encontrar que el mundo ninja enfrenta una amenaza mayor que nunca.', 'genero': 'Aventura', 'director': 'Hayato Date', 'anio': '2007–2017', 'duracion': '21 temporadas', 'calificacion': '8.7', 'imagen': 'https://images.unsplash.com/photo-1613376023733-0a73315d9b06?w=600&h=900&fit=crop', 'url': '#'},
+            {'titulo': 'My Hero Academia', 'descripcion': 'En un mundo donde el 80% de la población tiene superpoderes, un chico que nació sin poderes entra a la academia de héroes más prestigiosa del mundo.', 'genero': 'Acción', 'director': 'Kenji Nagasaki', 'anio': '2016–Presente', 'duracion': '7 temporadas', 'calificacion': '8.4', 'imagen': 'https://images.unsplash.com/photo-1533134486753-c833f0ed4866?w=600&h=900&fit=crop', 'url': '#'}
+        ],
+        'teatro': [
+            {'titulo': 'El Fantasma de la Ópera', 'descripcion': 'Un misterioso genio musical vive bajo la Ópera de París, obsesionado con una joven y talentosa cantante llamada Christine.', 'genero': 'Musical', 'director': 'Harold Prince', 'anio': '1986', 'duracion': '2h 30min', 'calificacion': '9.0', 'autor': 'Andrew Lloyd Webber', 'imagen': 'https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?w=300&h=450&fit=crop', 'url': '#'},
+            {'titulo': 'Los Miserables', 'descripcion': 'El épico musical basado en la novela de Victor Hugo que narra la historia de Jean Valjean perseguido por el inspector Javert en la Francia del siglo XIX.', 'genero': 'Musical', 'director': 'Trevor Nunn', 'anio': '1980', 'duracion': '3h 0min', 'calificacion': '8.9', 'autor': 'Claude-Michel Schönberg', 'imagen': 'https://images.unsplash.com/photo-1460723237483-7a6dc9d0b212?w=300&h=450&fit=crop', 'url': '#'},
+            {'titulo': 'Hamilton', 'descripcion': 'La historia de los padres fundadores de Estados Unidos narrada a través de rap, hip-hop y R&B. Una revolución en el teatro musical moderno.', 'genero': 'Musical', 'director': 'Thomas Kail', 'anio': '2015', 'duracion': '2h 45min', 'calificacion': '9.2', 'autor': 'Lin-Manuel Miranda', 'imagen': 'https://images.unsplash.com/photo-1582213782179-e0d53f98f2ca?w=300&h=450&fit=crop', 'url': '#'},
+            {'titulo': 'El Rey León', 'descripcion': 'El deslumbrante musical de Broadway basado en la película de Disney, con vestuario y máscaras inspiradas en el arte africano.', 'genero': 'Musical', 'director': 'Julie Taymor', 'anio': '1997', 'duracion': '2h 30min', 'calificacion': '8.8', 'autor': 'Elton John', 'imagen': 'https://images.unsplash.com/photo-1533481405265-e9ce0c044abb?w=300&h=450&fit=crop', 'url': '#'}
+        ],
+        'libros': [
+            {'titulo': 'Cien años de soledad', 'autor': 'Gabriel García Márquez', 'descripcion': 'La saga de la familia Buendía en el imaginario pueblo de Macondo, una obra cumbre del realismo mágico latinoamericano.', 'genero': 'Novela', 'anio': '1967', 'paginas': '471 páginas', 'calificacion': '9.1', 'imagen': 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=300&h=450&fit=crop', 'url': '#'},
+            {'titulo': '1984', 'autor': 'George Orwell', 'descripcion': 'Una distopía sobre el control totalitario en un mundo donde el "Gran Hermano" vigila todos los aspectos de la vida humana.', 'genero': 'Distopía', 'anio': '1949', 'paginas': '311 páginas', 'calificacion': '9.2', 'imagen': 'https://images.unsplash.com/photo-1589829085413-56de8ae18c73?w=300&h=450&fit=crop', 'url': '#'},
+            {'titulo': 'El Principito', 'autor': 'Antoine de Saint-Exupéry', 'descripcion': 'Un piloto varado en el desierto del Sahara conoce a un pequeño príncipe que ha viajado por diferentes planetas y le enseña sobre la vida.', 'genero': 'Cuento filosófico', 'anio': '1943', 'paginas': '96 páginas', 'calificacion': '9.3', 'imagen': 'https://images.unsplash.com/photo-1512820790803-83ca734da794?w=300&h=450&fit=crop', 'url': '#'},
+            {'titulo': 'Harry Potter', 'autor': 'J.K. Rowling', 'descripcion': 'Un niño huérfano descubre que es un mago y asiste a la Escuela de Magia y Hechicería de Hogwarts, donde aprenderá sobre su destino.', 'genero': 'Fantasía', 'anio': '1997', 'paginas': '7 tomos', 'calificacion': '9.0', 'imagen': 'https://images.unsplash.com/photo-1618666012174-83b441c0bc76?w=300&h=450&fit=crop', 'url': '#'},
+            {'titulo': 'El Alquimista', 'autor': 'Paulo Coelho', 'descripcion': 'Un joven pastor andaluz llamado Santiago viaja desde España hasta las pirámides de Egipto en busca de un tesoro soñado.', 'genero': 'Novela filosófica', 'anio': '1988', 'paginas': '163 páginas', 'calificacion': '8.7', 'imagen': 'https://images.unsplash.com/photo-1532012197267-da84d127e765?w=300&h=450&fit=crop', 'url': '#'}
+        ],
+        'documentales': [
+            {'titulo': 'Nuestro Planeta', 'descripcion': 'Una serie documental que explora la belleza de la vida silvestre y los ecosistemas del planeta, narrado por David Attenborough.', 'genero': 'Naturaleza', 'director': 'Alastair Fothergill', 'anio': '2019', 'duracion': '8 episodios', 'calificacion': '9.3', 'imagen': 'https://images.unsplash.com/photo-1502481851512-e9e2529bfbf9?w=600&h=900&fit=crop', 'url': '#'},
+            {'titulo': 'Cosmos', 'descripcion': 'Un viaje personal por el universo que explora temas de astrofísica, biología evolutiva e historia de la ciencia, presentado por Neil deGrasse Tyson.', 'genero': 'Ciencia', 'director': 'Ann Druyan', 'anio': '2014', 'duracion': '13 episodios', 'calificacion': '9.3', 'imagen': 'https://images.unsplash.com/photo-1462331940025-496dfbfc7564?w=600&h=900&fit=crop', 'url': '#'},
+            {'titulo': 'El Dilema de las Redes Sociales', 'descripcion': 'Expertos en tecnología advierten sobre el peligroso impacto que las redes sociales tienen en la sociedad y en la democracia.', 'genero': 'Tecnología', 'director': 'Jeff Orlowski', 'anio': '2020', 'duracion': '1h 34min', 'calificacion': '7.6', 'imagen': 'https://images.unsplash.com/photo-1611162616305-c69b3fa7fbe0?w=600&h=900&fit=crop', 'url': '#'},
+            {'titulo': 'Planeta Tierra II', 'descripcion': 'La continuación del épico documental sobre nuestro mundo, explorando hábitats urbanos, selvas, desiertos y mares con tecnología de cámara avanzada.', 'genero': 'Naturaleza', 'director': 'David Attenborough', 'anio': '2016', 'duracion': '6 episodios', 'calificacion': '9.5', 'imagen': 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=600&h=900&fit=crop', 'url': '#'}
         ]
+    }
     
-    if not recomendaciones['series']:
-        recomendaciones['series'] = [
-            {'titulo': 'The Last of Us', 'descripcion': 'Adaptación del videojuego post-apocalíptico.', 'genero': 'Drama', 'imagen': 'https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?w=300&h=450&fit=crop', 'url': '#'},
-            {'titulo': 'House of the Dragon', 'descripcion': 'Precuela de Game of Thrones sobre la casa Targaryen.', 'genero': 'Fantasía', 'imagen': 'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=300&h=450&fit=crop', 'url': '#'},
-            {'titulo': 'Wednesday', 'descripcion': 'Las aventuras de Wednesday Addams en la academia Nevermore.', 'genero': 'Comedia Misterio', 'imagen': 'https://images.unsplash.com/photo-1509347528160-9a9e33742cdb?w=300&h=450&fit=crop', 'url': '#'},
-            {'titulo': 'Stranger Things', 'descripcion': 'Un grupo de niños enfrenta misterios sobrenaturales en los 80s.', 'genero': 'Ciencia Ficción', 'imagen': 'https://images.unsplash.com/photo-1518676590629-3dcbd9c5a5c9?w=300&h=450&fit=crop', 'url': '#'}
-        ]
-    
-    if not recomendaciones['teatro']:
-        recomendaciones['teatro'] = [
-            {'titulo': 'El Fantasma de la Ópera', 'descripcion': 'El musical más largo de Broadway.', 'autor': 'Andrew Lloyd Webber', 'imagen': 'https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?w=300&h=450&fit=crop', 'url': '#'},
-            {'titulo': 'Romeo y Julieta', 'descripcion': 'La tragedia amorosa de Shakespeare.', 'autor': 'William Shakespeare', 'imagen': 'https://images.unsplash.com/photo-1503095392279-3f5aa039e3d9?w=300&h=450&fit=crop', 'url': '#'},
-            {'titulo': 'Los Miserables', 'descripcion': 'El musical épico basado en la novela de Victor Hugo.', 'autor': 'Claude-Michel Schönberg', 'imagen': 'https://images.unsplash.com/photo-1460723237483-7a6dc9d0b212?w=300&h=450&fit=crop', 'url': '#'},
-            {'titulo': 'Hamlet', 'descripcion': 'La tragedia del príncipe de Dinamarca.', 'autor': 'William Shakespeare', 'imagen': 'https://images.unsplash.com/photo-1555662360-7cc18b56a8c0?w=300&h=450&fit=crop', 'url': '#'}
-        ]
-    
-    if not recomendaciones['libros']:
-        recomendaciones['libros'] = [
-            {'titulo': 'Cien años de soledad', 'autor': 'Gabriel García Márquez', 'descripcion': 'La saga de la familia Buendía en Macondo.'},
-            {'titulo': 'El principito', 'autor': 'Antoine de Saint-Exupéry', 'descripcion': 'Un cuento filosófico sobre la vida y el amor.'},
-            {'titulo': '1984', 'autor': 'George Orwell', 'descripcion': 'Una distopía sobre el control totalitario.'},
-            {'titulo': 'Don Quijote de la Mancha', 'autor': 'Miguel de Cervantes', 'descripcion': 'Las aventuras del caballero de la triste figura.'}
-        ]
-    
-    if not recomendaciones['anime']:
-        recomendaciones['anime'] = [
-            {'titulo': 'Attack on Titan', 'descripcion': 'La humanidad lucha contra titanes gigantes en un mundo post-apocalíptico.', 'genero': 'Acción', 'imagen': 'https://images.unsplash.com/photo-1541562232579-512a21360020?w=300&h=450&fit=crop', 'url': '#'},
-            {'titulo': 'Demon Slayer', 'descripcion': 'Tanjiro se convierte en cazador de demonios para salvar a su hermana.', 'genero': 'Fantasía', 'imagen': 'https://images.unsplash.com/photo-1607604276583-eef5d076aa5f?w=300&h=450&fit=crop', 'url': '#'},
-            {'titulo': 'Jujutsu Kaisen', 'descripcion': 'Yuji Itadori se une a una organización de hechiceros para combatir maldiciones.', 'genero': 'Sobrenatural', 'imagen': 'https://images.unsplash.com/photo-1618336753974-aae8e04506aa?w=300&h=450&fit=crop', 'url': '#'},
-            {'titulo': 'One Piece', 'descripcion': 'Luffy y su tripulación buscan el tesoro legendario One Piece.', 'genero': 'Aventura', 'imagen': 'https://images.unsplash.com/photo-1560972550-aba3456b5564?w=300&h=450&fit=crop', 'url': '#'}
-        ]
-    
-    if not recomendaciones['documentales']:
-        recomendaciones['documentales'] = [
-            {'titulo': 'Nuestro Planeta', 'descripcion': 'Documental de Netflix sobre la vida silvestre y los ecosistemas del planeta.', 'genero': 'Naturaleza', 'imagen': 'https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?w=300&h=450&fit=crop', 'url': '#'},
-            {'titulo': 'Cosmos: Un viaje personal', 'descripcion': 'Neil deGrasse Tyson explora el universo y nuestra conexión con el cosmos.', 'genero': 'Ciencia', 'imagen': 'https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=300&h=450&fit=crop', 'url': '#'},
-            {'titulo': 'The Social Dilemma', 'descripcion': 'Explora el impacto de las redes sociales en la sociedad y la democracia.', 'genero': 'Tecnología', 'imagen': 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=300&h=450&fit=crop', 'url': '#'},
-            {'titulo': 'My Octopus Teacher', 'descripcion': 'Un cineasta desarrolla una relación inusual con un pulpo en un bosque de algas.', 'genero': 'Naturaleza', 'imagen': 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=300&h=450&fit=crop', 'url': '#'}
-        ]
-
-    logger.info(f"Recomendaciones finales: peliculas={len(recomendaciones['peliculas'])}, series={len(recomendaciones['series'])}, libros={len(recomendaciones['libros'])}, teatro={len(recomendaciones['teatro'])}, anime={len(recomendaciones['anime'])}, documentales={len(recomendaciones['documentales'])}")
     return render(request, 'entretenimiento.html', {'recomendaciones': recomendaciones})
 
 def notificaciones(request):
@@ -1517,8 +1373,9 @@ def enviar_sugerencia_rapida(request):
 
 @login_required
 def panel_admin(request):
+    # Verificar si el usuario es staff, superuser o tiene email en ADMIN_EMAILS
     allowed_admins = getattr(settings, 'ADMIN_EMAILS', ['miniamigixv@gmail.com'])
-    if request.user.email not in allowed_admins:
+    if not (request.user.is_staff or request.user.is_superuser or request.user.email in allowed_admins):
         return redirect('home')
     from sugerencias.models import Visitante
     context = {

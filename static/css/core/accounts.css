@@ -29,3 +29,45 @@ button {
     font-weight: bold;
     margin-top: 10px;
 }
+
+.social-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 12px 20px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.social-button .icon {
+    width: 24px;
+    height: 24px;
+}
+
+.social-button.google {
+    background: #ffffff;
+    color: #333333;
+}
+
+.social-button.google:hover {
+    background: #f8f8f8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.social-button.github {
+    background: #24292e;
+    color: #ffffff;
+}
+
+.social-button.github:hover {
+    background: #2c3136;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}

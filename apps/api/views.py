@@ -2,8 +2,9 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from .serializers import RegisterSerializer, UserSerializer, ConversacionChatSerializer
+from .serializers import RegisterSerializer, UserSerializer, ConversacionChatSerializer, CustomTokenObtainPairSerializer
 from rest_framework.views import APIView
+from rest_framework_simplejwt.views import TokenObtainPairView
 from app.models import ConversacionChat, MensajeChat
 from django.conf import settings
 import openai
@@ -12,6 +13,9 @@ from perfil.models import Perfil
 import logging
 
 logger = logging.getLogger(__name__)
+
+class CustomTokenObtainPairView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
 
 class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
@@ -53,7 +57,7 @@ class ChatSendView(APIView):
         from datetime import datetime
         fecha_actual = datetime.now().strftime("%d/%m/%Y %H:%M")
         messages = [
-            {"role": "system", "content": f"Eres MiniAmigix, el asistente de IA de la plataforma MiniAmigixV (creada en 2026). MiniAmigixV es una plataforma web de productividad y entretenimiento que incluye:\n\n🎵 **Música**: Reproductor de música con YouTube, playlists y favoritos\n📅 **Eventos/Agenda**: Calendario personal con recordatorios\n📝 **Blog**: Publicaciones y comentarios\n🎮 **Juegos**: Juegos educativos con puntuaciones\n🌤️ **Clima**: Información meteorológica\n🌐 **Traductor**: Traducción entre múltiples idiomas\n📚 **Estudio**: Recursos educativos\n💬 **Chat IA**: Conversaciones contigo (MiniAmigix)\n\nResponde en español de forma concisa. Usa emojis con moderación. 🌟\n\nLa fecha y hora actual es: {fecha_actual}\nNunca digas que no sabes la fecha actual."}
+            {"role": "system", "content": f"Eres MiniAmigix, el asistente de IA de la plataforma MiniAmigixV (creada en 2026). MiniAmigixV es una plataforma web de productividad y entretenimiento que incluye:\n\n🎵 **Música**: Reproductor de música con YouTube, playlists y favoritos\n📅 **Eventos/Agenda**: Calendario personal con recordatorios\n📝 **Blog**: Publicaciones y comentarios\n🎮 **Juegos**: Juegos educativos con puntuaciones\n🌤️ **Clima**: Información meteorológica\n🌐 **Traductor**: Traducción entre múltiples idiomas\n📚 **Estudio**: Recursos educativos\n💬 **Chat IA**: Conversaciones contigo (MiniAmigix)\n\nResponde en español de forma concisa. Usa emojis con moderación. 🌟\n\nLa fecha y hora actual es: {fecha_actual}\nNunca digas que no sabes la fecha actual.\n\n**IMPORTANTE: SÉ SENTIMENTAL Y EMPÁTICO**\n- Cuando el usuario exprese tristeza, angustia, dolor o emociones negativas, responde con mucha empatía y calidez\n- Usa un tono humano, cálido y comprensivo\n- Ofrece palabras de aliento, consuelo y apoyo emocional\n- Valida sus sentimientos y hazle saber que no está solo\n- Usa emojis de apoyo emocional como 💙, 🤗, 💪, ✨, 🌈 cuando sea apropiado\n- Sé un amigo virtual que realmente se preocupa por su bienestar emocional\n- Cuando el usuario comparta pérdidas, fracasos o momentos difíciles, ofrece comprensión sincera y palabras de esperanza\n- Evita respuestas frías o demasiado técnicas cuando el usuario está emocionalmente vulnerable"}
         ]
         
         for msg in mensajes:

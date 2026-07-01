@@ -4,19 +4,68 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Respuesta de MiniAmigixV</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    </style>
 </head>
-<body style="font-family: Inter, sans-serif; background: #0b1220; color: #e2e8f0; margin: 0; padding: 24px;">
-    <div style="max-width: 600px; margin: 0 auto; background: #111827; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); overflow: hidden;">
-        <div style="padding: 24px; background: linear-gradient(135deg, #7c3aed, #06b6d4); color: white;">
-            <h1 style="margin: 0; font-size: 24px;">Respuesta de MiniAmigixV</h1>
+<body style="font-family: 'Poppins', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #e2e8f0; margin: 0; padding: 40px 20px;">
+    <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+        
+        <!-- Header con gradiente -->
+        <div style="padding: 40px 30px; background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 50%, #10b981 100%); color: white; text-align: center; position: relative; overflow: hidden;">
+            <!-- Decoración de fondo -->
+            <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+            <div style="position: absolute; bottom: -30px; left: -30px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+            
+            <!-- Logo/Icono -->
+            <div style="font-size: 48px; margin-bottom: 16px;">🤖</div>
+            <h1 style="margin: 0; font-size: 28px; font-weight: 700; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">Respuesta de MiniAmigixV</h1>
+            <p style="margin: 8px 0 0; font-size: 14px; opacity: 0.9;">Panel de Administración</p>
         </div>
-        <div style="padding: 24px; color: #e2e8f0; background: #111827;">
-            <p style="margin-bottom: 18px;">{{ message|linebreaksbr }}</p>
-            <p style="margin: 18px 0 0; color: #94a3b8;">Este mensaje fue enviado por {{ sender.username }} desde el panel de administración de MiniAmigixV.</p>
-            <p style="margin: 12px 0 0; color: #94a3b8;">Si no esperabas este correo, puedes ignorarlo.</p>
+
+        <!-- Contenido principal -->
+        <div style="padding: 40px 30px; color: #1e293b; background: #ffffff;">
+            <!-- Saludo -->
+            <div style="margin-bottom: 24px;">
+                <p style="margin: 0; font-size: 18px; color: #64748b;">Hola <strong style="color: #7c3aed;">{{ recipient.username }}</strong>,</p>
+            </div>
+
+            <!-- Mensaje -->
+            <div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); padding: 24px; border-radius: 16px; border-left: 4px solid #7c3aed; margin-bottom: 24px;">
+                <p style="margin: 0; line-height: 1.8; color: #334155;">{{ message|linebreaksbr }}</p>
+            </div>
+
+            <!-- Información del remitente -->
+            <div style="background: #fef3c7; padding: 20px; border-radius: 12px; margin-bottom: 24px;">
+                <p style="margin: 0 0 8px; font-size: 13px; color: #92400e; font-weight: 600;">📧 Información del remitente</p>
+                <p style="margin: 4px 0; font-size: 14px; color: #78350f;"><strong>Usuario:</strong> {{ sender.username }}</p>
+                <p style="margin: 4px 0; font-size: 14px; color: #78350f;"><strong>Fecha:</strong> {{ date|date:"d/m/Y H:i" }}</p>
+                <p style="margin: 4px 0; font-size: 14px; color: #78350f;"><strong>Origen:</strong> Panel de Administración de MiniAmigixV</p>
+            </div>
+
+            <!-- Botón de acción -->
+            <div style="text-align: center; margin-bottom: 24px;">
+                <a href="{{ site_url }}" style="display: inline-block; padding: 16px 32px; background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%); color: white; text-decoration: none; border-radius: 12px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4); transition: all 0.3s ease;">
+                    🚀 Visitar MiniAmigixV
+                </a>
+            </div>
+
+            <!-- Nota de seguridad -->
+            <p style="margin: 0; font-size: 13px; color: #94a3b8; text-align: center; line-height: 1.6;">
+                🔒 Si no esperabas este correo, puedes ignorarlo de forma segura.
+            </p>
         </div>
-        <div style="padding: 24px; background: #0f172a; color: #94a3b8; font-size: 13px;">
-            <p style="margin: 0;">MiniAmigixV - Tu asistente personal interactivo.</p>
+
+        <!-- Footer -->
+        <div style="padding: 30px; background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); color: #94a3b8; text-align: center; border-top: 1px solid rgba(255,255,255,0.1);">
+            <div style="font-size: 32px; margin-bottom: 12px;">✨</div>
+            <p style="margin: 0 0 8px; font-size: 14px; color: #e2e8f0; font-weight: 500;">© 2026 MiniAmigixV</p>
+            <p style="margin: 0; font-size: 13px; color: #64748b;">Tu asistente personal interactivo</p>
+            <div style="margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(255,255,255,0.1);">
+                <p style="margin: 0; font-size: 12px; color: #475569;">
+                    Este correo fue enviado automáticamente. No responder.
+                </p>
+            </div>
         </div>
     </div>
 </body>

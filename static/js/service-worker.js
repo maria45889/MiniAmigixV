@@ -1,4 +1,4 @@
-const CACHE_NAME = 'miniamigixv-v1';
+const CACHE_NAME = 'miniamigixv-v2';
 const urlsToCache = [
     '/',
     '/static/css/style.css',

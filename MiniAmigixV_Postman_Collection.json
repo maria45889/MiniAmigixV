@@ -1,0 +1,234 @@
+{
+	"info": {
+		"_postman_id": "miniamigixv-collection",
+		"name": "MiniAmigixV API",
+		"description": "Colección de Postman para MiniAmigixV - Django REST API",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "",
+			"type": "string"
+		}
+	],
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"user@example.com\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/login/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "login", ""]
+						},
+						"description": "Obtener token JWT para autenticación"
+					},
+					"response": []
+				},
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"newuser@example.com\",\n    \"password\": \"password123\",\n    \"password2\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/register/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "register", ""]
+						},
+						"description": "Registrar nuevo usuario"
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refresh\": \"your_refresh_token_here\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/login/refresh/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "login", "refresh", ""]
+						},
+						"description": "Renovar token JWT"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "User Profile",
+			"item": [
+				{
+					"name": "Get Profile",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/profile/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "profile", ""]
+						},
+						"description": "Obtener perfil de usuario autenticado"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Language",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"language\": \"es\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/update-language/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "update-language", ""]
+						},
+						"description": "Actualizar idioma del usuario"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Chat AI",
+			"item": [
+				{
+					"name": "Send Message",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"message\": \"Hola, ¿cómo estás?\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/chat/send/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "chat", "send", ""]
+						},
+						"description": "Enviar mensaje al chat IA"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Chat History",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/chat/history/",
+							"host": ["{{base_url}}"],
+							"path": ["api", "chat", "history", ""]
+						},
+						"description": "Obtener historial de chat del usuario"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Blog (Placeholder)",
+			"item": [
+				{
+					"name": "Get Posts",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/blog/",
+							"host": ["{{base_url}}"],
+							"path": ["blog", ""]
+						},
+						"description": "Obtener todos los posts del blog"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "MongoDB Analytics (Placeholder)",
+			"item": [
+				{
+					"name": "Get Analytics",
+					"request": {
+						"method": "GET",
+						"url": {
+							"raw": "{{base_url}}/mongodb/analytics/",
+							"host": ["{{base_url}}"],
+							"path": ["mongodb", "analytics", ""]
+						},
+						"description": "Obtener analíticas de MongoDB"
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}

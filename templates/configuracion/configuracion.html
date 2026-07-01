@@ -1,34 +1,53 @@
-<div class="configuracion-container modern">
-    <div class="config-header">
-        <div class="config-header-glow"></div>
-        <h1><i data-lucide="settings"></i> Configuración</h1>
-        <p>Personaliza tu experiencia y ajusta tus preferencias.</p>
-    </div>
+<div class="config-layout-wrapper">
     
-    {% if tema_actualizado %}
-    <div class="success-message-modern" id="success-msg">
-        <i data-lucide="check-circle"></i> Configuración actualizada correctamente
-    </div>
-    {% endif %}
-    
-    <!-- Navigation Tabs -->
-    <div class="config-tabs">
-        <button class="config-tab active" data-tab="general" onclick="switchTab('general')">
-            <i data-lucide="sliders-horizontal"></i> General
-        </button>
-        <button class="config-tab" data-tab="privacidad" onclick="switchTab('privacidad')">
-            <i data-lucide="shield"></i> Privacidad
-        </button>
-        <button class="config-tab" data-tab="accesibilidad" onclick="switchTab('accesibilidad')">
-            <i data-lucide="accessibility"></i> Accesibilidad
-        </button>
-        <button class="config-tab" data-tab="seguridad" onclick="switchTab('seguridad')">
-            <i data-lucide="lock"></i> Seguridad
-        </button>
-        <button class="config-tab" data-tab="sesion" onclick="switchTab('sesion')">
-            <i data-lucide="user-cog"></i> Sesión
-        </button>
-    </div>
+    <!-- Left Sidebar for Navigation -->
+    <aside class="config-sidebar glass-panel">
+        <div class="config-sidebar-header">
+            <div class="config-header-glow"></div>
+            <h1><i data-lucide="settings-2"></i> Ajustes</h1>
+            <p class="config-sidebar-subtitle">Personaliza tu experiencia</p>
+        </div>
+        <div class="config-tabs-vertical">
+            <button class="config-tab active" data-tab="general" onclick="switchTab('general')">
+                <i data-lucide="sliders-horizontal"></i> General
+            </button>
+            <button class="config-tab" data-tab="privacidad" onclick="switchTab('privacidad')">
+                <i data-lucide="shield"></i> Privacidad
+            </button>
+            <button class="config-tab" data-tab="accesibilidad" onclick="switchTab('accesibilidad')">
+                <i data-lucide="accessibility"></i> Accesibilidad
+            </button>
+            <button class="config-tab" data-tab="seguridad" onclick="switchTab('seguridad')">
+                <i data-lucide="lock"></i> Seguridad
+            </button>
+            <button class="config-tab" data-tab="sesion" onclick="switchTab('sesion')">
+                <i data-lucide="user-cog"></i> Sesión
+            </button>
+        </div>
+        <div class="config-sidebar-footer">
+            <div class="sf-icon">⚡</div>
+            <div class="sf-text">
+                <strong>MiniAmigixV</strong>
+                Panel de control v2.0
+            </div>
+        </div>
+    </aside>
+
+
+    <!-- Right Main Content -->
+    <main class="config-main-content glass-panel">
+        
+        <div class="config-content-header">
+            <h2>⚙️ Personaliza tu experiencia</h2>
+            <p>Ajusta las preferencias de MiniAmigixV a tu medida. Los cambios se aplican instantáneamente.</p>
+        </div>
+        
+        {% if tema_actualizado %}
+        <div class="success-message-modern" id="success-msg">
+            <i data-lucide="check-circle"></i> ¡Configuración guardada correctamente!
+        </div>
+        {% endif %}
+
 
     <form method="POST" class="configuracion-form">
         {% csrf_token %}
@@ -469,7 +488,9 @@
             </button>
         </div>
     </form>
-</div>
+    
+    </main> <!-- End main content -->
+</div> <!-- End config-layout-wrapper -->
 
 <!-- Delete Confirmation Modal -->
 <div class="modal-overlay" id="delete-modal" style="display:none;">

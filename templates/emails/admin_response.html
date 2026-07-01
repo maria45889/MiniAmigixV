@@ -5,117 +5,186 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Respuesta de MiniAmigixV</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f4f4;
-            padding: 20px;
+            font-family: 'Poppins', sans-serif;
+            background: #09090f;
+            padding: 40px 20px;
             line-height: 1.6;
         }
         .container {
             max-width: 600px;
             margin: 0 auto;
             background-color: #ffffff;
-            border-radius: 12px;
+            border-radius: 24px;
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
         }
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 30px;
+            background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
+            padding: 40px 30px;
             text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            right: -50px;
+            width: 150px;
+            height: 150px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+        .header::after {
+            content: '';
+            position: absolute;
+            bottom: -30px;
+            left: -30px;
+            width: 100px;
+            height: 100px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+        .header-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
         }
         .header h1 {
             color: #ffffff;
             font-size: 28px;
-            font-weight: 600;
-            margin-bottom: 5px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
         .header p {
-            color: #e0e0e0;
+            color: rgba(255,255,255,0.9);
             font-size: 14px;
         }
         .content {
             padding: 40px 30px;
         }
+        .greeting {
+            font-size: 18px;
+            color: #64748b;
+            margin-bottom: 24px;
+        }
+        .greeting strong {
+            color: #7c3aed;
+        }
         .message-box {
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-            border-left: 4px solid #667eea;
-            border-radius: 8px;
-            padding: 25px;
-            margin: 25px 0;
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-left: 4px solid #7c3aed;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
         }
         .message-text {
-            color: #333333;
+            color: #334155;
             font-size: 15px;
-            line-height: 1.7;
+            line-height: 1.8;
             white-space: pre-wrap;
         }
         .info-box {
-            background-color: #f8fafc;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
+            background-color: #fef3c7;
+            border-radius: 12px;
             padding: 20px;
-            margin: 25px 0;
+            margin-bottom: 24px;
+        }
+        .info-box-title {
+            font-size: 13px;
+            color: #92400e;
+            font-weight: 600;
+            margin-bottom: 12px;
         }
         .info-box p {
-            color: #555555;
+            color: #78350f;
             font-size: 14px;
-            margin-bottom: 10px;
+            margin: 4px 0;
         }
-        .info-box p:last-child {
-            margin-bottom: 0;
+        .info-box strong {
+            color: #92400e;
         }
-        .footer {
-            background-color: #f8f9fa;
-            padding: 25px;
+        .btn-container {
             text-align: center;
-            border-top: 1px solid #e0e0e0;
-        }
-        .footer p {
-            color: #666666;
-            font-size: 13px;
-            margin-bottom: 10px;
-        }
-        .footer a {
-            color: #667eea;
-            text-decoration: none;
-            font-weight: 500;
-        }
-        .footer a:hover {
-            text-decoration: underline;
+            margin-bottom: 24px;
         }
         .btn {
             display: inline-block;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #7c3aed, #06b6d4);
             color: #ffffff;
-            padding: 12px 30px;
-            border-radius: 6px;
+            padding: 16px 32px;
+            border-radius: 12px;
             text-decoration: none;
-            font-weight: 500;
-            margin-top: 20px;
-            font-size: 15px;
+            font-weight: 600;
+           font-size: 16px;
+            box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+            transition: all 0.3s ease;
         }
         .btn:hover {
             opacity: 0.9;
+            transform: translateY(-2px);
+        }
+        .security-note {
+            text-align: center;
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+        .footer {
+            background: #111827;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid rgba(255,255,255,0.05);
+        }
+        .footer-icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+        .footer p {
+            color: #e2e8f0;
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+        .footer .subtitle {
+            color: #64748b;
+            font-size: 13px;
+            font-weight: 400;
+        }
+        .footer .auto-note {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            font-size: 12px;
+            color: #475569;
         }
         @media only screen and (max-width: 600px) {
+            body {
+                padding: 20px 10px;
+            }
             .container {
                 width: 100%;
-                border-radius: 0;
+                border-radius: 16px;
             }
             .header {
-                padding: 20px;
+                padding: 30px 20px;
             }
             .header h1 {
                 font-size: 24px;
             }
             .content {
-                padding: 25px 20px;
+                padding: 30px 20px;
+            }
+            .btn {
+                padding: 14px 24px;
+                font-size: 15px;
             }
         }
     </style>
@@ -123,33 +192,37 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📨 Respuesta de MiniAmigixV</h1>
+            <img src="{{ site_url }}/static/imagenes/logo_square.png" alt="MiniAmigixV Logo" style="width: 64px; height: 64px; margin-bottom: 16px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+            <h1>Respuesta de MiniAmigixV</h1>
             <p>Panel de Administración</p>
         </div>
         
         <div class="content">
-            <p style="color: #555555; font-size: 15px; margin-bottom: 20px;">
-                Hola,
-            </p>
+            <p class="greeting">Hola,</p>
             
             <div class="message-box">
                 <p class="message-text">{{ message|linebreaksbr }}</p>
             </div>
             
             <div class="info-box">
-                <p>👤 <strong>Enviado por:</strong> {{ sender.username }}</p>
-                <p>📅 <strong>Fecha:</strong> {{ fecha|default:"Hoy" }}</p>
-                <p>🔧 <strong>Desde:</strong> Panel de Administración de MiniAmigixV</p>
+                <p class="info-box-title">� Información del remitente</p>
+                <p><strong>Usuario:</strong> {{ sender.username }}</p>
+                <p><strong>Fecha:</strong> {{ fecha|default:"Hoy" }}</p>
+                <p><strong>Origen:</strong> Panel de Administración de MiniAmigixV</p>
             </div>
             
-            <div style="text-align: center;">
-                <a href="{{ site_url }}" class="btn">🌐 Visitar MiniAmigixV</a>
+            <div class="btn-container">
+                <a href="{{ site_url }}" class="btn">🚀 Visitar MiniAmigixV</a>
             </div>
+            
+            <p class="security-note">🔒 Si no esperabas este correo, puedes ignorarlo de forma segura.</p>
         </div>
         
         <div class="footer">
-            <p>© 2026 MiniAmigixV - Tu asistente personal interactivo</p>
-            <p style="font-size: 11px; color: #999;">Si no esperabas este correo, puedes ignorarlo.</p>
+            <div class="footer-icon">✨</div>
+            <p>© 2026 MiniAmigixV</p>
+            <p class="subtitle">Tu asistente personal interactivo</p>
+            <p class="auto-note">Este correo fue enviado automáticamente. No responder.</p>
         </div>
     </div>
 </body>

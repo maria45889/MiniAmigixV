@@ -1,6 +1,8 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from app.models import ConversacionChat, MensajeChat
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.contrib.auth import authenticate
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -35,3 +37,11 @@ class ConversacionChatSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConversacionChat
         fields = ['id', 'usuario', 'titulo', 'fecha_creacion', 'fecha_actualizacion', 'mensajes']
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
+    username_field = 'email'
+    
+    def validate(self, attrs):
+        # Usar email como username
+        attrs['username'] = attrs.get('email')
+        return super().validate(attrs)

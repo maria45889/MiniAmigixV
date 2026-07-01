@@ -7,11 +7,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{% static 'css/pages/entretenimiento.css' %}?v=19">
+<link rel="stylesheet" href="{% static 'css/pages/entretenimiento.css' %}?v=21">
 {% endblock %}
 
 {% block content %}
-<div class="dashboard" style="position: relative;">
+<div class="dashboard" style="position: relative; display: flex; flex-direction: column; width: 100%; box-sizing: border-box;">
 
     <!-- Floating Particles Background -->
     <div class="entertain-particles" id="particles"></div>
@@ -51,125 +51,205 @@
             <div class="ent-hero-circle ent-hero-circle-3"></div>
             <div class="ent-hero-emoji">🎬</div>
         </div>
-    </div>
+    </div> <!-- Close ent-hero -->
 
-    <!-- Category Cards Grid -->
-    <div class="ent-categories-section">
-        <div class="ent-section-header">
-            <h2 class="ent-section-title">Explorar por categoría</h2>
-            <p class="ent-section-subtitle">Encuentra exactamente lo que buscas</p>
-        </div>
-        <div class="ent-categories-grid">
+      <!-- Streaming Style Rows -->
+    <div class="ent-streaming-container">
 
-            <!-- Películas -->
-            <div class="ent-category-card ent-category-card--peliculas" onclick="abrirModal('peliculas')" data-id="peliculas">
-                <div class="ent-category-bg"></div>
-                <div class="ent-category-content">
-                    <div class="ent-category-icon">🎬</div>
-                    <h3>Películas</h3>
-                    <p>Estrenos y clásicos</p>
-                    <span class="ent-category-count">24 items</span>
+        <!-- Películas -->
+        {% if recomendaciones.peliculas %}
+        <div class="ent-row">
+            <h2 class="ent-row-title">Películas Populares</h2>
+            <div class="ent-row-scroll">
+                {% for item in recomendaciones.peliculas %}
+                <div class="ent-card" onclick="openModal(this)"
+                    data-titulo="{{ item.titulo }}"
+                    data-genero="{{ item.genero }}"
+                    data-descripcion="{{ item.descripcion }}"
+                    data-director="{{ item.director|default:'' }}"
+                    data-anio="{{ item.anio|default:'' }}"
+                    data-duracion="{{ item.duracion|default:'' }}"
+                    data-calificacion="{{ item.calificacion|default:'' }}"
+                    data-imagen="{{ item.imagen }}">
+                    <img src="{{ item.imagen }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
+                    <div class="ent-card-overlay">
+                        <h4>{{ item.titulo }}</h4>
+                        <p class="ent-card-genre">{{ item.genero }}</p>
+                    </div>
                 </div>
-                <div class="ent-category-arrow">→</div>
-            </div>
-
-            <!-- Series -->
-            <div class="ent-category-card ent-category-card--series" onclick="abrirModal('series')" data-id="series">
-                <div class="ent-category-bg"></div>
-                <div class="ent-category-content">
-                    <div class="ent-category-icon">📺</div>
-                    <h3>Series</h3>
-                    <p>Las más populares</p>
-                    <span class="ent-category-count">32 items</span>
-                </div>
-                <div class="ent-category-arrow">→</div>
-            </div>
-
-            <!-- Libros -->
-            <div class="ent-category-card ent-category-card--libros" onclick="abrirModal('libros')" data-id="libros">
-                <div class="ent-category-bg"></div>
-                <div class="ent-category-content">
-                    <div class="ent-category-icon">📚</div>
-                    <h3>Libros</h3>
-                    <p>Lecturas recomendadas</p>
-                    <span class="ent-category-count">18 items</span>
-                </div>
-                <div class="ent-category-arrow">→</div>
-            </div>
-
-            <!-- Teatro -->
-            <div class="ent-category-card ent-category-card--teatro" onclick="abrirModal('teatro')" data-id="teatro">
-                <div class="ent-category-bg"></div>
-                <div class="ent-category-content">
-                    <div class="ent-category-icon">🎭</div>
-                    <h3>Teatro</h3>
-                    <p>Obras imperdibles</p>
-                    <span class="ent-category-count">12 items</span>
-                </div>
-                <div class="ent-category-arrow">→</div>
-            </div>
-
-            <!-- Documentales -->
-            <div class="ent-category-card ent-category-card--documentales" onclick="abrirModal('documentales')" data-id="documentales">
-                <div class="ent-category-bg"></div>
-                <div class="ent-category-content">
-                    <div class="ent-category-icon">🎥</div>
-                    <h3>Documentales</h3>
-                    <p>Aprende y descubre</p>
-                    <span class="ent-category-count">15 items</span>
-                </div>
-                <div class="ent-category-arrow">→</div>
-            </div>
-
-            <!-- Anime -->
-            <div class="ent-category-card ent-category-card--anime" onclick="abrirModal('anime')" data-id="anime">
-                <div class="ent-category-bg"></div>
-                <div class="ent-category-content">
-                    <div class="ent-category-icon">🎌</div>
-                    <h3>Anime</h3>
-                    <p>Japón animado</p>
-                    <span class="ent-category-count">28 items</span>
-                </div>
-                <div class="ent-category-arrow">→</div>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- Trending Section -->
-    <div class="ent-trending-section" id="trending-section" style="display: none;">
-        <div class="ent-section-header">
-            <div class="ent-section-header-left">
-                <h2 class="ent-section-title">🔥 Tendencias</h2>
-                <span class="ent-trending-badge">New</span>
-            </div>
-            <div class="ent-trending-nav">
-                <button class="ent-trending-nav-btn ent-trending-nav-btn--prev" onclick="scrollTrending(-1)">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M15 18l-6-6 6-6"/>
-                    </svg>
-                </button>
-                <button class="ent-trending-nav-btn ent-trending-nav-btn--next" onclick="scrollTrending(1)">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 18l6-6-6-6"/>
-                    </svg>
-                </button>
+                {% endfor %}
             </div>
         </div>
-        <div class="ent-trending-scroll" id="trending-scroll"></div>
+        {% endif %}
+
+        <!-- Series -->
+        {% if recomendaciones.series %}
+        <div class="ent-row">
+            <h2 class="ent-row-title">Series Destacadas</h2>
+            <div class="ent-row-scroll">
+                {% for item in recomendaciones.series %}
+                <div class="ent-card" onclick="openModal(this)"
+                    data-titulo="{{ item.titulo }}"
+                    data-genero="{{ item.genero }}"
+                    data-descripcion="{{ item.descripcion }}"
+                    data-director="{{ item.director|default:'' }}"
+                    data-anio="{{ item.anio|default:'' }}"
+                    data-duracion="{{ item.duracion|default:'' }}"
+                    data-calificacion="{{ item.calificacion|default:'' }}"
+                    data-imagen="{{ item.imagen }}">
+                    <img src="{{ item.imagen }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
+                    <div class="ent-card-overlay">
+                        <h4>{{ item.titulo }}</h4>
+                        <p class="ent-card-genre">{{ item.genero }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Anime -->
+        {% if recomendaciones.anime %}
+        <div class="ent-row">
+            <h2 class="ent-row-title">Top Anime</h2>
+            <div class="ent-row-scroll">
+                {% for item in recomendaciones.anime %}
+                <div class="ent-card" onclick="openModal(this)"
+                    data-titulo="{{ item.titulo }}"
+                    data-genero="{{ item.genero }}"
+                    data-descripcion="{{ item.descripcion }}"
+                    data-director="{{ item.director|default:'' }}"
+                    data-anio="{{ item.anio|default:'' }}"
+                    data-duracion="{{ item.duracion|default:'' }}"
+                    data-calificacion="{{ item.calificacion|default:'' }}"
+                    data-imagen="{{ item.imagen }}">
+                    <img src="{{ item.imagen }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
+                    <div class="ent-card-overlay">
+                        <h4>{{ item.titulo }}</h4>
+                        <p class="ent-card-genre">{{ item.genero }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Documentales -->
+        {% if recomendaciones.documentales %}
+        <div class="ent-row">
+            <h2 class="ent-row-title">Documentales</h2>
+            <div class="ent-row-scroll">
+                {% for item in recomendaciones.documentales %}
+                <div class="ent-card" onclick="openModal(this)"
+                    data-titulo="{{ item.titulo }}"
+                    data-genero="{{ item.genero }}"
+                    data-descripcion="{{ item.descripcion }}"
+                    data-director="{{ item.director|default:'' }}"
+                    data-anio="{{ item.anio|default:'' }}"
+                    data-duracion="{{ item.duracion|default:'' }}"
+                    data-calificacion="{{ item.calificacion|default:'' }}"
+                    data-imagen="{{ item.imagen }}">
+                    <img src="{{ item.imagen }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
+                    <div class="ent-card-overlay">
+                        <h4>{{ item.titulo }}</h4>
+                        <p class="ent-card-genre">{{ item.genero }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Libros -->
+        {% if recomendaciones.libros %}
+        <div class="ent-row">
+            <h2 class="ent-row-title">Libros Recomendados</h2>
+            <div class="ent-row-scroll">
+                {% for item in recomendaciones.libros %}
+                <div class="ent-card ent-card-book" onclick="openModal(this)"
+                    data-titulo="{{ item.titulo }}"
+                    data-genero="{{ item.genero|default:'Libro' }}"
+                    data-descripcion="{{ item.descripcion }}"
+                    data-director="{{ item.autor|default:'' }}"
+                    data-director-label="Autor"
+                    data-anio="{{ item.anio|default:'' }}"
+                    data-duracion="{{ item.paginas|default:'' }}"
+                    data-duracion-label="Extensión"
+                    data-calificacion="{{ item.calificacion|default:'' }}"
+                    data-imagen="{{ item.imagen|default:'https://placehold.co/300x450/2d3748/ffffff?text=Libro' }}">
+                    <img src="{{ item.imagen|default:'https://placehold.co/300x450/2d3748/ffffff?text=Libro' }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
+                    <div class="ent-card-overlay">
+                        <h4>{{ item.titulo }}</h4>
+                        <p class="ent-card-genre">{{ item.autor }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Teatro -->
+        {% if recomendaciones.teatro %}
+        <div class="ent-row">
+            <h2 class="ent-row-title">Obras de Teatro</h2>
+            <div class="ent-row-scroll">
+                {% for item in recomendaciones.teatro %}
+                <div class="ent-card" onclick="openModal(this)"
+                    data-titulo="{{ item.titulo }}"
+                    data-genero="{{ item.genero|default:'Musical' }}"
+                    data-descripcion="{{ item.descripcion }}"
+                    data-director="{{ item.autor|default:'' }}"
+                    data-director-label="Compositor"
+                    data-anio="{{ item.anio|default:'' }}"
+                    data-duracion="{{ item.duracion|default:'' }}"
+                    data-calificacion="{{ item.calificacion|default:'' }}"
+                    data-imagen="{{ item.imagen }}">
+                    <img src="{{ item.imagen }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
+                    <div class="ent-card-overlay">
+                        <h4>{{ item.titulo }}</h4>
+                        <p class="ent-card-genre">{{ item.autor }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
     </div>
 
 </div>
 
-<!-- Premium Modal -->
-<div id="modal" class="ent-modal-overlay">
-    <div class="ent-modal">
-        <div class="ent-modal-header">
-            <h2 id="modal-titulo"></h2>
-            <button class="ent-modal-close" onclick="cerrarModal()" title="Cerrar">&times;</button>
-        </div>
-        <div class="ent-modal-body">
-            <div id="modal-contenido" class="reco-grid"></div>
+<!-- ======= MODAL DE INFORMACIÓN ======= -->
+<div class="ent-modal-overlay" id="entModal" onclick="closeModalOutside(event)">
+    <div class="ent-modal-box">
+        <button class="ent-modal-close" onclick="closeModal()" title="Cerrar">✕</button>
+        <div class="ent-modal-inner">
+            <div class="ent-modal-poster">
+                <img id="modal-img" src="" alt="" referrerpolicy="no-referrer">
+                <div class="ent-modal-rating">
+                    <span>⭐</span>
+                    <strong id="modal-rating"></strong>
+                </div>
+            </div>
+            <div class="ent-modal-info">
+                <span class="ent-modal-genre" id="modal-genre"></span>
+                <h2 class="ent-modal-title" id="modal-title"></h2>
+                <p class="ent-modal-desc" id="modal-desc"></p>
+                <div class="ent-modal-meta">
+                    <div class="ent-meta-item" id="meta-director-wrap">
+                        <span class="ent-meta-label" id="meta-director-label">Director</span>
+                        <span class="ent-meta-value" id="modal-director"></span>
+                    </div>
+                    <div class="ent-meta-item" id="meta-anio-wrap">
+                        <span class="ent-meta-label">Fecha de estreno</span>
+                        <span class="ent-meta-value" id="modal-anio"></span>
+                    </div>
+                    <div class="ent-meta-item" id="meta-duracion-wrap">
+                        <span class="ent-meta-label" id="meta-duracion-label">Duración</span>
+                        <span class="ent-meta-value" id="modal-duracion"></span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -177,154 +257,186 @@
 {% endblock %}
 
 {% block extra_js %}
+<style>
+/* ===== MODAL STYLES ===== */
+.ent-modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(8px);
+    z-index: 99999;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeInOverlay 0.2s ease;
+}
+.ent-modal-overlay.active { display: flex; }
+
+@keyframes fadeInOverlay {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+.ent-modal-box {
+    background: linear-gradient(135deg, #1e293b, #0f172a);
+    border: 1px solid rgba(124, 58, 237, 0.3);
+    border-radius: 24px;
+    max-width: 800px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    position: relative;
+    box-shadow: 0 25px 60px rgba(0,0,0,0.6), 0 0 40px rgba(124, 58, 237, 0.15);
+    animation: slideUpModal 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes slideUpModal {
+    from { opacity: 0; transform: scale(0.92) translateY(30px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.ent-modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: #fff;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+.ent-modal-close:hover {
+    background: rgba(239,68,68,0.3);
+    transform: rotate(90deg);
+}
+
+.ent-modal-inner {
+    display: flex;
+    gap: 28px;
+    padding: 32px;
+}
+
+.ent-modal-poster {
+    flex: 0 0 200px;
+    position: relative;
+}
+.ent-modal-poster img {
+    width: 100%;
+    border-radius: 16px;
+    aspect-ratio: 2/3;
+    object-fit: cover;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+}
+
+.ent-modal-rating {
+    position: absolute;
+    bottom: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+    border-radius: 20px;
+    padding: 6px 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(124,58,237,0.4);
+}
+
+.ent-modal-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.ent-modal-genre {
+    display: inline-block;
+    background: rgba(124,58,237,0.2);
+    border: 1px solid rgba(124,58,237,0.4);
+    color: #a78bfa;
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 20px;
+    width: fit-content;
+}
+
+.ent-modal-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #f8fafc;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.ent-modal-desc {
+    color: #94a3b8;
+    font-size: 0.95rem;
+    line-height: 1.7;
+    margin: 0;
+}
+
+.ent-modal-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 8px;
+    border-top: 1px solid rgba(255,255,255,0.07);
+    padding-top: 16px;
+}
+
+.ent-meta-item {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+}
+
+.ent-meta-label {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    color: #64748b;
+    min-width: 110px;
+    flex-shrink: 0;
+}
+
+.ent-meta-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #e2e8f0;
+}
+
+@media (max-width: 600px) {
+    .ent-modal-inner {
+        flex-direction: column;
+        padding: 24px;
+    }
+    .ent-modal-poster { flex: none; width: 140px; margin: 0 auto 20px; }
+    .ent-modal-title { font-size: 1.4rem; }
+}
+</style>
+
 <script>
-const recomendaciones = {{ recomendaciones|safe }};
-const nombres = {
-    peliculas: '🎬 Películas',
-    series: '📺 Series',
-    libros: '📚 Libros',
-    teatro: '🎭 Teatro',
-    anime: '🎌 Anime',
-    documentales: '🎥 Documentales'
-};
-
-// ============ MODAL ============
-function abrirModal(cat) {
-    document.getElementById('modal-titulo').textContent = nombres[cat] || cat;
-    const cont = document.getElementById('modal-contenido');
-    const items = recomendaciones[cat] || [];
-
-    if (items.length === 0) {
-        cont.innerHTML = '<div class="reco-empty">No hay recomendaciones disponibles en este momento</div>';
-    } else {
-        let html = '';
-        items.forEach((item, i) => {
-            if (cat === 'libros') {
-                html += `
-                <div class="reco-card reco-card--book" style="animation-delay: ${i * 0.08}s">
-                    <div class="book-icon">📖</div>
-                    <div class="reco-card-body">
-                        <h4>${item.titulo || ''}</h4>
-                        <p class="book-author">${item.autor || ''}</p>
-                        <p>${item.descripcion || ''}</p>
-                    </div>
-                </div>`;
-            } else {
-                html += `
-                <div class="reco-card" style="animation-delay: ${i * 0.08}s">
-                    <div class="reco-card-img">
-                        <img src="${item.imagen || ''}" alt="${item.titulo || ''}" loading="lazy">
-                        <div class="play-overlay">
-                            <a href="${item.url || '#'}" target="_blank" class="play-overlay-icon" title="Ver en YouTube">▶</a>
-                        </div>
-                    </div>
-                    <div class="reco-card-body">
-                        <h4>${item.titulo || ''}</h4>
-                        <p>${item.descripcion || ''}</p>
-                        <a href="${item.url || '#'}" target="_blank">Ver en YouTube →</a>
-                    </div>
-                </div>`;
-            }
-        });
-        cont.innerHTML = html;
-    }
-
-    const modal = document.getElementById('modal');
-    modal.classList.add('active');
-    document.body.style.overflow = 'hidden';
+// Initialize lucide icons
+if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
 }
-
-function cerrarModal() {
-    const modal = document.getElementById('modal');
-    modal.classList.remove('active');
-    document.body.style.overflow = '';
-}
-
-// Close on backdrop click
-document.getElementById('modal').addEventListener('click', function(e) {
-    if (e.target === this) cerrarModal();
-});
-
-// Close on ESC key
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') cerrarModal();
-});
-
-// ============ TRENDING SECTION ============
-(function buildTrending() {
-    const allItems = [
-        ...(recomendaciones.peliculas || []),
-        ...(recomendaciones.series || [])
-    ];
-    if (allItems.length === 0) return;
-
-    const section = document.getElementById('trending-section');
-    const scroll = document.getElementById('trending-scroll');
-    section.style.display = 'block';
-
-    allItems.slice(0, 8).forEach((item, i) => {
-        const el = document.createElement('div');
-        el.className = 'trending-item';
-        el.innerHTML = `
-            <img src="${item.imagen || ''}" alt="${item.titulo || ''}" loading="lazy">
-            <div class="trend-rank">#${i + 1}</div>
-        `;
-        el.addEventListener('click', () => {
-            if (item.url) window.open(item.url, '_blank');
-        });
-        scroll.appendChild(el);
-    });
-
-    // Auto-scroll logic
-    let scrollDirection = 1;
-    let autoScrollInterval = setInterval(() => {
-        if (scroll.scrollLeft + scroll.clientWidth >= scroll.scrollWidth - 5) {
-            scrollDirection = -1; // reverse
-        } else if (scroll.scrollLeft <= 0) {
-            scrollDirection = 1; // forward
-        }
-        scroll.scrollBy({ left: scrollDirection * 280, behavior: 'smooth' });
-    }, 4000);
-
-    // Pause on hover
-    section.addEventListener('mouseenter', () => clearInterval(autoScrollInterval));
-    section.addEventListener('mouseleave', () => {
-        autoScrollInterval = setInterval(() => {
-            if (scroll.scrollLeft + scroll.clientWidth >= scroll.scrollWidth - 5) scrollDirection = -1;
-            else if (scroll.scrollLeft <= 0) scrollDirection = 1;
-            scroll.scrollBy({ left: scrollDirection * 280, behavior: 'smooth' });
-        }, 4000);
-    });
-
-})();
-
-function scrollTrending(dir) {
-    const scroll = document.getElementById('trending-scroll');
-    if (scroll) {
-        scroll.scrollBy({ left: dir * 344, behavior: 'smooth' });
-    }
-}
-
-function checkScrollVisibility() {
-    // Check tendencias
-    const trendScroll = document.getElementById('trending-scroll');
-    if (trendScroll) {
-        const container = trendScroll.closest('.ent-trending-section');
-        if (container) {
-            const btns = container.querySelectorAll('.ent-trending-nav-btn');
-            // Hide if no overflow
-            const hide = trendScroll.scrollWidth <= trendScroll.clientWidth + 5;
-            btns.forEach(btn => {
-                btn.style.display = hide ? 'none' : 'flex';
-            });
-        }
-    }
-}
-
-window.addEventListener('resize', checkScrollVisibility);
-window.addEventListener('load', () => {
-    setTimeout(checkScrollVisibility, 100);
-});
 
 // ============ PARTICLES ============
 (function createParticles() {
@@ -347,5 +459,71 @@ window.addEventListener('load', () => {
         container.appendChild(span);
     }
 })();
+
+// ============ MODAL ============
+function openModal(card) {
+    const d = card.dataset;
+    document.getElementById('modal-img').src = d.imagen || '';
+    document.getElementById('modal-img').alt = d.titulo || '';
+    document.getElementById('modal-title').textContent = d.titulo || '';
+    document.getElementById('modal-genre').textContent = d.genero || '';
+    document.getElementById('modal-desc').textContent = d.descripcion || '';
+    document.getElementById('modal-rating').textContent = d.calificacion ? d.calificacion + ' / 10' : '';
+
+    // Director / Autor / Compositor
+    const dirWrap = document.getElementById('meta-director-wrap');
+    const dirLabel = document.getElementById('meta-director-label');
+    const dirVal   = document.getElementById('modal-director');
+    if (d.director) {
+        dirLabel.textContent = d.directorLabel || 'Director';
+        dirVal.textContent = d.director;
+        dirWrap.style.display = 'flex';
+    } else {
+        dirWrap.style.display = 'none';
+    }
+
+    // Año
+    const anioWrap = document.getElementById('meta-anio-wrap');
+    const anioVal  = document.getElementById('modal-anio');
+    if (d.anio) {
+        anioVal.textContent = d.anio;
+        anioWrap.style.display = 'flex';
+    } else {
+        anioWrap.style.display = 'none';
+    }
+
+    // Duración / Páginas
+    const durWrap  = document.getElementById('meta-duracion-wrap');
+    const durLabel = document.getElementById('meta-duracion-label');
+    const durVal   = document.getElementById('modal-duracion');
+    if (d.duracion) {
+        durLabel.textContent = d.duracionLabel || 'Duración';
+        durVal.textContent = d.duracion;
+        durWrap.style.display = 'flex';
+    } else {
+        durWrap.style.display = 'none';
+    }
+
+    // Rating visibility
+    const ratingEl = document.querySelector('.ent-modal-rating');
+    ratingEl.style.display = d.calificacion ? 'flex' : 'none';
+
+    document.getElementById('entModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeModal() {
+    document.getElementById('entModal').classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function closeModalOutside(e) {
+    if (e.target.id === 'entModal') closeModal();
+}
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeModal();
+});
 </script>
 {% endblock %}
+

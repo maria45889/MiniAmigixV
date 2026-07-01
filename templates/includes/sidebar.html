@@ -34,7 +34,7 @@
         <a href="{% url 'clima' %}" class="nav-item {% if request.resolver_match.url_name == 'clima' %}active{% endif %}"><i data-lucide="cloud-sun"></i> <span data-i18n="weather">Clima</span></a>
         <a href="{% url 'traductor' %}" class="nav-item {% if request.resolver_match.url_name == 'traductor' %}active{% endif %}"><i data-lucide="languages"></i> <span data-i18n="translator">Traductor</span></a>
         <a href="{% url 'entretenimiento' %}" class="nav-item {% if request.resolver_match.url_name == 'entretenimiento' %}active{% endif %}"><i data-lucide="sparkles"></i> <span data-i18n="entertainment">Entretenimiento</span></a>
-        <a href="{% url 'blog' %}" class="nav-item {% if request.resolver_match.url_name == 'blog' %}active{% endif %}"><i data-lucide="file-text"></i> <span data-i18n="blog">Blog</span></a>
+        <!-- <a href="{% url 'blog' %}" class="nav-item {% if request.resolver_match.url_name == 'blog' %}active{% endif %}"><i data-lucide="file-text"></i> <span data-i18n="blog">Blog</span></a> -->
         <a href="{% url 'soporte' %}" class="nav-item {% if request.resolver_match.url_name == 'soporte' %}active{% endif %}"><i data-lucide="life-buoy"></i> <span data-i18n="support">Soporte</span></a>
         {% if user.is_authenticated and user.is_staff %}
         <a href="{% url 'panel_admin' %}" class="nav-item" style="color: #c084fc; border-left-color: #c084fc;"><i data-lucide="shield-alert"></i> <span data-i18n="admin">Centro de Administración General</span></a>

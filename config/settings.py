@@ -31,9 +31,9 @@ sys.path.insert(0, str(BASE_DIR / 'apps'))
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-default-dev-key')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 # URL base del sitio para correos electrónicos y enlaces absolutos
 SITE_URL = os.getenv('SITE_URL', 'http://127.0.0.1:8000')
@@ -45,6 +45,20 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
     'http://127.0.0.1:50769',
 ]
+
+# Configuración CORS (solo en desarrollo)
+if DEBUG:
+    CORS_ALLOWED_ORIGINS = [
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        'http://localhost:8000',
+        'http://127.0.0.1:8000',
+    ]
+    CORS_ALLOW_CREDENTIALS = True
+else:
+    # En producción, configurar orígenes específicos
+    CORS_ALLOWED_ORIGINS = [o for o in os.getenv('CORS_ALLOWED_ORIGINS', '').split(',') if o]
+    CORS_ALLOW_CREDENTIALS = True
 
 # Para que Django reconozca que está detrás de un proxy con HTTPS
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
@@ -65,6 +79,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.github',
     # 'webpush', # Temporalmente deshabilitado - incompatible con Django 6.0
     # MongoEngine
     'mongoengine',
@@ -86,10 +101,13 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'apps.api',
+    'django_ratelimit',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',  # CORS middleware (debe estar primero)
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -98,6 +116,8 @@ MIDDLEWARE = [
     'allauth.account.middleware.AccountMiddleware', # Allauth middleware
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'apps.app.middleware.SecurityHeadersMiddleware',  # Headers de seguridad adicionales
+    'apps.app.middleware.XSSProtectionMiddleware',  # Protección XSS
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -128,29 +148,34 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+# PostgreSQL (Producción)
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('POSTGRES_DB', 'miniamigixv_db'),
+        'USER': os.getenv('POSTGRES_USER', 'postgres'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'postgres'),
+        'HOST': os.getenv('POSTGRES_HOST', 'localhost'),
+        'PORT': os.getenv('POSTGRES_PORT', '5432'),
+    }
+}
+
+# SQLite (Desarrollo - Fallback)
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     },
+# }
+
 # Aplicaciones que usarán MongoDB (deshabilitado temporalmente)
 # MONGO_APPS = [
 #     'notificaciones',
-#     'chats', 
+#     'chats',
 #     'recomendaciones',
 #     'analitica',
 #     'juegos_data'
 # ]
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    },
-    # 'mongodb': {
-    #     'ENGINE': 'djongo',
-    #     'NAME': os.getenv('MONGODB_NAME', 'miniamigixv_db'),
-    #     'ENFORCE_SCHEMA': False,
-    #     'CLIENT': {
-    #         'host': os.getenv('MONGODB_URI', 'mongodb://localhost:27017/'),
-    #     }
-    # }
-}
 
 # DATABASE_ROUTERS = ['config.db_router.DatabaseRouter']
 
@@ -192,6 +217,9 @@ SOCIALACCOUNT_PROVIDERS = {
         'AUTH_PARAMS': {
             'prompt': 'select_account',
         },
+    },
+    'github': {
+        # Configuration via Django admin (SocialApp model)
     }
 }
 
@@ -225,7 +253,7 @@ LANGUAGES = [
     ('en', 'English'),
 ]
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Bogota'
 
 USE_I18N = True
 
@@ -259,11 +287,11 @@ OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.3")
 
 # Configuración de Email para Sugerencias
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True # Consider EMAIL_USE_SSL = True if using port 465
-EMAIL_HOST_USER = 'miniamigixv@gmail.com'
-EMAIL_HOST_PASSWORD = "ineiftsmayttlflr"
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'miniamigixv@gmail.com')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 # Lista de correos con permisos de administrador
 ADMIN_EMAILS = ['miniamigixv@gmail.com']
@@ -284,8 +312,20 @@ WEBPUSH_CONTACT_EMAIL = os.getenv('WEBPUSH_CONTACT_EMAIL', 'tu_email@ejemplo.com
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
+    ),
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.AnonRateThrottle',
+        'rest_framework.throttling.UserRateThrottle'
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'anon': '20/min',
+        'user': '100/min'
+    }
 }
+
+# Rate limiting configuración
+RATELIMIT_ENABLE = True
+RATELIMIT_VIEW = 'rest_framework.throttling.AnonRateThrottle'
 
 from datetime import timedelta
 SIMPLE_JWT = {
@@ -311,3 +351,76 @@ except Exception as e:
 
 # Configuración de MongoEngine
 MONGOENGINE_USER_DOCUMENT = 'mongoengine.django.auth.User'
+
+# ==================== CACHE CONFIGURATION ====================
+# DummyCache para desarrollo (compatible con django_ratelimit)
+# Para producción, usar la configuración de Redis comentada abajo
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
+}
+
+SILENCED_SYSTEM_CHECKS = [
+    'django_ratelimit.W001',  # DummyCache no es oficialmente soportado pero funciona en desarrollo
+    'django_ratelimit.E003',  # Silenciar error de shared cache en desarrollo
+]
+
+# Redis (Memurai) - Caching y sesiones (para producción)
+# REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
+# REDIS_PORT = os.getenv('REDIS_PORT', '6379')
+# REDIS_DB = os.getenv('REDIS_DB', '0')
+# REDIS_PASSWORD = os.getenv('REDIS_PASSWORD', None)
+#
+# CACHES = {
+#     'default': {
+#         'BACKEND': 'django_redis.cache.RedisCache',
+#         'LOCATION': f'redis://{":" + REDIS_PASSWORD + "@" if REDIS_PASSWORD else ""}{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}',
+#         'OPTIONS': {
+#             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+#             'CONNECTION_POOL_KWARGS': {
+#                 'max_connections': 50,
+#                 'retry_on_timeout': True,
+#             }
+#         },
+#         'KEY_PREFIX': 'miniamigixv',
+#         'TIMEOUT': 300,  # 5 minutos por defecto
+#     }
+# }
+
+# Sesiones con base de datos para persistencia
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
+
+# Configuración de seguridad para producción
+if not DEBUG:
+    # HTTPS y Cookies seguras
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000  # 1 año
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    X_FRAME_OPTIONS = 'DENY'
+
+    # Headers de seguridad adicionales
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
+# Configuración de cookies
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SAMESITE = 'Lax'
+
+# Protección contra ataques
+SECURE_SSL_REDIRECT = False  # Desactivado en desarrollo
+SECURE_HSTS_SECONDS = 0  # Desactivado en desarrollo
+
+# Cache de plantillas
+TEMPLATE_LOADERS = [
+    ('django.template.loaders.cached.Loader', [
+        'django.template.loaders.filesystem.Loader',
+        'django.template.loaders.app_directories.Loader',
+    ]),
+]
