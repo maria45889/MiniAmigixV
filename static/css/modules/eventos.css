@@ -2,6 +2,17 @@
    EVENTOS CSS - ESTILO NEÓN Y GLASSMORPHISM
    ========================================================================== */
 
+/* Definición de variables de diseño para la sección de eventos */
+:root {
+    --event-color-primary: #7c3aed; /* Púrpura Neón */
+    --event-color-secondary: #06b6d4; /* Cyan Neón */
+    --event-glass-bg: rgba(255, 255, 255, 0.03);
+    --event-glass-border: rgba(255, 255, 255, 0.08);
+    --event-item-bg: rgba(0, 0, 0, 0.3);
+    --event-item-hover-bg: rgba(255, 255, 255, 0.05);
+    --event-radius: 12px;
+}
+
 /* Layout General */
 .eventos-container {
     padding: 20px;
@@ -17,10 +28,10 @@
 
 /* ==================== COMPONENTES GLASSMORPHISM ==================== */
 .glass-panel {
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--event-glass-bg);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--event-glass-border);
     border-radius: 16px;
     padding: 25px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
@@ -32,7 +43,7 @@
     font-size: 28px;
     font-weight: 700;
     margin-bottom: 25px;
-    background: linear-gradient(to right, #06b6d4, #7c3aed);
+    background: linear-gradient(to right, var(--event-color-secondary), var(--event-color-primary));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     display: flex;
@@ -69,10 +80,10 @@
 }
 
 .calendar-nav:hover {
-    background: linear-gradient(135deg, rgba(124, 58, 237, 0.4), rgba(6, 182, 212, 0.4));
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.4), rgba(6, 182, 212, 0.4)); /* Se mantiene por la opacidad específica */
     transform: scale(1.1);
-    border-color: rgba(6, 182, 212, 0.5);
-    box-shadow: 0 0 15px rgba(6, 182, 212, 0.3);
+    border-color: rgba(6, 182, 212, 0.5); /* Se mantiene por la opacidad específica */
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.3); /* Se mantiene por la opacidad específica */
 }
 
 #calendar-mes-ano {
@@ -106,7 +117,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 12px;
+    border-radius: var(--event-radius);
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 15px;
@@ -118,8 +129,8 @@
 }
 
 .calendar-dia:hover {
-    background: rgba(6, 182, 212, 0.15);
-    border-color: rgba(6, 182, 212, 0.3);
+    background: rgba(6, 182, 212, 0.15); /* Se mantiene por la opacidad específica */
+    border-color: rgba(6, 182, 212, 0.3); /* Se mantiene por la opacidad específica */
     transform: translateY(-2px);
 }
 
@@ -135,15 +146,15 @@
 
 /* Día Actual */
 .calendar-dia.hoy {
-    background: linear-gradient(135deg, rgba(124, 58, 237, 0.8), rgba(6, 182, 212, 0.8));
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.8), rgba(6, 182, 212, 0.8)); /* Se mantiene por la opacidad específica */
     color: white;
-    box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.4); /* Se mantiene por la opacidad específica */
     border-color: transparent;
 }
 
 /* Días con Eventos */
 .calendar-dia.con-evento {
-    background: rgba(124, 58, 237, 0.15);
+    background: rgba(124, 58, 237, 0.15); /* Se mantiene por la opacidad específica */
     border: 1px solid rgba(124, 58, 237, 0.3);
 }
 
@@ -154,9 +165,9 @@
     transform: translateX(-50%);
     width: 6px;
     height: 6px;
-    background: #06b6d4; /* Cyan neon */
+    background: var(--event-color-secondary); /* Cyan neon */
     border-radius: 50%;
-    box-shadow: 0 0 8px #06b6d4;
+    box-shadow: 0 0 8px var(--event-color-secondary);
 }
 
 /* ==================== LISTA DE EVENTOS ==================== */
@@ -172,10 +183,10 @@
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+    background: linear-gradient(135deg, var(--event-color-primary), var(--event-color-secondary));
     color: white;
     padding: 12px 24px;
-    border-radius: 12px;
+    border-radius: var(--event-radius);
     text-decoration: none;
     font-weight: 600;
     display: inline-flex;
@@ -184,16 +195,16 @@
     transition: all 0.3s ease;
     border: none;
     cursor: pointer;
-    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3);
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.3); /* Se mantiene por la opacidad específica */
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(6, 182, 212, 0.4);
+    box-shadow: 0 8px 25px rgba(6, 182, 212, 0.4); /* Se mantiene por la opacidad específica */
 }
 
 .btn-secondary {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--event-item-hover-bg);
     color: white;
     padding: 12px 24px;
     border-radius: 12px;
@@ -207,7 +218,7 @@
 }
 
 .btn-secondary:hover {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.1); /* Se mantiene por la opacidad específica */
 }
 
 .eventos-list {
@@ -228,16 +239,16 @@
     border-radius: 4px;
 }
 .eventos-list::-webkit-scrollbar-thumb {
-    background: rgba(124, 58, 237, 0.5);
+    background: rgba(124, 58, 237, 0.5); /* Se mantiene por la opacidad específica */
     border-radius: 4px;
 }
 
 .evento-card {
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--event-item-bg);
     padding: 15px;
-    border-radius: 12px;
+    border-radius: var(--event-radius);
     color: white;
-    border-left: 4px solid #06b6d4;
+    border-left: 4px solid var(--event-color-secondary);
     display: flex;
     gap: 20px;
     transition: all 0.3s ease;
@@ -247,8 +258,8 @@
 
 .evento-card:hover {
     transform: translateX(5px);
-    background: rgba(255, 255, 255, 0.05);
-    border-left-color: #7c3aed;
+    background: var(--event-item-hover-bg);
+    border-left-color: var(--event-color-primary);
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
 }
 
@@ -257,7 +268,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: rgba(255,255,255,0.05);
+    background: var(--event-item-hover-bg);
     padding: 15px;
     border-radius: 10px;
     min-width: 70px;
@@ -278,7 +289,7 @@
 .date-month {
     font-size: 13px;
     font-weight: 600;
-    color: #06b6d4;
+    color: var(--event-color-secondary);
     text-transform: uppercase;
     letter-spacing: 1px;
 }
@@ -304,7 +315,7 @@
 .evento-time {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 5px; /* Se mantiene por la opacidad específica */
     background: rgba(124, 58, 237, 0.2);
     color: #c4b5fd;
     padding: 4px 10px;
@@ -341,7 +352,7 @@
 .no-eventos {
     text-align: center;
     padding: 40px;
-    color: var(--text-muted);
+    color: var(--text-muted, #94a3b8);
     background: rgba(0,0,0,0.2);
     border-radius: 12px;
     border: 1px dashed rgba(255,255,255,0.1);
@@ -389,9 +400,9 @@
 
 .form-control {
     width: 100%;
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--event-item-bg);
     border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
+    border-radius: var(--event-radius);
     padding: 14px 16px 14px 45px; /* Espacio para el ícono */
     color: white;
     font-size: 15px;
@@ -408,14 +419,14 @@ textarea.form-control {
 
 .form-control:focus {
     outline: none;
-    border-color: #06b6d4;
+    border-color: var(--event-color-secondary);
     background: rgba(0, 0, 0, 0.5);
-    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
+    box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2); /* Se mantiene por la opacidad específica */
 }
 
 .form-control:focus + i,
 .input-with-icon:focus-within i {
-    color: #06b6d4;
+    color: var(--event-color-secondary);
 }
 
 /* Estilizar el input type="datetime-local" */
