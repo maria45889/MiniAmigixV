@@ -20,8 +20,9 @@ class SecurityHeadersMiddleware:
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; "
             "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; "
             "img-src 'self' data: https:; "
-            "connect-src 'self' https://api.openai.com https://www.googleapis.com https://*.openweathermap.org https://unpkg.com https://cdn.jsdelivr.net; "
-            "frame-src 'self' https://www.youtube.com https://www.google.com https://accounts.google.com; "
+            "media-src 'self' blob: https://*.googlevideo.com https://*.youtube.com; "
+            "connect-src 'self' https://api.openai.com https://www.googleapis.com https://*.openweathermap.org https://unpkg.com https://cdn.jsdelivr.net https://lrclib.net https://*.googlevideo.com https://www.youtube.com https://youtubei.googleapis.com; "
+            "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://www.google.com https://accounts.google.com; "
             "frame-ancestors 'self';"
         )
         

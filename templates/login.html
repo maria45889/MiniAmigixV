@@ -1,5 +1,5 @@
+
 {% load static %}
-{% load socialaccount %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -140,6 +140,35 @@
             margin-bottom: 1rem;
             font-size: 0.95rem;
         }
+        .social-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            max-width: 360px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 700;
+            text-decoration: none;
+            color: #ffffff;
+            transition: background-color 0.2s, transform 0.2s;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .social-button:hover {
+            transform: translateY(-1px);
+            background: rgba(255,255,255,0.08);
+        }
+        .social-icon {
+            width: 24px;
+            height: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            font-weight: 800;
+        }
         .separator {
             display: flex;
             align-items: center;
@@ -203,6 +232,27 @@
             {% endif %}
             <button class="login-action" type="submit">Entrar</button>
         </form>
+
+        <div class="separator"><span>O</span></div>
+
+        {% if providers %}
+        <!-- Social login providers -->
+        <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+            {% load socialaccount %}
+            {% for provider in providers %}
+                <a href="{% provider_login_url provider.provider %}" class="social-button" title="Entrar con {{ provider.name }}">
+                    <span class="social-icon">
+                        {% if provider.provider == 'google' %}G
+                        {% elif provider.provider == 'github' %}GH
+                        {% elif provider.provider == 'microsoft' %}MS
+                        {% else %}{{ provider.name|slice:":1"|upper }}
+                        {% endif %}
+                    </span>
+                    Entrar con {{ provider.name }}
+                </a>
+            {% endfor %}
+        </div>
+        {% endif %}
 
         <p class="login-footer">
             ¿No tienes cuenta? <a href="{% url 'register' %}">Regístrate aquí</a>

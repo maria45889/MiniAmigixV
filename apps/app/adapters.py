@@ -15,6 +15,14 @@ class AccountAdapter(DefaultAccountAdapter):
         return super().send_mail(template_prefix, email, context)
 
 class SocialAccountAdapter(DefaultSocialAccountAdapter):
+    def get_app(self, request, provider, client_id=None):
+        from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
+        from allauth.socialaccount.models import SocialApp
+        try:
+            return DefaultSocialAccountAdapter.get_app(self, request, provider, client_id)
+        except SocialApp.DoesNotExist:
+            return None
+    
     def populate_user(self, request, sociallogin, data):
         user = super().populate_user(request, sociallogin, data)
         
@@ -53,4 +61,4 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
             users = User.objects.filter(email=email)
             if users.exists():
                 # Si hay múltiples usuarios, tomar el primero
-                sociallogin.user = users.first()
+                sociallogin.connect(request, users.first())

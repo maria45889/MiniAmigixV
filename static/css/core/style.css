@@ -259,6 +259,7 @@ body.light .floating-mini-player {
     overflow: hidden !important;
     transition: box-shadow 0.3s ease;
     user-select: none;
+    will-change: transform;
     max-height: 500px;
 }
 

@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 
 import os
 import sys
+from importlib.util import find_spec
 from pathlib import Path
 from dotenv import load_dotenv
 
@@ -24,6 +25,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Add apps directory to Python path
 sys.path.insert(0, str(BASE_DIR / 'apps'))
 
+HAS_DJANGO_RATELIMIT = find_spec('django_ratelimit') is not None
+HAS_CORSHEADERS = find_spec('corsheaders') is not None
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
@@ -33,7 +37,7 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-default-dev-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,10.19.45.68').split(',')
 
 # URL base del sitio para correos electrónicos y enlaces absolutos
 SITE_URL = os.getenv('SITE_URL', 'http://127.0.0.1:8000')
@@ -44,6 +48,7 @@ CSRF_TRUSTED_ORIGINS = [
     'http://127.0.0.1:8000',
     'http://localhost:8000',
     'http://127.0.0.1:50769',
+    'http://10.19.45.68:8000',
 ]
 
 # Configuración CORS (solo en desarrollo)
@@ -53,6 +58,7 @@ if DEBUG:
         'http://127.0.0.1:3000',
         'http://localhost:8000',
         'http://127.0.0.1:8000',
+        'http://10.19.45.68:8000',
     ]
     CORS_ALLOW_CREDENTIALS = True
 else:
@@ -80,6 +86,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.github',
+    'allauth.socialaccount.providers.microsoft',
     # 'webpush', # Temporalmente deshabilitado - incompatible con Django 6.0
     # MongoEngine
     'mongoengine',
@@ -101,13 +108,16 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_simplejwt',
     'apps.api',
-    'django_ratelimit',
-    'corsheaders',
 ]
+
+if HAS_DJANGO_RATELIMIT:
+    INSTALLED_APPS.append('django_ratelimit')
+
+if HAS_CORSHEADERS:
+    INSTALLED_APPS.append('corsheaders')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'corsheaders.middleware.CorsMiddleware',  # CORS middleware (debe estar primero)
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -120,13 +130,16 @@ MIDDLEWARE = [
     'apps.app.middleware.XSSProtectionMiddleware',  # Protección XSS
 ]
 
+if HAS_CORSHEADERS:
+    MIDDLEWARE.insert(1, 'corsheaders.middleware.CorsMiddleware')
+
 ROOT_URLCONF = 'config.urls'
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [BASE_DIR / 'templates'],
-        'APP_DIRS': True,
+        'APP_DIRS': False,
         'OPTIONS': {
             'context_processors': [
                 'django.template.context_processors.debug',
@@ -137,6 +150,15 @@ TEMPLATES = [
                 'perfil.context_processors.perfil_settings',
                 'config.context_processors.site_url',
                 'config.context_processors.user_theme',
+            ],
+            'loaders': [
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
+            ] if DEBUG else [
+                ('django.template.loaders.cached.Loader', [
+                    'django.template.loaders.filesystem.Loader',
+                    'django.template.loaders.app_directories.Loader',
+                ]),
             ],
         },
     },
@@ -219,6 +241,9 @@ SOCIALACCOUNT_PROVIDERS = {
         },
     },
     'github': {
+        # Configuration via Django admin (SocialApp model)
+    },
+    'microsoft': {
         # Configuration via Django admin (SocialApp model)
     }
 }
@@ -343,11 +368,11 @@ MONGODB_NAME = os.getenv('MONGODB_NAME', 'miniamigixv_db')
 try:
     from mongoengine import connect
     connect(db=MONGODB_NAME, host=MONGODB_URI, alias='default')
-    print(f"✓ Conectado a MongoDB: {MONGODB_NAME}")
+    print(f"[OK] Conectado a MongoDB: {MONGODB_NAME}")
 except ImportError:
-    print(f"⚠ mongoengine no está instalado. MongoDB no estará disponible.")
+    print("[WARN] mongoengine no esta instalado. MongoDB no estara disponible.")
 except Exception as e:
-    print(f"✗ Error al conectar a MongoDB: {str(e)}")
+    print(f"[ERROR] Error al conectar a MongoDB: {str(e)}")
 
 # Configuración de MongoEngine
 MONGOENGINE_USER_DOCUMENT = 'mongoengine.django.auth.User'
@@ -418,9 +443,17 @@ SECURE_SSL_REDIRECT = False  # Desactivado en desarrollo
 SECURE_HSTS_SECONDS = 0  # Desactivado en desarrollo
 
 # Cache de plantillas
-TEMPLATE_LOADERS = [
-    ('django.template.loaders.cached.Loader', [
+if DEBUG:
+    # Use normal template loaders in development so changes to templates
+    # are reflected immediately without stale cache issues.
+    TEMPLATE_LOADERS = [
         'django.template.loaders.filesystem.Loader',
         'django.template.loaders.app_directories.Loader',
-    ]),
-]
+    ]
+else:
+    TEMPLATE_LOADERS = [
+        ('django.template.loaders.cached.Loader', [
+            'django.template.loaders.filesystem.Loader',
+            'django.template.loaders.app_directories.Loader',
+        ]),
+    ]

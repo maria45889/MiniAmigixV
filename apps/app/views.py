@@ -329,6 +329,7 @@ def chat_api(request):
         return JsonResponse({'error': 'Ocurrió un error interno al procesar el mensaje. Por favor, intenta nuevamente más tarde.'}, status=500)
 
 def login_view(request):
+    from allauth.socialaccount import providers
     from allauth.socialaccount.models import SocialApp
     from django.contrib.sites.models import Site
     
@@ -340,19 +341,22 @@ def login_view(request):
             login(request, user)
             return redirect('home')
         else:
-            context = {'error': 'Usuario o contraseña incorrectos'}
-            return render(request, 'login.html', context)
+            return render(request, 'login.html', {'error': 'Usuario o contraseña incorrectos'})
     
-    # Obtener providers sociales
+    # Get providers that are configured in the database for the current site
     site = Site.objects.get_current()
-    providers = SocialApp.objects.filter(sites=site)
-    context = {'providers': providers}
+    installed_providers = SocialApp.objects.filter(sites=site)
+    
+    # Pass the SocialApp model instances directly to the template.
+    # The template will use the `.provider` attribute (string ID).
+    context = {'providers': installed_providers}
+    # Keep register_view in sync
     return render(request, 'login.html', context)
 
 def register_view(request):
+    from allauth.socialaccount import providers
     from allauth.socialaccount.models import SocialApp
     from django.contrib.sites.models import Site
-    
     if request.method == 'POST':
         username = request.POST.get('username')
         email = request.POST.get('email')
@@ -377,10 +381,12 @@ def register_view(request):
         login(request, user)
         return redirect('home')
     
-    # Obtener providers sociales
+    # Get providers that are configured in the database for the current site
     site = Site.objects.get_current()
-    providers = SocialApp.objects.filter(sites=site)
-    context = {'providers': providers}
+    installed_providers = SocialApp.objects.filter(sites=site)
+    # Pass the SocialApp model instances directly to the template.
+    # The template will use the `.provider` attribute (string ID).
+    context = {'providers': installed_providers}
     return render(request, 'register.html', context)
 
 def home(request):
@@ -1108,7 +1114,7 @@ def save_lyrics_api(request, song_id):
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
-@login_required
+@require_http_methods(["GET"])
 def download_media_api(request):
     # Return JSON 401 for unauthenticated API calls to avoid HTML login redirects
     if not request.user.is_authenticated:

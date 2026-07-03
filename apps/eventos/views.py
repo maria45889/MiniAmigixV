@@ -30,10 +30,18 @@ def crear_evento(request):
                 messages.error(request, 'No puedes crear eventos en fechas pasadas.')
                 return render(request, 'eventos/crear_evento.html')
 
+            # Evitar duplicados: mismo título + fecha + usuario
+            usuario = request.user if request.user.is_authenticated else None
+            if Evento.objects.filter(titulo=titulo, fecha=fecha, usuario=usuario).exists():
+                from django.contrib import messages
+                messages.warning(request, 'Ya existe un evento con ese título y fecha.')
+                return redirect('lista_eventos')
+
             evento = Evento.objects.create(
                 titulo=titulo,
                 descripcion=descripcion,
-                fecha=fecha
+                fecha=fecha,
+                usuario=usuario
             )
 
             # Crear notificación mejorada para el usuario

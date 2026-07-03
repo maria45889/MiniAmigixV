@@ -64,3 +64,13 @@
 
 </div>
 {% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelector('.evento-form').addEventListener('submit', function() {
+    const btn = this.querySelector('button[type="submit"]');
+    btn.disabled = true;
+    btn.innerHTML = 'Guardando...';
+});
+</script>
+{% endblock %}

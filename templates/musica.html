@@ -152,7 +152,6 @@ let buttonSyncInterval = null;
 const isAuthenticated = {{ request.user.is_authenticated|lower }};
 
 function onPlayerError(event) {
-    console.error('Error del reproductor de YouTube:', event.data);
     const iframeContainer = document.getElementById('player-wrapper');
 
     if (event.data === 150 || event.data === 153) {
@@ -160,11 +159,7 @@ function onPlayerError(event) {
         const youtubeId = currentPlayingId ?
             document.querySelector(`.playlist-item[data-id="${currentPlayingId}"]`)?.dataset.youtubeId : null;
 
-        console.log('Usuario autenticado:', isAuthenticated);
-        console.log('YouTube ID:', youtubeId);
-
         if (isAuthenticated && youtubeId) {
-            console.log('Iniciando extracción de audio para:', youtubeId);
             // Mostrar mensaje de carga mientras se extrae audio
             iframeContainer.innerHTML = `
                 <div style="text-align: center; padding: 30px;">
@@ -476,6 +471,8 @@ function seekAudio(event) {
         else if (currentAudio) {
             currentAudio.currentTime = seekTime;
         }
+    } else {
+        console.error('Error del reproductor de YouTube:', event.data);
     }
 }
 
@@ -632,7 +629,12 @@ async function downloadMusic() {
     
     try {
         const cleanUrl = `https://www.youtube.com/watch?v=${youtubeId}`;
-        const response = await fetch(`/api/download-media/?url=${encodeURIComponent(cleanUrl)}&format=${format}`);
+        const response = await fetch(`/api/download-media/?url=${encodeURIComponent(cleanUrl)}&format=${format}`, {
+            credentials: 'same-origin',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
 
         // If user is not authenticated, API returns JSON 401 instead of HTML login page.
         if (response.status === 401) {
@@ -1145,6 +1147,7 @@ function playSongFromItem(songId) {
                 height: '400',
                 width: '100%',
                 videoId: youtubeId,
+                host: 'https://www.youtube.com',
                 playerVars: {
                     'autoplay': 1,
                     'rel': 0,
@@ -1153,7 +1156,8 @@ function playSongFromItem(songId) {
                     'disablekb': 1,
                     'fs': 0,
                     'playsinline': 1,
-                    'controls': 0
+                    'controls': 0,
+                    'origin': window.location.origin
                 },
                 events: {
                     'onReady': function(event) {
@@ -1194,6 +1198,7 @@ function playSongFromItem(songId) {
                         height: '400',
                         width: '100%',
                         videoId: youtubeId,
+                        host: 'https://www.youtube.com',
                         playerVars: {
                             'autoplay': 1,
                             'rel': 0,
@@ -1202,7 +1207,8 @@ function playSongFromItem(songId) {
                             'disablekb': 1,
                             'fs': 0,
                             'playsinline': 1,
-                            'controls': 0
+                            'controls': 0,
+                            'origin': window.location.origin
                         },
                         events: {
                             'onReady': function(event) {
@@ -1307,4 +1313,3 @@ function toggleVideo() {
 }
 </script>
 {% endblock %}
-
