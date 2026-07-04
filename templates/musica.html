@@ -54,6 +54,7 @@
                     <div class="video-controls">
                         <button class="btn-icon" onclick="playPrevious()" title="Anterior">⏮</button>
                         <button class="btn-icon btn-play-pause" id="main-play-pause-btn" onclick="togglePause()" title="Reproducir/Pausar">▶️</button>
+                        <button class="btn-icon" onclick="toggleMiniPlayer()" title="Abrir mini reproductor">📺</button>
                         <button class="btn-icon" onclick="playNext()" title="Siguiente">⏭</button>
                         <button class="btn-icon" onclick="toggleMute()" title="Silenciar">🔊</button>
                     </div>
@@ -142,6 +143,36 @@
 {% endblock %}
 {% block extra_js %}
 <script>
+// Solución para event listeners no pasivos (mejora rendimiento en móviles)
+(function() {
+    const originalAddEventListener = EventTarget.prototype.addEventListener;
+    EventTarget.prototype.addEventListener = function(type, listener, options) {
+        if (type === 'touchstart' || type === 'touchmove') {
+            if (typeof options === 'boolean') {
+                options = { passive: true, capture: options };
+            } else if (typeof options === 'object') {
+                options.passive = options.passive !== false;
+            } else {
+                options = { passive: true };
+            }
+        }
+        return originalAddEventListener.call(this, type, listener, options);
+    };
+})();
+
+// Suprimir warnings de event listeners no pasivos de YouTube (código externo)
+const originalConsoleWarn = console.warn;
+console.warn = function(...args) {
+    // Filtrar warnings específicos de YouTube sobre event listeners
+    if (args[0] && typeof args[0] === 'string' && 
+        args[0].includes('non-passive event listener') && 
+        args[0].includes('touchstart')) {
+        // Ignorar warnings de YouTube sobre touchstart/touchmove
+        return;
+    }
+    return originalConsoleWarn.apply(console, args);
+};
+
 // Cargar YouTube IFrame API (ya se carga en base.html, pero lo mantenemos por compatibilidad)
 let currentPlayingId = null;
 let currentAudio = null;
@@ -149,13 +180,14 @@ let player = null;
 let playerReady = false;
 let progressInterval = null;
 let buttonSyncInterval = null;
+let isAudioPlaying = false; // Variable de estado manual para audio
 const isAuthenticated = {{ request.user.is_authenticated|lower }};
 
 function onPlayerError(event) {
     const iframeContainer = document.getElementById('player-wrapper');
 
     if (event.data === 150 || event.data === 153) {
-        // Video no se puede incrustar - mostrar mensaje y botón para ver en YouTube
+        // Video no se puede incrustar - intentar reproducir solo el audio
         const youtubeId = currentPlayingId ?
             document.querySelector(`.playlist-item[data-id="${currentPlayingId}"]`)?.dataset.youtubeId : null;
 
@@ -163,8 +195,8 @@ function onPlayerError(event) {
             // Mostrar mensaje de carga mientras se extrae audio
             iframeContainer.innerHTML = `
                 <div style="text-align: center; padding: 30px;">
-                    <p style="color: #06b6d4; margin-bottom: 15px; font-size: 16px;">🔄 Extrayendo audio...</p>
-                    <p style="color: #94a3b8; margin-bottom: 20px; font-size: 14px;">Intentando reproducir solo el audio</p>
+                    <p style="color: #06b6d4; margin-bottom: 15px; font-size: 16px;">🔄 Video bloqueado - Extrayendo audio...</p>
+                    <p style="color: #94a3b8; margin-bottom: 20px; font-size: 14px;">Reproduciendo solo el audio</p>
                 </div>
             `;
 
@@ -190,17 +222,18 @@ function onPlayerError(event) {
                         }
 
                         iframeContainer.innerHTML = `
-                            <div style="text-align: center; padding: 30px;">
-                                <p style="color: #06b6d4; margin-bottom: 20px; font-weight: 600; font-size: 18px;">🎶 ¡Audio Extraído con Éxito!</p>
-                                <audio id="local-audio-player" style="width: 100%; border-radius: 10px; display: none;">
+                            <div style="text-align: center; padding: 40px 20px; background: linear-gradient(145deg, #1e293b, #0f172a); border-radius: 12px; height: 100%; min-height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);">
+                                <div style="font-size: 48px; margin-bottom: 15px; text-shadow: 0 0 15px rgba(6, 182, 212, 0.5);">🎵</div>
+                                <p style="color: #06b6d4; margin-bottom: 25px; font-weight: 600; font-size: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Modo Audio Activado</p>
+                                <audio id="local-audio-player" controls style="width: 85%; max-width: 400px; border-radius: 30px; outline: none; box-shadow: 0 4px 15px rgba(6, 182, 212, 0.2);">
                                     <source src="${data.url}" type="audio/mp4">
                                 </audio>
-                                <p style="color: #94a3b8; font-size: 14px;">Usa los controles de abajo para reproducir/pausar</p>
+                                <p style="color: #64748b; font-size: 13px; margin-top: 20px;">El video no permite incrustación, reproduciendo solo el audio.</p>
                             </div>
                         `;
 
                         // Configurar el audio local para sincronización
-                        setTimeout(() => {
+                        requestAnimationFrame(() => {
                             const audioPlayer = document.getElementById('local-audio-player');
                             if (audioPlayer) {
                                 currentAudio = audioPlayer;
@@ -222,6 +255,7 @@ function onPlayerError(event) {
 
                                 audioPlayer.addEventListener('play', () => {
                                     console.log('Evento play disparado');
+                                    isAudioPlaying = true;
                                     if (vinyl) {
                                         vinyl.style.animationPlayState = 'running';
                                         vinyl.classList.add('spinning');
@@ -235,6 +269,7 @@ function onPlayerError(event) {
 
                                 audioPlayer.addEventListener('pause', () => {
                                     console.log('Evento pause disparado');
+                                    isAudioPlaying = false;
                                     if (vinyl) vinyl.style.animationPlayState = 'paused';
                                     if (pauseBtn) {
                                         pauseBtn.textContent = '▶️';
@@ -245,6 +280,7 @@ function onPlayerError(event) {
 
                                 audioPlayer.addEventListener('ended', () => {
                                     console.log('Evento ended disparado');
+                                    isAudioPlaying = false;
                                     if (vinyl) vinyl.style.animationPlayState = 'paused';
                                     if (pauseBtn) pauseBtn.textContent = '▶️';
                                     stopProgressUpdate();
@@ -271,7 +307,7 @@ function onPlayerError(event) {
                                     if (vinyl) vinyl.style.animationPlayState = 'paused';
                                 });
                             }
-                        }, 100);
+                        });
                     } else {
                         // No se pudo extraer audio, mostrar error normal
                         console.log('No se pudo extraer audio, condición falsa');
@@ -332,7 +368,21 @@ function onPlayerStateChange(event) {
             pauseBtn.textContent = '⏸';
             console.log('Botón actualizado a ⏸ en onPlayerStateChange');
         }
+        if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(true);
         startProgressUpdate();
+    } else if (event.data === YT.PlayerState.PAUSED) {
+        console.log('Estado PAUSED detectado');
+        if (vinyl) vinyl.style.animationPlayState = 'paused';
+        if (pauseBtn) {
+            pauseBtn.textContent = '▶️';
+            console.log('Botón actualizado a ▶️ en onPlayerStateChange');
+        }
+        if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(false);
+        stopProgressUpdate();
+    } else if (event.data === YT.PlayerState.ENDED) {
+        console.log('Estado ENDED detectado - reproduciendo siguiente');
+        if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(false);
+        playNext();
     } else {
         console.log('Estado NO PLAYING detectado:', event.data);
         if (vinyl) vinyl.style.animationPlayState = 'paused';
@@ -340,11 +390,8 @@ function onPlayerStateChange(event) {
             pauseBtn.textContent = '▶️';
             console.log('Botón actualizado a ▶️ en onPlayerStateChange');
         }
+        if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(false);
         stopProgressUpdate();
-    }
-
-    if (event.data === YT.PlayerState.ENDED) {
-        playNext();
     }
 }
 
@@ -357,15 +404,15 @@ function startProgressUpdate() {
         let currentTime = 0;
         let duration = 0;
 
-        // Obtener tiempo del reproductor de YouTube
-        if (player && typeof player.getCurrentTime === 'function') {
-            currentTime = player.getCurrentTime();
-            duration = player.getDuration() || 0;
-        }
         // Obtener tiempo del reproductor de audio local
-        else if (currentAudio && currentAudio.duration > 0) {
+        if (currentAudio && currentAudio.duration > 0) {
             currentTime = currentAudio.currentTime;
             duration = currentAudio.duration;
+        }
+        // Obtener tiempo del reproductor de YouTube
+        else if (player && typeof player.getCurrentTime === 'function') {
+            currentTime = player.getCurrentTime();
+            duration = player.getDuration() || 0;
         }
 
         if (duration > 0) {
@@ -377,32 +424,6 @@ function startProgressUpdate() {
             }
         }
     }, 100);
-
-    // Sincronizar botón de play/pause periódicamente
-    buttonSyncInterval = setInterval(() => {
-        const pauseBtn = document.getElementById('main-play-pause-btn');
-        if (!pauseBtn) return;
-
-        // Verificar estado de YouTube
-        if (player && playerReady && typeof player.getPlayerState === 'function') {
-            try {
-                const state = player.getPlayerState();
-                if (state === YT.PlayerState.PLAYING && pauseBtn.textContent !== '⏸') {
-                    pauseBtn.textContent = '⏸';
-                } else if (state !== YT.PlayerState.PLAYING && pauseBtn.textContent !== '▶️') {
-                    pauseBtn.textContent = '▶️';
-                }
-            } catch (e) {}
-        }
-        // Verificar estado de audio local
-        else if (currentAudio) {
-            if (!currentAudio.paused && pauseBtn.textContent !== '⏸') {
-                pauseBtn.textContent = '⏸';
-            } else if (currentAudio.paused && pauseBtn.textContent !== '▶️') {
-                pauseBtn.textContent = '▶️';
-            }
-        }
-    }, 200);
 }
 
 function stopProgressUpdate() {
@@ -451,26 +472,26 @@ function seekAudio(event) {
     
     let duration = 0;
     
-    // Obtener duración del reproductor de YouTube
-    if (player && typeof player.getDuration === 'function') {
-        duration = player.getDuration() || 0;
-    } 
     // Obtener duración del reproductor de audio local
-    else if (currentAudio && currentAudio.duration > 0) {
+    if (currentAudio && currentAudio.duration > 0) {
         duration = currentAudio.duration;
     }
+    // Obtener duración del reproductor de YouTube
+    else if (player && typeof player.getDuration === 'function') {
+        duration = player.getDuration() || 0;
+    } 
     
     if (duration > 0) {
         const seekTime = percentage * duration;
         
-        // Buscar en YouTube
-        if (player && typeof player.seekTo === 'function') {
-            player.seekTo(seekTime, true);
-        } 
         // Buscar en audio local
-        else if (currentAudio) {
+        if (currentAudio) {
             currentAudio.currentTime = seekTime;
         }
+        // Buscar en YouTube
+        else if (player && typeof player.seekTo === 'function') {
+            player.seekTo(seekTime, true);
+        } 
     } else {
         console.error('Error del reproductor de YouTube:', event.data);
     }
@@ -478,21 +499,52 @@ function seekAudio(event) {
 
 // ==================== CONTROLES DEL REPRODUCTOR ====================
 function togglePause() {
+    console.log('=== togglePause llamado ===');
     const pauseBtn = document.getElementById('main-play-pause-btn');
+    console.log('Botón actual:', pauseBtn ? pauseBtn.textContent : 'null');
 
-    // Verificar si el reproductor de YouTube realmente está en el DOM
-    const youtubeIframe = document.getElementById('youtube-iframe');
-    const isYouTubeInDOM = youtubeIframe !== null && youtubeIframe.querySelector('iframe');
+    // Verificar si el reproductor de YouTube está listo para controlar
+    console.log('player:', player);
+    console.log('playerReady:', playerReady);
 
-    // Si hay reproductor de YouTube en el DOM, controlar ese
-    if (player && playerReady && isYouTubeInDOM && typeof player.getPlayerState === 'function') {
+    // Si hay audio local, controlar ese primero
+    if (currentAudio) {
+        console.log('Controlando audio local');
+        console.log('isAudioPlaying:', isAudioPlaying);
+        console.log('currentAudio.paused:', currentAudio.paused);
+        if (!isAudioPlaying) {
+            console.log('Reproduciendo audio');
+            currentAudio.play();
+            isAudioPlaying = true;
+            if (pauseBtn) pauseBtn.textContent = '⏸';
+            if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(true);
+            // No sincronizar video cuando es solo audio
+        } else {
+            console.log('Pausando audio');
+            currentAudio.pause();
+            isAudioPlaying = false;
+            if (pauseBtn) pauseBtn.textContent = '▶️';
+            if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(false);
+            // No sincronizar video cuando es solo audio
+        }
+        return;
+    }
+
+    // Si hay reproductor de YouTube activo, controlar ese
+    if (player && playerReady && typeof player.getPlayerState === 'function') {
         try {
-            if (player.getPlayerState() !== YT.PlayerState.PLAYING) {
+            const currentState = player.getPlayerState();
+            console.log('Estado actual de YouTube:', currentState);
+            console.log('YT.PlayerState.PLAYING:', YT.PlayerState.PLAYING);
+
+            if (currentState !== YT.PlayerState.PLAYING) {
+                console.log('Reproduciendo video');
                 player.playVideo();
                 if (pauseBtn) pauseBtn.textContent = '⏸';
                 if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(true);
                 syncMiniPlayerVideoState(true);
             } else {
+                console.log('Pausando video');
                 player.pauseVideo();
                 if (pauseBtn) pauseBtn.textContent = '▶️';
                 if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(false);
@@ -504,23 +556,8 @@ function togglePause() {
         return;
     }
 
-    // Si hay audio local, controlar ese
-    if (currentAudio) {
-        if (currentAudio.paused) {
-            currentAudio.play();
-            if (pauseBtn) pauseBtn.textContent = '⏸';
-            if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(true);
-            syncMiniPlayerVideoState(true);
-        } else {
-            currentAudio.pause();
-            if (pauseBtn) pauseBtn.textContent = '▶️';
-            if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(false);
-            syncMiniPlayerVideoState(false);
-        }
-        return;
-    }
-
     // Si no hay ningún reproductor, reproducir la primera canción
+    console.log('No hay reproductor activo, reproduciendo primera canción');
     const firstItem = document.querySelector('.playlist-item');
     if (firstItem) {
         playSongFromItem(firstItem.dataset.id);
@@ -582,6 +619,13 @@ function playPrevious() {
 function toggleMute() {
     const muteBtn = document.querySelector('button[onclick="toggleMute()"]');
 
+    // Si hay audio local, controlar ese primero
+    if (currentAudio) {
+        currentAudio.muted = !currentAudio.muted;
+        if (muteBtn) muteBtn.textContent = currentAudio.muted ? '🔇' : '🔊';
+        return;
+    }
+
     // Si hay reproductor de YouTube, controlar ese
     if (player && playerReady && typeof player.isMuted === 'function') {
         try {
@@ -595,13 +639,6 @@ function toggleMute() {
         } catch (e) {
             console.error("Error al silenciar YouTube", e);
         }
-        return;
-    }
-
-    // Si hay audio local, controlar ese
-    if (currentAudio) {
-        currentAudio.muted = !currentAudio.muted;
-        if (muteBtn) muteBtn.textContent = currentAudio.muted ? '🔇' : '🔊';
         return;
     }
 }
@@ -875,10 +912,10 @@ function startLyricsSync() {
         let currentTime = 0;
         
         // Obtener el tiempo actual del reproductor
-        if (player && typeof player.getCurrentTime === 'function') {
-            currentTime = player.getCurrentTime();
-        } else if (currentAudio) {
+        if (currentAudio) {
             currentTime = currentAudio.currentTime;
+        } else if (player && typeof player.getCurrentTime === 'function') {
+            currentTime = player.getCurrentTime();
         }
         
         if (currentTime > 0 && currentLyricsData.length > 0) {
@@ -1099,8 +1136,8 @@ function playSongFromItem(songId) {
     console.log('Intentando sincronizar con mini player global');
     console.log('updateMiniPlayerUI existe?', typeof updateMiniPlayerUI === 'function');
     if (typeof updateMiniPlayerUI === 'function') {
-        console.log('Llamando a updateMiniPlayerUI con:', songName, artist);
-        updateMiniPlayerUI(songName, artist);
+        console.log('Llamando a updateMiniPlayerUI con:', songName, artist, youtubeId);
+        updateMiniPlayerUI(songName, artist, youtubeId);
     } else {
         console.log('updateMiniPlayerUI no está definido');
     }
@@ -1132,6 +1169,24 @@ function playSongFromItem(songId) {
     
     // Si hay video de YouTube, reproducirlo en el contenedor visible
     if (youtubeId) {
+        if (player && typeof player.loadVideoById === 'function') {
+            try {
+                console.log('Reutilizando reproductor de YouTube existente para video:', youtubeId);
+                player.loadVideoById(youtubeId);
+                playerReady = true;
+                if (vinyl) {
+                    vinyl.style.animationPlayState = 'running';
+                    vinyl.classList.add('spinning');
+                }
+                const pauseBtn = document.getElementById('main-play-pause-btn');
+                if (pauseBtn) pauseBtn.textContent = '⏸';
+                startProgressUpdate();
+                return;
+            } catch (err) {
+                console.warn('Error al reutilizar reproductor de YouTube, recreando...', err);
+            }
+        }
+
         playerReady = false;
         if (player) {
             player.destroy();
@@ -1144,28 +1199,33 @@ function playSongFromItem(songId) {
         // Esperar a que la API esté lista antes de crear el reproductor
         if (typeof YT !== 'undefined' && YT.Player) {
             player = new YT.Player('youtube-iframe', {
+                host: 'https://www.youtube.com',
                 height: '400',
                 width: '100%',
                 videoId: youtubeId,
-                host: 'https://www.youtube.com',
                 playerVars: {
                     'autoplay': 1,
+                    'origin': window.location.origin,
                     'rel': 0,
                     'modestbranding': 1,
                     'iv_load_policy': 3,
                     'disablekb': 1,
                     'fs': 0,
                     'playsinline': 1,
-                    'controls': 0,
-                    'origin': window.location.origin
+                    'controls': 1
                 },
                 events: {
                     'onReady': function(event) {
                         console.log('YouTube player ready');
                         playerReady = true;
+                        try {
+                            event.target.playVideo();
+                        } catch (e) {
+                            console.error('Error al intentar reproducir en onReady:', e);
+                        }
 
                         // Verificar estado inicial del player
-                        setTimeout(() => {
+                        requestAnimationFrame(() => {
                             try {
                                 const state = player.getPlayerState();
                                 console.log('Estado inicial del player:', state);
@@ -1183,7 +1243,7 @@ function playSongFromItem(songId) {
                             } catch (e) {
                                 console.error('Error verificando estado inicial:', e);
                             }
-                        }, 500);
+                        });
                     },
                     'onError': onPlayerError,
                     'onStateChange': onPlayerStateChange
@@ -1195,25 +1255,30 @@ function playSongFromItem(songId) {
                 if (typeof YT !== 'undefined' && YT.Player) {
                     clearInterval(checkAPI);
                     player = new YT.Player('youtube-iframe', {
+                        host: 'https://www.youtube.com',
                         height: '400',
                         width: '100%',
                         videoId: youtubeId,
-                        host: 'https://www.youtube.com',
                         playerVars: {
                             'autoplay': 1,
+                            'origin': window.location.origin,
                             'rel': 0,
                             'modestbranding': 1,
                             'iv_load_policy': 3,
                             'disablekb': 1,
                             'fs': 0,
                             'playsinline': 1,
-                            'controls': 0,
-                            'origin': window.location.origin
+                            'controls': 0
                         },
                         events: {
                             'onReady': function(event) {
                                 console.log('YouTube player ready');
                                 playerReady = true;
+                                try {
+                                    event.target.playVideo();
+                                } catch (e) {
+                                    console.error('Error al intentar reproducir en onReady (interval):', e);
+                                }
                             },
                             'onError': onPlayerError,
                             'onStateChange': onPlayerStateChange
@@ -1248,6 +1313,7 @@ function playAudioUrl(url, vinyl) {
     }
 
     currentAudio.addEventListener('play', () => {
+        isAudioPlaying = true;
         if (vinyl) {
             vinyl.style.animationPlayState = 'running';
             vinyl.classList.add('spinning');
@@ -1257,12 +1323,14 @@ function playAudioUrl(url, vinyl) {
     });
 
     currentAudio.addEventListener('pause', () => {
+        isAudioPlaying = false;
         if (vinyl) vinyl.style.animationPlayState = 'paused';
         if (pauseBtn) pauseBtn.textContent = '▶️';
         stopProgressUpdate();
     });
 
     currentAudio.addEventListener('ended', () => {
+        isAudioPlaying = false;
         if (vinyl) vinyl.style.animationPlayState = 'paused';
         if (pauseBtn) pauseBtn.textContent = '▶️';
         stopProgressUpdate();
@@ -1275,10 +1343,12 @@ function playAudioUrl(url, vinyl) {
         }
     });
 
-    currentAudio.play().catch(e => {
-        console.log('Autoplay bloqueado por el navegador');
-        if (pauseBtn) pauseBtn.textContent = '▶️';
-        if (vinyl) vinyl.style.animationPlayState = 'paused';
+    requestAnimationFrame(() => {
+        currentAudio.play().catch(e => {
+            console.log('Autoplay bloqueado por el navegador');
+            if (pauseBtn) pauseBtn.textContent = '▶️';
+            if (vinyl) vinyl.style.animationPlayState = 'paused';
+        });
     });
 }
 

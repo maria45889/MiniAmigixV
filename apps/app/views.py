@@ -28,6 +28,80 @@ from apps.mongodb.services import DualDatabaseService
 
 logger = logging.getLogger(__name__)
 
+
+def generate_ai_response(messages, settings_obj, imagen=False, max_tokens=500, image_base64=None, message=None):
+    provider_configs = []
+
+    if imagen and getattr(settings_obj, 'OPENAI_API_KEY', None):
+        provider_configs.append((
+            'openai-vision',
+            {'api_key': settings_obj.OPENAI_API_KEY},
+            'gpt-4o',
+            True,
+        ))
+
+    if getattr(settings_obj, 'GROQ_API_KEY', None):
+        provider_configs.append((
+            'groq',
+            {'api_key': settings_obj.GROQ_API_KEY, 'base_url': 'https://api.groq.com/openai/v1'},
+            'llama-3.3-70b-versatile',
+            False,
+        ))
+
+    if getattr(settings_obj, 'OPENAI_API_KEY', None):
+        provider_configs.append((
+            'openai',
+            {'api_key': settings_obj.OPENAI_API_KEY},
+            'gpt-4o-mini',
+            False,
+        ))
+
+    if getattr(settings_obj, 'OLLAMA_API_URL', None):
+        provider_configs.append((
+            'ollama',
+            {'base_url': settings_obj.OLLAMA_API_URL, 'api_key': 'ollama'},
+            getattr(settings_obj, 'OLLAMA_MODEL', 'llama3.3'),
+            False,
+        ))
+
+    if not provider_configs:
+        raise RuntimeError('No hay proveedores de IA configurados.')
+
+    last_error = None
+    for provider_name, client_kwargs, model, requires_image in provider_configs:
+        current_messages = list(messages)
+        if imagen and provider_name == 'openai-vision' and current_messages and current_messages[-1].get('role') == 'user':
+            last_content = current_messages[-1].get('content', '')
+            if isinstance(last_content, list):
+                text_content = next((item.get('text', '') for item in last_content if item.get('type') == 'text'), '')
+            else:
+                text_content = last_content if isinstance(last_content, str) else str(last_content)
+            current_messages[-1] = {
+                'role': 'user',
+                'content': [
+                    {'type': 'text', 'text': text_content or (message or '')},
+                    {'type': 'image_url', 'image_url': {'url': f"data:image/jpeg;base64,{image_base64}" if image_base64 else 'data:image/jpeg;base64,'}}
+                ]
+            }
+        elif imagen and provider_name != 'openai-vision' and current_messages and current_messages[-1].get('role') == 'user' and isinstance(current_messages[-1].get('content'), list):
+            current_messages[-1] = {'role': 'user', 'content': message or ''}
+
+        try:
+            client = openai.OpenAI(**client_kwargs)
+            response = client.chat.completions.create(
+                model=model,
+                messages=current_messages,
+                max_tokens=max_tokens,
+            )
+            return response.choices[0].message.content
+        except Exception as exc:
+            last_error = exc
+            logger.warning(f'Fallo proveedor de IA {provider_name}: {exc}')
+            continue
+
+    raise RuntimeError(f'No se pudo completar la respuesta con ningún proveedor de IA disponible. Último error: {last_error}') from last_error
+
+
 # Create your views here.
 
 @require_http_methods(["POST"])
@@ -155,132 +229,15 @@ def chat_api(request):
             image_base64 = base64.b64encode(image_data).decode('utf-8')
             imagen.seek(0)  # Reset file pointer
 
-        # Flexible client: Use Groq if key is available for faster inference, otherwise OpenAI, otherwise Ollama
-        # Nota: Vision API solo funciona con OpenAI, no con Groq u Ollama
         try:
-            if imagen and settings.OPENAI_API_KEY:
-                # Usar OpenAI Vision API cuando hay imagen
-                client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
-                model = "gpt-4o"  # Modelo que soporta visión
-                
-                # Modificar el último mensaje para incluir la imagen
-                if messages and messages[-1]['role'] == 'user':
-                    last_message = messages[-1]
-                    messages[-1] = {
-                        "role": "user",
-                        "content": [
-                            {"type": "text", "text": last_message['content']},
-                            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"}}
-                        ]
-                    }
-            elif settings.GROQ_API_KEY:
-                client = openai.OpenAI(
-                    api_key=settings.GROQ_API_KEY,
-                    base_url="https://api.groq.com/openai/v1"
-                )
-                model = "llama-3.3-70b-versatile"
-            elif settings.OPENAI_API_KEY:
-                client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
-                model = "gpt-4o-mini"
-            else:
-                # Use Ollama as fallback
-                try:
-                    client = openai.OpenAI(
-                        base_url=settings.OLLAMA_API_URL,
-                        api_key="ollama"  # Ollama doesn't require a real API key
-                    )
-                    model = settings.OLLAMA_MODEL
-                except Exception as e:
-                    logger.error(f"Error connecting to Ollama: {str(e)}")
-                    return JsonResponse({'error': 'No AI API keys configured and Ollama is not available.'}, status=500)
-
-            response = client.chat.completions.create(
-                model=model,
+            bot_response = generate_ai_response(
                 messages=messages,
-                max_tokens=500
+                settings_obj=settings,
+                imagen=bool(imagen),
+                max_tokens=500,
+                image_base64=image_base64,
+                message=message,
             )
-            
-            bot_response = response.choices[0].message.content
-        except openai.AuthenticationError as e:
-            logger.error(f"Error de autenticación OpenAI: {str(e)}")
-            # Si falla por autenticación/cuota, intentar sin imagen
-            if imagen:
-                logger.info("Intentando procesar mensaje sin imagen debido a error de API")
-                # Remover imagen de los mensajes
-                if messages and messages[-1]['role'] == 'user' and isinstance(messages[-1]['content'], list):
-                    messages[-1] = {"role": "user", "content": message}
-                
-                # Intentar con Groq o modelo de texto
-                if settings.GROQ_API_KEY:
-                    client = openai.OpenAI(
-                        api_key=settings.GROQ_API_KEY,
-                        base_url="https://api.groq.com/openai/v1"
-                    )
-                    model = "llama-3.3-70b-versatile"
-                else:
-                    return JsonResponse({'error': 'La imagen se guardó pero no se puede procesar con la IA debido a limitaciones de la API.'}, status=200)
-                
-                response = client.chat.completions.create(
-                    model=model,
-                    messages=messages,
-                    max_tokens=500
-                )
-                bot_response = f"He recibido tu imagen, pero no puedo analizarla visualmente. {response.choices[0].message.content}"
-            else:
-                return JsonResponse({'error': 'Error de autenticación con la API de IA.'}, status=500)
-        except openai.RateLimitError as e:
-            logger.error(f"Error de cuota OpenAI (429): {str(e)}")
-            # Intentar fallback a Groq si está disponible
-            if settings.GROQ_API_KEY:
-                logger.info("Intentando fallback a Groq debido a cuota OpenAI agotada")
-                try:
-                    # Si hay imagen, modificar el mensaje para indicar que se recibió una imagen
-                    if imagen and messages and messages[-1]['role'] == 'user' and isinstance(messages[-1]['content'], list):
-                        # Extraer el texto del mensaje con imagen
-                        text_content = ""
-                        for item in messages[-1]['content']:
-                            if item.get('type') == 'text':
-                                text_content = item['text']
-                                break
-                        messages[-1] = {"role": "user", "content": f"[El usuario envió una imagen] {text_content if text_content else '(sin texto adicional)'}"}
-                        # Agregar contexto al system message - más directivo
-                        messages[0]['content'] += "\n\nINSTRUCCIÓN CRÍTICA: El usuario ha enviado una imagen. NO digas 'no puedo ver la imagen' o 'soy un asistente de texto'. En su lugar, responde de manera útil preguntando qué necesita el usuario sobre la imagen o ofreciendo ayuda general. Sé empático y útil."
-                    
-                    client = openai.OpenAI(
-                        api_key=settings.GROQ_API_KEY,
-                        base_url="https://api.groq.com/openai/v1"
-                    )
-                    model = "llama-3.3-70b-versatile"
-                    
-                    response = client.chat.completions.create(
-                        model=model,
-                        messages=messages,
-                        max_tokens=500
-                    )
-                    bot_response = response.choices[0].message.content
-                except Exception as fallback_error:
-                    logger.error(f"Error en fallback a Groq: {str(fallback_error)}")
-                    # Intentar Ollama como último recurso
-                    if hasattr(settings, 'OLLAMA_API_URL'):
-                        try:
-                            client = openai.OpenAI(
-                                base_url=settings.OLLAMA_API_URL,
-                                api_key="ollama"
-                            )
-                            model = settings.OLLAMA_MODEL
-                            response = client.chat.completions.create(
-                                model=model,
-                                messages=messages,
-                                max_tokens=500
-                            )
-                            bot_response = response.choices[0].message.content
-                        except Exception as ollama_error:
-                            logger.error(f"Error en fallback a Ollama: {str(ollama_error)}")
-                            return JsonResponse({'error': 'El servicio de IA está temporalmente no disponible debido a límites de cuota. Por favor, intenta más tarde.'}, status=503)
-                    else:
-                        return JsonResponse({'error': 'El servicio de IA está temporalmente no disponible debido a límites de cuota. Por favor, intenta más tarde.'}, status=503)
-            else:
-                return JsonResponse({'error': 'El servicio de IA está temporalmente no disponible debido a límites de cuota. Por favor, intenta más tarde.'}, status=503)
         except Exception as e:
             logger.error(f"Error al procesar con IA: {str(e)}", exc_info=True)
             return JsonResponse({'error': f'Error al procesar con IA: {str(e)}'}, status=500)
@@ -345,7 +302,7 @@ def login_view(request):
     
     # Get providers that are configured in the database for the current site
     site = Site.objects.get_current()
-    installed_providers = SocialApp.objects.filter(sites=site)
+    installed_providers = SocialApp.objects.filter(sites=site).exclude(provider='google')
     
     # Pass the SocialApp model instances directly to the template.
     # The template will use the `.provider` attribute (string ID).
@@ -1123,7 +1080,7 @@ def download_media_api(request):
     format_type = request.GET.get('format', 'mp3')
     
     if not url:
-        return HttpResponse('URL es requerida', status=400)
+        return HttpResponse('URL es requerida', status=400, content_type="text/plain")
         
     import tempfile
     from django.http import FileResponse
@@ -1142,13 +1099,14 @@ def download_media_api(request):
             'quiet': True,
             'no_warnings': True,
             'noplaylist': True,
-            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'extractor_args': {
-                'youtube': {
-                    'player_client': ['android', 'web'],
-                }
-            },
+            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
             'nocheckcertificate': True,
+            'ignoreerrors': False,
+            # Avoid throttling and bypass age restrictions
+            'age_limit': None,
+            'http_headers': {
+                'Accept-Language': 'en-US,en;q=0.9,es;q=0.8',
+            },
         }
         
         if format_type == 'mp3':
@@ -1241,7 +1199,7 @@ def download_media_api(request):
                 shutil.rmtree(temp_dir)
         except Exception:
             pass
-        return HttpResponse(f'Error al procesar la descarga: {str(e)}', status=500)
+        return HttpResponse(f'Error al procesar la descarga: {str(e)}', status=500, content_type="text/plain")
 
 @login_required
 @require_http_methods(["DELETE", "POST"])

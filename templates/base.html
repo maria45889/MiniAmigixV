@@ -22,7 +22,7 @@
     <!-- Iconos: Lucide (Se recomienda descargar y servir localmente para evitar 'Tracking Prevention') -->
     <script src="https://unpkg.com/lucide@0.400.0/dist/umd/lucide.min.js" id="lucide-cdn-script" defer onerror="loadLucideFallback()"></script>
     <!-- Iconos: Tabler (Nuevo diseño) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <link rel="stylesheet" href="{% static 'css/fonts/tabler-icons.min.css' %}">
     <!-- CSS Principal -->
     <link rel="stylesheet" href="{% static 'css/core/style.css' %}?v=6">
     <!-- CSS Sidebar con Efecto Neon -->
@@ -120,7 +120,6 @@
             transform: translateY(0);
         }
 
-        /* Botón flotante de música */
         .music-float-btn {
             position: fixed;
             bottom: 25px;
@@ -136,12 +135,20 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
             cursor: pointer;
             z-index: 999;
-            transition: all 0.3s ease;
+            transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .music-float-btn:hover {
             transform: scale(1.1) rotate(10deg);
             box-shadow: 0 6px 20px rgba(6, 182, 212, 0.6);
+        }
+        .music-float-btn.spinning span {
+            display: inline-block;
+            animation: musicFloatSpin 3s linear infinite;
+        }
+        @keyframes musicFloatSpin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
 
         /* En móviles, ajustar la posición */
@@ -305,41 +312,70 @@
         function makeDraggable(elmnt) {
             let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
             let hasMoved = false;
-            const header = elmnt.querySelector('.suggestion-header');
+            // Si el elemento tiene un header, usamos el header para arrastrar, sino, el propio elemento.
+            let header = elmnt.querySelector('.suggestion-header');
+            if (!header) header = elmnt;
 
-            header.onmousedown = function(e) {
+            // Prevenir el comportamiento por defecto de "arrastrar imagen/enlace" del navegador
+            header.ondragstart = function() { return false; };
+
+            header.onmousedown = dragMouseDown;
+            header.ontouchstart = dragMouseDown;
+
+            function dragMouseDown(e) {
                 e = e || window.event;
-                e.preventDefault(); // Prevent text selection drag
+                if (e.type !== 'touchstart') {
+                    e.preventDefault(); // Prevent text selection drag
+                }
                 hasMoved = false;
-                const startX = e.clientX;
-                const startY = e.clientY;
-                pos3 = e.clientX;
-                pos4 = e.clientY;
+                
+                const clientX = e.type === 'touchstart' ? e.touches[0].clientX : e.clientX;
+                const clientY = e.type === 'touchstart' ? e.touches[0].clientY : e.clientY;
+                
+                pos3 = clientX;
+                pos4 = clientY;
+                
+                document.onmouseup = closeDragElement;
+                document.ontouchend = closeDragElement;
+                document.onmousemove = elementDrag;
+                document.ontouchmove = elementDrag;
+            }
 
-                document.onmouseup = function() {
-                    document.onmouseup = null;
-                    document.onmousemove = null;
-                    if (!hasMoved) {
+            function elementDrag(e) {
+                e = e || window.event;
+                // e.preventDefault(); // Omitido para permitir scroll si es necesario
+                const clientX = e.type === 'touchmove' ? e.touches[0].clientX : e.clientX;
+                const clientY = e.type === 'touchmove' ? e.touches[0].clientY : e.clientY;
+                
+                if (Math.abs(pos3 - clientX) > 5 || Math.abs(pos4 - clientY) > 5) {
+                    hasMoved = true;
+                }
+                
+                pos1 = pos3 - clientX;
+                pos2 = pos4 - clientY;
+                pos3 = clientX;
+                pos4 = clientY;
+                
+                elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+                elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+                elmnt.style.bottom = "auto";
+                elmnt.style.right = "auto";
+            }
+
+            function closeDragElement(e) {
+                document.onmouseup = null;
+                document.ontouchend = null;
+                document.onmousemove = null;
+                document.ontouchmove = null;
+                
+                if (!hasMoved) {
+                    if (elmnt.id === 'quick-suggestion' && typeof toggleSuggestion === 'function') {
                         toggleSuggestion();
+                    } else if (elmnt.id === 'music-float-btn' && typeof toggleMiniPlayer === 'function') {
+                        toggleMiniPlayer();
                     }
-                };
-
-                document.onmousemove = function(e) {
-                    e = e || window.event;
-                    e.preventDefault();
-                    if (Math.abs(startX - e.clientX) > 5 || Math.abs(startY - e.clientY) > 5) {
-                        hasMoved = true;
-                    }
-                    pos1 = pos3 - e.clientX;
-                    pos2 = pos4 - e.clientY;
-                    pos3 = e.clientX;
-                    pos4 = e.clientY;
-                    elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-                    elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
-                    elmnt.style.bottom = "auto";
-                    elmnt.style.right = "auto";
-                };
-            };
+                }
+            }
         }
 
         function sendQuickSuggestion() {
@@ -522,6 +558,12 @@
             makeDraggable(suggestBox);
         }
 
+        // Inicializar drag para el botón flotante de música
+        const musicFloatBtnDrag = document.getElementById("music-float-btn");
+        if (musicFloatBtnDrag) {
+            makeDraggable(musicFloatBtnDrag);
+        }
+
         // --- getCookie global ---
         function getCookie(name) {
             let cookieValue = null;
@@ -560,6 +602,14 @@
             return false;
         };
 
+        // Capturar errores globales del iframe de YouTube y su postMessage interno
+        window.addEventListener('error', function(event) {
+            if (event && event.message && event.message.includes('postMessage') && event.message.includes('target origin')) {
+                event.preventDefault();
+                return false;
+            }
+        });
+
         // Cargar YouTube IFrame API para el mini player una sola vez
         if (!window.YT && !document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
             var tag = document.createElement('script');
@@ -591,6 +641,21 @@
 
             const iframeContainer = document.getElementById('mini-youtube-iframe');
             if (!iframeContainer) return;
+
+            if (!window.YT || !YT.Player) {
+                // Si la API de YouTube aún no está lista, cargarla y esperar al callback
+                if (!document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
+                    const tag = document.createElement('script');
+                    tag.src = 'https://www.youtube.com/iframe_api';
+                    tag.async = true;
+                    const firstScriptTag = document.getElementsByTagName('script')[0];
+                    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+                }
+
+                iframeContainer.innerHTML = '<p style="color: var(--text-muted);">Cargando mini reproductor...</p>';
+                globalCurrentYoutubeId = youtubeId;
+                return;
+            }
 
             if (globalPlayer) {
                 globalPlayer.destroy();
@@ -634,12 +699,24 @@
         function toggleMiniPlayer() {
             const mp = document.getElementById('mini-player');
             const floatBtn = document.getElementById('music-float-btn');
+            const videoContainer = document.getElementById('mini-player-video-container');
+            const videoBtn = document.getElementById('mini-video-btn');
             if (!mp) return;
             
             if (mp.style.display === 'none' || !mp.style.display) {
                 mp.style.display = 'block';
                 if (floatBtn) floatBtn.style.display = 'none';
                 localStorage.setItem('miniPlayerVisible', 'true');
+
+                if (globalCurrentYoutubeId) {
+                    if (videoContainer) {
+                        videoContainer.style.display = 'block';
+                    }
+                    if (videoBtn) {
+                        videoBtn.textContent = '👁️‍🗨️';
+                    }
+                    createMiniPlayerVideo(globalCurrentYoutubeId);
+                }
             } else {
                 mp.style.display = 'none';
                 if (floatBtn) floatBtn.style.display = 'flex';
@@ -788,7 +865,7 @@
         };
 
         // Sincronizar mini player con el reproductor principal
-        function updateMiniPlayerUI(songName, artist) {
+        function updateMiniPlayerUI(songName, artist, youtubeId) {
             const titleEl = document.getElementById('mini-player-title');
             const artistEl = document.getElementById('mini-player-artist');
             const mp = document.getElementById('mini-player');
@@ -804,6 +881,7 @@
             // Guardar estado en localStorage pero NO mostrar automáticamente
             localStorage.setItem('miniPlayerSong', songName || '');
             localStorage.setItem('miniPlayerArtist', artist || '');
+            localStorage.setItem('miniPlayerYoutubeId', youtubeId || '');
             localStorage.setItem('miniPlayerVisible', 'false'); // Siempre false al iniciar
         }
 
@@ -811,6 +889,22 @@
             const playBtn = document.getElementById('mini-play-btn');
             if (playBtn) {
                 playBtn.textContent = isPlaying ? '⏸' : '▶';
+            }
+            const vinyl = document.getElementById('mini-player-vinyl');
+            if (vinyl) {
+                if (isPlaying) {
+                    vinyl.classList.add('spinning');
+                } else {
+                    vinyl.classList.remove('spinning');
+                }
+            }
+            const floatBtn = document.getElementById('music-float-btn');
+            if (floatBtn) {
+                if (isPlaying) {
+                    floatBtn.classList.add('spinning');
+                } else {
+                    floatBtn.classList.remove('spinning');
+                }
             }
         }
 
@@ -823,17 +917,28 @@
         document.addEventListener('DOMContentLoaded', function() {
             initMiniPlayerDrag();
 
-            // NO restaurar mini player automáticamente - el usuario debe activarlo
-            // Solo restaurar la información de la canción si existe
+            // Restaurar información de la canción si existe
             const savedSong = localStorage.getItem('miniPlayerSong');
             const savedArtist = localStorage.getItem('miniPlayerArtist');
+            const savedYoutubeId = localStorage.getItem('miniPlayerYoutubeId');
+            const savedVisible = localStorage.getItem('miniPlayerVisible');
+            const floatBtn = document.getElementById('music-float-btn');
 
-            if (savedSong) {
+            if (savedSong || savedYoutubeId) {
                 const titleEl = document.getElementById('mini-player-title');
                 const artistEl = document.getElementById('mini-player-artist');
 
-                if (titleEl) titleEl.textContent = savedSong;
-                if (artistEl) artistEl.textContent = savedArtist;
+                if (titleEl) titleEl.textContent = savedSong || 'Sin reproducción';
+                if (artistEl) artistEl.textContent = savedArtist || '';
+                if (floatBtn) floatBtn.style.display = 'flex';
+            }
+
+            if (savedYoutubeId) {
+                globalCurrentYoutubeId = savedYoutubeId;
+            }
+
+            if (savedVisible === 'true') {
+                toggleMiniPlayer();
             }
 
             // Agregar event listeners a los botones
@@ -847,11 +952,10 @@
             if (nextBtn) nextBtn.addEventListener('click', globalPlayNext);
             if (muteBtn) muteBtn.addEventListener('click', globalToggleMute);
 
-            // Botón flotante
-            const floatBtn = document.getElementById('music-float-btn');
-            if (floatBtn) {
-                floatBtn.addEventListener('click', toggleMiniPlayer);
-            }
+            // Botón flotante (El clic ahora se maneja en makeDraggable para evitar conflictos con el arrastre)
+            // if (floatBtn) {
+            //     floatBtn.addEventListener('click', toggleMiniPlayer);
+            // }
         });
 
         // --- SORTABLE GRIDS GLOBALES ---

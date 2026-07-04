@@ -298,6 +298,152 @@ textarea:focus, input:focus {
 .btn-reiniciar { background: linear-gradient(135deg, #ef4444, #dc2626); }
 .btn-reiniciar:hover { box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4); }
 
+/* Temporizador Styles */
+.temporizador-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0;
+}
+
+#temporizador-display {
+    font-family: 'Space Mono', 'Courier New', monospace;
+    font-size: 3.5rem !important;
+    text-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
+    letter-spacing: 2px;
+    background: -webkit-linear-gradient(#fff, #94a3b8);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: var(--transition);
+}
+
+#temporizador-display.running {
+    text-shadow: 0 0 30px rgba(6, 182, 212, 0.8);
+    animation: pulseGlowCyan 2s infinite;
+}
+
+@keyframes pulseGlowCyan {
+    0% { filter: drop-shadow(0 0 10px rgba(6, 182, 212, 0.4)); }
+    50% { filter: drop-shadow(0 0 25px rgba(6, 182, 212, 0.8)); }
+    100% { filter: drop-shadow(0 0 10px rgba(6, 182, 212, 0.4)); }
+}
+
+#temporizador-config {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+#temporizador-config > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#temporizador-config input {
+    width: 70px !important;
+    height: 60px;
+    text-align: center;
+    margin: 0 !important;
+    padding: 0 !important;
+    font-size: 1.8rem;
+    font-weight: bold;
+    font-family: 'Space Mono', 'Courier New', monospace;
+    background: rgba(15, 23, 42, 0.8);
+    border: 2px solid rgba(6, 182, 212, 0.3);
+    border-radius: 12px;
+    color: #06b6d4;
+    transition: var(--transition);
+    box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+#temporizador-config input:focus {
+    border-color: #06b6d4;
+    box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.2), inset 0 2px 8px rgba(0, 0, 0, 0.3);
+    transform: scale(1.05);
+}
+
+#temporizador-config input::-webkit-inner-spin-button,
+#temporizador-config input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+#temporizador-config small {
+    margin-top: 10px !important;
+    color: #94a3b8;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.temporizador-btn {
+    padding: 12px 24px;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+}
+
+.temporizador-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.btn-iniciar-temp { background: linear-gradient(135deg, #06b6d4, #0891b2); }
+.btn-iniciar-temp:hover { box-shadow: 0 8px 20px rgba(6, 182, 212, 0.4); }
+
+.btn-pausar-temp { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.btn-pausar-temp:hover { box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4); }
+
+.btn-reiniciar-temp { background: linear-gradient(135deg, #ef4444, #dc2626); }
+.btn-reiniciar-temp:hover { box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4); }
+
+#temporizador-preset {
+    margin-top: 20px;
+}
+
+#temporizador-preset p {
+    color: #94a3b8;
+    font-size: 0.85rem;
+    margin-bottom: 12px;
+    font-weight: 500;
+}
+
+.preset-btn {
+    padding: 8px 16px;
+    background: rgba(6, 182, 212, 0.1);
+    color: #06b6d4;
+    border: 1px solid rgba(6, 182, 212, 0.3);
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 500;
+    transition: var(--transition);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.preset-btn:hover {
+    background: linear-gradient(135deg, #06b6d4, #0891b2);
+    color: white;
+    border-color: transparent;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(6, 182, 212, 0.3);
+}
+
+.preset-btn:active {
+    transform: translateY(0);
+}
+
 /* List Items (Notes, Summary, Events) */
 .lista-item {
     background: rgba(15, 23, 42, 0.5) !important;
@@ -466,6 +612,45 @@ body.light #cronometro-display {
     background: -webkit-linear-gradient(#0f172a, #475569);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+}
+
+/* Timer (Temporizador) */
+body.light #temporizador-display {
+    background: -webkit-linear-gradient(#0f172a, #475569);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+body.light #temporizador-config input {
+    background: #ffffff;
+    border-color: rgba(6, 182, 212, 0.3);
+    color: #06b6d4;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+body.light #temporizador-config input:focus {
+    background: #ffffff;
+    border-color: #06b6d4;
+    box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.12), inset 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+body.light #temporizador-config small {
+    color: #64748b;
+}
+
+body.light .preset-btn {
+    background: rgba(6, 182, 212, 0.08);
+    color: #06b6d4;
+    border-color: rgba(6, 182, 212, 0.2);
+}
+
+body.light .preset-btn:hover {
+    background: linear-gradient(135deg, #06b6d4, #0891b2);
+    color: white;
+}
+
+body.light #temporizador-preset p {
+    color: #64748b;
 }
 
 /* Summary Output */

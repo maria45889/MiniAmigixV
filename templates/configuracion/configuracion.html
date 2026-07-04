@@ -351,7 +351,7 @@
         </div>
 
         <!-- Seguridad tab removed (password change UI deleted as requested) -->
-
+        <div class="config-tab-content" id="tab-seguridad">
             <div class="config-section-modern">
                 <div class="section-header">
                     <div class="section-icon green"><i data-lucide="monitor-smartphone"></i></div>
@@ -756,6 +756,24 @@ function clearLocalCache() {
     const keys = ['accent_color', 'font_size', 'formato_fecha', 'blur_effects', 'push_notifications', 'animations'];
     keys.forEach(k => localStorage.removeItem(k));
     showToast('Caché limpiada correctamente');
+}
+
+function sendTestNotification() {
+    if (!('Notification' in window)) {
+        alert('Tu navegador no soporta notificaciones push.');
+        return;
+    }
+    Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+            new Notification('MiniAmigixV', {
+                body: 'Prueba de notificación enviada correctamente.',
+                icon: '{% static "imagenes/logo.png" %}'
+            });
+            showToast('Notificación de prueba enviada');
+        } else {
+            showToast('Permiso de notificaciones no concedido');
+        }
+    });
 }
 
 // ==================== EXPORT DATA ====================

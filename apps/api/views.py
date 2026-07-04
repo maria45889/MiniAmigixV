@@ -11,6 +11,7 @@ import openai
 from notificaciones.models import Notificacion
 from perfil.models import Perfil
 import logging
+from app.views import generate_ai_response
 
 logger = logging.getLogger(__name__)
 
@@ -64,31 +65,14 @@ class ChatSendView(APIView):
             role = "user" if msg.es_usuario else "assistant"
             messages.append({"role": role, "content": msg.texto})
 
-        if settings.GROQ_API_KEY:
-            client = openai.OpenAI(api_key=settings.GROQ_API_KEY, base_url="https://api.groq.com/openai/v1")
-            model = "llama-3.3-70b-versatile"
-        elif settings.OPENAI_API_KEY:
-            client = openai.OpenAI(api_key=settings.OPENAI_API_KEY)
-            model = "gpt-4o-mini"
-        else:
-            # Use Ollama as fallback
-            try:
-                client = openai.OpenAI(
-                    base_url=settings.OLLAMA_API_URL,
-                    api_key="ollama"
-                )
-                model = settings.OLLAMA_MODEL
-            except Exception as e:
-                logger.error(f"Error connecting to Ollama: {str(e)}")
-                return Response({'error': 'No AI API keys configured and Ollama is not available.'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
         try:
-            response = client.chat.completions.create(
-                model=model,
+            bot_response = generate_ai_response(
                 messages=messages,
-                max_tokens=150
+                settings_obj=settings,
+                imagen=False,
+                max_tokens=150,
+                message=message,
             )
-            bot_response = response.choices[0].message.content
             
             MensajeChat.objects.create(conversacion=conversacion, es_usuario=False, texto=bot_response)
             conversacion.save()

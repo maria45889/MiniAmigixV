@@ -308,6 +308,8 @@ GOOGLE_API_KEY = os.getenv("GEMINI_API_KEY")
 OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 OLLAMA_API_URL = os.getenv("OLLAMA_API_URL", "http://localhost:11434")
+if OLLAMA_API_URL and not OLLAMA_API_URL.endswith('/v1') and not OLLAMA_API_URL.endswith('/v1/'):
+    OLLAMA_API_URL = OLLAMA_API_URL.rstrip('/') + '/v1'
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.3")
 
 # Configuración de Email para Sugerencias
