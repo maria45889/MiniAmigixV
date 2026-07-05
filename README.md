@@ -50,8 +50,16 @@ MiniAmigixV es una aplicación web moderna desarrollada con **Django** que integ
 
 ### 🔔 Notificaciones
 
-* Alertas y avisos importantes.
-* Información en tiempo real.
+* Centro de notificaciones moderno con diseño premium.
+* Agrupación por fecha (Hoy, Ayer, Esta semana, Este mes).
+* Sección de notificaciones destacadas para prioridad alta.
+* Buscador en tiempo real.
+* Filtros por categoría (Chat IA, Música, Estudio, Eventos, etc.).
+* Acciones rápidas: marcar leída, fijar, eliminar.
+* Estadísticas visuales por categoría.
+* Colores e iconos específicos por tipo de notificación.
+* Prioridades: Alta, Normal, Baja.
+* Sistema de fijación para notificaciones importantes.
 
 ### 👤 Perfil de Usuario
 
@@ -68,17 +76,6 @@ MiniAmigixV es una aplicación web moderna desarrollada con **Django** que integ
 
 * Envío de sugerencias por parte de usuarios.
 * Revisión y respuesta administrativa.
-
-### 🛡 Panel de Administración
-
-* Acceso exclusivo para administradores.
-* Gestión de:
-
-  * Usuarios
-  * Tickets
-  * Sugerencias
-  * Publicaciones
-  * Noticias oficiales
 
 ---
 
@@ -224,6 +221,26 @@ Puede además:
 ---
 
 # 🔔 Cambios recientes
+
+## Última Actualización - Centro de Notificaciones Premium
+
+- Modernización completa del centro de notificaciones con diseño premium tipo app.
+- Añadidos campos de prioridad, categoría y fijación al modelo Notificacion.
+- Implementación de agrupación por fecha (Hoy, Ayer, Esta semana, Este mes).
+- Sección de notificaciones destacadas para prioridad alta.
+- Buscador en tiempo real con filtrado por título y mensaje.
+- Filtros por categoría (Chat IA, Música, Estudio, Eventos, Soporte, Sistema, etc.).
+- Botones de acción: marcar leída, fijar, eliminar individualmente.
+- Estadísticas visuales por categoría con iconos específicos.
+- Header moderno con badges de contadores (sin leer, total).
+- Colores e iconos específicos por tipo de notificación.
+- Sistema de prioridades: Alta (🔥), Normal, Baja (📌).
+- Sistema de fijación para notificaciones importantes.
+- Animaciones y transiciones suaves.
+- Diseño responsivo optimizado para móviles.
+- Commit: `979c665` (Modernizar centro de notificaciones con diseño premium).
+
+## Actualización Anterior - Respuesta por Correo
 
 - Se añadió la funcionalidad para que el administrador principal (`miniamigixv@gmail.com`) pueda responder por correo a usuarios directamente desde el panel de administración.
 - Rutas y plantillas relevantes:
