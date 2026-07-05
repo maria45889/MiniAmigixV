@@ -4,92 +4,440 @@
 {% block title %}Editar Perfil{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/modules/profile.css' %}?v=5">
+<link rel="stylesheet" href="{% static 'css/modules/profile.css' %}?v=7">
+<style>
+.edit-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 30px;
+}
+
+.edit-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.edit-header h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #f8fafc, #c084fc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 10px;
+}
+
+.edit-header p {
+    color: #94a3b8;
+    font-size: 1.1rem;
+}
+
+.edit-form {
+    display: grid;
+    gap: 25px;
+}
+
+.form-card {
+    background: rgba(17, 24, 39, 0.7);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    padding: 30px;
+}
+
+.form-card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.form-card-header h3 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #f8fafc;
+    margin: 0;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    color: #94a3b8;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.form-group label i {
+    width: 16px;
+    height: 16px;
+    color: #7c3aed;
+}
+
+.form-group input[type="text"],
+.form-group input[type="date"],
+.form-group input[type="email"],
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 14px 16px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: white;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #7c3aed;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+/* Color Picker */
+.color-options {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.color-option {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    cursor: pointer;
+    border: 3px solid transparent;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+}
+
+.color-option:hover {
+    transform: scale(1.1);
+}
+
+.color-option.selected {
+    border-color: white;
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+}
+
+.color-purple { background: linear-gradient(135deg, #7c3aed, #a855f7); }
+.color-blue { background: linear-gradient(135deg, #3b82f6, #06b6d4); }
+.color-green { background: linear-gradient(135deg, #10b981, #059669); }
+.color-orange { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.color-red { background: linear-gradient(135deg, #ef4444, #dc2626); }
+
+/* Avatar Upload */
+.avatar-upload-section {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.avatar-preview {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid rgba(124, 58, 237, 0.5);
+    box-shadow: 0 0 30px rgba(124, 58, 237, 0.3);
+}
+
+.avatar-preview.placeholder {
+    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+}
+
+.avatar-actions {
+    flex: 1;
+}
+
+.file-input {
+    display: none;
+}
+
+.file-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    color: #e2e8f0;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 0.95rem;
+}
+
+.file-label:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: #7c3aed;
+}
+
+.delete-avatar-btn {
+    margin-top: 10px;
+    padding: 8px 16px;
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 8px;
+    color: #ef4444;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.3s;
+}
+
+.delete-avatar-btn:hover {
+    background: rgba(239, 68, 68, 0.3);
+}
+
+/* Form Actions */
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-cancel, .btn-save {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+    border: none;
+}
+
+.btn-cancel {
+    background: rgba(255, 255, 255, 0.05);
+    color: #e2e8f0;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-save {
+    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+    color: white;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+}
+
+.btn-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.6);
+}
+
+@media (max-width: 768px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .avatar-upload-section {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .form-actions {
+        flex-direction: column;
+    }
+    
+    .btn-cancel, .btn-save {
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="perfil-container modern">
-    
-    <div class="edit-profile-header">
+<div class="edit-container">
+    <div class="edit-header">
         <h1><i data-lucide="edit-3"></i> Editar Perfil</h1>
         <p>Personaliza tu identidad en MiniAmigixV</p>
     </div>
     
-    <form method="POST" action="{% url 'editar_perfil' %}" enctype="multipart/form-data" class="perfil-form-modern">
+    <form method="POST" action="{% url 'editar_perfil' %}" enctype="multipart/form-data" class="edit-form">
         {% csrf_token %}
         
-        <div class="form-section">
-            <h3 class="section-title">Información Básica</h3>
+        <!-- Información Básica -->
+        <div class="form-card">
+            <div class="form-card-header">
+                <i data-lucide="user" style="color: #7c3aed;"></i>
+                <h3>Información Básica</h3>
+            </div>
             
-            <div class="form-group-modern">
+            <div class="form-group">
                 <label for="username"><i data-lucide="user"></i> Nombre de Usuario</label>
                 <input type="text" id="username" name="username" value="{{ perfil.usuario.username }}" placeholder="Tu nombre de usuario">
             </div>
             
-            <div class="form-group-modern">
+            <div class="form-group">
                 <label for="bio"><i data-lucide="align-left"></i> Biografía</label>
                 <textarea id="bio" name="bio" rows="4" placeholder="Escribe algo interesante sobre ti...">{{ perfil.bio }}</textarea>
             </div>
             
-            <div class="form-group-modern file-upload-group">
-                <label><i data-lucide="image"></i> Avatar</label>
-                <div class="file-upload-wrapper">
-                    {% if perfil.avatar %}
-                    <img src="{{ perfil.avatar.url }}" alt="Avatar actual" class="avatar-preview-modern">
-                    {% else %}
-                    <div class="avatar-preview-modern placeholder"><i data-lucide="user"></i></div>
-                    {% endif %}
-                    <div class="file-input-container">
-                        <input type="file" id="avatar" name="avatar" accept="image/*" class="custom-file-input">
-                        <label for="avatar" class="custom-file-label">Seleccionar nueva imagen...</label>
-                    </div>
-                </div>
+            <div class="form-group">
+                <label for="ubicacion"><i data-lucide="map-pin"></i> Ubicación</label>
+                <input type="text" id="ubicacion" name="ubicacion" value="{{ perfil.ubicacion|default:'' }}" placeholder="Ciudad, País">
             </div>
             
-            <div class="form-group-modern">
+            <div class="form-group">
                 <label for="fecha_nacimiento"><i data-lucide="calendar"></i> Fecha de Nacimiento</label>
                 <input type="date" id="fecha_nacimiento" name="fecha_nacimiento" value="{% if perfil.fecha_nacimiento %}{{ perfil.fecha_nacimiento|date:'Y-m-d' }}{% endif %}">
             </div>
-        </div>
-
-        <div class="form-section">
-            <h3 class="section-title">Preferencias</h3>
             
-            <div class="form-row">
-                <div class="form-group-modern half">
-                    <label for="tema"><i data-lucide="moon"></i> Tema</label>
-                    <div class="select-wrapper">
-                        <select id="tema" name="tema">
-                            <option value="dark" {% if perfil.tema == 'dark' %}selected{% endif %}>Oscuro</option>
-                            <option value="light" {% if perfil.tema == 'light' %}selected{% endif %}>Claro</option>
-                        </select>
-                        <i data-lucide="chevron-down" class="select-icon"></i>
-                    </div>
-                </div>
-                
-                <div class="form-group-modern half">
-                    <label for="idioma"><i data-lucide="globe"></i> Idioma</label>
-                    <div class="select-wrapper">
-                        <select id="idioma" name="idioma">
-                            <option value="es" {% if perfil.idioma == 'es' %}selected{% endif %}>🇪🇸 Español</option>
-                            <option value="en" {% if perfil.idioma == 'en' %}selected{% endif %}>🇬🇧 English</option>
-                            <option value="fr" {% if perfil.idioma == 'fr' %}selected{% endif %}>🇫🇷 Français</option>
-                            <option value="de" {% if perfil.idioma == 'de' %}selected{% endif %}>🇩🇪 Deutsch</option>
-                            <option value="pt" {% if perfil.idioma == 'pt' %}selected{% endif %}>🇧🇷 Português</option>
-                            <option value="it" {% if perfil.idioma == 'it' %}selected{% endif %}>🇮🇹 Italiano</option>
-                            <option value="ja" {% if perfil.idioma == 'ja' %}selected{% endif %}>🇯🇵 日本語</option>
-                            <option value="ko" {% if perfil.idioma == 'ko' %}selected{% endif %}>🇰🇷 한국어</option>
-                            <option value="zh" {% if perfil.idioma == 'zh' %}selected{% endif %}>🇨🇳 中文</option>
-                            <option value="ru" {% if perfil.idioma == 'ru' %}selected{% endif %}>🇷🇺 Русский</option>
-                            <option value="ar" {% if perfil.idioma == 'ar' %}selected{% endif %}>🇸🇦 العربية</option>
-                        </select>
-                        <i data-lucide="chevron-down" class="select-icon"></i>
+            <div class="form-group">
+                <label><i data-lucide="image"></i> Avatar</label>
+                <div class="avatar-upload-section">
+                    {% if perfil.avatar %}
+                    <img src="{{ perfil.avatar.url }}" alt="Avatar actual" class="avatar-preview" id="avatarPreview">
+                    {% else %}
+                    <div class="avatar-preview placeholder" id="avatarPreview">👤</div>
+                    {% endif %}
+                    <div class="avatar-actions">
+                        <input type="file" id="avatar" name="avatar" accept="image/*" class="file-input" onchange="previewAvatar(this)">
+                        <label for="avatar" class="file-label">
+                            <i data-lucide="upload"></i> Seleccionar nueva imagen
+                        </label>
+                        {% if perfil.avatar %}
+                        <button type="button" class="delete-avatar-btn" onclick="deleteAvatar()">
+                            <i data-lucide="trash-2"></i> Eliminar avatar
+                        </button>
+                        {% endif %}
                     </div>
                 </div>
             </div>
         </div>
         
-        <div class="form-actions-modern">
+        <!-- Preferencias -->
+        <div class="form-card">
+            <div class="form-card-header">
+                <i data-lucide="settings" style="color: #06b6d4;"></i>
+                <h3>Preferencias</h3>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="tema"><i data-lucide="moon"></i> Tema</label>
+                    <select id="tema" name="tema">
+                        <option value="dark" {% if perfil.tema == 'dark' %}selected{% endif %}>🌙 Oscuro</option>
+                        <option value="light" {% if perfil.tema == 'light' %}selected{% endif %}>☀️ Claro</option>
+                        <option value="auto" {% if perfil.tema == 'auto' %}selected{% endif %}>🌅 Automático</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="idioma"><i data-lucide="globe"></i> Idioma</label>
+                    <select id="idioma" name="idioma">
+                        <option value="es" {% if perfil.idioma == 'es' %}selected{% endif %}>🇪🇸 Español</option>
+                        <option value="en" {% if perfil.idioma == 'en' %}selected{% endif %}>🇬🇧 English</option>
+                        <option value="fr" {% if perfil.idioma == 'fr' %}selected{% endif %}>🇫🇷 Français</option>
+                        <option value="de" {% if perfil.idioma == 'de' %}selected{% endif %}>🇩🇪 Deutsch</option>
+                        <option value="pt" {% if perfil.idioma == 'pt' %}selected{% endif %}>🇧🇷 Português</option>
+                        <option value="it" {% if perfil.idioma == 'it' %}selected{% endif %}>🇮🇹 Italiano</option>
+                        <option value="ja" {% if perfil.idioma == 'ja' %}selected{% endif %}>🇯🇵 日本語</option>
+                        <option value="ko" {% if perfil.idioma == 'ko' %}selected{% endif %}>🇰🇷 한국어</option>
+                        <option value="zh" {% if perfil.idioma == 'zh' %}selected{% endif %}>🇨🇳 中文</option>
+                        <option value="ru" {% if perfil.idioma == 'ru' %}selected{% endif %}>🇷🇺 Русский</option>
+                        <option value="ar" {% if perfil.idioma == 'ar' %}selected{% endif %}>🇸🇦 العربية</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label><i data-lucide="palette"></i> Color de Acento</label>
+                <div class="color-options">
+                    <div class="color-option color-purple {% if perfil.color_acento == 'purple' %}selected{% endif %}" 
+                         onclick="selectColor('purple')" data-color="purple">🟣</div>
+                    <div class="color-option color-blue {% if perfil.color_acento == 'blue' %}selected{% endif %}" 
+                         onclick="selectColor('blue')" data-color="blue">🔵</div>
+                    <div class="color-option color-green {% if perfil.color_acento == 'green' %}selected{% endif %}" 
+                         onclick="selectColor('green')" data-color="green">🟢</div>
+                    <div class="color-option color-orange {% if perfil.color_acento == 'orange' %}selected{% endif %}" 
+                         onclick="selectColor('orange')" data-color="orange">🟠</div>
+                    <div class="color-option color-red {% if perfil.color_acento == 'red' %}selected{% endif %}" 
+                         onclick="selectColor('red')" data-color="red">🔴</div>
+                </div>
+                <input type="hidden" id="color_acento" name="color_acento" value="{{ perfil.color_acento|default:'purple' }}">
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="formato_reloj"><i data-lucide="clock"></i> Formato de Reloj</label>
+                    <select id="formato_reloj" name="formato_reloj">
+                        <option value="12h" {% if perfil.formato_reloj == '12h' %}selected{% endif %}>12 horas</option>
+                        <option value="24h" {% if perfil.formato_reloj == '24h' %}selected{% endif %}>24 horas</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="zona_horaria"><i data-lucide="globe-2"></i> Zona Horaria</label>
+                    <select id="zona_horaria" name="zona_horaria">
+                        <option value="UTC" {% if perfil.zona_horaria == 'UTC' %}selected{% endif %}>UTC</option>
+                        <option value="America/Bogota" {% if perfil.zona_horaria == 'America/Bogota' %}selected{% endif %}>America/Bogota</option>
+                        <option value="America/Mexico_City" {% if perfil.zona_horaria == 'America/Mexico_City' %}selected{% endif %}>America/Mexico_City</option>
+                        <option value="America/New_York" {% if perfil.zona_horaria == 'America/New_York' %}selected{% endif %}>America/New_York</option>
+                        <option value="America/Los_Angeles" {% if perfil.zona_horaria == 'America/Los_Angeles' %}selected{% endif %}>America/Los_Angeles</option>
+                        <option value="Europe/Madrid" {% if perfil.zona_horaria == 'Europe/Madrid' %}selected{% endif %}>Europe/Madrid</option>
+                        <option value="Europe/London" {% if perfil.zona_horaria == 'Europe/London' %}selected{% endif %}>Europe/London</option>
+                        <option value="Asia/Tokyo" {% if perfil.zona_horaria == 'Asia/Tokyo' %}selected{% endif %}>Asia/Tokyo</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Seguridad -->
+        <div class="form-card">
+            <div class="form-card-header">
+                <i data-lucide="shield" style="color: #ef4444;"></i>
+                <h3>Seguridad</h3>
+            </div>
+            
+            <div class="form-group">
+                <label><i data-lucide="lock"></i> Contraseña</label>
+                <a href="{% url 'password_reset' %}" class="file-label" style="text-decoration: none; display: inline-block;">
+                    <i data-lucide="key"></i> Cambiar contraseña
+                </a>
+            </div>
+            
+            <div class="form-group">
+                <label><i data-lucide="smartphone"></i> Sesiones</label>
+                <p style="color: #94a3b8; font-size: 0.9rem;">Tienes 1 sesión activa en este dispositivo.</p>
+            </div>
+        </div>
+        
+        <div class="form-actions">
             <a href="{% url 'perfil' %}" class="btn-cancel"><i data-lucide="x"></i> Cancelar</a>
             <button type="submit" class="btn-save" name="submit"><i data-lucide="save"></i> Guardar Cambios</button>
         </div>
@@ -97,9 +445,42 @@
 </div>
 
 <script>
-// Aplicar tema inmediatamente (antes de DOMContentLoaded para evitar parpadeo)
+function selectColor(color) {
+    document.querySelectorAll('.color-option').forEach(el => el.classList.remove('selected'));
+    document.querySelector(`[data-color="${color}"]`).classList.add('selected');
+    document.getElementById('color_acento').value = color;
+}
+
+function previewAvatar(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('avatarPreview');
+            preview.src = e.target.result;
+            preview.classList.remove('placeholder');
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function deleteAvatar() {
+    if (confirm('¿Estás seguro de que quieres eliminar tu avatar?')) {
+        const preview = document.getElementById('avatarPreview');
+        preview.src = '';
+        preview.classList.add('placeholder');
+        preview.textContent = '👤';
+        
+        // Create a hidden input to signal avatar deletion
+        const deleteInput = document.createElement('input');
+        deleteInput.type = 'hidden';
+        deleteInput.name = 'delete_avatar';
+        deleteInput.value = 'true';
+        document.querySelector('form').appendChild(deleteInput);
+    }
+}
+
+// Aplicar tema inmediatamente
 (function() {
-    // Prioridad: valor de la BD (ya que estamos en la página de editar perfil)
     const dbTheme = "{{ perfil.tema|default:'dark' }}";
     const localStorageTheme = localStorage.getItem('theme');
     const defaultTheme = localStorageTheme || dbTheme || 'dark';
@@ -112,11 +493,9 @@
 })();
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Sincronizar localStorage con los valores de la BD al cargar la página de edición
     const dbTheme = "{{ perfil.tema|default:'dark' }}";
     const dbIdioma = "{{ perfil.idioma|default:'es' }}";
     
-    // Si localStorage no tiene valores o tiene valores diferentes, sincronizar desde la BD
     if (!localStorage.getItem('theme')) {
         localStorage.setItem('theme', dbTheme);
     }
@@ -124,101 +503,22 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem('idioma', dbIdioma);
     }
     
-    // Aplicar idioma guardado inmediatamente
-    const savedLang = localStorage.getItem('idioma') || dbIdioma;
-    const translations = {
-        es: {
-            'home': 'Inicio',
-            'chat': 'Chat IA',
-            'music': 'Música',
-            'blog': 'Blog',
-            'games': 'Juegos',
-            'study': 'Estudio',
-            'events': 'Eventos',
-            'weather': 'Clima',
-            'translator': 'Traductor',
-            'entertainment': 'Entretenimiento',
-            'support': 'Soporte',
-            'admin': 'Centro de Administración General',
-            'profile': 'Perfil',
-            'settings': 'Configuración',
-            'logout': 'Cerrar Sesión',
-            'login': 'Iniciar Sesión',
-            'register': 'Registrarse'
-        },
-        en: {
-            'home': 'Home',
-            'chat': 'Chat AI',
-            'music': 'Music',
-            'blog': 'Blog',
-            'games': 'Games',
-            'study': 'Study',
-            'events': 'Events',
-            'weather': 'Weather',
-            'translator': 'Translator',
-            'entertainment': 'Entertainment',
-            'support': 'Support',
-            'admin': 'General Admin Center',
-            'profile': 'Profile',
-            'settings': 'Settings',
-            'logout': 'Logout',
-            'login': 'Login',
-            'register': 'Register'
-        }
-    };
-    document.querySelectorAll('[data-i18n]').forEach(el => {
-        const key = el.getAttribute('data-i18n');
-        if (translations[savedLang] && translations[savedLang][key]) {
-            el.textContent = translations[savedLang][key];
-        }
-    });
-    
-    // Manejar envío del formulario
     const form = document.querySelector('form');
     if (form) {
         form.addEventListener('submit', function(e) {
             const tema = document.getElementById('tema').value;
             const idioma = document.getElementById('idioma').value;
             
-            // IMPORTANTE: Guardar en localStorage ANTES de que el formulario se envíe
-            // Esto asegura que después del redirect, los valores estén actualizados
             localStorage.setItem('theme', tema);
             localStorage.setItem('idioma', idioma);
             
-            // Aplicar tema inmediatamente
             if (tema === 'light') {
                 document.body.classList.add('light');
             } else {
                 document.body.classList.remove('light');
             }
-            
-            // Aplicar idioma inmediatamente
-            document.querySelectorAll('[data-i18n]').forEach(el => {
-                const key = el.getAttribute('data-i18n');
-                if (translations[idioma] && translations[idioma][key]) {
-                    el.textContent = translations[idioma][key];
-                }
-            });
-            
-            // NO llamar a la API por separado - el formulario POST ya guarda todo
-            // La llamada fetch a /api/update-language/ causaba conflictos con la navegación
         });
     }
 });
-
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.startsWith(name + "=")) {
-                cookieValue = decodeURIComponent(cookie.split("=")[1]);
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
 </script>
 {% endblock %}

@@ -9,6 +9,22 @@
     --hover-gradient: linear-gradient(135deg, #8b5cf6, #22d3ee);
     --card-radius: 16px;
     --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    
+    /* Nueva paleta de colores por función */
+    --color-estudio: #2563eb;       /* Azul - estudio */
+    --color-progreso: #10b981;      /* Verde - progreso */
+    --color-ia: #7c3aed;            /* Morado - IA */
+    --color-pomodoro: #f59e0b;      /* Amarillo - Pomodoro */
+    --color-descanso: #ef4444;      /* Rojo - descansos */
+}
+
+.dashboard {
+    background: 
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.13), transparent 40%),
+        radial-gradient(circle at bottom right, rgba(124, 58, 237, 0.13), transparent 35%),
+        #09090f;
+    min-height: 100vh;
+    padding: 20px 0;
 }
 
 .dashboard h1 {
@@ -686,4 +702,701 @@ body.light ::-webkit-scrollbar-thumb {
 }
 body.light ::-webkit-scrollbar-thumb:hover {
     background: rgba(124, 58, 237, 0.4);
+}
+
+/* ==========================================================================
+   NUEVOS COMPONENTES - PANEL DE RESUMEN
+   ========================================================================== */
+
+.summary-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    padding: 24px;
+    border-radius: var(--card-radius);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    margin-bottom: 24px;
+    animation: fadeInDown 0.6s ease-out;
+}
+
+.summary-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.summary-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: var(--transition);
+}
+
+.stat-item:hover {
+    transform: translateY(-3px);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.stat-icon {
+    font-size: 2rem;
+    line-height: 1;
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.stat-value {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+.stat-blue { border-left: 3px solid var(--color-estudio); }
+.stat-blue .stat-icon { color: var(--color-estudio); }
+
+.stat-orange { border-left: 3px solid var(--color-pomodoro); }
+.stat-orange .stat-icon { color: var(--color-pomodoro); }
+
+.stat-green { border-left: 3px solid var(--color-progreso); }
+.stat-green .stat-icon { color: var(--color-progreso); }
+
+.stat-purple { border-left: 3px solid var(--color-ia); }
+.stat-purple .stat-icon { color: var(--color-ia); }
+
+/* ==========================================================================
+   ACCIONES RÁPIDAS
+   ========================================================================== */
+
+.quick-actions {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.quick-action-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    color: #fff;
+    cursor: pointer;
+    transition: var(--transition);
+    font-weight: 500;
+}
+
+.quick-action-btn:hover {
+    background: var(--accent-gradient);
+    border-color: transparent;
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(124, 58, 237, 0.3);
+}
+
+.quick-icon {
+    font-size: 1.25rem;
+}
+
+/* ==========================================================================
+   POMODORO MEJORADO
+   ========================================================================== */
+
+.pomodoro-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.pomodoro-circle {
+    position: relative;
+    margin: 20px 0;
+}
+
+.progress-ring {
+    transform: rotate(-90deg);
+}
+
+.progress-ring-bg {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.1);
+    stroke-width: 8;
+}
+
+.progress-ring-circle {
+    fill: none;
+    stroke: var(--color-pomodoro);
+    stroke-width: 8;
+    stroke-linecap: round;
+    transition: stroke-dashoffset 0.5s ease;
+}
+
+.pomodoro-display {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+}
+
+.pomodoro-emoji {
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+
+#pomodoro-time {
+    font-family: 'Space Mono', 'Courier New', monospace;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+}
+
+.pomodoro-progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    margin: 15px 0;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--color-pomodoro), #fbbf24);
+    border-radius: 3px;
+    transition: width 0.5s ease;
+    width: 100%;
+}
+
+.pomodoro-btn {
+    padding: 12px 24px;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 0.9rem;
+}
+
+.pomodoro-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+}
+
+.btn-start { background: linear-gradient(135deg, var(--color-pomodoro), #d97706); }
+.btn-start:hover { box-shadow: 0 8px 20px rgba(245, 158, 11, 0.4); }
+
+.btn-pause { background: linear-gradient(135deg, #6366f1, #4f46e5); }
+.btn-pause:hover { box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4); }
+
+.btn-reset { background: linear-gradient(135deg, #ef4444, #dc2626); }
+.btn-reset:hover { box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4); }
+
+.pomodoro-presets {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+    margin-top: 15px;
+}
+
+.preset-pomodoro {
+    padding: 10px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: var(--transition);
+}
+
+.preset-pomodoro:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(5px);
+}
+
+.preset-work:hover { border-color: var(--color-pomodoro); }
+.preset-short:hover { border-color: var(--color-progreso); }
+.preset-long:hover { border-color: var(--color-ia); }
+
+/* ==========================================================================
+   NOTAS CON COLORES
+   ========================================================================== */
+
+.note-color-picker {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+
+.color-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.color-btn:hover {
+    transform: scale(1.15);
+}
+
+.color-btn.selected {
+    border-color: #fff;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.3);
+}
+
+.color-yellow { background: #fef08a; }
+.color-green { background: #bbf7d0; }
+.color-blue { background: #bfdbfe; }
+.color-pink { background: #fbcfe8; }
+.color-purple { background: #ddd6fe; }
+
+.btn-secondary {
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.btn-secondary:hover {
+    background: var(--accent-gradient);
+    border-color: transparent;
+}
+
+.sticky-note {
+    transform: rotate(-1deg);
+    transition: var(--transition);
+}
+
+.sticky-note:hover {
+    transform: rotate(0deg) scale(1.02);
+}
+
+.pin-indicator {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 1rem;
+}
+
+/* ==========================================================================
+   ESTADÍSTICAS
+   ========================================================================== */
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.stat-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: var(--transition);
+}
+
+.stat-card:hover {
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateY(-2px);
+}
+
+.stat-card .stat-icon {
+    font-size: 1.75rem;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-card .stat-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+.stat-card .stat-value {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #fff;
+}
+
+.stat-card.stat-blue { border-left: 3px solid var(--color-estudio); }
+.stat-card.stat-blue .stat-icon { color: var(--color-estudio); }
+
+.stat-card.stat-orange { border-left: 3px solid var(--color-pomodoro); }
+.stat-card.stat-orange .stat-icon { color: var(--color-pomodoro); }
+
+.stat-card.stat-green { border-left: 3px solid var(--color-progreso); }
+.stat-card.stat-green .stat-icon { color: var(--color-progreso); }
+
+.stat-card.stat-purple { border-left: 3px solid var(--color-ia); }
+.stat-card.stat-purple .stat-icon { color: var(--color-ia); }
+
+.weekly-chart {
+    margin-top: 20px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+}
+
+.chart-bars {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    height: 120px;
+    gap: 8px;
+}
+
+.chart-bar-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 1;
+}
+
+.chart-bar {
+    width: 100%;
+    max-width: 40px;
+    background: linear-gradient(180deg, var(--color-estudio), var(--color-ia));
+    border-radius: 6px 6px 0 0;
+    transition: var(--transition);
+    position: relative;
+    min-height: 4px;
+}
+
+.chart-bar:hover {
+    filter: brightness(1.2);
+    transform: scaleY(1.05);
+}
+
+.chart-value {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 0.75rem;
+    color: #fff;
+    font-weight: 600;
+}
+
+.chart-label {
+    margin-top: 8px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* ==========================================================================
+   MOTIVACIÓN
+   ========================================================================== */
+
+.motivation-card {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.1), rgba(6, 182, 212, 0.1));
+}
+
+.motivation-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.motivation-tip {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    border-left: 3px solid var(--color-ia);
+}
+
+.tip-icon {
+    font-size: 1.5rem;
+    line-height: 1;
+}
+
+.tip-text {
+    font-style: italic;
+    color: #e2e8f0;
+    line-height: 1.6;
+}
+
+.motivation-stats {
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+}
+
+.motivation-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.mot-label {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+.mot-value {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: var(--color-progreso);
+}
+
+/* ==========================================================================
+   SELECTOR DE NIVEL DE RESUMEN
+   ========================================================================== */
+
+.summary-level-selector {
+    display: flex;
+    align-items: center;
+    margin: 15px 0;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+}
+
+.level-options {
+    display: flex;
+    gap: 16px;
+}
+
+.level-option {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.level-option input[type="radio"] {
+    width: auto;
+    margin: 0;
+    accent-color: var(--color-ia);
+}
+
+.level-option span {
+    color: #e2e8f0;
+    font-size: 0.9rem;
+}
+
+.level-option:hover span {
+    color: #fff;
+}
+
+/* ==========================================================================
+   HISTORIAL DE RESÚMENES MEJORADO
+   ========================================================================== */
+
+.resumen-item {
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    transition: var(--transition);
+}
+
+.resumen-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+    transform: translateY(-2px);
+}
+
+.resumen-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.resumen-title {
+    font-weight: 600;
+    color: #e2e8f0;
+    font-size: 0.95rem;
+}
+
+.resumen-time {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.resumen-preview {
+    color: #94a3b8;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+}
+
+/* ==========================================================================
+   ESTADOS VACÍOS
+   ========================================================================== */
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.empty-icon {
+    font-size: 3rem;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    margin: 8px 0;
+    color: var(--text-muted);
+}
+
+/* ==========================================================================
+   CRONÓMETRO CON VUELTAS
+   ========================================================================== */
+
+.btn-vuelta {
+    background: linear-gradient(135deg, var(--color-progreso), #059669);
+}
+
+.btn-vuelta:hover {
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+}
+
+.vuelta-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    margin-bottom: 6px;
+    border-left: 3px solid var(--color-progreso);
+}
+
+.vuelta-numero {
+    font-size: 0.85rem;
+    color: #e2e8f0;
+    font-weight: 500;
+}
+
+.vuelta-tiempo {
+    font-size: 0.85rem;
+    color: var(--color-progreso);
+    font-weight: 600;
+    font-family: 'Space Mono', 'Courier New', monospace;
+}
+
+/* ==========================================================================
+   CALENDARIO CON INDICADORES
+   ========================================================================== */
+
+.event-indicators {
+    display: flex;
+    gap: 3px;
+    justify-content: center;
+    margin-top: 4px;
+}
+
+.event-indicator {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+}
+
+.event-type-option {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.event-type-option input[type="radio"] {
+    width: auto;
+    margin: 0;
+    accent-color: var(--color-ia);
+}
+
+.event-type-option span {
+    font-size: 0.85rem;
+    color: #e2e8f0;
+}
+
+.event-type-option:hover span {
+    color: #fff;
+}
+
+/* ==========================================================================
+   RESPONSIVE
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    .summary-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .quick-actions {
+        justify-content: center;
+    }
+    
+    .pomodoro-circle svg {
+        width: 160px;
+        height: 160px;
+    }
+    
+    #pomodoro-time {
+        font-size: 1.5rem;
+    }
+    
+    .pomodoro-emoji {
+        font-size: 1.5rem;
+    }
 }

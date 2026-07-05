@@ -11,19 +11,340 @@
     --event-item-bg: rgba(0, 0, 0, 0.3);
     --event-item-hover-bg: rgba(255, 255, 255, 0.05);
     --event-radius: 12px;
+    
+    /* Colores de categorías */
+    --cat-personal: #ec4899;  /* Rosa */
+    --cat-trabajo: #3b82f6;   /* Azul */
+    --cat-estudios: #8b5cf6;  /* Morado */
+    --cat-salud: #22c55e;     /* Verde */
+    --cat-fiesta: #f97316;    /* Naranja */
+    --cat-otro: #64748b;      /* Gris */
 }
 
 /* Layout General */
 .eventos-container {
     padding: 20px;
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
+    position: relative;
 }
 
 .eventos-layout {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 30px;
+}
+
+/* ==================== STATS HEADER ==================== */
+.stats-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.stats-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.stats-title h1 {
+    font-family: var(--font-title, 'Inter', sans-serif);
+    font-size: 28px;
+    font-weight: 700;
+    margin: 0;
+    background: linear-gradient(to right, var(--event-color-secondary), var(--event-color-primary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.stats-cards {
+    display: flex;
+    gap: 15px;
+}
+
+.stat-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--event-glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--event-glass-border);
+    border-radius: var(--event-radius);
+    padding: 15px 20px;
+    min-width: 120px;
+}
+
+.stat-icon {
+    font-size: 24px;
+}
+
+.stat-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: white;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: var(--text-muted, #94a3b8);
+    margin-top: 4px;
+}
+
+/* ==================== NEXT EVENT HIGHLIGHT ==================== */
+.next-event-highlight {
+    margin-bottom: 25px;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.2), rgba(6, 182, 212, 0.2));
+    border: 1px solid rgba(6, 182, 212, 0.3);
+}
+
+.next-event-label {
+    font-size: 12px;
+    color: var(--event-color-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 15px;
+    font-weight: 600;
+}
+
+.next-event-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.next-event-icon {
+    font-size: 48px;
+    background: var(--event-item-hover-bg);
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+}
+
+.next-event-details {
+    flex: 1;
+}
+
+.next-event-details h3 {
+    color: white;
+    margin: 0 0 8px 0;
+    font-size: 20px;
+    font-weight: 600;
+}
+
+.next-event-meta {
+    display: flex;
+    gap: 15px;
+    color: var(--text-muted, #94a3b8);
+    font-size: 14px;
+}
+
+/* ==================== COUNTDOWN TIMER ==================== */
+.countdown-timer {
+    display: flex;
+    gap: 15px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 15px 20px;
+    border-radius: var(--event-radius);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.countdown-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 50px;
+}
+
+.countdown-value {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--event-color-secondary);
+    line-height: 1;
+}
+
+.countdown-label {
+    font-size: 11px;
+    color: var(--text-muted, #94a3b8);
+    text-transform: uppercase;
+    margin-top: 4px;
+}
+
+/* ==================== SEARCH AND FILTERS ==================== */
+.search-filters {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.search-box {
+    flex: 1;
+    min-width: 250px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: var(--event-item-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: var(--event-radius);
+    padding: 12px 16px;
+}
+
+.search-box svg {
+    color: var(--text-muted, #94a3b8);
+    margin-right: 10px;
+}
+
+.search-box input {
+    background: transparent;
+    border: none;
+    color: white;
+    font-size: 14px;
+    width: 100%;
+    outline: none;
+}
+
+.search-box input::placeholder {
+    color: var(--text-muted, #94a3b8);
+}
+
+.filter-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.filter-tab {
+    background: var(--event-item-bg);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-muted, #94a3b8);
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.filter-tab:hover {
+    background: var(--event-item-hover-bg);
+    color: white;
+}
+
+.filter-tab.active {
+    background: linear-gradient(135deg, var(--event-color-primary), var(--event-color-secondary));
+    color: white;
+    border-color: transparent;
+}
+
+/* ==================== VIEW TABS ==================== */
+.view-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    background: var(--event-glass-bg);
+    padding: 8px;
+    border-radius: var(--event-radius);
+    width: fit-content;
+}
+
+.view-tab {
+    background: transparent;
+    border: none;
+    color: var(--text-muted, #94a3b8);
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.view-tab:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.view-tab.active {
+    background: linear-gradient(135deg, var(--event-color-primary), var(--event-color-secondary));
+    color: white;
+}
+
+/* ==================== MINI AGENDA ==================== */
+.mini-agenda {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.mini-agenda-section {
+    margin-bottom: 15px;
+}
+
+.mini-agenda-section:last-child {
+    margin-bottom: 0;
+}
+
+.mini-agenda-section h4 {
+    color: var(--event-color-secondary);
+    font-size: 13px;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.mini-event {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: var(--event-item-bg);
+    border-radius: 8px;
+    margin-bottom: 8px;
+    font-size: 13px;
+}
+
+.mini-time {
+    color: var(--event-color-secondary);
+    font-weight: 600;
+    min-width: 50px;
+}
+
+.mini-title {
+    color: white;
+    flex: 1;
+}
+
+.no-mini-events {
+    color: var(--text-muted, #94a3b8);
+    font-size: 12px;
+    font-style: italic;
+}
+
+/* ==================== SECTION TITLE ==================== */
+.section-title {
+    color: white;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 /* ==================== COMPONENTES GLASSMORPHISM ==================== */
@@ -245,14 +566,14 @@
 
 .evento-card {
     background: var(--event-item-bg);
-    padding: 15px;
+    padding: 20px;
     border-radius: var(--event-radius);
     color: white;
     border-left: 4px solid var(--event-color-secondary);
     display: flex;
     gap: 20px;
     transition: all 0.3s ease;
-    align-items: center;
+    align-items: flex-start;
     position: relative;
 }
 
@@ -261,6 +582,81 @@
     background: var(--event-item-hover-bg);
     border-left-color: var(--event-color-primary);
     box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+}
+
+/* Category badge */
+.evento-category-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    border: 1px solid transparent;
+}
+
+/* Event meta information */
+.evento-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.evento-time,
+.evento-location,
+.evento-reminder {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(124, 58, 237, 0.15);
+    color: #c4b5fd;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.evento-location {
+    background: rgba(6, 182, 212, 0.15);
+    color: #67e8f9;
+}
+
+.evento-reminder {
+    background: rgba(34, 197, 94, 0.15);
+    color: #86efac;
+}
+
+/* Event actions */
+.evento-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.btn-edit-event {
+    background: rgba(59, 130, 246, 0.1);
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #93c5fd;
+    padding: 8px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.btn-edit-event:hover {
+    background: rgba(59, 130, 246, 0.3);
+    border-color: rgba(59, 130, 246, 0.5);
+    color: #93c5fd;
+    transform: scale(1.1);
 }
 
 .evento-date {
@@ -351,11 +747,52 @@
 
 .no-eventos {
     text-align: center;
-    padding: 40px;
+    padding: 60px 40px;
     color: var(--text-muted, #94a3b8);
     background: rgba(0,0,0,0.2);
     border-radius: 12px;
     border: 1px dashed rgba(255,255,255,0.1);
+}
+
+.no-eventos h3 {
+    color: white;
+    margin: 15px 0 10px 0;
+    font-size: 20px;
+}
+
+.no-eventos p {
+    margin: 0;
+    font-size: 14px;
+}
+
+/* ==================== FLOATING ACTION BUTTON (FAB) ==================== */
+.fab-button {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    background: linear-gradient(135deg, var(--event-color-primary), var(--event-color-secondary));
+    color: white;
+    padding: 16px 24px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+    z-index: 1000;
+}
+
+.fab-button:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 12px 35px rgba(6, 182, 212, 0.5);
+}
+
+.fab-button span {
+    font-size: 15px;
 }
 
 /* ==================== FORMULARIO DE EVENTOS ==================== */
@@ -454,6 +891,26 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
     .eventos-layout {
         grid-template-columns: 1fr;
     }
+    
+    .stats-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .stats-cards {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .next-event-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .countdown-timer {
+        width: 100%;
+        justify-content: space-around;
+    }
 }
 
 @media (max-width: 768px) {
@@ -475,9 +932,9 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
     }
     
     .evento-card {
-        padding: 12px;
-        flex-direction: row;
-        align-items: center;
+        padding: 15px;
+        flex-direction: column;
+        align-items: flex-start;
     }
     
     .evento-date {
@@ -489,6 +946,12 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
         font-size: 20px;
     }
     
+    .evento-actions {
+        flex-direction: row;
+        width: 100%;
+        margin-top: 10px;
+    }
+    
     .form-actions {
         flex-direction: column-reverse;
     }
@@ -496,5 +959,34 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
     .btn-primary, .btn-secondary {
         width: 100%;
         justify-content: center;
+    }
+    
+    .search-filters {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-tabs {
+        overflow-x: auto;
+        padding-bottom: 5px;
+    }
+    
+    .fab-button {
+        bottom: 20px;
+        right: 20px;
+        padding: 14px 20px;
+    }
+    
+    .fab-button span {
+        display: none;
+    }
+    
+    .stats-cards {
+        flex-wrap: wrap;
+    }
+    
+    .stat-card {
+        flex: 1;
+        min-width: 100px;
     }
 }

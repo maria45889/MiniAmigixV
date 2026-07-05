@@ -677,8 +677,17 @@
                     'onStateChange': function(event) {
                         if (event.data === YT.PlayerState.PLAYING) {
                             updateMiniPlayerPlayButton(true);
+                            localStorage.setItem('miniPlayerWasPlaying', 'true');
                         } else if (event.data === YT.PlayerState.PAUSED) {
                             updateMiniPlayerPlayButton(false);
+                            localStorage.setItem('miniPlayerWasPlaying', 'false');
+                            // Guardar tiempo actual al pausar
+                            if (globalPlayer && typeof globalPlayer.getCurrentTime === 'function') {
+                                localStorage.setItem('miniPlayerCurrentTime', globalPlayer.getCurrentTime().toString());
+                            }
+                        } else if (event.data === YT.PlayerState.ENDED) {
+                            updateMiniPlayerPlayButton(false);
+                            localStorage.setItem('miniPlayerWasPlaying', 'false');
                         }
                     },
                     'onError': function(event) {
@@ -789,9 +798,11 @@
                     if (globalPlayer.getPlayerState() === YT.PlayerState.PLAYING) {
                         globalPlayer.pauseVideo();
                         updateMiniPlayerPlayButton(false);
+                        localStorage.setItem('miniPlayerWasPlaying', 'false');
                     } else {
                         globalPlayer.playVideo();
                         updateMiniPlayerPlayButton(true);
+                        localStorage.setItem('miniPlayerWasPlaying', 'true');
                     }
                 } catch (e) {
                     console.error('Error controlando video del mini player:', e);
@@ -865,7 +876,7 @@
         };
 
         // Sincronizar mini player con el reproductor principal
-        function updateMiniPlayerUI(songName, artist, youtubeId) {
+        function updateMiniPlayerUI(songName, artist, youtubeId, isPlaying = false, currentTime = 0) {
             const titleEl = document.getElementById('mini-player-title');
             const artistEl = document.getElementById('mini-player-artist');
             const mp = document.getElementById('mini-player');
@@ -883,6 +894,8 @@
             localStorage.setItem('miniPlayerArtist', artist || '');
             localStorage.setItem('miniPlayerYoutubeId', youtubeId || '');
             localStorage.setItem('miniPlayerVisible', 'false'); // Siempre false al iniciar
+            localStorage.setItem('miniPlayerWasPlaying', isPlaying ? 'true' : 'false');
+            localStorage.setItem('miniPlayerCurrentTime', currentTime.toString());
         }
 
         function updateMiniPlayerPlayButton(isPlaying) {
@@ -911,6 +924,12 @@
         function updateMiniPlayerProgress(percentage) {
             const bar = document.getElementById('mini-progress-bar');
             if (bar) bar.style.width = percentage + '%';
+            
+            // Guardar tiempo actual periódicamente
+            if (globalPlayer && typeof globalPlayer.getCurrentTime === 'function') {
+                const currentTime = globalPlayer.getCurrentTime();
+                localStorage.setItem('miniPlayerCurrentTime', currentTime.toString());
+            }
         }
 
         // Inicializar mini player
@@ -922,6 +941,8 @@
             const savedArtist = localStorage.getItem('miniPlayerArtist');
             const savedYoutubeId = localStorage.getItem('miniPlayerYoutubeId');
             const savedVisible = localStorage.getItem('miniPlayerVisible');
+            const savedWasPlaying = localStorage.getItem('miniPlayerWasPlaying');
+            const savedCurrentTime = localStorage.getItem('miniPlayerCurrentTime');
             const floatBtn = document.getElementById('music-float-btn');
 
             if (savedSong || savedYoutubeId) {
@@ -935,9 +956,45 @@
 
             if (savedYoutubeId) {
                 globalCurrentYoutubeId = savedYoutubeId;
+
+                // Si estaba reproduciendo, restaurar automáticamente
+                if (savedWasPlaying === 'true' && savedYoutubeId) {
+                    // Esperar a que la API de YouTube esté lista
+                    const checkAndRestore = setInterval(() => {
+                        if (window.YT && YT.Player) {
+                            clearInterval(checkAndRestore);
+                            
+                            // Mostrar mini player si estaba visible
+                            if (savedVisible === 'true') {
+                                toggleMiniPlayer();
+                            }
+                            
+                            // Crear reproductor y restaurar reproducción
+                            createMiniPlayerVideo(savedYoutubeId);
+                            
+                            // Esperar a que el reproductor esté listo y luego reproducir
+                            setTimeout(() => {
+                                if (globalPlayer && typeof globalPlayer.playVideo === 'function') {
+                                    globalPlayer.playVideo();
+                                    updateMiniPlayerPlayButton(true);
+                                    
+                                    // Si había un tiempo guardado, buscar a ese punto
+                                    if (savedCurrentTime && parseFloat(savedCurrentTime) > 0) {
+                                        setTimeout(() => {
+                                            globalPlayer.seekTo(parseFloat(savedCurrentTime), true);
+                                        }, 500);
+                                    }
+                                }
+                            }, 1000);
+                        }
+                    }, 100);
+                    
+                    // Timeout por si la API tarda mucho
+                    setTimeout(() => clearInterval(checkAndRestore), 5000);
+                }
             }
 
-            if (savedVisible === 'true') {
+            if (savedVisible === 'true' && savedWasPlaying !== 'true') {
                 toggleMiniPlayer();
             }
 
@@ -956,6 +1013,13 @@
             // if (floatBtn) {
             //     floatBtn.addEventListener('click', toggleMiniPlayer);
             // }
+
+            // Guardar estado antes de cambiar de página
+            window.addEventListener('beforeunload', function() {
+                if (globalPlayer && typeof globalPlayer.getCurrentTime === 'function') {
+                    localStorage.setItem('miniPlayerCurrentTime', globalPlayer.getCurrentTime().toString());
+                }
+            });
         });
 
         // --- SORTABLE GRIDS GLOBALES ---

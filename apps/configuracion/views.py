@@ -42,6 +42,15 @@ def configuracion_view(request):
         perfil.mostrar_segundos = request.POST.get('mostrar_segundos') == 'on'
         perfil.mostrar_fecha = request.POST.get('mostrar_fecha') == 'on'
         perfil.zona_horaria = request.POST.get('zona_horaria', perfil.zona_horaria)
+        # Nuevos campos de privacidad
+        perfil.mostrar_ultima_conexion = request.POST.get('mostrar_ultima_conexion') == 'on'
+        perfil.compartir_estadisticas = request.POST.get('compartir_estadisticas') == 'on'
+        perfil.recomendaciones_ia = request.POST.get('recomendaciones_ia') == 'on'
+        # Nuevos campos de IA
+        perfil.guardar_historial_ia = request.POST.get('guardar_historial_ia') == 'on'
+        perfil.recordar_preferencias_ia = request.POST.get('recordar_preferencias_ia') == 'on'
+        perfil.sugerencias_ia = request.POST.get('sugerencias_ia') == 'on'
+        perfil.aprender_habitos_ia = request.POST.get('aprender_habitos_ia') == 'on'
         perfil.save()
         
         messages.success(request, 'Configuración actualizada correctamente.')

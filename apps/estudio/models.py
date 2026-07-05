@@ -7,11 +7,13 @@ class Nota(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notas')
     contenido = models.TextField()
+    color = models.CharField(max_length=7, default='#fef08a', help_text='Color de la nota en formato HEX')
+    fijada = models.BooleanField(default=False, help_text='Si la nota está fijada arriba')
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
     
     class Meta:
-        ordering = ['-fecha_creacion']
+        ordering = ['-fijada', '-fecha_creacion']
         verbose_name = 'Nota'
         verbose_name_plural = 'Notas'
     
@@ -89,3 +91,60 @@ class StudyProgress(models.Model):
         verbose_name = 'Progreso de Estudio'
         verbose_name_plural = 'Progresos de Estudio'
         unique_together = ['usuario', 'recurso']
+
+class StudySession(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sesiones_estudio')
+    duracion_segundos = models.IntegerField(default=0)
+    fecha_inicio = models.DateTimeField(auto_now_add=True)
+    fecha_fin = models.DateTimeField(null=True, blank=True)
+    tipo_sesion = models.CharField(max_length=20, choices=[
+        ('cronometro', 'Cronómetro'),
+        ('pomodoro', 'Pomodoro'),
+        ('temporizador', 'Temporizador'),
+    ], default='cronometro')
+
+    def __str__(self):
+        return f"{self.usuario.username} - {self.tipo_sesion} - {self.fecha_inicio.strftime('%d/%m/%Y')}"
+
+    class Meta:
+        ordering = ['-fecha_inicio']
+        verbose_name = 'Sesión de Estudio'
+        verbose_name_plural = 'Sesiones de Estudio'
+
+class PomodoroSession(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='pomodoros')
+    duracion_minutos = models.IntegerField(default=25)
+    completado = models.BooleanField(default=False)
+    fecha = models.DateTimeField(auto_now_add=True)
+    tipo = models.CharField(max_length=20, choices=[
+        ('trabajo', 'Trabajo'),
+        ('descanso_corto', 'Descanso Corto'),
+        ('descanso_largo', 'Descanso Largo'),
+    ], default='trabajo')
+
+    def __str__(self):
+        estado = "Completado" if self.completado else "No completado"
+        return f"{self.usuario.username} - {self.tipo} - {estado} - {self.fecha.strftime('%d/%m/%Y %H:%M')}"
+
+    class Meta:
+        ordering = ['-fecha']
+        verbose_name = 'Sesión Pomodoro'
+        verbose_name_plural = 'Sesiones Pomodoro'
+
+class DailyStats(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='estadisticas_diarias')
+    fecha = models.DateField(unique=True)
+    tiempo_estudiado_segundos = models.IntegerField(default=0)
+    pomodoros_completados = models.IntegerField(default=0)
+    notas_creadas = models.IntegerField(default=0)
+    resumenes_creados = models.IntegerField(default=0)
+    racha_dias = models.IntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.usuario.username} - {self.fecha} - {self.tiempo_estudiado_segundos // 60} min"
+
+    class Meta:
+        ordering = ['-fecha']
+        verbose_name = 'Estadística Diaria'
+        verbose_name_plural = 'Estadísticas Diarias'
+        unique_together = ['usuario', 'fecha']

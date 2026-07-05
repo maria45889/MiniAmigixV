@@ -4,126 +4,203 @@
 {% block title %}Clima{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/clima-glass.css' %}?v=1">
+<link rel="stylesheet" href="{% static 'css/pages/clima-modern.css' %}?v=2">
 <script src="https://unpkg.com/lucide@latest"></script>
 {% endblock %}
 
 {% block content %}
-<div class="clima-wrapper">
+<div class="clima-wrapper" id="clima-wrapper">
     
-    <div class="cyber-header">
-        <h1 class="cyber-title">CLIMA</h1>
-        
-        <form id="clima-form" class="search-container">
-            <input type="text" id="ciudad-input" placeholder="ESCANEAR CIUDAD" class="search-input" value="" required autocomplete="off">
-            <button type="submit" class="search-btn">BUSCAR</button>
-        </form>
-        <button id="geo-btn" class="geo-btn">📍 MI UBICACIÓN</button>
+    <!-- Header with Search -->
+    <div class="clima-header">
+        <div class="header-content">
+            <h1 class="clima-title">🌤 Clima</h1>
+            
+            <div class="search-section">
+                <div class="search-bar">
+                    <i data-lucide="search" class="search-icon"></i>
+                    <input type="text" id="ciudad-input" placeholder="Buscar ciudad..." class="search-input" autocomplete="off">
+                    <button type="button" id="search-btn" class="search-button">Buscar</button>
+                </div>
+                <button id="geo-btn" class="geo-button">
+                    <i data-lucide="map-pin" class="geo-icon"></i>
+                    Mi ubicación
+                </button>
+            </div>
+        </div>
     </div>
 
-    <div id="loading" class="loading" style="display: none;">
+    <!-- Loading State -->
+    <div id="loading" class="loading-state" style="display: none;">
         <div class="loading-spinner"></div>
-        <p>ESCANEANDO ATMÓSFERA...</p>
+        <p>Cargando clima...</p>
     </div>
 
-    <div id="error-msg" class="error-msg" style="display: none;"></div>
+    <!-- Error Message -->
+    <div id="error-msg" class="error-message" style="display: none;"></div>
 
-    <div class="dashboard-grid" id="weather-dashboard" style="display: none;">
+    <!-- Main Weather Dashboard -->
+    <div class="weather-dashboard" id="weather-dashboard" style="display: none;">
         
-        <!-- COLUMN 1: MAIN WEATHER -->
-        <div class="cyber-panel zone-main">
-            <div class="panel-time" id="cyber-clock">00:00:00</div>
-            
-            <i id="weather-icon" data-lucide="sun" class="lucide-main" style="color: #fbbf24;"></i>
-            
-            <div class="audio-wave">
-                <span></span><span></span><span></span><span></span><span></span>
+        <!-- Main Weather Card -->
+        <div class="main-weather-card">
+            <div class="weather-header">
+                <div class="location-info">
+                    <h2 class="city-name" id="main-city">--</h2>
+                    <p class="country-name" id="country-name">--</p>
+                </div>
+                <div class="last-updated" id="last-updated">Actualizado hace -- minutos</div>
             </div>
             
-            <h2 class="main-temp" id="main-temp">--°</h2>
-            <div class="main-city" id="main-city">--</div>
-            <div class="main-desc" id="main-desc">--</div>
-        </div>
-
-        <!-- COLUMN 2: RADAR -->
-        <div class="cyber-panel zone-radar">
-            <div class="panel-title">RADAR MiniAmigixV</div>
-            
-            <div class="radar-container">
-                <div class="radar-sweep"></div>
-                <div class="blip blip-1"></div>
-                <div class="blip blip-2"></div>
+            <div class="weather-main">
+                <div class="weather-icon-large" id="weather-icon-container">
+                    <i data-lucide="sun" class="weather-icon" id="weather-icon"></i>
+                </div>
+                <div class="temperature-section">
+                    <div class="current-temp" id="main-temp">--°</div>
+                    <div class="weather-description" id="main-desc">--</div>
+                </div>
             </div>
             
-            <div class="radar-anomalia">
-                <span>ANOMALÍA DETECTADA</span>
-                <span>0.04%</span>
-            </div>
-            <div class="anomalia-bar"><div class="anomalia-fill"></div></div>
-            
-            <div class="radar-informe">
-                <div class="informe-title"><div class="informe-dot"></div> INFORME DE ANÁLISIS</div>
-                <div class="informe-text">
-                    Utilizando tecnología de espectro orbital, el Radar MiniAmigixV escanea micro-variaciones en la ionósfera para predecir cambios climáticos con precisión cuántica.
+            <div class="temperature-range">
+                <div class="temp-range-item">
+                    <span class="temp-label">Máx</span>
+                    <span class="temp-value" id="temp-max">--°</span>
+                </div>
+                <div class="temp-range-item">
+                    <span class="temp-label">Sensación</span>
+                    <span class="temp-value" id="feels-like">--°</span>
+                </div>
+                <div class="temp-range-item">
+                    <span class="temp-label">Mín</span>
+                    <span class="temp-value" id="temp-min">--°</span>
                 </div>
             </div>
         </div>
 
-        <!-- COLUMN 3: RIGHT PANEL -->
-        <div class="right-column">
-            
-            <div class="cyber-panel zone-stats">
-                <div class="stat-item">
-                    <div class="stat-header">
-                        <span>HUMEDAD</span>
-                        <span class="stat-value" id="humidity-value" style="color: #00f0ff;">--%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill humedad" id="humidity-bar" style="width: 0%;"></div>
-                    </div>
+        <!-- Info Cards Grid -->
+        <div class="info-cards-grid">
+            <div class="info-card">
+                <div class="info-card-icon">
+                    <i data-lucide="droplets" class="card-icon"></i>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-header">
-                        <span>VIENTO</span>
-                        <span class="stat-value" id="wind-value" style="color: #22c55e;">-- km/h</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill viento" id="wind-bar" style="width: 0%;"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="cyber-panel zone-forecast">
-                <div class="panel-title">PRONÓSTICO</div>
-                <div class="forecast-grid" id="forecast-grid">
-                    <div class="forecast-item">
-                        <div class="forecast-day">MAÑANA</div>
-                        <i data-lucide="sun" class="forecast-icon" style="color: #fbbf24;"></i>
-                        <div class="forecast-temp">--°C</div>
-                    </div>
-                    <div class="forecast-item">
-                        <div class="forecast-day">PRÓXIMO</div>
-                        <i data-lucide="cloud-rain" class="forecast-icon" style="color: #94a3b8;"></i>
-                        <div class="forecast-temp">--°C</div>
-                    </div>
-                    <div class="forecast-item">
-                        <div class="forecast-day">FIN SEM.</div>
-                        <i data-lucide="sun" class="forecast-icon" style="color: #fbbf24;"></i>
-                        <div class="forecast-temp">--°C</div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="cyber-panel zone-status">
-                <div class="status-title">
-                    <div class="status-dot"></div>
-                    FUENTE DE DATOS
-                </div>
-                <div class="status-msg">
-                    <b>OpenWeather:</b> Servicio que nos da la información del clima de cualquier ciudad del mundo. Muestra la temperatura actual, humedad, viento y el pronóstico para los próximos días.
+                <div class="info-card-content">
+                    <div class="info-card-label">Humedad</div>
+                    <div class="info-card-value" id="humidity-value">--%</div>
                 </div>
             </div>
             
+            <div class="info-card">
+                <div class="info-card-icon">
+                    <i data-lucide="wind" class="card-icon"></i>
+                </div>
+                <div class="info-card-content">
+                    <div class="info-card-label">Viento</div>
+                    <div class="info-card-value" id="wind-value">-- km/h</div>
+                </div>
+            </div>
+            
+            <div class="info-card">
+                <div class="info-card-icon">
+                    <i data-lucide="thermometer" class="card-icon"></i>
+                </div>
+                <div class="info-card-content">
+                    <div class="info-card-label">Sensación</div>
+                    <div class="info-card-value" id="feels-like-card">--°</div>
+                </div>
+            </div>
+            
+            <div class="info-card">
+                <div class="info-card-icon">
+                    <i data-lucide="eye" class="card-icon"></i>
+                </div>
+                <div class="info-card-content">
+                    <div class="info-card-label">Visibilidad</div>
+                    <div class="info-card-value" id="visibility-value">-- km</div>
+                </div>
+            </div>
+            
+            <div class="info-card">
+                <div class="info-card-icon">
+                    <i data-lucide="sunrise" class="card-icon"></i>
+                </div>
+                <div class="info-card-content">
+                    <div class="info-card-label">Amanecer</div>
+                    <div class="info-card-value" id="sunrise-value">--:--</div>
+                </div>
+            </div>
+            
+            <div class="info-card">
+                <div class="info-card-icon">
+                    <i data-lucide="sunset" class="card-icon"></i>
+                </div>
+                <div class="info-card-content">
+                    <div class="info-card-label">Atardecer</div>
+                    <div class="info-card-value" id="sunset-value">--:--</div>
+                </div>
+            </div>
+            
+            <div class="info-card">
+                <div class="info-card-icon">
+                    <i data-lucide="sun" class="card-icon"></i>
+                </div>
+                <div class="info-card-content">
+                    <div class="info-card-label">Índice UV</div>
+                    <div class="info-card-value" id="uv-value">--</div>
+                </div>
+            </div>
+            
+            <div class="info-card">
+                <div class="info-card-icon">
+                    <i data-lucide="cloud-rain" class="card-icon"></i>
+                </div>
+                <div class="info-card-content">
+                    <div class="info-card-label">Prob. Lluvia</div>
+                    <div class="info-card-value" id="rain-prob">--%</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hourly Forecast -->
+        <div class="forecast-section">
+            <h3 class="section-title">Pronóstico por horas</h3>
+            <div class="hourly-forecast" id="hourly-forecast">
+                <!-- Hourly items will be populated by JS -->
+            </div>
+        </div>
+
+        <!-- 7-Day Forecast -->
+        <div class="forecast-section">
+            <h3 class="section-title">Pronóstico de 7 días</h3>
+            <div class="weekly-forecast" id="weekly-forecast">
+                <!-- Weekly items will be populated by JS -->
+            </div>
+        </div>
+
+        <!-- AI Recommendations -->
+        <div class="ai-recommendations" id="ai-recommendations" style="display: none;">
+            <h3 class="section-title">🤖 Consejo del día</h3>
+            <div class="ai-card">
+                <div class="ai-content" id="ai-content">
+                    <!-- AI recommendations will be populated by JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Favorite Cities -->
+        <div class="favorites-section" id="favorites-section" style="display: none;">
+            <h3 class="section-title">⭐ Ciudades favoritas</h3>
+            <div class="favorites-grid" id="favorites-grid">
+                <!-- Favorites will be populated by JS -->
+            </div>
+        </div>
+
+        <!-- Recent Searches -->
+        <div class="recent-section" id="recent-section" style="display: none;">
+            <h3 class="section-title">📍 Búsquedas recientes</h3>
+            <div class="recent-grid" id="recent-grid">
+                <!-- Recent searches will be populated by JS -->
+            </div>
         </div>
 
     </div>
@@ -133,45 +210,93 @@
 <script>
     lucide.createIcons();
     
-    function updateClock() {
-        const now = new Date();
-        const timeString = now.toLocaleTimeString('es-ES', { hour12: false });
-        const clockElement = document.getElementById('cyber-clock');
-        if (clockElement) {
-            clockElement.innerText = timeString;
+    // State management
+    let currentWeatherData = null;
+    let favoriteCities = JSON.parse(localStorage.getItem('favoriteCities')) || [];
+    let recentSearches = JSON.parse(localStorage.getItem('recentSearches')) || [];
+    
+    // Weather condition backgrounds
+    const weatherBackgrounds = {
+        sunny: {
+            light: 'linear-gradient(135deg, #fef9c3 0%, #fde68a 50%, #fcd34d 100%)',
+            dark: 'linear-gradient(135deg, #1e3a5f 0%, #2d5a87 50%, #3b82f6 100%)'
+        },
+        cloudy: {
+            light: 'linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 50%, #94a3b8 100%)',
+            dark: 'linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%)'
+        },
+        rainy: {
+            light: 'linear-gradient(135deg, #94a3b8 0%, #64748b 50%, #475569 100%)',
+            dark: 'linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%)'
+        },
+        stormy: {
+            light: 'linear-gradient(135deg, #6b7280 0%, #4b5563 50%, #374151 100%)',
+            dark: 'linear-gradient(135deg, #111827 0%, #1f2937 50%, #374151 100%)'
+        },
+        snowy: {
+            light: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 50%, #cbd5e1 100%)',
+            dark: 'linear-gradient(135deg, #1e293b 0%, #334155 50%, #475569 100%)'
+        },
+        night: {
+            light: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)',
+            dark: 'linear-gradient(135deg, #0f0c29 0%, #302b63 50%, #24243e 100%)'
         }
+    };
+    
+    // Update background based on weather
+    function updateBackground(weatherCondition, isNight) {
+        const wrapper = document.getElementById('clima-wrapper');
+        const isLightMode = document.body.classList.contains('light');
+        
+        let bgKey = 'cloudy';
+        const condition = weatherCondition.toLowerCase();
+        
+        if (isNight) {
+            bgKey = 'night';
+        } else if (condition.includes('clear') || condition.includes('sun') || condition.includes('soleado')) {
+            bgKey = 'sunny';
+        } else if (condition.includes('rain') || condition.includes('lluvia') || condition.includes('drizzle')) {
+            bgKey = 'rainy';
+        } else if (condition.includes('storm') || condition.includes('tormenta') || condition.includes('thunder')) {
+            bgKey = 'stormy';
+        } else if (condition.includes('snow') || condition.includes('nieve')) {
+            bgKey = 'snowy';
+        }
+        
+        const background = isLightMode ? weatherBackgrounds[bgKey].light : weatherBackgrounds[bgKey].dark;
+        wrapper.style.background = background;
     }
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    // Obtener clima por ciudad
-    document.getElementById('clima-form').addEventListener('submit', async function(e) {
-        e.preventDefault();
+    
+    // Search functionality
+    document.getElementById('search-btn').addEventListener('click', async function() {
         const ciudad = document.getElementById('ciudad-input').value;
         if (!ciudad) return;
-        
         await obtenerClima(ciudad);
     });
-
-    // Obtener clima por geolocalización
+    
+    document.getElementById('ciudad-input').addEventListener('keypress', async function(e) {
+        if (e.key === 'Enter') {
+            const ciudad = this.value;
+            if (!ciudad) return;
+            await obtenerClima(ciudad);
+        }
+    });
+    
+    // Geolocation functionality
     document.getElementById('geo-btn').addEventListener('click', async function() {
-        console.log('Botón de geolocalización presionado');
         if (navigator.geolocation) {
-            console.log('Geolocalización soportada');
             navigator.geolocation.getCurrentPosition(async function(position) {
                 const lat = position.coords.latitude;
                 const lon = position.coords.longitude;
-                console.log('Coordenadas obtenidas:', lat, lon);
                 await obtenerClimaPorGeo(lat, lon);
             }, function(error) {
-                console.error('Error de geolocalización:', error);
                 mostrarError('No se pudo obtener la ubicación. Por favor, permite el acceso a la ubicación.');
             });
         } else {
             mostrarError('Geolocalización no soportada en este navegador.');
         }
     });
-
+    
     async function obtenerClima(ciudad) {
         mostrarLoading(true);
         try {
@@ -180,6 +305,7 @@
             
             if (data.success) {
                 actualizarUI(data.data);
+                addToRecentSearches(ciudad);
             } else {
                 mostrarError(data.error || 'Error al obtener el clima');
             }
@@ -189,7 +315,7 @@
             mostrarLoading(false);
         }
     }
-
+    
     async function obtenerClimaPorGeo(lat, lon) {
         mostrarLoading(true);
         try {
@@ -198,9 +324,9 @@
             
             if (data.success) {
                 actualizarUI(data.data);
-                // Auto-rellenar el campo de búsqueda con la ciudad detectada
                 if (data.data.ciudad) {
                     document.getElementById('ciudad-input').value = data.data.ciudad;
+                    addToRecentSearches(data.data.ciudad);
                 }
             } else {
                 mostrarError(data.error || 'Error al obtener el clima');
@@ -211,172 +337,329 @@
             mostrarLoading(false);
         }
     }
-
+    
     function actualizarUI(data) {
-        // Actualizar datos principales con animación
-        const tempElement = document.getElementById('main-temp');
-        const cityElement = document.getElementById('main-city');
-        const descElement = document.getElementById('main-desc');
+        currentWeatherData = data;
         
-        // Animación de temperatura
-        tempElement.style.opacity = '0';
-        tempElement.style.transform = 'translateY(20px)';
+        // Update main weather card
+        document.getElementById('main-city').textContent = data.ciudad;
+        document.getElementById('country-name').textContent = data.pais || '';
+        document.getElementById('main-temp').textContent = Math.round(data.temperatura) + '°';
+        document.getElementById('main-desc').textContent = data.descripcion;
         
-        setTimeout(() => {
-            tempElement.textContent = Math.round(data.temperatura) + '°';
-            tempElement.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
-            tempElement.style.opacity = '1';
-            tempElement.style.transform = 'translateY(0)';
-        }, 100);
+        // Temperature range
+        document.getElementById('temp-max').textContent = (data.temp_max ? Math.round(data.temp_max) + '°' : '--°');
+        document.getElementById('temp-min').textContent = (data.temp_min ? Math.round(data.temp_min) + '°' : '--°');
+        document.getElementById('feels-like').textContent = (data.sensacion_termica ? Math.round(data.sensacion_termica) + '°' : '--°');
         
-        cityElement.textContent = data.ciudad;
-        descElement.textContent = data.descripcion;
-        
-        // Actualizar icono con colores mejorados
-        const iconElement = document.getElementById('weather-icon');
-        const desc = data.descripcion.toLowerCase();
-        
-        if (desc.includes('clear') || desc.includes('soleado') || desc.includes('sun')) {
-            iconElement.setAttribute('data-lucide', 'sun');
-            iconElement.style.color = '#fbbf24';
-            iconElement.style.filter = 'drop-shadow(0 0 40px rgba(251, 191, 36, 0.6))';
-        } else if (desc.includes('cloud') || desc.includes('nubl') || desc.includes('overcast')) {
-            iconElement.setAttribute('data-lucide', 'cloud');
-            iconElement.style.color = '#e2e8f0';
-            iconElement.style.filter = 'drop-shadow(0 0 40px rgba(226, 232, 240, 0.4))';
-        } else if (desc.includes('rain') || desc.includes('lluvia') || desc.includes('drizzle')) {
-            iconElement.setAttribute('data-lucide', 'cloud-rain');
-            iconElement.style.color = '#94a3b8';
-            iconElement.style.filter = 'drop-shadow(0 0 40px rgba(148, 163, 184, 0.5))';
-        } else if (desc.includes('storm') || desc.includes('tormenta') || desc.includes('thunder')) {
-            iconElement.setAttribute('data-lucide', 'cloud-lightning');
-            iconElement.style.color = '#fbbf24';
-            iconElement.style.filter = 'drop-shadow(0 0 40px rgba(251, 191, 36, 0.6))';
-        } else if (desc.includes('snow') || desc.includes('nieve')) {
-            iconElement.setAttribute('data-lucide', 'snowflake');
-            iconElement.style.color = '#e2e8f0';
-            iconElement.style.filter = 'drop-shadow(0 0 40px rgba(226, 232, 240, 0.5))';
-        } else if (desc.includes('mist') || desc.includes('fog') || desc.includes('niebla')) {
-            iconElement.setAttribute('data-lucide', 'cloud-fog');
-            iconElement.style.color = '#94a3b8';
-            iconElement.style.filter = 'drop-shadow(0 0 40px rgba(148, 163, 184, 0.4))';
-        } else {
-            iconElement.setAttribute('data-lucide', 'cloud');
-            iconElement.style.color = '#e2e8f0';
-            iconElement.style.filter = 'drop-shadow(0 0 40px rgba(226, 232, 240, 0.4))';
-        }
-        
-        // Actualizar estadísticas con animación
-        const humidityValue = document.getElementById('humidity-value');
-        const humidityBar = document.getElementById('humidity-bar');
-        const windValue = document.getElementById('wind-value');
-        const windBar = document.getElementById('wind-bar');
-        
-        humidityValue.textContent = (data.humedad || '--') + '%';
-        humidityBar.style.width = '0%';
-        
-        setTimeout(() => {
-            humidityBar.style.width = (data.humedad || 0) + '%';
-        }, 200);
-        
+        // Info cards
+        document.getElementById('humidity-value').textContent = (data.humedad || '--') + '%';
         const windSpeed = data.viento_velocidad ? Math.round(data.viento_velocidad * 3.6) : 0;
-        windValue.textContent = windSpeed + ' km/h';
-        windBar.style.width = '0%';
+        document.getElementById('wind-value').textContent = windSpeed + ' km/h';
+        document.getElementById('feels-like-card').textContent = (data.sensacion_termica ? Math.round(data.sensacion_termica) + '°' : '--°');
+        document.getElementById('visibility-value').textContent = (data.visibilidad ? (data.visibilidad / 1000).toFixed(1) + ' km' : '-- km');
+        document.getElementById('uv-value').textContent = data.uv_index || '--';
+        document.getElementById('rain-prob').textContent = (data.probabilidad_lluvia || '--') + '%';
         
-        setTimeout(() => {
-            windBar.style.width = Math.min(windSpeed, 100) + '%';
-        }, 300);
-        
-        // Actualizar pronóstico
-        const forecastGrid = document.getElementById('forecast-grid');
-        if (data.pronostico && data.pronostico.length > 0) {
-            forecastGrid.innerHTML = '';
-            const dias = ['MAÑANA', 'PRÓXIMO', 'FIN SEM.'];
-            
-            data.pronostico.slice(0, 3).forEach((dia, index) => {
-                const item = document.createElement('div');
-                item.className = 'forecast-item';
-                item.style.opacity = '0';
-                item.style.transform = 'translateY(20px)';
-                
-                const desc = dia.descripcion.toLowerCase();
-                let icon = 'cloud';
-                let color = '#e2e8f0';
-                let filter = 'drop-shadow(0 0 15px rgba(226, 232, 240, 0.3))';
-                
-                if (desc.includes('clear') || desc.includes('soleado') || desc.includes('sun')) {
-                    icon = 'sun';
-                    color = '#fbbf24';
-                    filter = 'drop-shadow(0 0 15px rgba(251, 191, 36, 0.5))';
-                } else if (desc.includes('rain') || desc.includes('lluvia')) {
-                    icon = 'cloud-rain';
-                    color = '#94a3b8';
-                    filter = 'drop-shadow(0 0 15px rgba(148, 163, 184, 0.4))';
-                } else if (desc.includes('storm') || desc.includes('tormenta')) {
-                    icon = 'cloud-lightning';
-                    color = '#fbbf24';
-                    filter = 'drop-shadow(0 0 15px rgba(251, 191, 36, 0.5))';
-                }
-                
-                item.innerHTML = `
-                    <div class="forecast-day">${dias[index] || 'DÍA ' + (index + 1)}</div>
-                    <i data-lucide="${icon}" class="forecast-icon" style="color: ${color}; filter: ${filter};"></i>
-                    <div class="forecast-temp">${Math.round(dia.temperatura_max)}°C</div>
-                `;
-                forecastGrid.appendChild(item);
-                
-                // Animación escalonada
-                setTimeout(() => {
-                    item.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
-                    item.style.opacity = '1';
-                    item.style.transform = 'translateY(0)';
-                }, 100 + (index * 150));
-            });
+        // Sunrise/Sunset
+        if (data.amanecer) {
+            const sunrise = new Date(data.amanecer * 1000);
+            document.getElementById('sunrise-value').textContent = sunrise.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+        }
+        if (data.atardecer) {
+            const sunset = new Date(data.atardecer * 1000);
+            document.getElementById('sunset-value').textContent = sunset.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
         }
         
-        // Mostrar dashboard con animación
+        // Update weather icon
+        updateWeatherIcon(data.descripcion);
+        
+        // Update background
+        const isNight = checkIsNight(data.amanecer, data.atardecer);
+        updateBackground(data.descripcion, isNight);
+        
+        // Update last updated time
+        const now = new Date();
+        document.getElementById('last-updated').textContent = 'Actualizado hace 0 minutos';
+        localStorage.setItem('lastWeatherUpdate', now.getTime());
+        
+        // Update forecasts
+        updateHourlyForecast(data.pronostico_hora || []);
+        updateWeeklyForecast(data.pronostico || []);
+        
+        // Generate AI recommendations
+        generateAIRecommendations(data);
+        
+        // Show favorites and recent searches
+        updateFavoritesSection();
+        updateRecentSection();
+        
+        // Show dashboard
         const dashboard = document.getElementById('weather-dashboard');
         dashboard.style.display = '';
         dashboard.style.opacity = '0';
-        dashboard.style.transform = 'translateY(30px)';
+        dashboard.style.transform = 'translateY(20px)';
         
         setTimeout(() => {
-            dashboard.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+            dashboard.style.transition = 'all 0.5s cubic-bezier(0.4, 0, 0.2, 1)';
             dashboard.style.opacity = '1';
             dashboard.style.transform = 'translateY(0)';
         }, 50);
         
         document.getElementById('error-msg').style.display = 'none';
         
-        // Recrear iconos
+        // Recreate icons
         lucide.createIcons();
     }
-
+    
+    function updateWeatherIcon(description) {
+        const iconElement = document.getElementById('weather-icon');
+        const desc = description.toLowerCase();
+        
+        if (desc.includes('clear') || desc.includes('soleado') || desc.includes('sun')) {
+            iconElement.setAttribute('data-lucide', 'sun');
+        } else if (desc.includes('cloud') || desc.includes('nubl') || desc.includes('overcast')) {
+            iconElement.setAttribute('data-lucide', 'cloud');
+        } else if (desc.includes('rain') || desc.includes('lluvia') || desc.includes('drizzle')) {
+            iconElement.setAttribute('data-lucide', 'cloud-rain');
+        } else if (desc.includes('storm') || desc.includes('tormenta') || desc.includes('thunder')) {
+            iconElement.setAttribute('data-lucide', 'cloud-lightning');
+        } else if (desc.includes('snow') || desc.includes('nieve')) {
+            iconElement.setAttribute('data-lucide', 'snowflake');
+        } else if (desc.includes('mist') || desc.includes('fog') || desc.includes('niebla')) {
+            iconElement.setAttribute('data-lucide', 'cloud-fog');
+        } else {
+            iconElement.setAttribute('data-lucide', 'cloud');
+        }
+    }
+    
+    function checkIsNight(sunrise, sunset) {
+        if (!sunrise || !sunset) return false;
+        const now = new Date();
+        const sunriseTime = new Date(sunrise * 1000);
+        const sunsetTime = new Date(sunset * 1000);
+        return now < sunriseTime || now > sunsetTime;
+    }
+    
+    function updateHourlyForecast(hourlyData) {
+        const container = document.getElementById('hourly-forecast');
+        container.innerHTML = '';
+        
+        if (!hourlyData || hourlyData.length === 0) {
+            container.innerHTML = '<p class="no-data">No hay datos disponibles</p>';
+            return;
+        }
+        
+        hourlyData.slice(0, 24).forEach((hour, index) => {
+            const time = new Date(hour.dt * 1000);
+            const timeStr = time.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+            const icon = getWeatherIcon(hour.weather[0].description);
+            
+            const item = document.createElement('div');
+            item.className = 'hourly-item';
+            item.innerHTML = `
+                <div class="hourly-time">${timeStr}</div>
+                <i data-lucide="${icon}" class="hourly-icon"></i>
+                <div class="hourly-temp">${Math.round(hour.main.temp)}°</div>
+            `;
+            container.appendChild(item);
+        });
+        
+        lucide.createIcons();
+    }
+    
+    function updateWeeklyForecast(dailyData) {
+        const container = document.getElementById('weekly-forecast');
+        container.innerHTML = '';
+        
+        if (!dailyData || dailyData.length === 0) {
+            container.innerHTML = '<p class="no-data">No hay datos disponibles</p>';
+            return;
+        }
+        
+        const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
+        
+        dailyData.slice(0, 7).forEach((day, index) => {
+            const date = new Date(day.dt * 1000);
+            const dayName = index === 0 ? 'Hoy' : days[date.getDay()];
+            const icon = getWeatherIcon(day.weather[0].description);
+            
+            const item = document.createElement('div');
+            item.className = 'weekly-item';
+            item.innerHTML = `
+                <div class="weekly-day">${dayName}</div>
+                <i data-lucide="${icon}" class="weekly-icon"></i>
+                <div class="weekly-temp">
+                    <span class="weekly-max">${Math.round(day.main.temp_max)}°</span>
+                    <span class="weekly-min">${Math.round(day.main.temp_min)}°</span>
+                </div>
+            `;
+            container.appendChild(item);
+        });
+        
+        lucide.createIcons();
+    }
+    
+    function getWeatherIcon(description) {
+        const desc = description.toLowerCase();
+        if (desc.includes('clear') || desc.includes('sun')) return 'sun';
+        if (desc.includes('cloud')) return 'cloud';
+        if (desc.includes('rain')) return 'cloud-rain';
+        if (desc.includes('storm') || desc.includes('thunder')) return 'cloud-lightning';
+        if (desc.includes('snow')) return 'snowflake';
+        if (desc.includes('mist') || desc.includes('fog')) return 'cloud-fog';
+        return 'cloud';
+    }
+    
+    function generateAIRecommendations(data) {
+        const container = document.getElementById('ai-recommendations');
+        const content = document.getElementById('ai-content');
+        
+        const temp = data.temperatura;
+        const desc = data.descripcion.toLowerCase();
+        const humidity = data.humedad || 0;
+        const windSpeed = data.viento_velocidad ? Math.round(data.viento_velocidad * 3.6) : 0;
+        const rainProb = data.probabilidad_lluvia || 0;
+        
+        let recommendations = [];
+        
+        // Temperature-based recommendations
+        if (temp > 30) {
+            recommendations.push('🔥 Hoy hará bastante calor. Te recomiendo usar protector solar y mantenerse hidratado.');
+        } else if (temp < 10) {
+            recommendations.push('🧥 Hace frío. Recomiendo abrigarse bien y usar ropa térmica.');
+        } else if (temp >= 20 && temp <= 25) {
+            recommendations.push('😊 El clima es perfecto. Ideal para actividades al aire libre.');
+        }
+        
+        // Rain recommendations
+        if (rainProb > 50) {
+            recommendations.push('☔ Existe alta probabilidad de lluvia. Te recomiendo llevar paraguas.');
+        } else if (rainProb > 20) {
+            recommendations.push('🌧️ Hay posibilidad de lluvia. Lleva un paraguas por si acaso.');
+        }
+        
+        // Wind recommendations
+        if (windSpeed > 30) {
+            recommendations.push('💨 El viento está fuerte. Ten cuidado con objetos sueltos.');
+        }
+        
+        // Activity recommendations
+        if (desc.includes('clear') || desc.includes('sun')) {
+            recommendations.push('🚴 Es un buen día para hacer ejercicio al aire libre.');
+        } else if (desc.includes('rain')) {
+            recommendations.push('🏠 Mejor quedarse en casa hoy. Buen día para actividades indoor.');
+        }
+        
+        // UV recommendations
+        if (data.uv_index > 6) {
+            recommendations.push('☀️ El índice UV es alto. Usa protector solar y evita el sol directo.');
+        }
+        
+        if (recommendations.length > 0) {
+            content.innerHTML = recommendations.map(rec => `<p>${rec}</p>`).join('');
+            container.style.display = '';
+        } else {
+            content.innerHTML = '<p>El clima es normal hoy. ¡Disfruta tu día!</p>';
+            container.style.display = '';
+        }
+    }
+    
+    function addToRecentSearches(city) {
+        // Remove if already exists
+        recentSearches = recentSearches.filter(c => c.toLowerCase() !== city.toLowerCase());
+        // Add to beginning
+        recentSearches.unshift(city);
+        // Keep only last 5
+        recentSearches = recentSearches.slice(0, 5);
+        // Save to localStorage
+        localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
+    }
+    
+    function addToFavorites(city) {
+        if (!favoriteCities.includes(city)) {
+            favoriteCities.push(city);
+            localStorage.setItem('favoriteCities', JSON.stringify(favoriteCities));
+            updateFavoritesSection();
+        }
+    }
+    
+    function removeFromFavorites(city) {
+        favoriteCities = favoriteCities.filter(c => c !== city);
+        localStorage.setItem('favoriteCities', JSON.stringify(favoriteCities));
+        updateFavoritesSection();
+    }
+    
+    function updateFavoritesSection() {
+        const container = document.getElementById('favorites-section');
+        const grid = document.getElementById('favorites-grid');
+        
+        if (favoriteCities.length === 0) {
+            container.style.display = 'none';
+            return;
+        }
+        
+        container.style.display = '';
+        grid.innerHTML = '';
+        
+        favoriteCities.forEach(city => {
+            const item = document.createElement('div');
+            item.className = 'favorite-item';
+            item.innerHTML = `
+                <span class="favorite-city">${city}</span>
+                <button class="favorite-remove" data-city="${city}">✕</button>
+            `;
+            item.addEventListener('click', function(e) {
+                if (!e.target.classList.contains('favorite-remove')) {
+                    obtenerClima(city);
+                }
+            });
+            item.querySelector('.favorite-remove').addEventListener('click', function(e) {
+                e.stopPropagation();
+                removeFromFavorites(city);
+            });
+            grid.appendChild(item);
+        });
+    }
+    
+    function updateRecentSection() {
+        const container = document.getElementById('recent-section');
+        const grid = document.getElementById('recent-grid');
+        
+        if (recentSearches.length === 0) {
+            container.style.display = 'none';
+            return;
+        }
+        
+        container.style.display = '';
+        grid.innerHTML = '';
+        
+        recentSearches.forEach(city => {
+            const item = document.createElement('div');
+            item.className = 'recent-item';
+            item.textContent = city;
+            item.addEventListener('click', function() {
+                obtenerClima(city);
+            });
+            grid.appendChild(item);
+        });
+    }
+    
     function mostrarLoading(show) {
         const loadingElement = document.getElementById('loading');
         const dashboard = document.getElementById('weather-dashboard');
         
         if (show) {
             loadingElement.style.display = 'flex';
-            loadingElement.style.opacity = '0';
             dashboard.style.opacity = '0';
-            
-            setTimeout(() => {
-                loadingElement.style.transition = 'opacity 0.3s ease';
-                loadingElement.style.opacity = '1';
-            }, 10);
-            
             setTimeout(() => {
                 dashboard.style.display = 'none';
             }, 300);
         } else {
-            loadingElement.style.opacity = '0';
-            setTimeout(() => {
-                loadingElement.style.display = 'none';
-            }, 300);
+            loadingElement.style.display = 'none';
         }
     }
-
+    
     function mostrarError(message) {
         const errorElement = document.getElementById('error-msg');
         const dashboard = document.getElementById('weather-dashboard');
@@ -384,24 +667,15 @@
         
         errorElement.textContent = message;
         errorElement.style.display = 'block';
-        errorElement.style.opacity = '0';
-        errorElement.style.transform = 'translateY(-20px)';
-        
         dashboard.style.opacity = '0';
         loading.style.display = 'none';
-        
-        setTimeout(() => {
-            errorElement.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
-            errorElement.style.opacity = '1';
-            errorElement.style.transform = 'translateY(0)';
-        }, 10);
         
         setTimeout(() => {
             dashboard.style.display = 'none';
         }, 300);
     }
-
-    // Cargar clima inicial: detectar ubicación automáticamente
+    
+    // Auto-load weather on page load
     window.addEventListener('load', function() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -411,18 +685,28 @@
                     await obtenerClimaPorGeo(lat, lon);
                 },
                 function(error) {
-                    // Si el usuario deniega la ubicación, usar ciudad por defecto
-                    console.log('Geolocalización no disponible, usando ciudad por defecto');
                     document.getElementById('ciudad-input').value = 'Madrid';
                     obtenerClima('Madrid');
                 },
                 { timeout: 8000 }
             );
         } else {
-            // Navegador no soporta geolocalización
             document.getElementById('ciudad-input').value = 'Madrid';
             obtenerClima('Madrid');
         }
     });
+    
+    // Update "last updated" time every minute
+    setInterval(function() {
+        const lastUpdate = localStorage.getItem('lastWeatherUpdate');
+        if (lastUpdate) {
+            const now = new Date();
+            const diff = Math.floor((now.getTime() - parseInt(lastUpdate)) / 60000);
+            const element = document.getElementById('last-updated');
+            if (element) {
+                element.textContent = `Actualizado hace ${diff} minuto${diff !== 1 ? 's' : ''}`;
+            }
+        }
+    }, 60000);
 </script>
 {% endblock %}

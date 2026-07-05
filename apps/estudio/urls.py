@@ -9,4 +9,7 @@ urlpatterns = [
     path('api/obtener-notas/', views.obtener_notas, name='obtener_notas'),
     path('api/obtener-resumenes/', views.obtener_resumenes, name='obtener_resumenes'),
     path('api/eliminar-resumen/<uuid:resumen_id>/', views.eliminar_resumen, name='eliminar_resumen'),
+    path('api/obtener-estadisticas/', views.obtener_estadisticas, name='obtener_estadisticas'),
+    path('api/guardar-sesion-estudio/', views.guardar_sesion_estudio, name='guardar_sesion_estudio'),
+    path('api/guardar-pomodoro/', views.guardar_pomodoro, name='guardar_pomodoro'),
 ]

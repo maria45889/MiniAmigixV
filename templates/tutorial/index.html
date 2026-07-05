@@ -4,97 +4,283 @@
 {% block title %}Tutorial{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/core/tutorial.css' %}?v=2">
+<link rel="stylesheet" href="{% static 'css/core/tutorial.css' %}?v=3">
 {% endblock %}
 
 {% block content %}
 <div class="tutorial-container">
     
+    <!-- Welcome Section -->
     <div class="tutorial-header">
         <div class="tutorial-header-glow"></div>
         <h1><i data-lucide="help-circle"></i> Tutorial MiniAmigixV</h1>
-        <p>Bienvenido 👋 Aquí aprenderás a usar la app de forma interactiva.</p>
-        <button onclick="startTour()" class="btn-start-modern">
-            <i data-lucide="play-circle"></i> Iniciar Guía Interactiva
-        </button>
+        <p>¡Bienvenido! Aprende a utilizar todas las funciones de <strong>MiniAmigixV</strong> de forma rápida e interactiva. En menos de <strong>2 minutos</strong> conocerás las herramientas principales de la plataforma.</p>
+        <div class="tutorial-header-buttons">
+            <button onclick="startTour()" class="btn-start-modern">
+                <i data-lucide="play-circle"></i> Iniciar Guía Interactiva
+            </button>
+            <button onclick="skipTutorial()" class="btn-skip-modern">
+                <i data-lucide="skip-forward"></i> Omitir Tutorial
+            </button>
+        </div>
     </div>
     
-    <h2 class="tutorial-section-title"><i data-lucide="grid"></i> Módulos principales</h2>
+    <!-- Progress Section -->
+    <div class="tutorial-progress-section">
+        <div class="progress-header">
+            <h2><i data-lucide="trending-up"></i> Progreso del Tutorial</h2>
+            <span class="progress-percentage" id="progressPercentage">0% Completado</span>
+        </div>
+        <div class="progress-bar-container">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <p class="progress-text">Completa cada paso para conocer todas las funciones de MiniAmigixV.</p>
+    </div>
+    
+    <!-- Main Modules Section -->
+    <h2 class="tutorial-section-title"><i data-lucide="grid"></i> Módulos Principales</h2>
     <div class="tutorial-grid">
-        <div class="tutorial-card">
+        <div class="tutorial-card" data-module="home">
             <div class="card-icon purple"><i data-lucide="home"></i></div>
             <div>
                 <h3>Inicio</h3>
-                <p>Explora el dashboard, accesos rápidos y mira tu resumen de actividad.</p>
+                <p>Explora el dashboard principal, consulta tu actividad reciente y accede rápidamente a todas las herramientas disponibles.</p>
+                <div class="card-features">
+                    <span>✨ Ver estadísticas personales</span>
+                    <span>✨ Acceder a los módulos</span>
+                    <span>✨ Consultar notificaciones</span>
+                </div>
+                <a href="/" class="card-action-btn">Explorar Inicio</a>
             </div>
         </div>
-        <div class="tutorial-card">
+        <div class="tutorial-card" data-module="chat">
             <div class="card-icon blue"><i data-lucide="message-square"></i></div>
             <div>
                 <h3>Chat IA</h3>
-                <p>Conversa con nuestra inteligencia artificial avanzada y pregúntale lo que sea.</p>
+                <p>Conversa con la inteligencia artificial para resolver dudas, estudiar, generar ideas, traducir textos o recibir ayuda personalizada.</p>
+                <div class="card-features">
+                    <span>✨ Chat inteligente</span>
+                    <span>✨ Respuestas rápidas</span>
+                    <span>✨ Historial de conversaciones</span>
+                </div>
+                <a href="/chat/" class="card-action-btn">Probar Chat IA</a>
             </div>
         </div>
-        <div class="tutorial-card">
+        <div class="tutorial-card" data-module="music">
             <div class="card-icon pink"><i data-lucide="music"></i></div>
             <div>
                 <h3>Música</h3>
-                <p>Gestiona y reproduce tus listas de YouTube sin salir de la plataforma.</p>
+                <p>Disfruta de tus canciones favoritas y administra tus listas de reproducción desde un solo lugar.</p>
+                <div class="card-features">
+                    <span>✨ Buscar canciones</span>
+                    <span>✨ Reproducir música</span>
+                    <span>✨ Ver letras</span>
+                </div>
+                <a href="/musica/" class="card-action-btn">Explorar Música</a>
             </div>
         </div>
-        <div class="tutorial-card">
+        <div class="tutorial-card" data-module="games">
             <div class="card-icon green"><i data-lucide="gamepad-2"></i></div>
             <div>
                 <h3>Juegos</h3>
-                <p>Diviértete con mini arcades integrados para tus ratos libres.</p>
+                <p>Relájate jugando diferentes mini juegos integrados.</p>
+                <div class="card-features">
+                    <span>✨ Juegos de memoria</span>
+                    <span>✨ Juegos arcade</span>
+                    <span>✨ Registro de puntuaciones</span>
+                </div>
+                <a href="/juegos/" class="card-action-btn">Ver Juegos</a>
             </div>
         </div>
-        <div class="tutorial-card">
+        <div class="tutorial-card" data-module="study">
             <div class="card-icon orange"><i data-lucide="book-open"></i></div>
             <div>
                 <h3>Estudio</h3>
-                <p>Crea notas, flashcards y resúmenes inteligentes ayudados por la IA.</p>
+                <p>Organiza tu aprendizaje con herramientas inteligentes.</p>
+                <div class="card-features">
+                    <span>✨ Pomodoro</span>
+                    <span>✨ Resúmenes con IA</span>
+                    <span>✨ Notas rápidas</span>
+                </div>
+                <a href="/estudio/" class="card-action-btn">Ir a Estudio</a>
             </div>
         </div>
-        <div class="tutorial-card">
+        <div class="tutorial-card" data-module="events">
             <div class="card-icon red"><i data-lucide="calendar-days"></i></div>
             <div>
                 <h3>Eventos</h3>
-                <p>Organiza tu calendario personal y nunca te pierdas de nada.</p>
+                <p>Organiza tu agenda personal.</p>
+                <div class="card-features">
+                    <span>✨ Crear eventos</span>
+                    <span>✨ Recordatorios</span>
+                    <span>✨ Calendario</span>
+                </div>
+                <a href="/eventos/" class="card-action-btn">Ver Eventos</a>
             </div>
         </div>
-        <div class="tutorial-card">
-            <div class="card-icon gray"><i data-lucide="bell"></i></div>
+        <div class="tutorial-card" data-module="weather">
+            <div class="card-icon cyan"><i data-lucide="cloud"></i></div>
             <div>
-                <h3>Notificaciones</h3>
-                <p>Mantente informado en tiempo real de todo lo que ocurre.</p>
+                <h3>Clima</h3>
+                <p>Consulta el clima en tiempo real desde cualquier ciudad.</p>
+                <div class="card-features">
+                    <span>✨ Pronóstico actual</span>
+                    <span>✨ Pronóstico semanal</span>
+                    <span>✨ Ubicación automática</span>
+                </div>
+                <a href="/clima/" class="card-action-btn">Consultar Clima</a>
             </div>
         </div>
-        <div class="tutorial-card">
+        <div class="tutorial-card" data-module="translator">
+            <div class="card-icon teal"><i data-lucide="languages"></i></div>
+            <div>
+                <h3>Traductor</h3>
+                <p>Traduce texto entre múltiples idiomas utilizando traducción inteligente.</p>
+                <div class="card-features">
+                    <span>✨ Traducción neural</span>
+                    <span>✨ Voz</span>
+                    <span>✨ Historial</span>
+                </div>
+                <a href="/traductor/" class="card-action-btn">Abrir Traductor</a>
+            </div>
+        </div>
+        <div class="tutorial-card" data-module="entertainment">
+            <div class="card-icon violet"><i data-lucide="film"></i></div>
+            <div>
+                <h3>Entretenimiento</h3>
+                <p>Descubre nuevas recomendaciones.</p>
+                <div class="card-features">
+                    <span>✨ Películas</span>
+                    <span>✨ Series</span>
+                    <span>✨ Anime</span>
+                </div>
+                <a href="/entretenimiento/" class="card-action-btn">Explorar Entretenimiento</a>
+            </div>
+        </div>
+        <div class="tutorial-card" data-module="profile">
             <div class="card-icon purple"><i data-lucide="user"></i></div>
             <div>
                 <h3>Perfil</h3>
-                <p>Sube tu avatar, cambia el idioma y ajusta la estética a tu gusto.</p>
+                <p>Personaliza completamente tu cuenta.</p>
+                <div class="card-features">
+                    <span>✨ Cambiar avatar</span>
+                    <span>✨ Editar biografía</span>
+                    <span>✨ Cambiar tema</span>
+                </div>
+                <a href="/perfil/" class="card-action-btn">Editar Perfil</a>
             </div>
         </div>
     </div>
     
-    <h2 class="tutorial-section-title"><i data-lucide="settings"></i> Configuración</h2>
-    <div class="tutorial-grid">
-        <div class="tutorial-card">
-            <div class="card-icon gray"><i data-lucide="moon"></i></div>
-            <div>
-                <h3>Tema Oscuro/Claro</h3>
-                <p>Cambia entre el modo oscuro y claro según la hora del día.</p>
+    <!-- First Steps Checklist -->
+    <h2 class="tutorial-section-title"><i data-lucide="check-circle"></i> Primeros Pasos</h2>
+    <div class="tutorial-checklist">
+        <p class="checklist-intro">Completa estas acciones para comenzar tu experiencia.</p>
+        <div class="checklist-item" data-action="chat">
+            <input type="checkbox" id="check-chat" onchange="updateProgress()">
+            <label for="check-chat">Hacer tu primera pregunta al Chat IA</label>
+        </div>
+        <div class="checklist-item" data-action="music">
+            <input type="checkbox" id="check-music" onchange="updateProgress()">
+            <label for="check-music">Escuchar una canción</label>
+        </div>
+        <div class="checklist-item" data-action="events">
+            <input type="checkbox" id="check-events" onchange="updateProgress()">
+            <label for="check-events">Crear un evento</label>
+        </div>
+        <div class="checklist-item" data-action="translator">
+            <input type="checkbox" id="check-translator" onchange="updateProgress()">
+            <label for="check-translator">Traducir un texto</label>
+        </div>
+        <div class="checklist-item" data-action="profile">
+            <input type="checkbox" id="check-profile" onchange="updateProgress()">
+            <label for="check-profile">Personalizar tu perfil</label>
+        </div>
+        <div class="checklist-item" data-action="weather">
+            <input type="checkbox" id="check-weather" onchange="updateProgress()">
+            <label for="check-weather">Consultar el clima</label>
+        </div>
+        <div class="checklist-item" data-action="games">
+            <input type="checkbox" id="check-games" onchange="updateProgress()">
+            <label for="check-games">Explorar un juego</label>
+        </div>
+    </div>
+    
+    <!-- Tips Section -->
+    <h2 class="tutorial-section-title"><i data-lucide="lightbulb"></i> Consejos</h2>
+    <div class="tutorial-tips">
+        <div class="tip-card">
+            <div class="tip-icon">🌙</div>
+            <h3>Tema</h3>
+            <p>Puedes cambiar entre modo oscuro y claro desde tu perfil.</p>
+        </div>
+        <div class="tip-card">
+            <div class="tip-icon">🌎</div>
+            <h3>Idioma</h3>
+            <p>Selecciona el idioma que prefieras para personalizar la aplicación.</p>
+        </div>
+        <div class="tip-card">
+            <div class="tip-icon">📍</div>
+            <h3>Ubicación</h3>
+            <p>Activa tu ubicación para obtener información meteorológica precisa.</p>
+        </div>
+        <div class="tip-card">
+            <div class="tip-icon">🔔</div>
+            <h3>Notificaciones</h3>
+            <p>Mantén activadas las alertas para no perder ningún evento o recordatorio.</p>
+        </div>
+    </div>
+    
+    <!-- FAQ Section -->
+    <h2 class="tutorial-section-title"><i data-lucide="help-circle"></i> Preguntas Frecuentes</h2>
+    <div class="tutorial-faq">
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">
+                <span>¿Cómo creo un evento?</span>
+                <i data-lucide="chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <p>Dirígete al módulo <strong>Eventos</strong> y presiona <strong>Nuevo Evento</strong>.</p>
             </div>
         </div>
-        <div class="tutorial-card">
-            <div class="card-icon blue"><i data-lucide="globe"></i></div>
-            <div>
-                <h3>Idioma Preferido</h3>
-                <p>Selecciona tu idioma para que MiniAmigixV se adapte a ti.</p>
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">
+                <span>¿Cómo utilizo el Chat IA?</span>
+                <i data-lucide="chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <p>Entra al módulo <strong>Chat IA</strong>, escribe tu pregunta y presiona <strong>Enviar</strong>.</p>
             </div>
         </div>
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">
+                <span>¿Cómo cambio mi foto de perfil?</span>
+                <i data-lucide="chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <p>Accede a <strong>Perfil → Editar Perfil → Avatar</strong>.</p>
+            </div>
+        </div>
+        <div class="faq-item">
+            <div class="faq-question" onclick="toggleFaq(this)">
+                <span>¿Cómo cambio el idioma?</span>
+                <i data-lucide="chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+                <p>Desde <strong>Perfil → Preferencias → Idioma</strong>.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Completion Section -->
+    <div class="tutorial-completion" id="completionSection" style="display: none;">
+        <div class="completion-icon">🎉</div>
+        <h2>¡Todo listo!</h2>
+        <p>Ya conoces las principales herramientas de <strong>MiniAmigixV</strong>.</p>
+        <p class="completion-sub">Ahora comienza a explorar todas sus funciones y personaliza la aplicación según tus necesidades.</p>
+        <a href="/" class="btn-start-modern">
+            <i data-lucide="rocket"></i> Comenzar a usar MiniAmigixV
+        </a>
     </div>
     
 </div>
@@ -114,6 +300,7 @@
 </div>
 
 <script>
+// Tour Steps
 const steps = [
     { icon: '👋', title: 'Bienvenido a MiniAmigixV', desc: 'Esta guía interactiva te mostrará las principales funciones de la aplicación. Puedes navegar con los botones o hacer clic en las secciones de abajo.' },
     { icon: '🏠', title: 'Inicio', desc: 'En el dashboard encontrarás un reloj en vivo, accesos rápidos a todas las secciones y tu resumen de actividad.' },
@@ -122,15 +309,24 @@ const steps = [
     { icon: '🎮', title: 'Juegos', desc: 'Diviértete con mini arcades integrados como Adivina el Número y Quiz. ¡Perfectos para descansar!' },
     { icon: '📚', title: 'Estudio', desc: 'Crea notas y resúmenes inteligentes con ayuda de la IA. Organiza tus apuntes por materia y accede a ellos cuando quieras.' },
     { icon: '📅', title: 'Eventos', desc: 'Organiza tu calendario personal. Añade eventos, tareas y recordatorios para no olvidar nada importante.' },
-    { icon: '🔔', title: 'Notificaciones', desc: 'Mantente informado de todo. Recibe alertas de eventos, mensajes y actividades importantes en tiempo real.' },
+    { icon: '🌤', title: 'Clima', desc: 'Consulta el pronóstico del tiempo en tiempo real. Obtén información meteorológica precisa para cualquier ciudad.' },
+    { icon: '🌍', title: 'Traductor', desc: 'Traduce textos entre múltiples idiomas con una interfaz sencilla y rápida.' },
+    { icon: '🎬', title: 'Entretenimiento', desc: 'Descubre recomendaciones de películas, series, anime y más contenido multimedia.' },
     { icon: '👤', title: 'Perfil', desc: 'Personaliza tu experiencia. Sube un avatar, escribe tu biografía, cambia el tema y selecciona tu idioma preferido.' },
-    { icon: '⚙️', title: 'Configuración', desc: 'Ajusta el tema oscuro/claro, cambia el idioma, configura tu privacidad y mucho más.' },
     { icon: '🎉', title: '¡Todo listo!', desc: 'Ya conoces lo básico. Explora el menú lateral para acceder a todas las funciones. ¡Disfruta MiniAmigixV!' },
 ];
 
 let currentStep = 0;
 
-function startTour() { currentStep = 0; showStep(); document.getElementById('tourOverlay').classList.add('active'); }
+function startTour() { 
+    currentStep = 0; 
+    showStep(); 
+    document.getElementById('tourOverlay').classList.add('active'); 
+}
+
+function skipTutorial() {
+    window.location.href = '/';
+}
 
 function showStep() {
     const step = steps[currentStep];
@@ -151,12 +347,19 @@ function showStep() {
 }
 
 function tourNext() {
-    if (currentStep < steps.length - 1) { currentStep++; showStep(); }
-    else { cerrarTour(); }
+    if (currentStep < steps.length - 1) { 
+        currentStep++; 
+        showStep(); 
+    } else { 
+        cerrarTour(); 
+    }
 }
 
 function tourPrev() {
-    if (currentStep > 0) { currentStep--; showStep(); }
+    if (currentStep > 0) { 
+        currentStep--; 
+        showStep(); 
+    }
 }
 
 function cerrarTour() {
@@ -165,6 +368,72 @@ function cerrarTour() {
 
 document.getElementById('tourOverlay').addEventListener('click', function(e) {
     if (e.target === this) cerrarTour();
+});
+
+// Progress Tracking
+function updateProgress() {
+    const checkboxes = document.querySelectorAll('.checklist-item input[type="checkbox"]');
+    const checked = document.querySelectorAll('.checklist-item input[type="checkbox"]:checked');
+    const percentage = Math.round((checked.length / checkboxes.length) * 100);
+    
+    document.getElementById('progressPercentage').textContent = percentage + '% Completado';
+    document.getElementById('progressBar').style.width = percentage + '%';
+    
+    // Save progress to localStorage
+    const progressData = {};
+    checkboxes.forEach(cb => {
+        progressData[cb.id] = cb.checked;
+    });
+    localStorage.setItem('tutorialProgress', JSON.stringify(progressData));
+    
+    // Show completion section when all done
+    if (percentage === 100) {
+        document.getElementById('completionSection').style.display = 'block';
+        document.getElementById('completionSection').scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+// Load saved progress
+function loadProgress() {
+    const saved = localStorage.getItem('tutorialProgress');
+    if (saved) {
+        const progressData = JSON.parse(saved);
+        Object.keys(progressData).forEach(id => {
+            const checkbox = document.getElementById(id);
+            if (checkbox) {
+                checkbox.checked = progressData[id];
+            }
+        });
+        updateProgress();
+    }
+}
+
+// FAQ Toggle
+function toggleFaq(element) {
+    const answer = element.nextElementSibling;
+    const icon = element.querySelector('i');
+    
+    if (answer.style.display === 'block') {
+        answer.style.display = 'none';
+        icon.setAttribute('data-lucide', 'chevron-down');
+    } else {
+        answer.style.display = 'block';
+        icon.setAttribute('data-lucide', 'chevron-up');
+    }
+    
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+}
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    loadProgress();
+    
+    // Initialize Lucide icons
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
 });
 </script>
 {% endblock %}

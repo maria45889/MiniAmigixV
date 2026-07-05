@@ -12,15 +12,27 @@
     <div class="main-layout">
         <!-- Columna Izquierda (Principal) -->
         <div class="left-column">
-            <!-- Reproduciendo (Disco + Info) -->
+            <!-- Reproduciendo (Portada + Info) -->
             <div class="music-section now-playing-section">
-                <div class="vinyl-container">
-                    <div class="vinyl-record" id="vinyl-record">
-                        <div class="vinyl-center"></div>
+                <div class="album-cover-container">
+                    <div class="album-cover" id="album-cover">
+                        <div class="vinyl-record" id="vinyl-record">
+                            <div class="vinyl-center"></div>
+                        </div>
+                    </div>
+                    <div class="equalizer" id="equalizer">
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
+                        <div class="eq-bar"></div>
                     </div>
                 </div>
                 <div class="now-playing-info">
-                    <div class="now-playing-label">REPRODUCIENDO 🎶</div>
+                    <div class="now-playing-label">🎵 REPRODUCIENDO AHORA</div>
                     <h2 id="current-song-title">Selecciona una pista</h2>
                     <p id="current-song-artist" class="song-artist-name">Artista Desconocido</p>
                     
@@ -33,6 +45,21 @@
                             </div>
                         </div>
                         <span id="total-time">0:00</span>
+                    </div>
+                    
+                    <!-- Controles principales mejorados -->
+                    <div class="main-controls">
+                        <button class="control-btn" onclick="toggleMute()" title="Aleatorio">🔀</button>
+                        <button class="control-btn" onclick="playPrevious()" title="Anterior">⏮</button>
+                        <button class="play-btn-glow" id="main-play-pause-btn" onclick="togglePause()" title="Reproducir/Pausar">▶️</button>
+                        <button class="control-btn" onclick="playNext()" title="Siguiente">⏭</button>
+                        <button class="control-btn" onclick="toggleLoop()" title="Repetir">🔁</button>
+                    </div>
+                    
+                    <!-- Control de volumen -->
+                    <div class="volume-control">
+                        <button class="volume-btn" onclick="toggleMute()" id="volume-btn">🔊</button>
+                        <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="100" oninput="setVolume(this.value)">
                     </div>
                 </div>
             </div>
@@ -47,13 +74,19 @@
                     </div>
                     <div id="player-wrapper" class="youtube-iframe-container">
                         <div id="youtube-iframe">
-                            <p style="color: var(--text-muted);">El reproductor aparecerá aquí</p>
+                            <div id="video-thumbnail" class="video-thumbnail">
+                                <img id="thumbnail-img" src="" alt="" style="display: none;">
+                                <div class="thumbnail-placeholder">
+                                    <span style="font-size: 48px;">🎬</span>
+                                    <p style="color: var(--text-muted); margin-top: 10px;">Selecciona una canción</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     <!-- Controles de Video -->
                     <div class="video-controls">
                         <button class="btn-icon" onclick="playPrevious()" title="Anterior">⏮</button>
-                        <button class="btn-icon btn-play-pause" id="main-play-pause-btn" onclick="togglePause()" title="Reproducir/Pausar">▶️</button>
+                        <button class="btn-icon btn-play-pause" id="video-play-pause-btn" onclick="togglePause()" title="Reproducir/Pausar">▶️</button>
                         <button class="btn-icon" onclick="toggleMiniPlayer()" title="Abrir mini reproductor">📺</button>
                         <button class="btn-icon" onclick="playNext()" title="Siguiente">⏭</button>
                         <button class="btn-icon" onclick="toggleMute()" title="Silenciar">🔊</button>
@@ -91,36 +124,101 @@
             <!-- Tu Matriz Sonora -->
             <div class="music-section playlist-section">
                 <div class="playlist-header-neon">
-                    <h3 class="neon-title">TU MATRIZ SONORA</h3>
+                    <h3 class="neon-title">🎶 TU BIBLIOTECA</h3>
                     <span class="playlist-count">{{ canciones|length }}</span>
                 </div>
-                <div class="playlist-items custom-scrollbar">
+                <!-- Barra de búsqueda -->
+                <div class="search-bar">
+                    <input type="text" id="song-search" placeholder="🔍 Buscar canción..." class="music-input" oninput="filterSongs()">
+                </div>
+                <div class="playlist-items custom-scrollbar" id="playlist-items">
                     {% if request.user.is_authenticated %}
                         {% for cancion in canciones %}
                         <div class="playlist-item" data-id="{{ cancion.id }}" data-youtube-id="{{ cancion.youtube_id }}" data-audio-url="{% if cancion.audio_file %}{{ cancion.audio_file.url }}{% else %}{% endif %}" data-name="{{ cancion.nombre }}" data-artist="{{ cancion.artista|default:"" }}">
+                            <div class="song-thumbnail">
+                                <img src="https://img.youtube.com/vi/{{ cancion.youtube_id }}/mqdefault.jpg" alt="{{ cancion.nombre }}" class="thumbnail-img" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%231a1a2e%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2250%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%2364748b%22 font-size=%2240%22>🎵</text></svg>'">
+                                <button class="play-overlay" onclick="playSongFromItem({{ cancion.id }})">▶</button>
+                            </div>
                             <div class="song-info" onclick="playSongFromItem({{ cancion.id }})">
-                                <div class="song-icon">💿</div>
                                 <div class="song-details">
-                                    <span class="song-name">{{ cancion.nombre }}{% if cancion.artista %} - {{ cancion.artista }}{% endif %}</span>
-                                    <span class="song-freq">NEURAL FREQUENCY</span>
+                                    <span class="song-name">{{ cancion.nombre }}</span>
+                                    <span class="song-artist">{{ cancion.artista|default:"Artista desconocido" }}</span>
                                 </div>
                             </div>
-                            <div style="display: flex; gap: 5px;">
-                                <button class="btn-delete" style="background: none; border: none; font-size: 16px; cursor: pointer; opacity: 0.6; transition: 0.3s;" onclick="editSong({{ cancion.id }}, '{{ cancion.nombre|escapejs }}', '{{ cancion.artista|default:""|escapejs }}')">✏️</button>
-                                <button class="btn-delete" onclick="deleteSong({{ cancion.id }})">🗑️</button>
+                            <div class="song-duration" id="duration-{{ cancion.id }}">--:--</div>
+                            <div class="song-actions">
+                                <button class="action-btn" onclick="toggleFavorite({{ cancion.id }})" title="Favorito">❤️</button>
+                                <button class="action-btn" onclick="editSong({{ cancion.id }}, '{{ cancion.nombre|escapejs }}', '{{ cancion.artista|default:""|escapejs }}')" title="Editar">✏️</button>
+                                <button class="action-btn delete-btn" onclick="deleteSong({{ cancion.id }})" title="Eliminar">🗑️</button>
                             </div>
                         </div>
                         {% empty %}
-                        <p style="color: var(--text-muted); text-align: center; padding: 20px;">Matriz vacía</p>
+                        <div class="empty-playlist">
+                            <p style="color: var(--text-muted); text-align: center; padding: 20px;">🎵 Tu biblioteca está vacía</p>
+                        </div>
                         {% endfor %}
                     {% else %}
                         <p style="color: var(--text-muted); text-align: center; padding: 20px;">
-                            <a href="{% url 'login' %}">Inicia sesión</a> para acceder a la matriz
+                            <a href="{% url 'login' %}">Inicia sesión</a> para acceder a tu biblioteca
                         </p>
                     {% endif %}
                 </div>
             </div>
             
+            <!-- Favoritas -->
+            <div class="music-section favorites-section">
+                <div class="playlist-header-neon">
+                    <h3 class="neon-title">❤️ FAVORITAS</h3>
+                    <span class="playlist-count" id="favorites-count">0</span>
+                </div>
+                <div class="playlist-items custom-scrollbar" id="favorites-items">
+                    <div class="empty-favorites">
+                        <p style="color: var(--text-muted); text-align: center; padding: 20px;">
+                            <span style="font-size: 32px; display: block; margin-bottom: 10px;">💜</span>
+                            Añade canciones a tus favoritas
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Estadísticas -->
+            <div class="music-section stats-section">
+                <h3 class="neon-title">📊 TUS ESTADÍSTICAS</h3>
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-icon">🎵</div>
+                        <div class="stat-value">{{ canciones|length }}</div>
+                        <div class="stat-label">Canciones</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">⏱</div>
+                        <div class="stat-value">--</div>
+                        <div class="stat-label">Tiempo</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">❤️</div>
+                        <div class="stat-value">0</div>
+                        <div class="stat-label">Favoritas</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon">📥</div>
+                        <div class="stat-value">0</div>
+                        <div class="stat-label">Descargas</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Recomendaciones -->
+            <div class="music-section recommendations-section">
+                <h3 class="neon-title">🎧 RECOMENDACIONES</h3>
+                <div class="recommendation-tags">
+                    <span class="rec-tag">Pop</span>
+                    <span class="rec-tag">Rock</span>
+                    <span class="rec-tag">Lo-fi</span>
+                    <span class="rec-tag">Jazz</span>
+                    <span class="rec-tag">Instrumental</span>
+                </div>
+            </div>
 
         </div>
     </div>
@@ -264,6 +362,7 @@ function onPlayerError(event) {
                                         pauseBtn.textContent = '⏸';
                                         console.log('Botón actualizado a ⏸ en evento play');
                                     }
+                                    activateEqualizer(true);
                                     startProgressUpdate();
                                 });
 
@@ -275,6 +374,7 @@ function onPlayerError(event) {
                                         pauseBtn.textContent = '▶️';
                                         console.log('Botón actualizado a ▶️ en evento pause');
                                     }
+                                    activateEqualizer(false);
                                     stopProgressUpdate();
                                 });
 
@@ -283,6 +383,7 @@ function onPlayerError(event) {
                                     isAudioPlaying = false;
                                     if (vinyl) vinyl.style.animationPlayState = 'paused';
                                     if (pauseBtn) pauseBtn.textContent = '▶️';
+                                    activateEqualizer(false);
                                     stopProgressUpdate();
                                     playNext();
                                 });
@@ -369,6 +470,7 @@ function onPlayerStateChange(event) {
             console.log('Botón actualizado a ⏸ en onPlayerStateChange');
         }
         if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(true);
+        activateEqualizer(true);
         startProgressUpdate();
     } else if (event.data === YT.PlayerState.PAUSED) {
         console.log('Estado PAUSED detectado');
@@ -378,10 +480,12 @@ function onPlayerStateChange(event) {
             console.log('Botón actualizado a ▶️ en onPlayerStateChange');
         }
         if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(false);
+        activateEqualizer(false);
         stopProgressUpdate();
     } else if (event.data === YT.PlayerState.ENDED) {
         console.log('Estado ENDED detectado - reproduciendo siguiente');
         if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(false);
+        activateEqualizer(false);
         playNext();
     } else {
         console.log('Estado NO PLAYING detectado:', event.data);
@@ -391,6 +495,7 @@ function onPlayerStateChange(event) {
             console.log('Botón actualizado a ▶️ en onPlayerStateChange');
         }
         if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(false);
+        activateEqualizer(false);
         stopProgressUpdate();
     }
 }
@@ -967,10 +1072,42 @@ function updateLyricsHighlight(currentTime) {
 function showLyricsNotFound(songName, artist) {
     const container = document.getElementById('lyrics-container');
     container.innerHTML = `
-        <p style="color: var(--text-muted); font-size: 24px; margin-bottom: 10px;">✍️</p>
-        <p style="color: var(--text-muted); margin-bottom: 20px;">No encontré esta letra en la base de datos.</p>
-        <button class="btn-search-google" onclick="searchLyricsManually('${escapeHtml(songName)}', '${escapeHtml(artist)}')">BUSCAR EN GOOGLE 🔍</button>
+        <div style="text-align: center; padding: 40px 20px;">
+            <p style="font-size: 48px; margin-bottom: 15px;">🎤</p>
+            <p style="color: #94a3b8; font-size: 16px; margin-bottom: 10px;">No encontramos la letra</p>
+            <p style="color: rgba(255,255,255,0.3); font-size: 14px; margin-bottom: 25px;">Intenta buscarla manualmente</p>
+            <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+                <button class="btn-search-google" onclick="searchLyricsManually('${escapeHtml(songName)}', '${escapeHtml(artist)}')">
+                    🔎 Buscar en Google
+                </button>
+                <button class="btn-translate" onclick="requestTranslation('${escapeHtml(songName)}', '${escapeHtml(artist)}')">
+                    📄 Mostrar traducción automática
+                </button>
+            </div>
+        </div>
     `;
+}
+
+function requestTranslation(songName, artist) {
+    const container = document.getElementById('lyrics-container');
+    container.innerHTML = `
+        <div style="text-align: center; padding: 40px 20px;">
+            <p style="font-size: 48px; margin-bottom: 15px;">🔄</p>
+            <p style="color: #06b6d4; font-size: 16px; margin-bottom: 10px;">Generando traducción...</p>
+            <p style="color: rgba(255,255,255,0.3); font-size: 14px;">Esto puede tomar unos segundos</p>
+        </div>
+    `;
+    
+    // TODO: Implementar traducción automática con API
+    setTimeout(() => {
+        container.innerHTML = `
+            <div style="text-align: center; padding: 40px 20px;">
+                <p style="font-size: 48px; margin-bottom: 15px;">⚠️</p>
+                <p style="color: #94a3b8; font-size: 16px; margin-bottom: 10px;">Traducción no disponible</p>
+                <p style="color: rgba(255,255,255,0.3); font-size: 14px; margin-bottom: 25px;">Esta función estará disponible pronto</p>
+            </div>
+        `;
+    }, 2000);
 }
 
 function searchLyricsManually(songName, artist) {
@@ -1131,13 +1268,33 @@ function playSongFromItem(songId) {
 
     // Actualizar UI del Reproductor
     document.getElementById('current-song-title').textContent = `${songName} ${artist ? '- ' + artist : ''}`;
+    document.getElementById('current-song-artist').textContent = artist || 'Artista Desconocido';
+
+    // Actualizar portada del álbum
+    updateAlbumCover(youtubeId);
+
+    // Actualizar thumbnail del video
+    updateVideoThumbnail(youtubeId);
+
+    // Resaltar canción activa en la playlist
+    highlightActiveSong(songId);
 
     // Sincronizar con mini player global
     console.log('Intentando sincronizar con mini player global');
     console.log('updateMiniPlayerUI existe?', typeof updateMiniPlayerUI === 'function');
     if (typeof updateMiniPlayerUI === 'function') {
         console.log('Llamando a updateMiniPlayerUI con:', songName, artist, youtubeId);
-        updateMiniPlayerUI(songName, artist, youtubeId);
+        // Obtener estado actual de reproducción
+        let isPlaying = false;
+        let currentTime = 0;
+        if (player && typeof player.getPlayerState === 'function') {
+            isPlaying = player.getPlayerState() === YT.PlayerState.PLAYING;
+            currentTime = player.getCurrentTime() || 0;
+        } else if (currentAudio) {
+            isPlaying = !currentAudio.paused;
+            currentTime = currentAudio.currentTime || 0;
+        }
+        updateMiniPlayerUI(songName, artist, youtubeId, isPlaying, currentTime);
     } else {
         console.log('updateMiniPlayerUI no está definido');
     }
@@ -1379,6 +1536,213 @@ function toggleVideo() {
         playerWrapper.style.display = 'none';
         toggleBtn.textContent = '👁️‍🗨️';
         toggleBtn.title = 'Mostrar Video';
+    }
+}
+
+// ==================== NUEVAS FUNCIONES ====================
+
+// Filtrar canciones por búsqueda
+function filterSongs() {
+    const searchTerm = document.getElementById('song-search').value.toLowerCase();
+    const items = document.querySelectorAll('.playlist-item');
+    
+    items.forEach(item => {
+        const songName = item.dataset.name.toLowerCase();
+        const artist = item.dataset.artist.toLowerCase();
+        
+        if (songName.includes(searchTerm) || artist.includes(searchTerm)) {
+            item.style.display = 'flex';
+        } else {
+            item.style.display = 'none';
+        }
+    });
+}
+
+// Toggle favorito
+let favorites = new Set();
+
+function toggleFavorite(songId) {
+    const item = document.querySelector(`.playlist-item[data-id="${songId}"]`);
+    const btn = item.querySelector('.action-btn');
+    
+    // Toggle visual state
+    if (favorites.has(songId)) {
+        favorites.delete(songId);
+        btn.textContent = '❤️';
+        btn.style.color = 'rgba(255, 255, 255, 0.4)';
+        removeFromFavoritesList(songId);
+    } else {
+        favorites.add(songId);
+        btn.textContent = '❤️';
+        btn.style.color = '#ef4444';
+        addToFavoritesList(songId);
+    }
+    
+    // Update favorites count
+    document.getElementById('favorites-count').textContent = favorites.size;
+    
+    // TODO: Guardar en backend
+    console.log('Toggle favorite for song:', songId);
+}
+
+function addToFavoritesList(songId) {
+    const item = document.querySelector(`.playlist-item[data-id="${songId}"]`);
+    if (!item) return;
+    
+    const favoritesContainer = document.getElementById('favorites-items');
+    const emptyFavorites = document.querySelector('.empty-favorites');
+    
+    if (emptyFavorites) {
+        emptyFavorites.remove();
+    }
+    
+    // Clone the item for favorites list
+    const favoriteItem = item.cloneNode(true);
+    favoriteItem.dataset.favoriteId = songId;
+    
+    // Remove delete button from favorites
+    const deleteBtn = favoriteItem.querySelector('.delete-btn');
+    if (deleteBtn) deleteBtn.remove();
+    
+    // Update the favorite button to remove
+    const favBtn = favoriteItem.querySelector('.action-btn');
+    if (favBtn) {
+        favBtn.onclick = () => toggleFavorite(songId);
+    }
+    
+    favoritesContainer.appendChild(favoriteItem);
+}
+
+function removeFromFavoritesList(songId) {
+    const favoriteItem = document.querySelector(`.playlist-item[data-favorite-id="${songId}"]`);
+    if (favoriteItem) {
+        favoriteItem.remove();
+    }
+    
+    // Check if favorites is empty
+    if (favorites.size === 0) {
+        const favoritesContainer = document.getElementById('favorites-items');
+        favoritesContainer.innerHTML = `
+            <div class="empty-favorites">
+                <p style="color: var(--text-muted); text-align: center; padding: 20px;">
+                    <span style="font-size: 32px; display: block; margin-bottom: 10px;">💜</span>
+                    Añade canciones a tus favoritas
+                </p>
+            </div>
+        `;
+    }
+}
+
+// Toggle loop
+let isLooping = false;
+function toggleLoop() {
+    isLooping = !isLooping;
+    const btn = document.querySelector('button[onclick="toggleLoop()"]');
+    
+    if (isLooping) {
+        btn.style.color = '#7c3aed';
+        btn.style.background = 'rgba(124, 58, 237, 0.2)';
+        // TODO: Implementar loop en el reproductor
+    } else {
+        btn.style.color = '';
+        btn.style.background = '';
+    }
+}
+
+// Control de volumen
+function setVolume(value) {
+    const volume = value / 100;
+    
+    if (currentAudio) {
+        currentAudio.volume = volume;
+    }
+    
+    if (player && playerReady && typeof player.setVolume === 'function') {
+        player.setVolume(value);
+    }
+    
+    // Actualizar icono del botón
+    const volumeBtn = document.getElementById('volume-btn');
+    if (value == 0) {
+        volumeBtn.textContent = '🔇';
+    } else if (value < 50) {
+        volumeBtn.textContent = '🔉';
+    } else {
+        volumeBtn.textContent = '🔊';
+    }
+}
+
+// Actualizar portada del álbum
+function updateAlbumCover(youtubeId) {
+    const albumCover = document.getElementById('album-cover');
+    
+    if (youtubeId) {
+        const img = document.createElement('img');
+        img.src = `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`;
+        img.alt = 'Album Cover';
+        img.onerror = function() {
+            // Fallback to medium quality if maxres fails
+            this.src = `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`;
+        };
+        
+        // Remove existing image
+        const existingImg = albumCover.querySelector('img');
+        if (existingImg) {
+            existingImg.remove();
+        }
+        
+        albumCover.appendChild(img);
+        albumCover.classList.add('has-cover');
+    } else {
+        albumCover.classList.remove('has-cover');
+        const existingImg = albumCover.querySelector('img');
+        if (existingImg) {
+            existingImg.remove();
+        }
+    }
+}
+
+// Actualizar thumbnail del video
+function updateVideoThumbnail(youtubeId) {
+    const thumbnailImg = document.getElementById('thumbnail-img');
+    const placeholder = document.querySelector('.thumbnail-placeholder');
+    
+    if (youtubeId) {
+        thumbnailImg.src = `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`;
+        thumbnailImg.style.display = 'block';
+        thumbnailImg.onerror = function() {
+            this.src = `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`;
+        };
+        if (placeholder) placeholder.style.display = 'none';
+    } else {
+        thumbnailImg.style.display = 'none';
+        if (placeholder) placeholder.style.display = 'block';
+    }
+}
+
+// Activar ecualizador
+function activateEqualizer(active) {
+    const equalizer = document.getElementById('equalizer');
+    if (equalizer) {
+        if (active) {
+            equalizer.classList.add('active');
+        } else {
+            equalizer.classList.remove('active');
+        }
+    }
+}
+
+// Resaltar canción activa en la playlist
+function highlightActiveSong(songId) {
+    // Remover clase active de todos los items
+    document.querySelectorAll('.playlist-item').forEach(item => {
+        item.classList.remove('active');
+    });
+    
+    // Agregar clase active al item actual
+    const activeItem = document.querySelector(`.playlist-item[data-id="${songId}"]`);
+    if (activeItem) {
+        activeItem.classList.add('active');
     }
 }
 </script>

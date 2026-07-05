@@ -1,79 +1,247 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Notificaciones{% endblock %}
+{% block title %}Centro de Notificaciones{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/modules/notificaciones.css' %}?v=2">
+<link rel="stylesheet" href="{% static 'css/modules/notificaciones.css' %}?v=3">
 {% endblock %}
 
 {% block content %}
 <div class="notificaciones-container">
+    <!-- Modern Header -->
     <div class="notificaciones-header">
-        <h1>🔔 Notificaciones</h1>
-        <div class="header-actions">
-            <span class="no-leidas" id="no-leidas-count">{{ no_leidas }} sin leer</span>
-            <button onclick="recargarNotificaciones()" class="btn-secondary" title="Recargar notificaciones">
-                <i class="ti ti-refresh"></i> Recargar
-            </button>
-            {% if no_leidas > 0 %}
-            <button onclick="marcarLeidas()" class="btn-secondary">
-                <i class="ti ti-checks"></i> Marcar todas como leídas
-            </button>
-            {% endif %}
+        <div class="header-title">
+            <h1>🔔 Centro de Notificaciones</h1>
+            <p class="header-subtitle">Mantente al día con toda la actividad de MiniAmigixV</p>
+        </div>
+        <div class="header-stats">
+            <div class="stat-badge unread">
+                <span class="stat-icon">🔵</span>
+                <span class="stat-value">{{ no_leidas }}</span>
+                <span class="stat-label">Sin leer</span>
+            </div>
+            <div class="stat-badge total">
+                <span class="stat-icon">📨</span>
+                <span class="stat-value">{{ total }}</span>
+                <span class="stat-label">Total</span>
+            </div>
         </div>
     </div>
 
+    <!-- Search Bar -->
+    <div class="search-container">
+        <div class="search-input-wrapper">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="search-input" placeholder="Buscar notificaciones..." onkeyup="buscarNotificaciones()">
+        </div>
+        <div class="header-actions">
+            <button onclick="recargarNotificaciones()" class="btn-secondary" title="Recargar notificaciones">
+                <i class="ti ti-refresh"></i>
+            </button>
+            {% if no_leidas > 0 %}
+            <button onclick="marcarLeidas()" class="btn-secondary" title="Marcar todas como leídas">
+                <i class="ti ti-checks"></i>
+            </button>
+            {% endif %}
+            <button onclick="limpiarLeidas()" class="btn-secondary" title="Limpiar notificaciones leídas">
+                <i class="ti ti-trash"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Category Filters -->
     <div class="notificaciones-filtros">
         <button class="filtro-btn active" data-filtro="todas" onclick="filtrar('todas')">Todas</button>
         <button class="filtro-btn" data-filtro="no-leidas" onclick="filtrar('no-leidas')">No leídas</button>
-        <button class="filtro-btn" data-filtro="info" onclick="filtrar('info')">ℹ️ Info</button>
-        <button class="filtro-btn" data-filtro="success" onclick="filtrar('success')">✅ Éxito</button>
-        <button class="filtro-btn" data-filtro="warning" onclick="filtrar('warning')">⚠️ Advertencia</button>
-        <button class="filtro-btn" data-filtro="evento" onclick="filtrar('evento')">📅 Evento</button>
+        <button class="filtro-btn" data-filtro="chat_ia" onclick="filtrar('chat_ia')">🤖 Chat IA</button>
+        <button class="filtro-btn" data-filtro="evento" onclick="filtrar('evento')">📅 Eventos</button>
+        <button class="filtro-btn" data-filtro="musica" onclick="filtrar('musica')">🎵 Música</button>
+        <button class="filtro-btn" data-filtro="estudio" onclick="filtrar('estudio')">📚 Estudio</button>
+        <button class="filtro-btn" data-filtro="soporte" onclick="filtrar('soporte')">🛟 Soporte</button>
+        <button class="filtro-btn" data-filtro="sistema" onclick="filtrar('sistema')">⚙ Sistema</button>
     </div>
 
-    <div class="notificaciones-list">
-        {% for notificacion in notificaciones %}
-        <div class="notificacion-card {% if not notificacion.leida %}no-leida{% endif %}" data-tipo="{{ notificacion.tipo }}" data-leida="{{ notificacion.leida }}" onclick="{% if not notificacion.leida %}marcarIndividual({{ notificacion.id }}){% endif %}">
-            <div class="notificacion-icon">
-                {% if notificacion.tipo == 'info' %}ℹ️{% elif notificacion.tipo == 'success' %}✅{% elif notificacion.tipo == 'warning' %}⚠️{% elif notificacion.tipo == 'error' %}❌{% elif notificacion.tipo == 'evento' %}📅{% endif %}
+    <!-- Statistics Summary -->
+    {% if stats_por_categoria %}
+    <div class="stats-summary">
+        <h3>📊 Resumen</h3>
+        <div class="stats-grid">
+            {% for cat_key, cat_count in stats_por_categoria.items %}
+            <div class="stat-item">
+                <span class="stat-cat-icon">
+                    {% if cat_key == 'chat_ia' %}🤖
+                    {% elif cat_key == 'musica' %}🎵
+                    {% elif cat_key == 'estudio' %}📚
+                    {% elif cat_key == 'evento' %}📅
+                    {% elif cat_key == 'soporte' %}🛟
+                    {% elif cat_key == 'sistema' %}⚙
+                    {% elif cat_key == 'clima' %}🌤
+                    {% elif cat_key == 'traductor' %}🌍
+                    {% elif cat_key == 'juegos' %}🎮
+                    {% endif %}
+                </span>
+                <span class="stat-cat-count">{{ cat_count }}</span>
             </div>
-            <div class="notificacion-content">
-                <h3>{{ notificacion.titulo }}</h3>
-                <p>{{ notificacion.mensaje }}</p>
-                <span class="notificacion-fecha">{{ notificacion.fecha_creacion|date:"d M Y, H:i" }}</span>
-            </div>
-            {% if notificacion.enlace %}
-            <a href="{{ notificacion.enlace }}" class="notificacion-link" onclick="event.stopPropagation();">
-                Ver →
-            </a>
-            {% endif %}
+            {% endfor %}
         </div>
-        {% empty %}
+    </div>
+    {% endif %}
+
+    <!-- Featured Section -->
+    {% if destacadas %}
+    <div class="featured-section">
+        <h3>⭐ Destacadas</h3>
+        <div class="featured-list">
+            {% for notificacion in destacadas %}
+            <div class="notificacion-card featured {% if not notificacion.leida %}no-leida{% endif %}" 
+                 data-tipo="{{ notificacion.tipo }}" 
+                 data-categoria="{{ notificacion.categoria }}"
+                 data-prioridad="{{ notificacion.prioridad }}"
+                 data-leida="{{ notificacion.leida }}"
+                 data-fijada="{{ notificacion.fijada }}"
+                 data-id="{{ notificacion.id }}">
+                <div class="notificacion-icon">
+                    {% if notificacion.categoria == 'chat_ia' %}🤖
+                    {% elif notificacion.categoria == 'musica' %}🎵
+                    {% elif notificacion.categoria == 'estudio' %}📚
+                    {% elif notificacion.categoria == 'evento' %}📅
+                    {% elif notificacion.categoria == 'soporte' %}🛟
+                    {% elif notificacion.categoria == 'sistema' %}⚙
+                    {% elif notificacion.categoria == 'clima' %}🌤
+                    {% elif notificacion.categoria == 'traductor' %}🌍
+                    {% elif notificacion.categoria == 'juegos' %}🎮
+                    {% else %}ℹ️{% endif %}
+                </div>
+                <div class="notificacion-content">
+                    <div class="notificacion-header-row">
+                        <h3>{{ notificacion.titulo }}</h3>
+                        {% if notificacion.prioridad == 'alta' %}
+                        <span class="priority-badge alta">🔥 Alta</span>
+                        {% endif %}
+                    </div>
+                    <p class="notificacion-mensaje">{{ notificacion.mensaje }}</p>
+                    <div class="notificacion-meta">
+                        <span class="notificacion-fecha">{{ notificacion.fecha_creacion|timesince }} hace</span>
+                        {% if notificacion.fijada %}
+                        <span class="pinned-badge">📌 Fijada</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="notificacion-actions">
+                    {% if not notificacion.leida %}
+                    <button onclick="marcarIndividual({{ notificacion.id }}, event)" class="action-btn" title="Marcar como leída">
+                        <i class="ti ti-check"></i>
+                    </button>
+                    {% endif %}
+                    <button onclick="fijarNotificacion({{ notificacion.id }}, {{ notificacion.fijada|lower }}, event)" class="action-btn" title="{% if notificacion.fijada %}Desfijar{% else %}Fijar{% endif %}">
+                        <i class="ti ti-{% if notificacion.fijada %}pin-off{% else %}pin{% endif %}"></i>
+                    </button>
+                    <button onclick="eliminarNotificacion({{ notificacion.id }}, event)" class="action-btn delete" title="Eliminar">
+                        <i class="ti ti-trash"></i>
+                    </button>
+                    {% if notificacion.enlace %}
+                    <a href="{{ notificacion.enlace }}" class="action-btn view" onclick="event.stopPropagation();" title="Ver">
+                        <i class="ti ti-arrow-right"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Notifications List Grouped by Date -->
+    <div class="notificaciones-list" id="notificaciones-list">
+        {% if notificaciones_por_fecha %}
+            {% for grupo, notifs in notificaciones_por_fecha.items %}
+            <div class="date-group">
+                <div class="date-header">
+                    <h3>📅 {{ grupo }}</h3>
+                    <span class="date-count">{{ notifs|length }} notificaciones</span>
+                </div>
+                {% for notificacion in notifs %}
+                <div class="notificacion-card {% if not notificacion.leida %}no-leida{% endif %} {% if notificacion.fijada %}fijada{% endif %}" 
+                     data-tipo="{{ notificacion.tipo }}" 
+                     data-categoria="{{ notificacion.categoria }}"
+                     data-prioridad="{{ notificacion.prioridad }}"
+                     data-leida="{{ notificacion.leida }}"
+                     data-fijada="{{ notificacion.fijada }}"
+                     data-id="{{ notificacion.id }}">
+                    <div class="notificacion-icon">
+                        {% if notificacion.categoria == 'chat_ia' %}🤖
+                        {% elif notificacion.categoria == 'musica' %}🎵
+                        {% elif notificacion.categoria == 'estudio' %}📚
+                        {% elif notificacion.categoria == 'evento' %}📅
+                        {% elif notificacion.categoria == 'soporte' %}🛟
+                        {% elif notificacion.categoria == 'sistema' %}⚙
+                        {% elif notificacion.categoria == 'clima' %}🌤
+                        {% elif notificacion.categoria == 'traductor' %}🌍
+                        {% elif notificacion.categoria == 'juegos' %}🎮
+                        {% else %}ℹ️{% endif %}
+                    </div>
+                    <div class="notificacion-content">
+                        <div class="notificacion-header-row">
+                            <h3>{{ notificacion.titulo }}</h3>
+                            {% if notificacion.prioridad == 'alta' %}
+                            <span class="priority-badge alta">🔥</span>
+                            {% elif notificacion.prioridad == 'baja' %}
+                            <span class="priority-badge baja">📌</span>
+                            {% endif %}
+                        </div>
+                        <p class="notificacion-mensaje">{{ notificacion.mensaje }}</p>
+                        <div class="notificacion-meta">
+                            <span class="notificacion-fecha">{{ notificacion.fecha_creacion|timesince }} hace</span>
+                            {% if notificacion.fijada %}
+                            <span class="pinned-badge">📌</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="notificacion-actions">
+                        {% if not notificacion.leida %}
+                        <button onclick="marcarIndividual({{ notificacion.id }}, event)" class="action-btn" title="Marcar como leída">
+                            <i class="ti ti-check"></i>
+                        </button>
+                        {% endif %}
+                        <button onclick="fijarNotificacion({{ notificacion.id }}, {{ notificacion.fijada|lower }}, event)" class="action-btn" title="{% if notificacion.fijada %}Desfijar{% else %}Fijar{% endif %}">
+                            <i class="ti ti-{% if notificacion.fijada %}pin-off{% else %}pin{% endif %}"></i>
+                        </button>
+                        <button onclick="eliminarNotificacion({{ notificacion.id }}, event)" class="action-btn delete" title="Eliminar">
+                            <i class="ti ti-trash"></i>
+                        </button>
+                        {% if notificacion.enlace %}
+                        <a href="{{ notificacion.enlace }}" class="action-btn view" onclick="event.stopPropagation();" title="Ver">
+                            <i class="ti ti-arrow-right"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endfor %}
+        {% else %}
         <div class="no-notificaciones">
             <div class="no-notificaciones-icon">🔔</div>
             <p>
-                <strong>Sin notificaciones</strong>
-                Aquí aparecerán tus alertas, eventos y actualizaciones importantes
+                <strong>No tienes notificaciones</strong>
+                Todo está al día
             </p>
+            <button onclick="recargarNotificaciones()" class="btn-secondary">
+                <i class="ti ti-refresh"></i> Actualizar
+            </button>
         </div>
-        {% endfor %}
+        {% endif %}
     </div>
 </div>
 
 <script>
 function recargarNotificaciones() {
-    // Add rotation animation to refresh icon
     const btn = event.currentTarget;
     const icon = btn.querySelector('i');
     icon.style.transition = 'transform 0.5s ease';
     icon.style.transform = 'rotate(360deg)';
-    
-    // Reload page after animation
-    setTimeout(() => {
-        location.reload();
-    }, 300);
+    setTimeout(() => location.reload(), 300);
 }
 
 function marcarLeidas() {
@@ -87,7 +255,6 @@ function marcarLeidas() {
     .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
-            // Animate cards before reload
             document.querySelectorAll('.notificacion-card.no-leida').forEach((card, i) => {
                 card.style.transition = `all 0.3s ease ${i * 0.05}s`;
                 card.classList.remove('no-leida');
@@ -97,9 +264,31 @@ function marcarLeidas() {
     });
 }
 
-function marcarIndividual(id) {
-    const card = event.currentTarget;
-    // Instant visual feedback
+function limpiarLeidas() {
+    if (confirm('¿Eliminar todas las notificaciones leídas?')) {
+        const leidasIds = [];
+        document.querySelectorAll('.notificacion-card:not(.no-leida)').forEach(card => {
+            leidasIds.push(card.dataset.id);
+        });
+        
+        leidasIds.forEach(id => {
+            fetch('{% url "eliminar_notificacion" %}', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ id: id })
+            });
+        });
+        
+        setTimeout(() => location.reload(), 500);
+    }
+}
+
+function marcarIndividual(id, event) {
+    event.stopPropagation();
+    const card = document.querySelector(`.notificacion-card[data-id="${id}"]`);
     card.style.transition = 'all 0.4s ease';
     card.classList.remove('no-leida');
     
@@ -114,30 +303,134 @@ function marcarIndividual(id) {
     .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
-            // Update counter without full reload
-            const countEl = document.getElementById('no-leidas-count');
+            const countEl = document.querySelector('.stat-badge.unread .stat-value');
             const remaining = document.querySelectorAll('.notificacion-card.no-leida').length;
-            countEl.textContent = remaining + ' sin leer';
+            countEl.textContent = remaining;
             card.dataset.leida = 'True';
+            
+            // Remove the check button
+            const checkBtn = card.querySelector('.action-btn[title="Marcar como leída"]');
+            if (checkBtn) checkBtn.remove();
         }
     });
+}
+
+function fijarNotificacion(id, fijada, event) {
+    event.stopPropagation();
+    const nuevoEstado = !fijada;
+    
+    fetch('{% url "fijar_notificacion" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: id, fijar: nuevoEstado })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            location.reload();
+        }
+    });
+}
+
+function eliminarNotificacion(id, event) {
+    event.stopPropagation();
+    if (confirm('¿Eliminar esta notificación?')) {
+        const card = document.querySelector(`.notificacion-card[data-id="${id}"]`);
+        card.style.transition = 'all 0.3s ease';
+        card.style.opacity = '0';
+        card.style.transform = 'translateX(-20px)';
+        
+        fetch('{% url "eliminar_notificacion" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ id: id })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                setTimeout(() => {
+                    card.remove();
+                    const remaining = document.querySelectorAll('.notificacion-card').length;
+                    document.querySelector('.stat-badge.total .stat-value').textContent = remaining;
+                    
+                    // Check if date group is empty
+                    const dateGroup = card.closest('.date-group');
+                    if (dateGroup && dateGroup.querySelectorAll('.notificacion-card').length === 0) {
+                        dateGroup.remove();
+                    }
+                }, 300);
+            }
+        });
+    }
 }
 
 function filtrar(filtro) {
     document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
     document.querySelector(`.filtro-btn[data-filtro="${filtro}"]`).classList.add('active');
     
-    document.querySelectorAll('.notificacion-card').forEach((card, i) => {
+    document.querySelectorAll('.notificacion-card').forEach(card => {
         let show = false;
         if (filtro === 'todas') show = true;
         else if (filtro === 'no-leidas') show = card.dataset.leida === 'False';
-        else show = card.dataset.tipo === filtro;
+        else show = card.dataset.categoria === filtro;
 
         if (show) {
             card.style.display = '';
-            card.style.animation = `card-slide-in 0.3s ease-out ${i * 0.03}s backwards`;
+            card.style.animation = 'card-slide-in 0.3s ease-out';
         } else {
             card.style.display = 'none';
+        }
+    });
+    
+    // Hide empty date groups
+    document.querySelectorAll('.date-group').forEach(group => {
+        const visibleCards = group.querySelectorAll('.notificacion-card[style=""], .notificacion-card:not([style*="display: none"])');
+        if (visibleCards.length === 0) {
+            group.style.display = 'none';
+        } else {
+            group.style.display = '';
+        }
+    });
+}
+
+function buscarNotificaciones() {
+    const query = document.getElementById('search-input').value.toLowerCase();
+    
+    if (query.length < 2) {
+        document.querySelectorAll('.notificacion-card').forEach(card => {
+            card.style.display = '';
+        });
+        document.querySelectorAll('.date-group').forEach(group => {
+            group.style.display = '';
+        });
+        return;
+    }
+    
+    document.querySelectorAll('.notificacion-card').forEach(card => {
+        const titulo = card.querySelector('h3').textContent.toLowerCase();
+        const mensaje = card.querySelector('.notificacion-mensaje').textContent.toLowerCase();
+        
+        if (titulo.includes(query) || mensaje.includes(query)) {
+            card.style.display = '';
+            card.style.animation = 'card-slide-in 0.3s ease-out';
+        } else {
+            card.style.display = 'none';
+        }
+    });
+    
+    // Hide empty date groups
+    document.querySelectorAll('.date-group').forEach(group => {
+        const visibleCards = group.querySelectorAll('.notificacion-card[style=""], .notificacion-card:not([style*="display: none"])');
+        if (visibleCards.length === 0) {
+            group.style.display = 'none';
+        } else {
+            group.style.display = '';
         }
     });
 }

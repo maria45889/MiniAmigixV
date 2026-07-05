@@ -9,18 +9,144 @@
 
 {% block content %}
 <div class="dashboard">
-    <h1 style="font-family: var(--font-title); margin-bottom: 2rem;">📚 Estudio</h1>
+    <!-- Panel de Resumen del Día -->
+    <div class="summary-panel">
+        <div class="summary-header">
+            <h2 style="font-family: var(--font-title); margin: 0;">📚 Sesión de Estudio</h2>
+            <span id="fecha-actual" style="color: var(--text-muted);"></span>
+        </div>
+        <div class="summary-stats">
+            <div class="stat-item stat-blue">
+                <div class="stat-icon">⏱</div>
+                <div class="stat-content">
+                    <div class="stat-label">Hoy</div>
+                    <div class="stat-value" id="stat-hoy">0h 0m</div>
+                </div>
+            </div>
+            <div class="stat-item stat-orange">
+                <div class="stat-icon">🔥</div>
+                <div class="stat-content">
+                    <div class="stat-label">Racha</div>
+                    <div class="stat-value" id="stat-racha">0 días</div>
+                </div>
+            </div>
+            <div class="stat-item stat-green">
+                <div class="stat-icon">✅</div>
+                <div class="stat-content">
+                    <div class="stat-label">Tareas</div>
+                    <div class="stat-value" id="stat-tareas">0</div>
+                </div>
+            </div>
+            <div class="stat-item stat-purple">
+                <div class="stat-icon">📄</div>
+                <div class="stat-content">
+                    <div class="stat-label">Resúmenes</div>
+                    <div class="stat-value" id="stat-resumenes">0</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Acciones Rápidas -->
+    <div class="quick-actions">
+        <button class="quick-action-btn" onclick="scrollToSection('resumen')">
+            <span class="quick-icon">📄</span>
+            <span>Resumir</span>
+        </button>
+        <button class="quick-action-btn" onclick="scrollToSection('notas')">
+            <span class="quick-icon">📝</span>
+            <span>Notas</span>
+        </button>
+        <button class="quick-action-btn" onclick="scrollToSection('temporizador')">
+            <span class="quick-icon">🍅</span>
+            <span>Pomodoro</span>
+        </button>
+        <button class="quick-action-btn" onclick="scrollToSection('calendario')">
+            <span class="quick-icon">📅</span>
+            <span>Calendario</span>
+        </button>
+    </div>
+
+    <h1 style="font-family: var(--font-title); margin: 2rem 0;">📚 Estudio</h1>
     
     <div class="study-grid sortable-grid" data-grid-id="estudio">
-        <!-- Resumen de Texto -->
+        <!-- Resumen de Texto con Nivel -->
         <div class="nota-card" data-id="resumen">
             <h3>📝 Resumen de Texto</h3>
             <p style="color: var(--text-muted);">Pega tu texto aquí para obtener un resumen automático usando IA.</p>
             <textarea id="textoInput" rows="6" placeholder="Escribe o pega el texto que quieres resumir..."></textarea>
+            <div class="summary-level-selector">
+                <label style="color: var(--text-muted); font-size: 0.9rem; margin-right: 10px;">Nivel de resumen:</label>
+                <div class="level-options">
+                    <label class="level-option">
+                        <input type="radio" name="summary-level" value="corto">
+                        <span>Corto</span>
+                    </label>
+                    <label class="level-option">
+                        <input type="radio" name="summary-level" value="medio" checked>
+                        <span>Medio</span>
+                    </label>
+                    <label class="level-option">
+                        <input type="radio" name="summary-level" value="detallado">
+                        <span>Detallado</span>
+                    </label>
+                </div>
+            </div>
             <button class="btn-primary" onclick="resumirTexto()">🤖 Resumir con IA</button>
             <div id="resumenOutput" class="resumen-output" style="display: none;"></div>
         </div>
-        
+
+        <!-- Notas Rápidas con Colores -->
+        <div class="nota-card" data-id="notas">
+            <h3>💡 Notas Rápidas</h3>
+            <div class="note-color-picker">
+                <button class="color-btn color-yellow" data-color="#fef08a" onclick="selectNoteColor('#fef08a')"></button>
+                <button class="color-btn color-green" data-color="#bbf7d0" onclick="selectNoteColor('#bbf7d0')"></button>
+                <button class="color-btn color-blue" data-color="#bfdbfe" onclick="selectNoteColor('#bfdbfe')"></button>
+                <button class="color-btn color-pink" data-color="#fbcfe8" onclick="selectNoteColor('#fbcfe8')"></button>
+                <button class="color-btn color-purple" data-color="#ddd6fe" onclick="selectNoteColor('#ddd6fe')"></button>
+            </div>
+            <textarea id="notaInput" rows="3" placeholder="Escribe una nota rápida..." style="resize: vertical; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word;"></textarea>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button class="btn-primary" onclick="guardarNota()">💾 Guardar</button>
+                <button class="btn-secondary" onclick="togglePin()" id="btn-pin">📌 Fijar</button>
+            </div>
+            <div id="notasGuardadas" style="margin-top: 15px;"></div>
+        </div>
+
+        <!-- Temporizador Pomodoro Mejorado -->
+        <div class="nota-card" data-id="temporizador">
+            <h3>🍅 Pomodoro</h3>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 15px;">
+                Técnica Pomodoro para sesiones de estudio enfocadas
+            </p>
+            <div class="pomodoro-container">
+                <div class="pomodoro-circle">
+                    <svg class="progress-ring" width="200" height="200">
+                        <circle class="progress-ring-bg" cx="100" cy="100" r="90"/>
+                        <circle class="progress-ring-circle" cx="100" cy="100" r="90"/>
+                    </svg>
+                    <div class="pomodoro-display">
+                        <div class="pomodoro-emoji">🍅</div>
+                        <div id="pomodoro-time">25:00</div>
+                    </div>
+                </div>
+                <div class="pomodoro-progress-bar">
+                    <div class="progress-fill" id="pomodoro-progress"></div>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: center; margin: 20px 0;">
+                    <button class="pomodoro-btn btn-start" onclick="iniciarPomodoro()" id="btn-start-pomodoro">▶ Iniciar</button>
+                    <button class="pomodoro-btn btn-pause" onclick="pausarPomodoro()" id="btn-pause-pomodoro" style="display: none;">⏸ Pausar</button>
+                    <button class="pomodoro-btn btn-reset" onclick="reiniciarPomodoro()">⟳ Reiniciar</button>
+                </div>
+                <div class="pomodoro-presets">
+                    <button class="preset-pomodoro preset-work" onclick="setPomodoroPreset(25, 'trabajo')">🍅 Pomodoro (25 min)</button>
+                    <button class="preset-pomodoro preset-short" onclick="setPomodoroPreset(5, 'descanso_corto')">☕ Descanso corto (5 min)</button>
+                    <button class="preset-pomodoro preset-long" onclick="setPomodoroPreset(15, 'descanso_largo')">🌴 Descanso largo (15 min)</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Mini Calendario -->
         <div class="nota-card" data-id="calendario">
             <h3>📅 Mini Calendario</h3>
@@ -40,6 +166,42 @@
             </div>
         </div>
 
+        <!-- Modal para crear evento -->
+        <div id="modal-evento" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
+            <div style="width: 90%; max-width: 400px; padding: 25px; border-radius: 16px;">
+                <h3 style="color: #fff; margin-bottom: 15px;">📅 Agregar Evento</h3>
+                <p style="color: var(--text-muted); margin-bottom: 15px;">Fecha: <span id="fecha-seleccionada" style="color: #06b6d4;"></span></p>
+                <input type="text" id="evento-titulo" placeholder="Título del evento" style="margin-bottom: 10px;">
+                <div style="margin-bottom: 15px;">
+                    <label style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 8px; display: block;">Tipo de evento:</label>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <label class="event-type-option">
+                            <input type="radio" name="evento-tipo" value="examen" checked>
+                            <span>🔴 Examen</span>
+                        </label>
+                        <label class="event-type-option">
+                            <input type="radio" name="evento-tipo" value="entrega">
+                            <span>🟢 Entrega</span>
+                        </label>
+                        <label class="event-type-option">
+                            <input type="radio" name="evento-tipo" value="clase">
+                            <span>🔵 Clase</span>
+                        </label>
+                        <label class="event-type-option">
+                            <input type="radio" name="evento-tipo" value="recordatorio">
+                            <span>🟡 Recordatorio</span>
+                        </label>
+                    </div>
+                </div>
+                <textarea id="evento-descripcion" rows="3" placeholder="Descripción (opcional)" style="margin-bottom: 15px; resize: vertical;"></textarea>
+                <div id="eventos-del-dia" style="margin-bottom: 15px; max-height: 150px; overflow-y: auto;"></div>
+                <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                    <button class="btn-primary" style="background: rgba(255,255,255,0.1);" onclick="cerrarModalEvento()">Cancelar</button>
+                    <button class="btn-primary" onclick="guardarEvento()">Guardar</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Cronómetro -->
         <div class="nota-card" data-id="cronometro">
             <h3>⏱️ Cronómetro</h3>
@@ -53,82 +215,77 @@
                 <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px; margin-top: 15px;">
                     <button class="cronometro-btn btn-iniciar" onclick="iniciarCronometro()" id="btn-iniciar">▶ Iniciar</button>
                     <button class="cronometro-btn btn-pausar" onclick="pausarCronometro()" id="btn-pausar" style="display: none;">⏸ Pausar</button>
+                    <button class="cronometro-btn btn-vuelta" onclick="registrarVuelta()" id="btn-vuelta">🏁 Vuelta</button>
                     <button class="cronometro-btn btn-reiniciar" onclick="reiniciarCronometro()">🔄 Reiniciar</button>
                 </div>
             </div>
+            <div id="vueltas-container" style="margin-top: 15px; max-height: 200px; overflow-y: auto;"></div>
             <div id="tiempos-guardados" style="margin-top: 15px;"></div>
         </div>
 
-        <!-- Temporizador -->
-        <div class="nota-card" data-id="temporizador">
-            <h3>⏰ Temporizador</h3>
-            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 15px;">
-                Configura una cuenta regresiva para tus sesiones de estudio
-            </p>
-            <div class="temporizador-container">
-                <div id="temporizador-display">
-                    00:00:00
-                </div>
-                <div id="temporizador-config" style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px; margin-top: 15px;">
-                    <div style="display: flex; flex-direction: column; align-items: center;">
-                        <input type="number" id="temp-horas" min="0" max="23" value="0" style="width: 60px; text-align: center; margin-top: 0;">
-                        <small style="color: var(--text-muted); margin-top: 5px;">Horas</small>
-                    </div>
-                    <div style="display: flex; flex-direction: column; align-items: center;">
-                        <input type="number" id="temp-minutos" min="0" max="59" value="25" style="width: 60px; text-align: center; margin-top: 0;">
-                        <small style="color: var(--text-muted); margin-top: 5px;">Min</small>
-                    </div>
-                    <div style="display: flex; flex-direction: column; align-items: center;">
-                        <input type="number" id="temp-segundos" min="0" max="59" value="0" style="width: 60px; text-align: center; margin-top: 0;">
-                        <small style="color: var(--text-muted); margin-top: 5px;">Seg</small>
+        <!-- Estadísticas de Estudio -->
+        <div class="nota-card" data-id="estadisticas">
+            <h3>📈 Estadísticas</h3>
+            <div class="stats-grid">
+                <div class="stat-card stat-blue">
+                    <div class="stat-icon">📖</div>
+                    <div class="stat-info">
+                        <div class="stat-label">Tiempo estudiado</div>
+                        <div class="stat-value" id="stats-tiempo">0h 0m</div>
                     </div>
                 </div>
-                <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px;">
-                    <button class="temporizador-btn btn-iniciar-temp" onclick="iniciarTemporizador()" id="btn-iniciar-temp">▶ Iniciar</button>
-                    <button class="temporizador-btn btn-pausar-temp" onclick="pausarTemporizador()" id="btn-pausar-temp" style="display: none;">⏸ Pausar</button>
-                    <button class="temporizador-btn btn-reiniciar-temp" onclick="reiniciarTemporizador()">🔄 Reiniciar</button>
+                <div class="stat-card stat-orange">
+                    <div class="stat-icon">🍅</div>
+                    <div class="stat-info">
+                        <div class="stat-label">Pomodoros</div>
+                        <div class="stat-value" id="stats-pomodoros">0</div>
+                    </div>
+                </div>
+                <div class="stat-card stat-green">
+                    <div class="stat-icon">🏆</div>
+                    <div class="stat-info">
+                        <div class="stat-label">Mejor día</div>
+                        <div class="stat-value" id="stats-mejor-dia">0h 0m</div>
+                    </div>
+                </div>
+                <div class="stat-card stat-purple">
+                    <div class="stat-icon">🔥</div>
+                    <div class="stat-info">
+                        <div class="stat-label">Racha</div>
+                        <div class="stat-value" id="stats-racha">0 días</div>
+                    </div>
                 </div>
             </div>
-            <div id="temporizador-preset" style="margin-top: 15px;">
-                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 10px;">Presets rápidos:</p>
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <button class="preset-btn" onclick="setPreset(5)">5 min</button>
-                    <button class="preset-btn" onclick="setPreset(15)">15 min</button>
-                    <button class="preset-btn" onclick="setPreset(25)">25 min</button>
-                    <button class="preset-btn" onclick="setPreset(30)">30 min</button>
-                    <button class="preset-btn" onclick="setPreset(45)">45 min</button>
-                    <button class="preset-btn" onclick="setPreset(60)">1 hora</button>
+            <div class="weekly-chart">
+                <h4 style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px;">Horas estudiadas esta semana</h4>
+                <div class="chart-bars" id="weekly-chart">
+                    <!-- Se llenará dinámicamente -->
                 </div>
             </div>
         </div>
-
-        <!-- Modal para crear evento -->
-        <div id="modal-evento" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
-            <div style="width: 90%; max-width: 400px; padding: 25px; border-radius: 16px;">
-                <h3 style="color: #fff; margin-bottom: 15px;">📅 Agregar Evento</h3>
-                <p style="color: var(--text-muted); margin-bottom: 15px;">Fecha: <span id="fecha-seleccionada" style="color: #06b6d4;"></span></p>
-                <input type="text" id="evento-titulo" placeholder="Título del evento" style="margin-bottom: 10px;">
-                <textarea id="evento-descripcion" rows="3" placeholder="Descripción (opcional)" style="margin-bottom: 15px; resize: vertical;"></textarea>
-                <div id="eventos-del-dia" style="margin-bottom: 15px; max-height: 150px; overflow-y: auto;"></div>
-                <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                    <button class="btn-primary" style="background: rgba(255,255,255,0.1);" onclick="cerrarModalEvento()">Cancelar</button>
-                    <button class="btn-primary" onclick="guardarEvento()">Guardar</button>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Notas Rápidas -->
-        <div class="nota-card" data-id="notas">
-            <h3>💡 Notas Rápidas</h3>
-            <textarea id="notaInput" rows="3" placeholder="Escribe una nota rápida..." style="resize: vertical; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word;"></textarea>
-            <button class="btn-primary" onclick="guardarNota()">💾 Guardar</button>
-            <div id="notasGuardadas" style="margin-top: 15px;"></div>
-        </div>
-        
         <!-- Historial de Resúmenes -->
         <div class="nota-card" data-id="historial">
             <h3>📋 Historial de Resúmenes</h3>
             <div id="resumenesGuardados" style="margin-top: 15px; max-height: 400px; overflow-y: auto;"></div>
+        </div>
+
+        <!-- Motivación y Consejos -->
+        <div class="nota-card motivation-card" data-id="motivacion">
+            <h3>💡 Motivación</h3>
+            <div class="motivation-content">
+                <div class="motivation-tip">
+                    <div class="tip-icon">💡</div>
+                    <div class="tip-text" id="motivacion-consejo">
+                        "Estudia 25 minutos y descansa 5."
+                    </div>
+                </div>
+                <div class="motivation-stats">
+                    <div class="motivation-stat">
+                        <div class="mot-label">Productividad estimada</div>
+                        <div class="mot-value" id="productividad-estimada">82%</div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -141,12 +298,383 @@ let fechaActual = new Date();
 let mesActual = fechaActual.getMonth();
 let anoActual = fechaActual.getFullYear();
 
-// Cargar notas, resúmenes y calendario al iniciar
+// Cargar notas, resúmenes, calendario y estadísticas al iniciar
 document.addEventListener('DOMContentLoaded', function() {
     cargarNotas();
     cargarResumenes();
     renderizarCalendario();
+    cargarEstadisticas();
+    mostrarFechaActual();
+    inicializarPomodoro();
+    rotarConsejoMotivacion();
 });
+
+// ==================== FECHA ACTUAL ====================
+function mostrarFechaActual() {
+    const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const fecha = new Date().toLocaleDateString('es-ES', opciones);
+    document.getElementById('fecha-actual').textContent = fecha.charAt(0).toUpperCase() + fecha.slice(1);
+}
+
+// ==================== ACCIONES RÁPIDAS ====================
+function scrollToSection(sectionId) {
+    const element = document.querySelector(`[data-id="${sectionId}"]`);
+    if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
+// ==================== ESTADÍSTICAS ====================
+function cargarEstadisticas() {
+    fetch('/estudio/api/obtener-estadisticas/')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const stats = data.estadisticas;
+            
+            // Panel de resumen
+            document.getElementById('stat-hoy').textContent = stats.hoy.tiempo_formateado;
+            document.getElementById('stat-racha').textContent = `${stats.racha} días`;
+            document.getElementById('stat-tareas').textContent = stats.hoy.notas;
+            document.getElementById('stat-resumenes').textContent = stats.hoy.resumenes;
+            
+            // Estadísticas detalladas
+            document.getElementById('stats-tiempo').textContent = stats.semana.tiempo_formateado;
+            document.getElementById('stats-pomodoros').textContent = stats.semana.pomodoros;
+            document.getElementById('stats-mejor-dia').textContent = stats.mejor_dia.tiempo_formateado;
+            document.getElementById('stats-racha').textContent = `${stats.racha} días`;
+            
+            // Gráfico semanal
+            renderizarGraficoSemanal(stats.grafico_semana);
+        }
+    })
+    .catch(error => {
+        console.error('Error al cargar estadísticas:', error);
+    });
+}
+
+function renderizarGraficoSemanal(datos) {
+    const container = document.getElementById('weekly-chart');
+    const maxHoras = Math.max(...datos.map(d => d.horas), 1);
+    
+    container.innerHTML = datos.map(d => {
+        const altura = (d.horas / maxHoras) * 100;
+        return `
+            <div class="chart-bar-wrapper">
+                <div class="chart-bar" style="height: ${altura}%;">
+                    <span class="chart-value">${d.horas > 0 ? d.horas : ''}</span>
+                </div>
+                <span class="chart-label">${d.dia}</span>
+            </div>
+        `;
+    }).join('');
+}
+
+// ==================== POMODORO MEJORADO ====================
+let pomodoroInterval = null;
+let pomodoroTiempoRestante = 25 * 60; // 25 minutos en segundos
+let pomodoroTiempoTotal = 25 * 60;
+let pomodoroTipo = 'trabajo';
+
+function inicializarPomodoro() {
+    actualizarPomodoroDisplay();
+    actualizarPomodoroProgressRing();
+}
+
+function setPomodoroPreset(minutos, tipo) {
+    pomodoroTiempoTotal = minutos * 60;
+    pomodoroTiempoRestante = minutos * 60;
+    pomodoroTipo = tipo;
+    
+    if (pomodoroInterval) {
+        pausarPomodoro();
+    }
+    
+    actualizarPomodoroDisplay();
+    actualizarPomodoroProgressRing();
+    
+    // Cambiar emoji según tipo
+    const emoji = tipo === 'trabajo' ? '🍅' : (tipo === 'descanso_corto' ? '☕' : '🌴');
+    document.querySelector('.pomodoro-emoji').textContent = emoji;
+}
+
+function iniciarPomodoro() {
+    if (pomodoroInterval) return;
+    
+    document.getElementById('btn-start-pomodoro').style.display = 'none';
+    document.getElementById('btn-pause-pomodoro').style.display = 'inline-block';
+    
+    pomodoroInterval = setInterval(() => {
+        if (pomodoroTiempoRestante > 0) {
+            pomodoroTiempoRestante--;
+            actualizarPomodoroDisplay();
+            actualizarPomodoroProgressRing();
+        } else {
+            pausarPomodoro();
+            alert('¡Pomodoro completado!');
+            
+            // Guardar en backend
+            fetch('/estudio/api/guardar-pomodoro/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    duracion_minutos: pomodoroTiempoTotal / 60,
+                    tipo: pomodoroTipo,
+                    completado: true
+                })
+            });
+            
+            cargarEstadisticas();
+        }
+    }, 1000);
+}
+
+function pausarPomodoro() {
+    if (pomodoroInterval) {
+        clearInterval(pomodoroInterval);
+        pomodoroInterval = null;
+        document.getElementById('btn-start-pomodoro').style.display = 'inline-block';
+        document.getElementById('btn-pause-pomodoro').style.display = 'none';
+    }
+}
+
+function reiniciarPomodoro() {
+    if (pomodoroInterval) {
+        pausarPomodoro();
+    }
+    pomodoroTiempoRestante = pomodoroTiempoTotal;
+    actualizarPomodoroDisplay();
+    actualizarPomodoroProgressRing();
+}
+
+function actualizarPomodoroDisplay() {
+    const minutos = Math.floor(pomodoroTiempoRestante / 60);
+    const segundos = pomodoroTiempoRestante % 60;
+    document.getElementById('pomodoro-time').textContent = 
+        `${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
+}
+
+function actualizarPomodoroProgressRing() {
+    const circle = document.querySelector('.progress-ring-circle');
+    const radius = circle.r.baseVal.value;
+    const circumference = radius * 2 * Math.PI;
+    
+    const progress = pomodoroTiempoRestante / pomodoroTiempoTotal;
+    const offset = circumference - progress * circumference;
+    
+    circle.style.strokeDashoffset = offset;
+}
+
+// Inicializar el círculo de progreso
+document.addEventListener('DOMContentLoaded', function() {
+    const circle = document.querySelector('.progress-ring-circle');
+    const radius = circle.r.baseVal.value;
+    const circumference = radius * 2 * Math.PI;
+    
+    circle.style.strokeDasharray = `${circumference} ${circumference}`;
+    circle.style.strokeDashoffset = circumference;
+});
+
+// ==================== NOTAS CON COLORES ====================
+let selectedNoteColor = '#fef08a';
+let isNotePinned = false;
+
+function selectNoteColor(color) {
+    selectedNoteColor = color;
+    
+    // Actualizar selección visual
+    document.querySelectorAll('.color-btn').forEach(btn => {
+        btn.classList.remove('selected');
+        if (btn.dataset.color === color) {
+            btn.classList.add('selected');
+        }
+    });
+}
+
+function togglePin() {
+    isNotePinned = !isNotePinned;
+    const btn = document.getElementById('btn-pin');
+    btn.textContent = isNotePinned ? '📍 Soltar' : '📌 Fijar';
+    btn.style.background = isNotePinned ? 'var(--accent-gradient)' : '';
+}
+
+// Modificar guardarNota para incluir color y pin
+const originalGuardarNota = guardarNota;
+guardarNota = function() {
+    const nota = document.getElementById('notaInput').value;
+    
+    if (nota.trim() === '') {
+        alert('Por favor escribe una nota');
+        return;
+    }
+    
+    fetch('/estudio/api/guardar-nota/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ 
+            contenido: nota,
+            color: selectedNoteColor,
+            fijada: isNotePinned
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('notaInput').value = '';
+            isNotePinned = false;
+            document.getElementById('btn-pin').textContent = '📌 Fijar';
+            cargarNotas();
+        } else {
+            alert('Error al guardar la nota: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al guardar la nota');
+    });
+};
+
+// Modificar cargarNotas para mostrar colores y pins
+const originalCargarNotas = cargarNotas;
+cargarNotas = function() {
+    fetch('/estudio/api/obtener-notas/')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const container = document.getElementById('notasGuardadas');
+            if (data.notas.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📝</div>
+                        <p style="color: var(--text-muted);">Todavía no tienes notas.</p>
+                        <p style="color: var(--text-muted); font-size: 0.85rem;">Empieza escribiendo una idea.</p>
+                    </div>
+                `;
+            } else {
+                // Ordenar: notas fijadas primero
+                const notasOrdenadas = data.notas.sort((a, b) => (b.fijada ? 1 : 0) - (a.fijada ? 1 : 0));
+                
+                container.innerHTML = notasOrdenadas.map(nota => `
+                    <div class="lista-item sticky-note" style="background: ${nota.color || '#fef08a'}; color: #1e293b;">
+                        ${nota.fijada ? '<span class="pin-indicator">📌</span>' : ''}
+                        <p style="color: #1e293b; margin-bottom: 5px; font-weight: 500;">${nota.contenido}</p>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
+                            <small style="color: #475569;">${nota.fecha_creacion}</small>
+                            <button class="btn-danger" onclick="eliminarNota('${nota.id}')">🗑️</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+};
+
+// Mejorar cargarResumenes para mostrar visualización más atractiva con botón para reabrir
+const originalCargarResumenes = cargarResumenes;
+cargarResumenes = function() {
+    fetch('/estudio/api/obtener-resumenes/')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const container = document.getElementById('resumenesGuardados');
+            if (data.resumenes.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📄</div>
+                        <p style="color: var(--text-muted);">Todavía no tienes resúmenes.</p>
+                        <p style="color: var(--text-muted); font-size: 0.85rem;">Pega un texto para generar el primero.</p>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = data.resumenes.map(resumen => {
+                    const fecha = new Date(resumen.fecha_creacion);
+                    const ahora = new Date();
+                    const diffMs = ahora - fecha;
+                    const diffHoras = Math.floor(diffMs / (1000 * 60 * 60));
+                    const diffDias = Math.floor(diffHoras / 24);
+                    
+                    let tiempoRelativo;
+                    if (diffHoras < 1) {
+                        tiempoRelativo = 'Hace menos de 1 hora';
+                    } else if (diffHoras < 24) {
+                        tiempoRelativo = `Hace ${diffHoras} hora${diffHoras > 1 ? 's' : ''}`;
+                    } else {
+                        tiempoRelativo = `Hace ${diffDias} día${diffDias > 1 ? 's' : ''}`;
+                    }
+                    
+                    const tituloCorto = resumen.texto_original.substring(0, 30) + (resumen.texto_original.length > 30 ? '...' : '');
+                    
+                    return `
+                        <div class="lista-item resumen-item">
+                            <div class="resumen-header">
+                                <span class="resumen-title">📄 ${tituloCorto}</span>
+                                <span class="resumen-time">${tiempoRelativo}</span>
+                            </div>
+                            <p class="resumen-preview">${resumen.resumen.substring(0, 100)}...</p>
+                            <div style="display: flex; gap: 8px; margin-top: 10px;">
+                                <button class="btn-secondary btn-sm" onclick="reabrirResumen('${resumen.id}')">📂 Reabrir</button>
+                                <button class="btn-danger btn-sm" onclick="eliminarResumen('${resumen.id}')">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+};
+
+function reabrirResumen(resumenId) {
+    fetch('/estudio/api/obtener-resumenes/')
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            const resumen = data.resumenes.find(r => r.id === resumenId);
+            if (resumen) {
+                document.getElementById('textoInput').value = resumen.texto_original;
+                const output = document.getElementById('resumenOutput');
+                output.style.display = 'block';
+                output.innerHTML = `
+                    <h4 style="color: #7c3aed; margin-bottom: 10px;">📝 Resumen:</h4>
+                    <p style="color: var(--text-main); line-height: 1.6;">${resumen.resumen}</p>
+                `;
+                scrollToSection('resumen');
+            }
+        }
+    });
+}
+
+// ==================== MOTIVACIÓN ====================
+const consejosMotivacion = [
+    "Estudia 25 minutos y descansa 5.",
+    "Divide y vencerás: separa tareas grandes.",
+    "El ambiente influye: busca un lugar tranquilo.",
+    "Descansa tu mente cada 90 minutos.",
+    "La constancia supera a la intensidad.",
+    "Apaga notificaciones durante el estudio.",
+    "Revisa tus notas antes de dormir.",
+    "Enseña lo que aprendes para retenerlo mejor."
+];
+
+function rotarConsejoMotivacion() {
+    const consejoElement = document.getElementById('motivacion-consejo');
+    const indice = Math.floor(Math.random() * consejosMotivacion.length);
+    consejoElement.textContent = `"${consejosMotivacion[indice]}"`;
+}
+
+// Rotar consejo cada 30 segundos
+setInterval(rotarConsejoMotivacion, 30000);
 
 // ==================== CALENDARIO ====================
 function renderizarCalendario() {
@@ -169,10 +697,33 @@ function renderizarCalendario() {
     
     // Días del mes
     const hoy = new Date();
+    const eventos = JSON.parse(localStorage.getItem('eventos_calendario') || '{}');
+    
     for (let dia = 1; dia <= diasMes; dia++) {
         const esHoy = dia === hoy.getDate() && mesActual === hoy.getMonth() && anoActual === hoy.getFullYear();
         const fechaCompleta = `${anoActual}-${String(mesActual + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
-        html += `<div class="calendar-dia ${esHoy ? 'hoy' : ''}" onclick="mostrarModalEvento('${fechaCompleta}')" style="cursor: pointer;">${dia}</div>`;
+        
+        // Verificar si hay eventos en este día
+        const eventosDelDia = eventos[fechaCompleta] || [];
+        let indicadores = '';
+        if (eventosDelDia.length > 0) {
+            const tipos = eventosDelDia.map(e => e.tipo || 'recordatorio');
+            const tiposUnicos = [...new Set(tipos)];
+            indicadores = tiposUnicos.map(tipo => {
+                const colorMap = {
+                    'examen': '#ef4444',
+                    'entrega': '#10b981',
+                    'clase': '#3b82f6',
+                    'recordatorio': '#f59e0b'
+                };
+                return `<span class="event-indicator" style="background: ${colorMap[tipo] || '#f59e0b'};"></span>`;
+            }).join('');
+        }
+        
+        html += `<div class="calendar-dia ${esHoy ? 'hoy' : ''}" onclick="mostrarModalEvento('${fechaCompleta}')" style="cursor: pointer;">
+            ${dia}
+            ${indicadores ? `<div class="event-indicators">${indicadores}</div>` : ''}
+        </div>`;
     }
     
     document.getElementById('calendar-dias').innerHTML = html;
@@ -412,6 +963,7 @@ function cerrarModalEvento() {
 function guardarEvento() {
     const titulo = document.getElementById('evento-titulo').value;
     const descripcion = document.getElementById('evento-descripcion').value;
+    const tipo = document.querySelector('input[name="evento-tipo"]:checked')?.value || 'recordatorio';
     
     if (!titulo.trim()) {
         alert('Por favor ingresa un título para el evento');
@@ -427,6 +979,7 @@ function guardarEvento() {
     eventos[fechaSeleccionada].push({
         titulo: titulo,
         descripcion: descripcion,
+        tipo: tipo,
         id: Date.now()
     });
     
@@ -470,6 +1023,8 @@ let cronometroInterval = null;
 let segundos = 0;
 let minutos = 0;
 let horas = 0;
+let vueltas = [];
+let tiempoUltimaVuelta = 0;
 
 function iniciarCronometro() {
     if (cronometroInterval) return;
@@ -513,10 +1068,50 @@ function reiniciarCronometro() {
     segundos = 0;
     minutos = 0;
     horas = 0;
+    vueltas = [];
+    tiempoUltimaVuelta = 0;
     actualizarDisplayCronometro();
     document.getElementById('btn-iniciar').style.display = 'inline-block';
     document.getElementById('btn-pausar').style.display = 'none';
     document.getElementById('cronometro-display').classList.remove('running');
+    document.getElementById('vueltas-container').innerHTML = '';
+}
+
+function registrarVuelta() {
+    const tiempoActual = horas * 3600 + minutos * 60 + segundos;
+    const tiempoVuelta = tiempoActual - tiempoUltimaVuelta;
+    tiempoUltimaVuelta = tiempoActual;
+    
+    const minutosVuelta = Math.floor(tiempoVuelta / 60);
+    const segundosVuelta = tiempoVuelta % 60;
+    
+    vueltas.push({
+        numero: vueltas.length + 1,
+        tiempo: tiempoVuelta,
+        tiempoFormateado: `${String(minutosVuelta).padStart(2, '0')}:${String(segundosVuelta).padStart(2, '0')}`
+    });
+    
+    actualizarVueltas();
+}
+
+function actualizarVueltas() {
+    const container = document.getElementById('vueltas-container');
+    if (vueltas.length === 0) {
+        container.innerHTML = '';
+        return;
+    }
+    
+    container.innerHTML = `
+        <div style="margin-top: 15px;">
+            <h4 style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 10px;">Vueltas registradas:</h4>
+            ${vueltas.map(vuelta => `
+                <div class="vuelta-item">
+                    <span class="vuelta-numero">Vuelta ${vuelta.numero}</span>
+                    <span class="vuelta-tiempo">${vuelta.tiempoFormateado}</span>
+                </div>
+            `).join('')}
+        </div>
+    `;
 }
 
 function actualizarDisplayCronometro() {

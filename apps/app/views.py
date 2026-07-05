@@ -461,10 +461,16 @@ def chat(request):
         mensajes = active_conv.mensajes.all().order_by('fecha_creacion')
         active_id = active_conv.id
     
+    # Calcular fechas para agrupación
+    today = datetime.date.today()
+    yesterday = today - datetime.timedelta(days=1)
+    
     return render(request, 'chat.html', {
         'mensajes': mensajes,
         'conversaciones': conversaciones,
-        'active_id': active_id
+        'active_id': active_id,
+        'today': today.strftime('%Y-%m-%d'),
+        'yesterday': yesterday.strftime('%Y-%m-%d')
     })
 
 def musica(request):
@@ -590,15 +596,47 @@ def juegos(request):
     juegos_disponibles = Game.objects.filter(activo=True)
     puntuaciones_usuario = []
     logros_usuario = []
+    mejor_puntuacion = 0
+    partidas_hoy = 0
+    tiempo_total = "0 min"
+    ultimo_juego = None
     
     if request.user.is_authenticated:
         puntuaciones_usuario = Score.objects.filter(usuario=request.user).select_related('juego')
         logros_usuario = UserAchievement.objects.filter(usuario=request.user).select_related('logro')
+        
+        # Calcular estadísticas
+        if puntuaciones_usuario.exists():
+            mejor_puntuacion = puntuaciones_usuario.order_by('-puntuacion').first().puntuacion
+            
+            # Partidas jugadas hoy
+            from django.utils import timezone
+            from datetime import datetime
+            hoy = timezone.now().date()
+            partidas_hoy = puntuaciones_usuario.filter(fecha__date=hoy).count()
+            
+            # Tiempo total (estimado: 5 min por partida)
+            total_partidas = puntuaciones_usuario.count()
+            tiempo_total = f"{total_partidas * 5} min"
+            
+            # Último juego jugado
+            ultima_puntuacion = puntuaciones_usuario.order_by('-fecha').first()
+            if ultima_puntuacion:
+                ultimo_juego = {
+                    'nombre': ultima_puntuacion.juego.nombre,
+                    'tipo': ultima_puntuacion.juego.tipo,
+                    'icono': ultima_puntuacion.juego.icono if hasattr(ultima_puntuacion.juego, 'icono') else '🎮',
+                    'nivel': ultima_puntuacion.nivel if hasattr(ultima_puntuacion, 'nivel') else 1
+                }
     
     return render(request, 'juegos.html', {
         'juegos': juegos_disponibles,
         'puntuaciones': puntuaciones_usuario,
-        'logros': logros_usuario
+        'logros': logros_usuario,
+        'mejor_puntuacion': mejor_puntuacion,
+        'partidas_hoy': partidas_hoy,
+        'tiempo_total': tiempo_total,
+        'ultimo_juego': ultimo_juego
     })
 
 def estudio(request):

@@ -131,44 +131,85 @@ body.light .history-title {
 
     <!-- Header -->
     <div class="tr-header">
-        <h1>TRADUCTOR</h1>
+        <h1>🌍 Traductor IA</h1>
         <div class="tr-subtitle">MiniAmigixV</div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <button class="quick-btn active" data-mode="text" onclick="setMode('text')">
+            <span class="quick-icon">📝</span>
+            <span class="quick-label">Texto</span>
+        </button>
+        <button class="quick-btn" data-mode="voice" onclick="setMode('voice')">
+            <span class="quick-icon">🎤</span>
+            <span class="quick-label">Voz</span>
+        </button>
+        <button class="quick-btn" data-mode="image" onclick="setMode('image')">
+            <span class="quick-icon">📷</span>
+            <span class="quick-label">Imagen</span>
+        </button>
+        <button class="quick-btn" data-mode="document" onclick="setMode('document')">
+            <span class="quick-icon">📄</span>
+            <span class="quick-label">Documento</span>
+        </button>
     </div>
 
     <!-- Main Translation Card -->
     <div class="tr-card" id="translatorCard">
 
-        <!-- Language Bar -->
-        <div class="lang-bar">
-            <select id="idiomaOrigen" class="lang-select">
-                <option value="es">🇪🇸 Español</option>
-                <option value="en">�� Inglés</option>
-                <option value="fr">🇫🇷 Francés</option>
-                <option value="de">🇩🇪 Alemán</option>
-                <option value="pt">🇧🇷 Portugués</option>
-                <option value="it">🇮🇹 Italiano</option>
-                <option value="ja">🇯🇵 Japonés</option>
-                <option value="ko">🇰🇷 Coreano</option>
-                <option value="zh">🇨🇳 Chino</option>
-                <option value="ru">🇷🇺 Ruso</option>
-                <option value="ar">🇸🇦 Árabe</option>
-            </select>
+        <!-- Language Selector Cards -->
+        <div class="lang-selector">
+            <!-- Source Language Card -->
+            <div class="lang-card source-card">
+                <div class="lang-card-header">
+                    <span class="lang-card-icon">🌎</span>
+                    <span class="lang-card-title">Idioma origen</span>
+                </div>
+                <div class="lang-card-select">
+                    <select id="idiomaOrigen" class="lang-select-modern">
+                        <option value="es">🇪🇸 Español</option>
+                        <option value="en">🇺🇸 Inglés</option>
+                        <option value="fr">🇫🇷 Francés</option>
+                        <option value="de">🇩🇪 Alemán</option>
+                        <option value="pt">🇧🇷 Portugués</option>
+                        <option value="it">🇮🇹 Italiano</option>
+                        <option value="ja">🇯🇵 Japonés</option>
+                        <option value="ko">🇰🇷 Coreano</option>
+                        <option value="zh">🇨🇳 Chino</option>
+                        <option value="ru">🇷🇺 Ruso</option>
+                        <option value="ar">🇸🇦 Árabe</option>
+                    </select>
+                </div>
+            </div>
 
-            <button class="btn-swap" onclick="intercambiarIdiomas()" title="Intercambiar idiomas">⇄</button>
+            <!-- Swap Button -->
+            <button class="btn-swap-modern" onclick="intercambiarIdiomas()" title="Intercambiar idiomas">
+                <span class="swap-icon">⇄</span>
+            </button>
 
-            <select id="idiomaDestino" class="lang-select">
-                <option value="en">�� Inglés</option>
-                <option value="es">🇪🇸 Español</option>
-                <option value="fr">🇫🇷 Francés</option>
-                <option value="de">🇩🇪 Alemán</option>
-                <option value="pt">🇧🇷 Portugués</option>
-                <option value="it">🇮🇹 Italiano</option>
-                <option value="ja">🇯🇵 Japonés</option>
-                <option value="ko">🇰🇷 Coreano</option>
-                <option value="zh">🇨🇳 Chino</option>
-                <option value="ru">🇷🇺 Ruso</option>
-                <option value="ar">🇸🇦 Árabe</option>
-            </select>
+            <!-- Target Language Card -->
+            <div class="lang-card target-card">
+                <div class="lang-card-header">
+                    <span class="lang-card-icon">🌍</span>
+                    <span class="lang-card-title">Traducir a</span>
+                </div>
+                <div class="lang-card-select">
+                    <select id="idiomaDestino" class="lang-select-modern">
+                        <option value="en">🇺🇸 Inglés</option>
+                        <option value="es">🇪🇸 Español</option>
+                        <option value="fr">🇫🇷 Francés</option>
+                        <option value="de">🇩🇪 Alemán</option>
+                        <option value="pt">🇧🇷 Portugués</option>
+                        <option value="it">🇮🇹 Italiano</option>
+                        <option value="ja">🇯🇵 Japonés</option>
+                        <option value="ko">🇰🇷 Coreano</option>
+                        <option value="zh">🇨🇳 Chino</option>
+                        <option value="ru">🇷🇺 Ruso</option>
+                        <option value="ar">🇸🇦 Árabe</option>
+                    </select>
+                </div>
+            </div>
         </div>
 
         <!-- Text Panels -->
@@ -176,27 +217,45 @@ body.light .history-title {
             <!-- Input Panel -->
             <div class="text-panel input-panel">
                 <div class="scan-line"></div>
-                <div class="panel-label">TEXTO ORIGINAL</div>
-                <textarea id="textoOriginal" placeholder="ESCRIBE O PEGA TEXTO..." maxlength="5000"></textarea>
-                <div class="panel-footer">
-                    <span class="char-count" id="charCount">0 / 5000</span>
-                    <div class="action-chips">
-                        <button class="chip" onclick="hablarTexto('textoOriginal')">🎤 Voz</button>
-                        <button class="chip" onclick="limpiarTexto()">🧹 Limpiar</button>
+                <div class="panel-header">
+                    <span class="panel-label">Texto original</span>
+                    <div class="panel-actions">
+                        <button class="panel-btn" onclick="hablarTexto('textoOriginal')" title="Dictar texto">
+                            <span class="mic-icon">🎤</span>
+                            <span class="mic-status">Habla ahora...</span>
+                        </button>
+                        <button class="panel-btn" onclick="limpiarTexto()" title="Limpiar">🧹</button>
                     </div>
+                </div>
+                <textarea id="textoOriginal" placeholder="Escribe o pega texto aquí..." maxlength="5000"></textarea>
+                <div class="panel-footer">
+                    <div class="char-progress">
+                        <div class="char-bar">
+                            <div class="char-fill" id="charFill"></div>
+                        </div>
+                        <span class="char-count" id="charCount">0 / 5000 caracteres</span>
+                    </div>
+                    <button class="panel-btn-copy" onclick="copiarTextoOriginal()" title="Copiar">📋</button>
                 </div>
             </div>
 
             <!-- Output Panel -->
             <div class="text-panel output-panel">
                 <div class="scan-line"></div>
-                <div class="panel-label">TRADUCCIÓN</div>
-                <textarea id="textoTraducido" placeholder="LA TRADUCCIÓN APARECERÁ AQUÍ..." readonly></textarea>
+                <div class="panel-header">
+                    <span class="panel-label">Traducción</span>
+                    <div class="panel-actions">
+                        <button class="panel-btn" onclick="escucharTraduccion()" title="Escuchar">🔊</button>
+                        <button class="panel-btn" onclick="copiarTraduccion()" title="Copiar">📋</button>
+                        <button class="panel-btn" onclick="toggleFavorito()" title="Guardar en favoritos" id="btnFavorito">⭐</button>
+                    </div>
+                </div>
+                <textarea id="textoTraducido" placeholder="La traducción aparecerá aquí..." readonly></textarea>
                 <div class="panel-footer">
                     <span class="char-count" id="outputInfo"></span>
-                    <div class="action-chips">
-                        <button class="chip" onclick="escucharTraduccion()">🔊 Escuchar</button>
-                        <button class="chip" onclick="copiarTraduccion()">📋 Copiar</button>
+                    <div class="pronunciation" id="pronunciationSection" style="display:none;">
+                        <span class="pronunciation-label">Pronunciación:</span>
+                        <span class="pronunciation-text" id="pronunciationText">/həˈləʊ/</span>
                     </div>
                 </div>
             </div>
@@ -204,27 +263,63 @@ body.light .history-title {
 
         <!-- Translate Button -->
         <div class="translate-bar">
-            <button class="btn-translate" id="btnTranslate" onclick="traducir()">⚡ INICIAR TRADUCCIÓN NEURAL</button>
+            <button class="btn-translate-modern" id="btnTranslate" onclick="traducir()">
+                <span class="btn-icon">⚡</span>
+                <span class="btn-text">Traducir</span>
+            </button>
         </div>
     </div>
 
-    <!-- Neural Engine Status -->
-    <div class="engine-status" id="engineStatus">
-        <div class="status-card">
-            <span class="status-label">STATUS</span>
-            <span class="status-value green" id="statusVal"><span class="status-dot green"></span> ACTIVE</span>
+    <!-- Detected Language Card -->
+    <div class="detected-lang-card" id="detectedLangCard" style="display:none;">
+        <div class="detected-lang-header">
+            <span class="detected-icon">🌍</span>
+            <span class="detected-title">Idioma detectado</span>
         </div>
-        <div class="status-card">
-            <span class="status-label">IDIOMA DETECTADO</span>
-            <span class="status-value cyan" id="detectedLang">—</span>
+        <div class="detected-lang-content">
+            <span class="detected-flag" id="detectedFlag">🇪🇸</span>
+            <span class="detected-name" id="detectedName">Español</span>
+            <span class="detected-confidence" id="detectedConfidence">98% de confianza</span>
         </div>
     </div>
 
-    <!-- History -->
-    <div class="history-section">
-        <div class="history-title"><span class="dot"></span> REGISTRO DE TRADUCCIONES</div>
-        <div class="history-list" id="historial">
-            <div class="history-empty">// NO HAY TRADUCCIONES EN EL REGISTRO</div>
+    <!-- AI Explanation Card -->
+    <div class="ai-explanation-card" id="aiExplanationCard" style="display:none;">
+        <div class="ai-header">
+            <span class="ai-icon">🤖</span>
+            <span class="ai-title">Explicación IA</span>
+        </div>
+        <div class="ai-content" id="aiExplanationContent">
+            Esta traducción es informal. Versión formal: "Good afternoon, how are you?"
+        </div>
+    </div>
+
+    <!-- History and Favorites -->
+    <div class="history-favorites-container">
+        <!-- Tabs -->
+        <div class="history-tabs">
+            <button class="history-tab active" data-tab="history" onclick="switchTab('history')">
+                <span class="tab-icon">📖</span>
+                <span class="tab-label">Historial</span>
+            </button>
+            <button class="history-tab" data-tab="favorites" onclick="switchTab('favorites')">
+                <span class="tab-icon">⭐</span>
+                <span class="tab-label">Favoritas</span>
+            </button>
+        </div>
+
+        <!-- History Section -->
+        <div class="history-section" id="historySection">
+            <div class="history-list" id="historial">
+                <div class="history-empty">// No hay traducciones en el historial</div>
+            </div>
+        </div>
+
+        <!-- Favorites Section -->
+        <div class="favorites-section" id="favoritesSection" style="display:none;">
+            <div class="favorites-list" id="favoritos">
+                <div class="history-empty">// No hay traducciones favoritas</div>
+            </div>
         </div>
     </div>
 
@@ -235,13 +330,32 @@ body.light .history-title {
 <script>
 // ===== STORAGE =====
 const STORAGE_KEY = 'miniamigixv_translations';
+const FAVORITES_KEY = 'miniamigixv_favorites';
 let historialTraducciones = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+let favoritosTraducciones = JSON.parse(localStorage.getItem(FAVORITES_KEY) || '[]');
+
+const langFlags = {
+    es: '🇪🇸', en: '🇺🇸', fr: '🇫🇷', de: '🇩🇪',
+    pt: '🇧🇷', it: '🇮🇹', ja: '🇯🇵', ko: '🇰🇷',
+    zh: '🇨🇳', ru: '🇷🇺', ar: '🇸🇦'
+};
 
 const langNames = {
     es: 'Español', en: 'Inglés', fr: 'Francés', de: 'Alemán',
     pt: 'Portugués', it: 'Italiano', ja: 'Japonés', ko: 'Coreano',
     zh: 'Chino', ru: 'Ruso', ar: 'Árabe'
 };
+
+// ===== MODE SWITCHER =====
+function setMode(mode) {
+    document.querySelectorAll('.quick-btn').forEach(btn => btn.classList.remove('active'));
+    document.querySelector(`.quick-btn[data-mode="${mode}"]`).classList.add('active');
+    
+    // Placeholder for future functionality
+    if (mode === 'image' || mode === 'document') {
+        alert('Esta función estará disponible próximamente');
+    }
+}
 
 // ===== SWAP =====
 function intercambiarIdiomas() {
@@ -256,25 +370,46 @@ function intercambiarIdiomas() {
 function limpiarTexto() {
     document.getElementById('textoOriginal').value = '';
     document.getElementById('textoTraducido').value = '';
-    document.getElementById('charCount').textContent = '0 / 5000';
+    document.getElementById('charCount').textContent = '0 / 5000 caracteres';
+    document.getElementById('charFill').style.width = '0%';
     document.getElementById('outputInfo').textContent = '';
-    resetStatus();
+    document.getElementById('detectedLangCard').style.display = 'none';
+    document.getElementById('aiExplanationCard').style.display = 'none';
+    document.getElementById('pronunciationSection').style.display = 'none';
 }
 
-// ===== COPY =====
+// ===== COPY ORIGINAL =====
+function copiarTextoOriginal() {
+    const texto = document.getElementById('textoOriginal').value;
+    if (!texto) return;
+    navigator.clipboard.writeText(texto).then(() => {
+        const btn = event.target.closest('.panel-btn-copy');
+        const original = btn.innerHTML;
+        btn.innerHTML = '✅';
+        btn.style.borderColor = '#22c55e';
+        btn.style.color = '#22c55e';
+        setTimeout(() => {
+            btn.innerHTML = original;
+            btn.style.borderColor = '';
+            btn.style.color = '';
+        }, 1500);
+    });
+}
+
+// ===== COPY TRANSLATION =====
 function copiarTraduccion() {
     const texto = document.getElementById('textoTraducido').value;
     if (!texto) return;
     navigator.clipboard.writeText(texto).then(() => {
-        const chip = event.target.closest('.chip');
-        const original = chip.innerHTML;
-        chip.innerHTML = '✅ Copiado';
-        chip.style.borderColor = '#22c55e';
-        chip.style.color = '#22c55e';
+        const btn = event.target.closest('.panel-btn');
+        const original = btn.innerHTML;
+        btn.innerHTML = '✅';
+        btn.style.borderColor = '#22c55e';
+        btn.style.color = '#22c55e';
         setTimeout(() => {
-            chip.innerHTML = original;
-            chip.style.borderColor = '';
-            chip.style.color = '';
+            btn.innerHTML = original;
+            btn.style.borderColor = '';
+            btn.style.color = '';
         }, 1500);
     });
 }
@@ -291,6 +426,39 @@ function escucharTraduccion() {
     speechSynthesis.speak(utter);
 }
 
+// ===== FAVORITES =====
+function toggleFavorito() {
+    const original = document.getElementById('textoOriginal').value;
+    const traducido = document.getElementById('textoTraducido').value;
+    const origen = document.getElementById('idiomaOrigen').value;
+    const destino = document.getElementById('idiomaDestino').value;
+    
+    if (!original || !traducido) return;
+    
+    const btn = document.getElementById('btnFavorito');
+    const existingIndex = favoritosTraducciones.findIndex(
+        f => f.original === original && f.traducido === traducido
+    );
+    
+    if (existingIndex > -1) {
+        favoritosTraducciones.splice(existingIndex, 1);
+        btn.innerHTML = '⭐';
+        btn.style.color = '';
+    } else {
+        favoritosTraducciones.unshift({
+            original: original.substring(0, 200),
+            traducido: traducido.substring(0, 200),
+            origen, destino,
+            fecha: new Date().toLocaleString('es-ES')
+        });
+        btn.innerHTML = '⭐';
+        btn.style.color = '#fbbf24';
+    }
+    
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favoritosTraducciones));
+    actualizarFavoritosUI();
+}
+
 // ===== VOICE INPUT (Speech-to-Text) =====
 function hablarTexto(targetId) {
     if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
@@ -303,37 +471,40 @@ function hablarTexto(targetId) {
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
 
-    const chip = event.target.closest('.chip');
-    chip.innerHTML = '🔴 Grabando...';
-    chip.style.borderColor = '#ef4444';
-    chip.style.color = '#ef4444';
+    const btn = event.target.closest('.panel-btn');
+    btn.classList.add('recording');
 
     recognition.start();
     recognition.onresult = function(e) {
         document.getElementById(targetId).value = e.results[0][0].transcript;
         actualizarCharCount();
-        chip.innerHTML = '🎤 Voz';
-        chip.style.borderColor = '';
-        chip.style.color = '';
+        btn.classList.remove('recording');
     };
     recognition.onerror = function() {
-        chip.innerHTML = '🎤 Voz';
-        chip.style.borderColor = '';
-        chip.style.color = '';
+        btn.classList.remove('recording');
     };
     recognition.onend = function() {
-        chip.innerHTML = '🎤 Voz';
-        chip.style.borderColor = '';
-        chip.style.color = '';
+        btn.classList.remove('recording');
     };
 }
 
 // ===== CHAR COUNT =====
 function actualizarCharCount() {
     const texto = document.getElementById('textoOriginal').value;
-    document.getElementById('charCount').textContent = `${texto.length} / 5000`;
+    const percentage = (texto.length / 5000) * 100;
+    document.getElementById('charCount').textContent = `${texto.length} / 5000 caracteres`;
+    document.getElementById('charFill').style.width = `${percentage}%`;
 }
 document.getElementById('textoOriginal').addEventListener('input', actualizarCharCount);
+
+// ===== TABS =====
+function switchTab(tab) {
+    document.querySelectorAll('.history-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector(`.history-tab[data-tab="${tab}"]`).classList.add('active');
+    
+    document.getElementById('historySection').style.display = tab === 'history' ? 'block' : 'none';
+    document.getElementById('favoritesSection').style.display = tab === 'favorites' ? 'block' : 'none';
+}
 
 // ===== TRANSLATE =====
 async function traducir() {
@@ -347,9 +518,8 @@ async function traducir() {
 
     // UI: loading state
     btn.disabled = true;
-    btn.textContent = '⏳ PROCESANDO NEURAL TRANSLATION...';
+    btn.querySelector('.btn-text').textContent = 'Traduciendo...';
     document.getElementById('translatorCard').classList.add('translating');
-    document.getElementById('statusVal').innerHTML = '<span class="status-dot cyan"></span> TRANSLATING...';
     resultado.value = '';
 
     const startTime = performance.now();
@@ -373,42 +543,34 @@ async function traducir() {
         if (data.success) {
             resultado.value = data.data.texto_traducido;
             const detectedLang = data.data.idioma_detectado || origen;
-            updateStatus('ACTIVE', langNames[detectedLang] || detectedLang, 95, elapsed);
-            document.getElementById('outputInfo').textContent = `${langNames[origen]} → ${langNames[destino]}`;
-            agregarAlHistorial(texto, data.data.texto_traducido, origen, destino);
             
-            // Actualizar idioma detectado si se detectó automáticamente
-            if (data.data.idioma_detectado && origen === 'auto') {
-                document.getElementById('detectedLang').textContent = langNames[data.data.idioma_detectado] || data.data.idioma_detectado;
+            // Show detected language card
+            document.getElementById('detectedLangCard').style.display = 'flex';
+            document.getElementById('detectedFlag').textContent = langFlags[detectedLang] || '🌍';
+            document.getElementById('detectedName').textContent = langNames[detectedLang] || detectedLang;
+            document.getElementById('detectedConfidence').textContent = '95% de confianza';
+            
+            // Show AI explanation (placeholder)
+            document.getElementById('aiExplanationCard').style.display = 'block';
+            
+            document.getElementById('outputInfo').textContent = `${langNames[origen]} → ${langNames[destino]}`;
+            
+            // Show pronunciation for some languages
+            if (['en', 'es', 'fr', 'de'].includes(destino)) {
+                document.getElementById('pronunciationSection').style.display = 'flex';
             }
+            
+            agregarAlHistorial(texto, data.data.texto_traducido, origen, destino);
         } else {
             resultado.value = 'ERROR: ' + (data.error || 'Error desconocido');
-            updateStatus('ERROR', '—', 0, elapsed);
         }
     } catch (err) {
         resultado.value = 'ERROR DE CONEXIÓN';
-        updateStatus('ERROR', '—', 0, 0);
     }
 
     btn.disabled = false;
-    btn.textContent = '⚡ INICIAR TRADUCCIÓN NEURAL';
+    btn.querySelector('.btn-text').textContent = 'Traducir';
     document.getElementById('translatorCard').classList.remove('translating');
-}
-
-// ===== STATUS =====
-function updateStatus(status, lang, confidence, latency) {
-    const statusEl = document.getElementById('statusVal');
-    if (status === 'ACTIVE') {
-        statusEl.innerHTML = '<span class="status-dot green"></span> ACTIVE';
-    } else {
-        statusEl.innerHTML = '<span class="status-dot" style="background:#ef4444;box-shadow:0 0 8px #ef4444"></span> ERROR';
-    }
-    document.getElementById('detectedLang').textContent = lang;
-}
-
-function resetStatus() {
-    document.getElementById('statusVal').innerHTML = '<span class="status-dot green"></span> ACTIVE';
-    document.getElementById('detectedLang').textContent = '—';
 }
 
 // ===== HISTORY =====
@@ -428,17 +590,44 @@ function agregarAlHistorial(original, traducido, origen, destino) {
 function actualizarHistorialUI() {
     const div = document.getElementById('historial');
     if (historialTraducciones.length === 0) {
-        div.innerHTML = '<div class="history-empty">// NO HAY TRADUCCIONES EN EL REGISTRO</div>';
+        div.innerHTML = '<div class="history-empty">// No hay traducciones en el historial</div>';
         return;
     }
-    div.innerHTML = historialTraducciones.map(item => `
+    div.innerHTML = historialTraducciones.map((item, index) => `
         <div class="history-item" onclick="cargarHistorial('${item.original.replace(/'/g, "\\'")}', '${item.traducido.replace(/'/g, "\\'")}')">
             <div class="history-head">
-                <span class="history-lang">[${(langNames[item.origen] || item.origen).toUpperCase()} → ${(langNames[item.destino] || item.destino).toUpperCase()}]</span>
+                <span class="history-lang">${langFlags[item.origen]} ${langNames[item.origen]} → ${langFlags[item.destino]} ${langNames[item.destino]}</span>
                 <span class="history-date">${item.fecha}</span>
             </div>
-            <div class="history-original">${item.original.substring(0, 80)}${item.original.length > 80 ? '...' : ''}</div>
-            <div class="history-translated">${item.traducido.substring(0, 80)}${item.traducido.length > 80 ? '...' : ''}</div>
+            <div class="history-original">${item.original.substring(0, 100)}${item.original.length > 100 ? '...' : ''}</div>
+            <div class="history-translated">${item.traducido.substring(0, 100)}${item.traducido.length > 100 ? '...' : ''}</div>
+            <div class="history-actions">
+                <button class="history-action-btn" onclick="event.stopPropagation(); copiarHistorialItem(${index})">📋 Copiar</button>
+                <button class="history-action-btn" onclick="event.stopPropagation(); favoritarHistorialItem(${index})">⭐ Favorito</button>
+                <button class="history-action-btn" onclick="event.stopPropagation(); eliminarHistorialItem(${index})">🗑 Eliminar</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function actualizarFavoritosUI() {
+    const div = document.getElementById('favoritos');
+    if (favoritosTraducciones.length === 0) {
+        div.innerHTML = '<div class="history-empty">// No hay traducciones favoritas</div>';
+        return;
+    }
+    div.innerHTML = favoritosTraducciones.map((item, index) => `
+        <div class="history-item" onclick="cargarFavorito('${item.original.replace(/'/g, "\\'")}', '${item.traducido.replace(/'/g, "\\'")}')">
+            <div class="history-head">
+                <span class="history-lang">${langFlags[item.origen]} ${langNames[item.origen]} → ${langFlags[item.destino]} ${langNames[item.destino]}</span>
+                <span class="history-date">${item.fecha}</span>
+            </div>
+            <div class="history-original">${item.original.substring(0, 100)}${item.original.length > 100 ? '...' : ''}</div>
+            <div class="history-translated">${item.traducido.substring(0, 100)}${item.traducido.length > 100 ? '...' : ''}</div>
+            <div class="history-actions">
+                <button class="history-action-btn" onclick="event.stopPropagation(); copiarFavoritoItem(${index})">📋 Copiar</button>
+                <button class="history-action-btn" onclick="event.stopPropagation(); eliminarFavoritoItem(${index})">🗑 Eliminar</button>
+            </div>
         </div>
     `).join('');
 }
@@ -450,7 +639,49 @@ function cargarHistorial(original, traducido) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+function cargarFavorito(original, traducido) {
+    document.getElementById('textoOriginal').value = original;
+    document.getElementById('textoTraducido').value = traducido;
+    actualizarCharCount();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function copiarHistorialItem(index) {
+    const item = historialTraducciones[index];
+    navigator.clipboard.writeText(item.traducido);
+}
+
+function favoritarHistorialItem(index) {
+    const item = historialTraducciones[index];
+    const existingIndex = favoritosTraducciones.findIndex(
+        f => f.original === item.original && f.traducido === item.traducido
+    );
+    if (existingIndex === -1) {
+        favoritosTraducciones.unshift({...item});
+        localStorage.setItem(FAVORITES_KEY, JSON.stringify(favoritosTraducciones));
+        actualizarFavoritosUI();
+    }
+}
+
+function eliminarHistorialItem(index) {
+    historialTraducciones.splice(index, 1);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(historialTraducciones));
+    actualizarHistorialUI();
+}
+
+function copiarFavoritoItem(index) {
+    const item = favoritosTraducciones[index];
+    navigator.clipboard.writeText(item.traducido);
+}
+
+function eliminarFavoritoItem(index) {
+    favoritosTraducciones.splice(index, 1);
+    localStorage.setItem(FAVORITES_KEY, JSON.stringify(favoritosTraducciones));
+    actualizarFavoritosUI();
+}
+
 // Init
 actualizarHistorialUI();
+actualizarFavoritosUI();
 </script>
 {% endblock %}

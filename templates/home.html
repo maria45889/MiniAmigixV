@@ -10,14 +10,14 @@
     background: linear-gradient(135deg, #7c3aed, #06b6d4);
     color: white;
     border: none;
-    padding: 12px 24px;
+    padding: 14px 28px;
     border-radius: 12px;
     font-size: 1rem;
     font-weight: 600;
     cursor: pointer;
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     margin-top: 20px;
     box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
     transition: all 0.3s ease;
@@ -29,7 +29,20 @@
 }
 
 .pwa-install-hero-btn i {
-    font-size: 1.2rem;
+    font-size: 1.5rem;
+}
+
+.pwa-install-hero-btn span {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    line-height: 1.2;
+}
+
+.pwa-install-hero-btn .pwa-subtext {
+    font-size: 0.75rem;
+    opacity: 0.9;
+    font-weight: 400;
 }
 </style>
 {% endblock %}
@@ -39,9 +52,13 @@
     <div class="hero-section">
         <h1 class="hero-title">Bienvenido a MiniAmigixV</h1>
         <p class="hero-subtitle">Tu espacio personal interactivo</p>
+        <div class="hero-illustration">🤖</div>
         <button id="pwa-install-hero" class="pwa-install-hero-btn" style="display: none;">
             <i class="ti ti-download"></i>
-            Instalar App
+            <span>
+                Instalar App
+                <span class="pwa-subtext">Disponible como PWA</span>
+            </span>
         </button>
     </div>
 
@@ -54,12 +71,54 @@
             <p class="quote-author">- {{ frase_autor }}</p>
         </div>
 
-        <!-- Tarjeta: Estadísticas (Chart) -->
-        <div class="widget-card chart-card">
+        <!-- Tarjeta: Estadísticas KPI -->
+        <div class="widget-card stats-card">
             <h3>Tu Actividad</h3>
-            <div class="chart-container">
-                <canvas id="activityChart"></canvas>
+            <div class="kpi-grid">
+                <div class="kpi-item">
+                    <div class="kpi-icon">💬</div>
+                    <div class="kpi-value">{{ stats_chats|default:0 }}</div>
+                    <div class="kpi-label">Chats</div>
+                </div>
+                <div class="kpi-item">
+                    <div class="kpi-icon">🎵</div>
+                    <div class="kpi-value">{{ stats_canciones|default:0 }}</div>
+                    <div class="kpi-label">Canciones</div>
+                </div>
+                <div class="kpi-item">
+                    <div class="kpi-icon">📅</div>
+                    <div class="kpi-value">{{ stats_eventos|default:0 }}</div>
+                    <div class="kpi-label">Eventos</div>
+                </div>
+                <div class="kpi-item">
+                    <div class="kpi-icon">🌦</div>
+                    <div class="kpi-value">23°C</div>
+                    <div class="kpi-label">Clima</div>
+                </div>
             </div>
+        </div>
+    </div>
+
+    <!-- Quick Access Shortcuts -->
+    <div class="quick-access-section">
+        <h3 class="section-title">Accesos Rápidos</h3>
+        <div class="quick-access-grid">
+            <a href="{% url 'chat' %}" class="quick-access-item">
+                <div class="quick-access-icon">💬</div>
+                <div class="quick-access-label">IA</div>
+            </a>
+            <a href="{% url 'musica' %}" class="quick-access-item">
+                <div class="quick-access-icon">🎵</div>
+                <div class="quick-access-label">Música</div>
+            </a>
+            <a href="{% url 'juegos' %}" class="quick-access-item">
+                <div class="quick-access-icon">🎮</div>
+                <div class="quick-access-label">Juegos</div>
+            </a>
+            <a href="{% url 'traductor' %}" class="quick-access-item">
+                <div class="quick-access-icon">🌐</div>
+                <div class="quick-access-label">Traductor</div>
+            </a>
         </div>
     </div>
 
@@ -100,6 +159,58 @@
             </div>
         </a>
     </div>
+
+    <!-- Recent Activity Section -->
+    <div class="recent-activity-section">
+        <h3 class="section-title">Actividad Reciente</h3>
+        <div class="activity-list">
+            <div class="activity-item">
+                <div class="activity-icon">💬</div>
+                <div class="activity-content">
+                    <div class="activity-text">Chat IA</div>
+                    <div class="activity-time">Hoy</div>
+                </div>
+                <div class="activity-check">✔</div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-icon">🎵</div>
+                <div class="activity-content">
+                    <div class="activity-text">Música</div>
+                    <div class="activity-time">Hoy</div>
+                </div>
+                <div class="activity-check">✔</div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-icon">📅</div>
+                <div class="activity-content">
+                    <div class="activity-text">Evento</div>
+                    <div class="activity-time">Hoy</div>
+                </div>
+                <div class="activity-check">✔</div>
+            </div>
+            <div class="activity-item">
+                <div class="activity-icon">🌐</div>
+                <div class="activity-content">
+                    <div class="activity-text">Traductor</div>
+                    <div class="activity-time">Hoy</div>
+                </div>
+                <div class="activity-check">✔</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="app-footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <span class="footer-logo">MiniAmigixV</span>
+            </div>
+            <div class="footer-info">
+                <span class="footer-version">Versión 1.0</span>
+                <span class="footer-copyright">© 2026</span>
+            </div>
+        </div>
+    </footer>
 </div>
 {% endblock %}
 

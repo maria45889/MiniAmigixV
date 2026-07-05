@@ -53,6 +53,125 @@
         </div>
     </div> <!-- Close ent-hero -->
 
+    <!-- Search and Filters -->
+    <div class="ent-search-section">
+        <div class="ent-search-bar">
+            <span class="ent-search-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="Buscar película, serie o libro..." class="ent-search-input">
+        </div>
+        <div class="ent-filters">
+            <button class="ent-filter-btn ent-filter-btn--active" data-filter="all">Todo</button>
+            <button class="ent-filter-btn" data-filter="peliculas">🎬 Películas</button>
+            <button class="ent-filter-btn" data-filter="series">📺 Series</button>
+            <button class="ent-filter-btn" data-filter="libros">📖 Libros</button>
+            <button class="ent-filter-btn" data-filter="anime">🎌 Anime</button>
+            <button class="ent-filter-btn" data-filter="teatro">🎭 Teatro</button>
+            <button class="ent-filter-btn" data-filter="documentales">🎥 Documentales</button>
+        </div>
+    </div>
+
+    <!-- Featured Content (Recommendation of the Day) -->
+    <div class="ent-featured-section">
+        <div class="ent-featured-badge">⭐ Recomendación del día</div>
+        <div class="ent-featured-card" onclick="openModal(this)"
+            data-titulo="{{ recomendaciones.peliculas.0.titulo }}"
+            data-genero="{{ recomendaciones.peliculas.0.genero }}"
+            data-descripcion="{{ recomendaciones.peliculas.0.descripcion }}"
+            data-director="{{ recomendaciones.peliculas.0.director }}"
+            data-anio="{{ recomendaciones.peliculas.0.anio }}"
+            data-duracion="{{ recomendaciones.peliculas.0.duracion }}"
+            data-calificacion="{{ recomendaciones.peliculas.0.calificacion }}"
+            data-imagen="{{ recomendaciones.peliculas.0.imagen }}">
+            <div class="ent-featured-bg">
+                <img src="{{ recomendaciones.peliculas.0.imagen }}" alt="{{ recomendaciones.peliculas.0.titulo }}" class="ent-featured-img">
+                <div class="ent-featured-overlay"></div>
+            </div>
+            <div class="ent-featured-content">
+                <h2 class="ent-featured-title">{{ recomendaciones.peliculas.0.titulo }}</h2>
+                <div class="ent-featured-meta">
+                    <span class="ent-featured-rating">⭐ {{ recomendaciones.peliculas.0.calificacion }}/10</span>
+                    <span class="ent-featured-genre">{{ recomendaciones.peliculas.0.genero }}</span>
+                </div>
+                <p class="ent-featured-desc">{{ recomendaciones.peliculas.0.descripcion }}</p>
+                <button class="ent-featured-btn">Ver información</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trends Section -->
+    <div class="ent-trends-section">
+        <div class="ent-trends-header">
+            <h2 class="ent-trends-title">🔥 Tendencias</h2>
+        </div>
+        <div class="ent-trends-list">
+            <div class="ent-trend-item" onclick="openModal(this)"
+                data-titulo="{{ recomendaciones.series.0.titulo }}"
+                data-genero="{{ recomendaciones.series.0.genero }}"
+                data-descripcion="{{ recomendaciones.series.0.descripcion }}"
+                data-director="{{ recomendaciones.series.0.director }}"
+                data-anio="{{ recomendaciones.series.0.anio }}"
+                data-duracion="{{ recomendaciones.series.0.duracion }}"
+                data-calificacion="{{ recomendaciones.series.0.calificacion }}"
+                data-imagen="{{ recomendaciones.series.0.imagen }}">
+                <span class="ent-trend-rank">1️⃣</span>
+                <img src="{{ recomendaciones.series.0.imagen }}" alt="{{ recomendaciones.series.0.titulo }}" class="ent-trend-img">
+                <div class="ent-trend-info">
+                    <h4>{{ recomendaciones.series.0.titulo }}</h4>
+                    <span class="ent-trend-genre">{{ recomendaciones.series.0.genero }}</span>
+                </div>
+            </div>
+            <div class="ent-trend-item" onclick="openModal(this)"
+                data-titulo="{{ recomendaciones.anime.0.titulo }}"
+                data-genero="{{ recomendaciones.anime.0.genero }}"
+                data-descripcion="{{ recomendaciones.anime.0.descripcion }}"
+                data-director="{{ recomendaciones.anime.0.director }}"
+                data-anio="{{ recomendaciones.anime.0.anio }}"
+                data-duracion="{{ recomendaciones.anime.0.duracion }}"
+                data-calificacion="{{ recomendaciones.anime.0.calificacion }}"
+                data-imagen="{{ recomendaciones.anime.0.imagen }}">
+                <span class="ent-trend-rank">2️⃣</span>
+                <img src="{{ recomendaciones.anime.0.imagen }}" alt="{{ recomendaciones.anime.0.titulo }}" class="ent-trend-img">
+                <div class="ent-trend-info">
+                    <h4>{{ recomendaciones.anime.0.titulo }}</h4>
+                    <span class="ent-trend-genre">{{ recomendaciones.anime.0.genero }}</span>
+                </div>
+            </div>
+            <div class="ent-trend-item" onclick="openModal(this)"
+                data-titulo="{{ recomendaciones.peliculas.1.titulo }}"
+                data-genero="{{ recomendaciones.peliculas.1.genero }}"
+                data-descripcion="{{ recomendaciones.peliculas.1.descripcion }}"
+                data-director="{{ recomendaciones.peliculas.1.director }}"
+                data-anio="{{ recomendaciones.peliculas.1.anio }}"
+                data-duracion="{{ recomendaciones.peliculas.1.duracion }}"
+                data-calificacion="{{ recomendaciones.peliculas.1.calificacion }}"
+                data-imagen="{{ recomendaciones.peliculas.1.imagen }}">
+                <span class="ent-trend-rank">3️⃣</span>
+                <img src="{{ recomendaciones.peliculas.1.imagen }}" alt="{{ recomendaciones.peliculas.1.titulo }}" class="ent-trend-img">
+                <div class="ent-trend-info">
+                    <h4>{{ recomendaciones.peliculas.1.titulo }}</h4>
+                    <span class="ent-trend-genre">{{ recomendaciones.peliculas.1.genero }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AI Recommendation Section -->
+    <div class="ent-ai-section">
+        <div class="ent-ai-header">
+            <h2 class="ent-ai-title">🤖 ¿Qué quieres ver hoy?</h2>
+            <p class="ent-ai-subtitle">La IA te recomienda contenido basado en tus gustos</p>
+        </div>
+        <div class="ent-ai-card">
+            <div class="ent-ai-icon">🎲</div>
+            <h3 class="ent-ai-card-title">Sorpréndeme</h3>
+            <p class="ent-ai-card-desc">Deja que la IA elija algo para ti</p>
+            <button class="ent-ai-btn" onclick="getAIRecommendation()">Obtener recomendación</button>
+        </div>
+        <div id="aiRecommendationResult" class="ent-ai-result" style="display: none;">
+            <!-- AI recommendation will appear here -->
+        </div>
+    </div>
+
       <!-- Streaming Style Rows -->
     <div class="ent-streaming-container">
 
@@ -70,9 +189,17 @@
                     data-anio="{{ item.anio|default:'' }}"
                     data-duracion="{{ item.duracion|default:'' }}"
                     data-calificacion="{{ item.calificacion|default:'' }}"
-                    data-imagen="{{ item.imagen }}">
+                    data-imagen="{{ item.imagen }}"
+                    data-id="{{ item.titulo|slugify }}">
                     <img src="{{ item.imagen }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
+                    <button class="ent-favorite-btn" onclick="event.stopPropagation(); toggleFavorite(this)" data-id="{{ item.titulo|slugify }}" data-titulo="{{ item.titulo }}" data-imagen="{{ item.imagen }}" data-calificacion="{{ item.calificacion }}" data-genero="{{ item.genero }}">
+                        <span class="ent-heart-icon">♡</span>
+                    </button>
                     <div class="ent-card-overlay">
+                        <div class="ent-card-meta">
+                            <span class="ent-card-rating">⭐ {{ item.calificacion }}</span>
+                            <span class="ent-card-year">{{ item.anio|default:'' }}</span>
+                        </div>
                         <h4>{{ item.titulo }}</h4>
                         <p class="ent-card-genre">{{ item.genero }}</p>
                     </div>
@@ -96,9 +223,17 @@
                     data-anio="{{ item.anio|default:'' }}"
                     data-duracion="{{ item.duracion|default:'' }}"
                     data-calificacion="{{ item.calificacion|default:'' }}"
-                    data-imagen="{{ item.imagen }}">
+                    data-imagen="{{ item.imagen }}"
+                    data-id="{{ item.titulo|slugify }}">
                     <img src="{{ item.imagen }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
+                    <button class="ent-favorite-btn" onclick="event.stopPropagation(); toggleFavorite(this)" data-id="{{ item.titulo|slugify }}" data-titulo="{{ item.titulo }}" data-imagen="{{ item.imagen }}" data-calificacion="{{ item.calificacion }}" data-genero="{{ item.genero }}">
+                        <span class="ent-heart-icon">♡</span>
+                    </button>
                     <div class="ent-card-overlay">
+                        <div class="ent-card-meta">
+                            <span class="ent-card-rating">⭐ {{ item.calificacion }}</span>
+                            <span class="ent-card-year">{{ item.anio|default:'' }}</span>
+                        </div>
                         <h4>{{ item.titulo }}</h4>
                         <p class="ent-card-genre">{{ item.genero }}</p>
                     </div>
@@ -122,9 +257,17 @@
                     data-anio="{{ item.anio|default:'' }}"
                     data-duracion="{{ item.duracion|default:'' }}"
                     data-calificacion="{{ item.calificacion|default:'' }}"
-                    data-imagen="{{ item.imagen }}">
+                    data-imagen="{{ item.imagen }}"
+                    data-id="{{ item.titulo|slugify }}">
                     <img src="{{ item.imagen }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
+                    <button class="ent-favorite-btn" onclick="event.stopPropagation(); toggleFavorite(this)" data-id="{{ item.titulo|slugify }}" data-titulo="{{ item.titulo }}" data-imagen="{{ item.imagen }}" data-calificacion="{{ item.calificacion }}" data-genero="{{ item.genero }}">
+                        <span class="ent-heart-icon">♡</span>
+                    </button>
                     <div class="ent-card-overlay">
+                        <div class="ent-card-meta">
+                            <span class="ent-card-rating">⭐ {{ item.calificacion }}</span>
+                            <span class="ent-card-year">{{ item.anio|default:'' }}</span>
+                        </div>
                         <h4>{{ item.titulo }}</h4>
                         <p class="ent-card-genre">{{ item.genero }}</p>
                     </div>
@@ -148,9 +291,17 @@
                     data-anio="{{ item.anio|default:'' }}"
                     data-duracion="{{ item.duracion|default:'' }}"
                     data-calificacion="{{ item.calificacion|default:'' }}"
-                    data-imagen="{{ item.imagen }}">
+                    data-imagen="{{ item.imagen }}"
+                    data-id="{{ item.titulo|slugify }}">
                     <img src="{{ item.imagen }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
+                    <button class="ent-favorite-btn" onclick="event.stopPropagation(); toggleFavorite(this)" data-id="{{ item.titulo|slugify }}" data-titulo="{{ item.titulo }}" data-imagen="{{ item.imagen }}" data-calificacion="{{ item.calificacion }}" data-genero="{{ item.genero }}">
+                        <span class="ent-heart-icon">♡</span>
+                    </button>
                     <div class="ent-card-overlay">
+                        <div class="ent-card-meta">
+                            <span class="ent-card-rating">⭐ {{ item.calificacion }}</span>
+                            <span class="ent-card-year">{{ item.anio|default:'' }}</span>
+                        </div>
                         <h4>{{ item.titulo }}</h4>
                         <p class="ent-card-genre">{{ item.genero }}</p>
                     </div>
@@ -249,6 +400,14 @@
                         <span class="ent-meta-value" id="modal-duracion"></span>
                     </div>
                 </div>
+                <div class="ent-modal-actions">
+                    <button class="ent-modal-action-btn ent-modal-action-btn--trailer" onclick="searchTrailer()">
+                        <span>▶</span> Ver tráiler
+                    </button>
+                    <button class="ent-modal-action-btn ent-modal-action-btn--favorite" onclick="addToFavoritesFromModal()">
+                        <span>♡</span> Añadir a favoritos
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -317,6 +476,52 @@
 .ent-modal-close:hover {
     background: rgba(239,68,68,0.3);
     transform: rotate(90deg);
+}
+
+.ent-modal-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ent-modal-action-btn {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.ent-modal-action-btn--trailer {
+    background: linear-gradient(135deg, #ef4444, #f97316);
+    color: white;
+}
+
+.ent-modal-action-btn--trailer:hover {
+    background: linear-gradient(135deg, #f97316, #fb923c);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+}
+
+.ent-modal-action-btn--favorite {
+    background: rgba(124, 58, 237, 0.2);
+    color: #a78bfa;
+    border: 1px solid rgba(124, 58, 237, 0.4);
+}
+
+.ent-modal-action-btn--favorite:hover {
+    background: rgba(124, 58, 237, 0.3);
+    border-color: rgba(124, 58, 237, 0.6);
+    transform: translateY(-2px);
 }
 
 .ent-modal-inner {
@@ -436,6 +641,248 @@
 // Initialize lucide icons
 if (typeof lucide !== 'undefined') {
     lucide.createIcons();
+}
+
+// ============ SEARCH AND FILTER ============
+const searchInput = document.getElementById('searchInput');
+const filterButtons = document.querySelectorAll('.ent-filter-btn');
+const allCards = document.querySelectorAll('.ent-card');
+const allRows = document.querySelectorAll('.ent-row');
+
+// Search functionality
+searchInput.addEventListener('input', function() {
+    const searchTerm = this.value.toLowerCase();
+    filterContent(searchTerm, getCurrentFilter());
+});
+
+// Filter functionality
+filterButtons.forEach(btn => {
+    btn.addEventListener('click', function() {
+        // Update active state
+        filterButtons.forEach(b => b.classList.remove('ent-filter-btn--active'));
+        this.classList.add('ent-filter-btn--active');
+        
+        // Filter content
+        const filter = this.dataset.filter;
+        const searchTerm = searchInput.value.toLowerCase();
+        filterContent(searchTerm, filter);
+    });
+});
+
+function getCurrentFilter() {
+    const activeBtn = document.querySelector('.ent-filter-btn--active');
+    return activeBtn ? activeBtn.dataset.filter : 'all';
+}
+
+function filterContent(searchTerm, filter) {
+    allRows.forEach(row => {
+        const rowTitle = row.querySelector('.ent-row-title');
+        if (!rowTitle) return;
+        
+        const category = getCategoryFromTitle(rowTitle.textContent);
+        const cards = row.querySelectorAll('.ent-card');
+        
+        // Check if row should be visible based on filter
+        const showRow = filter === 'all' || category === filter;
+        
+        // Check each card for search term
+        let hasVisibleCards = false;
+        cards.forEach(card => {
+            const title = card.dataset.titulo?.toLowerCase() || '';
+            const genre = card.dataset.genero?.toLowerCase() || '';
+            const matchesSearch = title.includes(searchTerm) || genre.includes(searchTerm);
+            
+            if (showRow && matchesSearch) {
+                card.style.display = '';
+                hasVisibleCards = true;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // Show/hide row based on visible cards
+        row.style.display = hasVisibleCards ? '' : 'none';
+    });
+}
+
+function getCategoryFromTitle(title) {
+    const titleLower = title.toLowerCase();
+    if (titleLower.includes('películ')) return 'peliculas';
+    if (titleLower.includes('serie')) return 'series';
+    if (titleLower.includes('anime')) return 'anime';
+    if (titleLower.includes('libro')) return 'libros';
+    if (titleLower.includes('teatro')) return 'teatro';
+    if (titleLower.includes('documental')) return 'documentales';
+    return 'all';
+}
+
+// ============ FAVORITES SYSTEM ============
+let favorites = JSON.parse(localStorage.getItem('entertainmentFavorites') || '[]');
+
+// Initialize favorite buttons on page load
+function initializeFavorites() {
+    const favoriteBtns = document.querySelectorAll('.ent-favorite-btn');
+    favoriteBtns.forEach(btn => {
+        const id = btn.dataset.id;
+        if (favorites.includes(id)) {
+            btn.classList.add('ent-favorite-btn--active');
+            btn.querySelector('.ent-heart-icon').textContent = '❤️';
+        }
+    });
+}
+
+function toggleFavorite(btn) {
+    const id = btn.dataset.id;
+    const heartIcon = btn.querySelector('.ent-heart-icon');
+    
+    if (favorites.includes(id)) {
+        // Remove from favorites
+        favorites = favorites.filter(favId => favId !== id);
+        btn.classList.remove('ent-favorite-btn--active');
+        heartIcon.textContent = '♡';
+    } else {
+        // Add to favorites
+        favorites.push(id);
+        btn.classList.add('ent-favorite-btn--active');
+        heartIcon.textContent = '❤️';
+    }
+    
+    // Save to localStorage
+    localStorage.setItem('entertainmentFavorites', JSON.stringify(favorites));
+}
+
+// Initialize on page load
+initializeFavorites();
+
+// ============ AI RECOMMENDATION ============
+function getAIRecommendation() {
+    const btn = document.querySelector('.ent-ai-btn');
+    const resultDiv = document.getElementById('aiRecommendationResult');
+    
+    // Disable button and show loading
+    btn.disabled = true;
+    btn.textContent = 'Buscando...';
+    
+    // Collect all content from the page
+    const allContent = [];
+    document.querySelectorAll('.ent-card').forEach(card => {
+        allContent.push({
+            titulo: card.dataset.titulo,
+            genero: card.dataset.genero,
+            descripcion: card.dataset.descripcion,
+            imagen: card.dataset.imagen,
+            calificacion: card.dataset.calificacion,
+            anio: card.dataset.anio,
+            duracion: card.dataset.duracion
+        });
+    });
+    
+    // Randomly select a recommendation (simulating AI)
+    setTimeout(() => {
+        const randomIndex = Math.floor(Math.random() * allContent.length);
+        const recommendation = allContent[randomIndex];
+        
+        // Display the recommendation
+        resultDiv.innerHTML = `
+            <h3 class="ent-ai-result-title">🤖 Te recomiendo:</h3>
+            <div class="ent-ai-result-content">
+                <img src="${recommendation.imagen}" alt="${recommendation.titulo}" class="ent-ai-result-img">
+                <div class="ent-ai-result-info">
+                    <h4>${recommendation.titulo}</h4>
+                    <p>${recommendation.descripcion}</p>
+                    <div class="ent-ai-result-meta">
+                        <span>⭐ ${recommendation.calificacion}</span>
+                        <span>${recommendation.genero}</span>
+                        ${recommendation.anio ? `<span>${recommendation.anio}</span>` : ''}
+                    </div>
+                </div>
+            </div>
+        `;
+        
+        resultDiv.style.display = 'block';
+        
+        // Re-enable button
+        btn.disabled = false;
+        btn.textContent = 'Obtener otra recomendación';
+    }, 1000);
+}
+
+// ============ MODAL ACTIONS ============
+let currentModalTitle = '';
+
+function openModal(card) {
+    const d = card.dataset;
+    currentModalTitle = d.titulo || '';
+    
+    document.getElementById('modal-img').src = d.imagen || '';
+    document.getElementById('modal-img').alt = d.titulo || '';
+    document.getElementById('modal-title').textContent = d.titulo || '';
+    document.getElementById('modal-genre').textContent = d.genero || '';
+    document.getElementById('modal-desc').textContent = d.descripcion || '';
+    document.getElementById('modal-rating').textContent = d.calificacion ? d.calificacion + ' / 10' : '';
+
+    // Director / Autor / Compositor
+    const dirWrap = document.getElementById('meta-director-wrap');
+    const dirLabel = document.getElementById('meta-director-label');
+    const dirVal   = document.getElementById('modal-director');
+    if (d.director) {
+        dirLabel.textContent = d.directorLabel || 'Director';
+        dirVal.textContent = d.director;
+        dirWrap.style.display = 'flex';
+    } else {
+        dirWrap.style.display = 'none';
+    }
+
+    // Año
+    const anioWrap = document.getElementById('meta-anio-wrap');
+    const anioVal  = document.getElementById('modal-anio');
+    if (d.anio) {
+        anioVal.textContent = d.anio;
+        anioWrap.style.display = 'flex';
+    } else {
+        anioWrap.style.display = 'none';
+    }
+
+    // Duración / Páginas
+    const durWrap  = document.getElementById('meta-duracion-wrap');
+    const durLabel = document.getElementById('meta-duracion-label');
+    const durVal   = document.getElementById('modal-duracion');
+    if (d.duracion) {
+        durLabel.textContent = d.duracionLabel || 'Duración';
+        durVal.textContent = d.duracion;
+        durWrap.style.display = 'flex';
+    } else {
+        durWrap.style.display = 'none';
+    }
+
+    // Rating visibility
+    const ratingEl = document.querySelector('.ent-modal-rating');
+    ratingEl.style.display = d.calificacion ? 'flex' : 'none';
+
+    document.getElementById('entModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function searchTrailer() {
+    if (currentModalTitle) {
+        const searchQuery = encodeURIComponent(currentModalTitle + ' tráiler');
+        window.open(`https://www.youtube.com/results?search_query=${searchQuery}`, '_blank');
+    }
+}
+
+function addToFavoritesFromModal() {
+    if (currentModalTitle) {
+        const id = currentModalTitle.toLowerCase().replace(/\s+/g, '-');
+        
+        // Find the corresponding card and toggle favorite
+        const card = document.querySelector(`[data-id="${id}"]`);
+        if (card) {
+            const btn = card.querySelector('.ent-favorite-btn');
+            if (btn) {
+                toggleFavorite(btn);
+            }
+        }
+    }
 }
 
 // ============ PARTICLES ============

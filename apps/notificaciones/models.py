@@ -11,8 +11,30 @@ class Notificacion(models.Model):
         ('warning', 'Advertencia'),
         ('error', 'Error'),
         ('evento', 'Evento'),
+        ('chat_ia', 'Chat IA'),
+        ('musica', 'Música'),
+        ('estudio', 'Estudio'),
+        ('soporte', 'Soporte'),
+        ('sistema', 'Sistema'),
     ], default='info')
+    categoria = models.CharField(max_length=50, choices=[
+        ('chat_ia', 'Chat IA'),
+        ('musica', 'Música'),
+        ('estudio', 'Estudio'),
+        ('evento', 'Eventos'),
+        ('soporte', 'Soporte'),
+        ('sistema', 'Sistema'),
+        ('clima', 'Clima'),
+        ('traductor', 'Traductor'),
+        ('juegos', 'Juegos'),
+    ], default='sistema')
+    prioridad = models.CharField(max_length=20, choices=[
+        ('alta', 'Alta'),
+        ('normal', 'Normal'),
+        ('baja', 'Baja'),
+    ], default='normal')
     leida = models.BooleanField(default=False)
+    fijada = models.BooleanField(default=False)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     enlace = models.URLField(blank=True, null=True)
 
@@ -20,4 +42,4 @@ class Notificacion(models.Model):
         return f"{self.titulo} - {self.usuario.username}"
 
     class Meta:
-        ordering = ['-fecha_creacion']
+        ordering = ['-fijada', '-prioridad', '-fecha_creacion']

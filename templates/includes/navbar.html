@@ -3,7 +3,7 @@
     .navbar { display: flex; align-items: center; justify-content: space-between; padding: 12px 20px; gap: 12px; }
     .nav-left { flex: 0 0 auto; display:flex; align-items:center; gap:12px; }
     .nav-center { flex: 1 1 auto; display:flex; justify-content:center; }
-    .nav-right { flex: 0 0 auto; display:flex; align-items:center; gap:36px; }
+    .nav-right { flex: 0 0 auto; display:flex; align-items:center; gap:16px; }
     .digital-clock { font-weight: 800; color: var(--text-main); font-size: 20px; min-width: 180px; text-align: center; padding: 8px 16px; border-radius: 10px; background: rgba(255,255,255,0.03); box-shadow: 0 6px 18px rgba(0,0,0,0.45); }
     .notification-btn { position: relative; background: none; border: none; color: var(--text-main); cursor: pointer; display: inline-flex; align-items: center; text-decoration: none; padding: 10px; border-radius:10px; }
     .notification-btn:hover { background: rgba(255,255,255,0.05); }
@@ -13,7 +13,95 @@
     .nav-right i, .nav-left i { font-size: 20px; display: inline-flex; color: var(--text-main); line-height: 1; }
     .nav-right .notification-btn:hover, .theme-btn:hover { transform: translateY(-3px); }
     .nav-right .notification-btn i, .theme-btn i { width: 22px; height: 22px; }
-    @media (max-width: 768px) { .digital-clock { min-width: 100px; font-size: 16px; } }
+    
+    /* Search Bar */
+    .search-container {
+        position: relative;
+        flex: 1;
+        max-width: 300px;
+        margin: 0 20px;
+    }
+    .search-input {
+        width: 100%;
+        padding: 10px 16px 10px 40px;
+        border-radius: 12px;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text-main);
+        font-size: 14px;
+        transition: all 0.3s ease;
+    }
+    .search-input:focus {
+        outline: none;
+        border-color: rgba(124, 58, 237, 0.5);
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 0 20px rgba(124, 58, 237, 0.2);
+    }
+    .search-input::placeholder {
+        color: var(--text-muted);
+    }
+    .search-icon {
+        position: absolute;
+        left: 12px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        font-size: 18px;
+    }
+    
+    /* Profile Button */
+    .profile-btn {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 8px 12px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        text-decoration: none;
+        color: var(--text-main);
+        transition: all 0.3s ease;
+    }
+    .profile-btn:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(124, 58, 237, 0.3);
+        transform: translateY(-2px);
+    }
+    .profile-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #7c3aed, #06b6d4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        font-weight: 700;
+    }
+    .profile-name {
+        font-size: 14px;
+        font-weight: 600;
+        display: none;
+    }
+    .profile-online {
+        width: 10px;
+        height: 10px;
+        background: #22c55e;
+        border-radius: 50%;
+        border: 2px solid var(--bg-dark);
+        position: absolute;
+        bottom: -2px;
+        right: -2px;
+    }
+    
+    @media (max-width: 768px) {
+        .digital-clock { min-width: 100px; font-size: 16px; }
+        .search-container { display: none; }
+        .profile-name { display: none; }
+    }
+    @media (min-width: 769px) {
+        .profile-name { display: block; }
+    }
 </style>
 <nav class="navbar">
     <div class="nav-left">
@@ -22,6 +110,12 @@
     </div>
 
     <div class="nav-center">
+        <!-- Search Bar -->
+        <div class="search-container">
+            <i class="ti ti-search search-icon"></i>
+            <input type="text" class="search-input" placeholder="Buscar...">
+        </div>
+        
         <!-- Reloj Digital centrado -->
         <div id="digital-clock" class="digital-clock">--:--</div>
     </div>
@@ -37,6 +131,17 @@
 
         <!-- Tema -->
         <button class="theme-btn" onclick="toggleTheme()" title="Cambiar tema"><i class="ti ti-moon"></i></button>
+
+        <!-- Profile -->
+        {% if user.is_authenticated %}
+        <a href="{% url 'perfil' %}" class="profile-btn" title="Perfil">
+            <div class="profile-avatar">
+                {{ user.username|first|upper }}
+                <div class="profile-online"></div>
+            </div>
+            <span class="profile-name">{{ user.username }}</span>
+        </a>
+        {% endif %}
     </div>
 </nav>
 

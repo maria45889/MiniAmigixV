@@ -6,7 +6,9 @@ import json
 import os
 import requests
 
-from .models import Nota, Resumen
+from .models import Nota, Resumen, StudySession, PomodoroSession, DailyStats
+from django.utils import timezone
+from datetime import datetime, timedelta
 
 @login_required
 def estudio(request):
@@ -25,20 +27,42 @@ def guardar_nota(request):
         try:
             data = json.loads(request.body)
             contenido = data.get('contenido', '')
+            color = data.get('color', '#fef08a')
+            fijada = data.get('fijada', False)
             
             if not contenido:
                 return JsonResponse({'success': False, 'error': 'El contenido no puede estar vacío'})
             
             nota = Nota.objects.create(
                 usuario=request.user,
-                contenido=contenido
+                contenido=contenido,
+                color=color,
+                fijada=fijada
             )
+            
+            # Actualizar estadísticas diarias
+            hoy = timezone.now().date()
+            stats, _ = DailyStats.objects.get_or_create(
+                usuario=request.user,
+                fecha=hoy,
+                defaults={
+                    'tiempo_estudiado_segundos': 0,
+                    'pomodoros_completados': 0,
+                    'notas_creadas': 0,
+                    'resumenes_creados': 0,
+                    'racha_dias': 0
+                }
+            )
+            stats.notas_creadas += 1
+            stats.save()
             
             return JsonResponse({
                 'success': True,
                 'nota': {
                     'id': str(nota.id),
                     'contenido': nota.contenido,
+                    'color': nota.color,
+                    'fijada': nota.fijada,
                     'fecha_creacion': nota.fecha_creacion.strftime('%d/%m/%Y %H:%M')
                 }
             })
@@ -172,6 +196,8 @@ def obtener_notas(request):
                 {
                     'id': str(nota.id),
                     'contenido': nota.contenido,
+                    'color': nota.color,
+                    'fijada': nota.fijada,
                     'fecha_creacion': nota.fecha_creacion.strftime('%d/%m/%Y %H:%M')
                 }
                 for nota in notas
@@ -213,6 +239,179 @@ def eliminar_resumen(request, resumen_id):
             return JsonResponse({'success': True})
         except Resumen.DoesNotExist:
             return JsonResponse({'success': False, 'error': 'Resumen no encontrado'})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
+@csrf_exempt
+@login_required
+def obtener_estadisticas(request):
+    if request.method == 'GET':
+        try:
+            hoy = timezone.now().date()
+            inicio_semana = hoy - timedelta(days=hoy.weekday())
+            
+            # Estadísticas de hoy
+            stats_hoy, _ = DailyStats.objects.get_or_create(
+                usuario=request.user,
+                fecha=hoy,
+                defaults={
+                    'tiempo_estudiado_segundos': 0,
+                    'pomodoros_completados': 0,
+                    'notas_creadas': 0,
+                    'resumenes_creados': 0,
+                    'racha_dias': 0
+                }
+            )
+            
+            # Calcular racha
+            racha = 0
+            fecha_temp = hoy
+            while True:
+                try:
+                    stats_dia = DailyStats.objects.get(usuario=request.user, fecha=fecha_temp)
+                    if stats_dia.tiempo_estudiado_segundos > 0 or stats_dia.pomodoros_completados > 0:
+                        racha += 1
+                        fecha_temp -= timedelta(days=1)
+                    else:
+                        break
+                except DailyStats.DoesNotExist:
+                    break
+            
+            # Estadísticas de la semana
+            stats_semana = DailyStats.objects.filter(
+                usuario=request.user,
+                fecha__gte=inicio_semana
+            )
+            
+            tiempo_total_semana = sum(s.tiempo_estudiado_segundos for s in stats_semana)
+            pomodoros_semana = sum(s.pomodoros_completados for s in stats_semana)
+            
+            # Mejor día
+            mejor_dia = DailyStats.objects.filter(
+                usuario=request.user,
+                tiempo_estudiado_segundos__gt=0
+            ).order_by('-tiempo_estudiado_segundos').first()
+            
+            # Próximo evento del calendario (localStorage)
+            # Esto se manejará en el frontend
+            
+            # Datos semanales para gráfico
+            datos_semana = []
+            for i in range(7):
+                fecha = inicio_semana + timedelta(days=i)
+                try:
+                    stats = DailyStats.objects.get(usuario=request.user, fecha=fecha)
+                    horas = stats.tiempo_estudiado_segundos / 3600
+                except DailyStats.DoesNotExist:
+                    horas = 0
+                datos_semana.append({
+                    'dia': fecha.strftime('%a')[0], # Primera letra del día
+                    'horas': round(horas, 1)
+                })
+            
+            return JsonResponse({
+                'success': True,
+                'estadisticas': {
+                    'hoy': {
+                        'tiempo_segundos': stats_hoy.tiempo_estudiado_segundos,
+                        'tiempo_formateado': f"{stats_hoy.tiempo_estudiado_segundos // 3600}h {(stats_hoy.tiempo_estudiado_segundos % 3600) // 60}m",
+                        'pomodoros': stats_hoy.pomodoros_completados,
+                        'notas': stats_hoy.notas_creadas,
+                        'resumenes': stats_hoy.resumenes_creados
+                    },
+                    'racha': racha,
+                    'semana': {
+                        'tiempo_total_segundos': tiempo_total_semana,
+                        'tiempo_formateado': f"{tiempo_total_semana // 3600}h {(tiempo_total_semana % 3600) // 60}m",
+                        'pomodoros': pomodoros_semana
+                    },
+                    'mejor_dia': {
+                        'fecha': mejor_dia.fecha.strftime('%d/%m/%Y') if mejor_dia else None,
+                        'tiempo_formateado': f"{mejor_dia.tiempo_estudiado_segundos // 3600}h {(mejor_dia.tiempo_estudiado_segundos % 3600) // 60}m" if mejor_dia else "0h 0m"
+                    },
+                    'grafico_semana': datos_semana
+                }
+            })
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
+@csrf_exempt
+@login_required
+def guardar_sesion_estudio(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            duracion = data.get('duracion_segundos', 0)
+            tipo = data.get('tipo', 'cronometro')
+            
+            sesion = StudySession.objects.create(
+                usuario=request.user,
+                duracion_segundos=duracion,
+                tipo_sesion=tipo
+            )
+            
+            # Actualizar estadísticas diarias
+            hoy = timezone.now().date()
+            stats, _ = DailyStats.objects.get_or_create(
+                usuario=request.user,
+                fecha=hoy,
+                defaults={
+                    'tiempo_estudiado_segundos': 0,
+                    'pomodoros_completados': 0,
+                    'notas_creadas': 0,
+                    'resumenes_creados': 0,
+                    'racha_dias': 0
+                }
+            )
+            stats.tiempo_estudiado_segundos += duracion
+            stats.save()
+            
+            return JsonResponse({'success': True})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
+    
+    return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
+@csrf_exempt
+@login_required
+def guardar_pomodoro(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            duracion = data.get('duracion_minutos', 25)
+            tipo = data.get('tipo', 'trabajo')
+            completado = data.get('completado', True)
+            
+            pomodoro = PomodoroSession.objects.create(
+                usuario=request.user,
+                duracion_minutos=duracion,
+                tipo=tipo,
+                completado=completado
+            )
+            
+            if completado and tipo == 'trabajo':
+                # Actualizar estadísticas diarias
+                hoy = timezone.now().date()
+                stats, _ = DailyStats.objects.get_or_create(
+                    usuario=request.user,
+                    fecha=hoy,
+                    defaults={
+                        'tiempo_estudiado_segundos': 0,
+                        'pomodoros_completados': 0,
+                        'notas_creadas': 0,
+                        'resumenes_creados': 0,
+                        'racha_dias': 0
+                    }
+                )
+                stats.pomodoros_completados += 1
+                stats.tiempo_estudiado_segundos += duracion * 60
+                stats.save()
+            
+            return JsonResponse({'success': True})
         except Exception as e:
             return JsonResponse({'success': False, 'error': str(e)})
     
