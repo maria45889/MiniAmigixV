@@ -120,24 +120,58 @@ MiniAmigixV es una aplicación web moderna desarrollada con **Django** que integ
 MiniAmigixV/
 │
 ├── apps/
-│   ├── app/
-│   ├── configuracion/
-│   ├── estudio/
-│   ├── eventos/
-│   ├── soporte/
-│   └── sugerencias/
+│   ├── api/              # API REST
+│   ├── app/              # Aplicación principal
+│   ├── blog/             # Blog y noticias
+│   ├── clima/            # Clima en tiempo real
+│   ├── configuracion/    # Configuración de usuario
+│   ├── estudio/          # Recursos de estudio y Pomodoro
+│   ├── eventos/          # Gestión de eventos
+│   ├── mongodb/          # Modelos MongoDB
+│   ├── notificaciones/    # Sistema de notificaciones
+│   ├── perfil/           # Perfil de usuario
+│   ├── soporte/          # Sistema de soporte técnico
+│   ├── sugerencias/      # Sistema de sugerencias
+│   ├── traductor/        # Traductor multilenguaje
+│   └── tutorial/         # Tutorial y guía
 │
 ├── static/
 │   ├── css/
+│   │   ├── core/         # Estilos base
+│   │   ├── modules/      # Estilos por módulo
+│   │   └── pages/        # Estilos por página
 │   ├── js/
-│   └── img/
+│   ├── imagenes/         # Imágenes y logos
+│   └── fonts/            # Fuentes personalizadas
 │
 ├── templates/
+│   ├── account/         # Plantillas de cuenta
+│   ├── blog/            # Plantillas del blog
+│   ├── clima/           # Plantillas del clima
+│   ├── configuracion/   # Plantillas de configuración
+│   ├── estudio/         # Plantillas de estudio
+│   ├── eventos/         # Plantillas de eventos
+│   ├── includes/        # Componentes reutilizables
+│   ├── notificaciones/  # Plantillas de notificaciones
+│   ├── perfil/          # Plantillas de perfil
+│   ├── soporte/         # Plantillas de soporte
+│   └── traductor/       # Plantillas del traductor
 │
-├── config/
+├── config/               # Configuración de Django
+│   ├── settings.py
+│   ├── urls.py
+│   └── wsgi.py
 │
-├── db.sqlite3
-└── manage.py
+├── media/               # Archivos multimedia subidos
+├── scripts/             # Scripts utilitarios
+├── scratch/             # Archivos temporales de desarrollo
+├── .github/             # Configuración de GitHub
+├── .venv/               # Entorno virtual
+├── venv/                # Entorno virtual alternativo
+├── db.sqlite3           # Base de datos SQLite
+├── manage.py            # Script de gestión Django
+├── requirements.txt     # Dependencias Python
+└── README.md           # Documentación del proyecto
 ```
 
 ---
