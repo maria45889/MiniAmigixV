@@ -1,0 +1,350 @@
+/* ========================================
+   SIDEBAR CON EFECTO NEÓN Y ESPACIAL MEJORADO
+   ======================================== */
+
+:root {
+    --neon-purple: #8b5cf6;
+    --neon-cyan: #06b6d4;
+    --neon-pink: #f472b6;
+    --space-dark: #0a0a0f;
+    --space-panel: rgba(18, 18, 26, 0.85);
+}
+
+/* Sidebar Principal */
+.sidebar {
+    width: 270px;
+    background: var(--space-panel);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border-right: 1px solid rgba(139, 92, 246, 0.2);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 1rem;
+    margin: 15px 0 15px 15px;
+    border-radius: 24px;
+    box-shadow: 
+        5px 0 25px rgba(0, 0, 0, 0.5),
+        inset 0 0 30px rgba(139, 92, 246, 0.05),
+        0 0 30px rgba(139, 92, 246, 0.1);
+    position: relative;
+    overflow: visible;
+    transition: all 0.3s ease;
+}
+
+.sidebar:hover {
+    box-shadow: 
+        5px 0 30px rgba(0, 0, 0, 0.6),
+        inset 0 0 40px rgba(139, 92, 246, 0.08),
+        0 0 40px rgba(139, 92, 246, 0.15);
+}
+
+/* Textura de Estrellas/Polvo Espacial Mejorada */
+.sidebar::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        radial-gradient(2px 2px at 20px 30px, rgba(255, 255, 255, 0.4), transparent),
+        radial-gradient(2px 2px at 40px 70px, rgba(255, 255, 255, 0.3), transparent),
+        radial-gradient(1px 1px at 90px 40px, rgba(255, 255, 255, 0.5), transparent),
+        radial-gradient(2px 2px at 130px 80px, rgba(255, 255, 255, 0.3), transparent),
+        radial-gradient(1px 1px at 160px 120px, rgba(255, 255, 255, 0.4), transparent),
+        radial-gradient(2px 2px at 200px 50px, rgba(255, 255, 255, 0.3), transparent),
+        radial-gradient(1px 1px at 230px 90px, rgba(255, 255, 255, 0.5), transparent),
+        radial-gradient(2px 2px at 50px 150px, rgba(255, 255, 255, 0.3), transparent),
+        radial-gradient(1px 1px at 100px 180px, rgba(255, 255, 255, 0.4), transparent),
+        radial-gradient(2px 2px at 180px 200px, rgba(255, 255, 255, 0.3), transparent),
+        radial-gradient(1px 1px at 60px 220px, rgba(255, 255, 255, 0.4), transparent),
+        radial-gradient(2px 2px at 140px 240px, rgba(255, 255, 255, 0.3), transparent);
+    background-size: 270px 270px;
+    background-repeat: no-repeat;
+    opacity: 0.5;
+    pointer-events: none;
+    z-index: 0;
+    animation: starTwinkle 4s ease-in-out infinite;
+}
+
+@keyframes starTwinkle {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 0.7; }
+}
+
+/* Efecto de brillo espacial mejorado */
+.sidebar::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(ellipse at center, rgba(139, 92, 246, 0.12) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+    animation: glowPulse 3s ease-in-out infinite;
+}
+
+@keyframes glowPulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 1.3; }
+}
+
+/* Logo con Efecto Neon Mejorado */
+.sidebar-header {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    padding: 0 5px;
+}
+
+.sidebar-header .logo {
+    width: 100%;
+    max-width: 180px;
+    height: auto;
+    margin-bottom: 0.5rem;
+    display: block;
+    border-radius: 12px;
+    filter: drop-shadow(0 0 20px rgba(139, 92, 246, 0.6));
+    transition: all 0.3s ease;
+}
+
+.sidebar-header .logo:hover {
+    filter: drop-shadow(0 0 25px rgba(139, 92, 246, 0.8));
+    transform: scale(1.02);
+}
+
+.sidebar-header .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #fff;
+    text-shadow: 
+        0 0 10px rgba(139, 92, 246, 0.9),
+        0 0 20px rgba(139, 92, 246, 0.7),
+        0 0 30px rgba(139, 92, 246, 0.5),
+        0 0 40px rgba(6, 182, 212, 0.4);
+    animation: neonPulse 3s ease-in-out infinite alternate;
+    filter: drop-shadow(0 0 8px rgba(139, 92, 246, 0.6));
+    position: relative;
+    z-index: 2;
+    margin-top: 0.5rem;
+    white-space: nowrap;
+    overflow: visible;
+}
+
+@keyframes neonPulse {
+    0% {
+        text-shadow: 
+            0 0 10px rgba(139, 92, 246, 0.9),
+            0 0 20px rgba(139, 92, 246, 0.7),
+            0 0 30px rgba(139, 92, 246, 0.5),
+            0 0 40px rgba(6, 182, 212, 0.4);
+    }
+    100% {
+        text-shadow: 
+            0 0 15px rgba(139, 92, 246, 1),
+            0 0 25px rgba(139, 92, 246, 0.9),
+            0 0 35px rgba(139, 92, 246, 0.7),
+            0 0 45px rgba(6, 182, 212, 0.6),
+            0 0 55px rgba(244, 114, 182, 0.4);
+    }
+}
+
+/* Navegación Mejorada */
+.nav-group {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 1.5rem;
+    flex-grow: 1;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    margin-bottom: 6px;
+    position: relative;
+    overflow: hidden;
+}
+
+.nav-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(6, 182, 212, 0.2));
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    z-index: -1;
+}
+
+.nav-item:hover {
+    color: #fff;
+    transform: translateX(6px);
+    box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+}
+
+.nav-item:hover::before {
+    opacity: 1;
+}
+
+.nav-item.active {
+    background: linear-gradient(135deg, var(--neon-purple), var(--neon-cyan));
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 
+        0 0 25px rgba(139, 92, 246, 0.6),
+        0 0 50px rgba(6, 182, 212, 0.4);
+    transform: translateX(4px);
+}
+
+.nav-item i {
+    width: 24px;
+    height: 24px;
+    transition: all 0.3s ease;
+}
+
+.nav-item:hover i {
+    color: var(--neon-cyan);
+    filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.9));
+}
+
+/* Footer del Sidebar Mejorado */
+.sidebar-footer {
+    position: relative;
+    z-index: 1;
+    padding-top: 1.5rem;
+    border-top: 1px solid rgba(139, 92, 246, 0.2);
+    display: flex;
+    justify-content: space-around;
+}
+
+.sidebar-footer a {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 18px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 10px;
+    border-radius: 12px;
+    text-decoration: none;
+}
+
+.sidebar-footer a:hover {
+    color: var(--neon-cyan);
+    background: rgba(6, 182, 212, 0.15);
+    transform: scale(1.15);
+    box-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
+}
+
+/* Scrollbar personalizado mejorado */
+.nav-group::-webkit-scrollbar {
+    width: 5px;
+}
+
+.nav-group::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 3px;
+}
+
+.nav-group::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--neon-purple), var(--neon-cyan));
+    border-radius: 3px;
+}
+
+.nav-group::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--neon-cyan), var(--neon-purple));
+}
+
+/* Responsive Mejorado */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 100%;
+        margin: 0;
+        border-radius: 0;
+        border-right: none;
+        border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+        padding: 1rem;
+    }
+    
+    .sidebar::before {
+        background-size: 100% 100%;
+    }
+    
+    .sidebar-header .logo {
+        max-width: 150px;
+    }
+    
+    .nav-item {
+        padding: 10px 12px;
+    }
+}
+
+/* Modo Claro */
+body.light .sidebar {
+    background: rgba(255, 255, 255, 0.95);
+    border-right: 1px solid rgba(163, 163, 230, 0.3);
+    box-shadow: 
+        2px 0 15px rgba(163, 163, 230, 0.15),
+        inset 0 0 20px rgba(163, 163, 230, 0.05);
+}
+
+body.light .sidebar::before {
+    opacity: 0.3;
+}
+
+body.light .sidebar::after {
+    background: radial-gradient(ellipse at center, rgba(139, 92, 246, 0.06) 0%, transparent 70%);
+}
+
+body.light .sidebar-header .logo {
+    filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.3));
+}
+
+body.light .sidebar-header .logo-text {
+    color: #7c3aed;
+    text-shadow: 
+        0 0 8px rgba(139, 92, 246, 0.5),
+        0 0 16px rgba(139, 92, 246, 0.3);
+}
+
+body.light .nav-item {
+    color: rgba(100, 116, 139, 0.8);
+}
+
+body.light .nav-item:hover {
+    color: #7c3aed;
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.2);
+}
+
+body.light .nav-item.active {
+    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+    color: #fff;
+    box-shadow: 
+        0 0 20px rgba(139, 92, 246, 0.4),
+        0 0 40px rgba(6, 182, 212, 0.3);
+}
+
+body.light .sidebar-footer a {
+    color: rgba(100, 116, 139, 0.7);
+}
+
+body.light .sidebar-footer a:hover {
+    color: #7c3aed;
+    background: rgba(139, 92, 246, 0.1);
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+}

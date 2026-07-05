@@ -1379,7 +1379,7 @@ def panel_admin(request):
     allowed_admins = getattr(settings, 'ADMIN_EMAILS', ['miniamigixv@gmail.com'])
     if not (request.user.is_staff or request.user.is_superuser or request.user.email in allowed_admins):
         return redirect('home')
-    from sugerencias.models import Visitante
+    from sugerencias.models import Visitante, Sugerencia
     context = {
         'total_usuarios': User.objects.count(),
         'total_chats': ConversacionChat.objects.count(),
@@ -1391,6 +1391,7 @@ def panel_admin(request):
         'total_notificaciones': Notificacion.objects.count(),
         'total_visitantes': Visitante.objects.count(),
         'ultimos_visitantes': Visitante.objects.order_by('-fecha_ultima_interaccion')[:10],
+        'ultimas_sugerencias': Sugerencia.objects.order_by('-fecha_creacion')[:10],
     }
     return render(request, 'panel_admin.html', context)
 

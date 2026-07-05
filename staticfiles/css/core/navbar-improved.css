@@ -1,0 +1,370 @@
+/* ========================================
+   NAVBAR MEJORADO CON ANIMACIONES
+   ======================================== */
+
+.navbar {
+    height: 72px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    padding: 0 2rem;
+    background: rgba(18, 18, 26, 0.8);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2), 0 0 30px rgba(139, 92, 246, 0.05);
+    transition: all 0.3s ease;
+}
+
+.nav-left {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.nav-center {
+    flex: 1 1 auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.nav-right {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+/* Logo Text Mejorado */
+.navbar-logo-text {
+    font-family: var(--font-title);
+    font-weight: 800;
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+    margin: 0;
+    transition: all 0.3s ease;
+}
+
+.navbar-logo-text:hover {
+    text-shadow: 0 0 30px rgba(139, 92, 246, 0.6);
+    transform: scale(1.02);
+}
+
+/* Digital Clock Mejorado */
+.digital-clock {
+    font-family: 'Courier New', monospace;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(6, 182, 212, 0.1));
+    padding: 12px 20px;
+    border-radius: 14px;
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    color: #a78bfa;
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    min-width: 140px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+}
+
+.digital-clock:hover {
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    border-color: rgba(139, 92, 246, 0.5);
+    transform: translateY(-2px);
+}
+
+/* Search Bar Mejorada */
+.search-container {
+    position: relative;
+    flex: 1;
+    max-width: 320px;
+    margin: 0 24px;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 16px 12px 44px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--text-main);
+    font-size: 14px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: rgba(139, 92, 246, 0.6);
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 25px rgba(139, 92, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.search-input::placeholder {
+    color: var(--text-muted);
+}
+
+.search-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    font-size: 18px;
+    transition: all 0.3s ease;
+}
+
+.search-input:focus + .search-icon {
+    color: #8b5cf6;
+}
+
+/* Notification Button Mejorada */
+.notification-btn {
+    position: relative;
+    background: none;
+    border: none;
+    color: var(--text-main);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    padding: 12px;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.notification-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-3px);
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+}
+
+.notification-btn i {
+    font-size: 22px;
+    transition: all 0.3s ease;
+}
+
+.notification-btn:hover i {
+    color: #8b5cf6;
+    transform: scale(1.1);
+}
+
+.notification-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: linear-gradient(135deg, #ef4444, #f97316);
+    color: white;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 8px;
+    border-radius: 12px;
+    min-width: 20px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
+    animation: badgePulse 2s ease-in-out infinite;
+}
+
+@keyframes badgePulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Theme Button Mejorado */
+.theme-btn {
+    background: none;
+    border: none;
+    color: var(--text-main);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    transform: translateY(-3px) rotate(15deg);
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2);
+}
+
+.theme-btn i {
+    font-size: 22px;
+    transition: all 0.3s ease;
+}
+
+.theme-btn:hover i {
+    color: #8b5cf6;
+    transform: scale(1.1);
+}
+
+/* Profile Button Mejorado */
+.profile-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    text-decoration: none;
+    color: var(--text-main);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+}
+
+.profile-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(139, 92, 246, 0.4);
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.2);
+}
+
+.profile-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+    color: white;
+    position: relative;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+    transition: all 0.3s ease;
+}
+
+.profile-btn:hover .profile-avatar {
+    transform: scale(1.1);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.4);
+}
+
+.profile-online {
+    width: 12px;
+    height: 12px;
+    background: #22c55e;
+    border-radius: 50%;
+    border: 3px solid var(--bg-dark);
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4);
+    animation: onlinePulse 2s ease-in-out infinite;
+}
+
+@keyframes onlinePulse {
+    0%, 100% { box-shadow: 0 2px 8px rgba(34, 197, 94, 0.4); }
+    50% { box-shadow: 0 2px 12px rgba(34, 197, 94, 0.6); }
+}
+
+.profile-name {
+    font-size: 14px;
+    font-weight: 600;
+    display: none;
+    transition: all 0.3s ease;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .navbar {
+        height: 64px;
+        padding: 0 1rem;
+    }
+    
+    .digital-clock {
+        min-width: 100px;
+        font-size: 1.1rem;
+        padding: 8px 12px;
+    }
+    
+    .search-container {
+        display: none;
+    }
+    
+    .profile-name {
+        display: none;
+    }
+    
+    .nav-right {
+        gap: 12px;
+    }
+    
+    .notification-btn,
+    .theme-btn {
+        padding: 10px;
+    }
+    
+    .notification-btn i,
+    .theme-btn i {
+        font-size: 20px;
+    }
+    
+    .profile-btn {
+        padding: 8px 10px;
+    }
+    
+    .profile-avatar {
+        width: 36px;
+        height: 36px;
+        font-size: 16px;
+    }
+}
+
+@media (min-width: 769px) {
+    .profile-name {
+        display: block;
+    }
+}
+
+/* Modo Claro */
+body.light .navbar {
+    background: rgba(255, 255, 255, 0.9);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08), 0 0 30px rgba(139, 92, 246, 0.03);
+}
+
+body.light .digital-clock {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(6, 182, 212, 0.08));
+    border-color: rgba(139, 92, 246, 0.25);
+    color: #7c3aed;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.1);
+}
+
+body.light .search-input {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light .search-input:focus {
+    background: rgba(0, 0, 0, 0.06);
+    border-color: rgba(139, 92, 246, 0.4);
+}
+
+body.light .notification-btn:hover {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+body.light .theme-btn:hover {
+    background: rgba(0, 0, 0, 0.04);
+}
+
+body.light .profile-btn {
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light .profile-btn:hover {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+body.light .profile-online {
+    border-color: #f8fafc;
+}

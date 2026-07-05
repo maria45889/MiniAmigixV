@@ -94,9 +94,9 @@
             <button class="filter-tab {% if not categoria_filtro %}active{% endif %}" onclick="filterByCategory('')">
                 Todos
             </button>
-            {% for value, label in categorias %}
-            <button class="filter-tab {% if categoria_filtro == value %}active{% endif %}" onclick="filterByCategory('{{ value }}')">
-                {{ label.split(' ')[1] }}
+            {% for cat in categorias %}
+            <button class="filter-tab {% if categoria_filtro == cat.value %}active{% endif %}" onclick="filterByCategory('{{ cat.value }}')">
+                {{ cat.emoji }}
             </button>
             {% endfor %}
         </div>

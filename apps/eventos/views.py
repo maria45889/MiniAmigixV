@@ -55,6 +55,13 @@ def lista_eventos(request):
     manana = hoy + timedelta(days=1)
     eventos_manana = eventos.filter(fecha__date=manana)
     
+    # Pre-process categories to extract emoji for display
+    categorias_display = []
+    for value, label in CategoriaEvento.choices:
+        # Extract emoji (first character) for display
+        emoji = label.split(' ')[0] if ' ' in label else label
+        categorias_display.append({'value': value, 'label': label, 'emoji': emoji})
+    
     context = {
         'eventos': eventos,
         'eventos_hoy': eventos_hoy,
@@ -67,7 +74,7 @@ def lista_eventos(request):
         'categoria_filtro': categoria_filtro,
         'busqueda': busqueda,
         'vista': vista,
-        'categorias': CategoriaEvento.choices,
+        'categorias': categorias_display,
     }
     
     return render(request, 'eventos/lista_eventos.html', context)
