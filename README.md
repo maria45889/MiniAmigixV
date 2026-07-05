@@ -1,6 +1,6 @@
 # MiniAmigixV 🚀
 
-MiniAmigixV es una aplicación web moderna desarrollada con **Django** que integra múltiples herramientas inteligentes en una sola plataforma, ofreciendo una experiencia visual premium con diseño **glassmorphism**, interfaz responsiva y funcionalidades potenciadas por IA.
+MiniAmigixV es una aplicación web moderna desarrollada con **Django** que integra múltiples herramientas inteligentes en una sola plataforma, ofreciendo una experiencia visual con diseño **glassmorphism**, interfaz responsiva y funcionalidades potenciadas por IA.
 
 ## ✨ Características Principales
 
@@ -24,7 +24,7 @@ MiniAmigixV es una aplicación web moderna desarrollada con **Django** que integ
 
 * Consulta del clima en tiempo real.
 * Información de temperatura, humedad y condiciones meteorológicas.
-* Diseño premium con animaciones.
+* Diseño con animaciones.
 
 ### 🌍 Traductor
 
@@ -50,7 +50,7 @@ MiniAmigixV es una aplicación web moderna desarrollada con **Django** que integ
 
 ### 🔔 Notificaciones
 
-* Centro de notificaciones moderno con diseño premium.
+* Centro de notificaciones moderno con diseño.
 * Agrupación por fecha (Hoy, Ayer, Esta semana, Este mes).
 * Sección de notificaciones destacadas para prioridad alta.
 * Buscador en tiempo real.
@@ -257,9 +257,9 @@ Puede además:
 
 # 🔔 Cambios recientes
 
-## Última Actualización - Centro de Notificaciones Premium
+## Última Actualización - Centro de Notificaciones
 
-- Modernización completa del centro de notificaciones con diseño premium tipo app.
+- Modernización completa del centro de notificaciones con diseño tipo app.
 - Añadidos campos de prioridad, categoría y fijación al modelo Notificacion.
 - Implementación de agrupación por fecha (Hoy, Ayer, Esta semana, Este mes).
 - Sección de notificaciones destacadas para prioridad alta.
@@ -273,7 +273,7 @@ Puede además:
 - Sistema de fijación para notificaciones importantes.
 - Animaciones y transiciones suaves.
 - Diseño responsivo optimizado para móviles.
-- Commit: `979c665` (Modernizar centro de notificaciones con diseño premium).
+- Commit: `979c665` (Modernizar centro de notificaciones con diseño).
 
 ## Actualización Anterior - Respuesta por Correo
 
@@ -295,7 +295,7 @@ MiniAmigixV utiliza una interfaz visual moderna basada en:
 * Degradados neon
 * Animaciones suaves
 * Responsive Design
-* Experiencia tipo dashboard premium
+* Experiencia tipo dashboard
 
 Inspiración visual:
 
