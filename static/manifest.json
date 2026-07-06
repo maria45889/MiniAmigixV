@@ -1,20 +1,48 @@
 {
     "name": "MiniAmigixV",
     "short_name": "MiniAmigixV",
+    "description": "Asistente personal inteligente con clima, música, chat IA y más",
+    "id": "/",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#ffffff",
-    "theme_color": "#000000",
+    "display_override": ["standalone", "window-controls-overlay"],
+    "background_color": "#1e293b",
+    "theme_color": "#3b82f6",
+    "orientation": "portrait-primary",
+    "scope": "/",
     "icons": [
         {
             "src": "/static/imagenes/icon-192.png",
             "sizes": "192x192",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any"
         },
         {
             "src": "/static/imagenes/icon-512.png",
             "sizes": "512x512",
-            "type": "image/png"
+            "type": "image/png",
+            "purpose": "any"
+        },
+        {
+            "src": "/static/imagenes/logo_square.png",
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "maskable"
+        }
+    ],
+    "categories": ["productivity", "utilities", "weather"],
+    "shortcuts": [
+        {
+            "name": "Clima",
+            "short_name": "Clima",
+            "description": "Ver el clima actual",
+            "url": "/clima/",
+            "icons": [
+                {
+                    "src": "/static/imagenes/icon-192.png",
+                    "sizes": "192x192"
+                }
+            ]
         }
     ]
 }

@@ -19,7 +19,16 @@ class WeatherCache(models.Model):
     viento_velocidad = models.FloatField(null=True, blank=True)
     viento_direccion = models.IntegerField(null=True, blank=True)
     descripcion = models.CharField(max_length=200)
-    icono = models.CharField(max_length=50, null=True, blank=True)
+    icono = models.CharField(max_length=200, null=True, blank=True)
+    
+    # Datos adicionales
+    temp_max = models.FloatField(null=True, blank=True, help_text='Temperatura máxima del día')
+    temp_min = models.FloatField(null=True, blank=True, help_text='Temperatura mínima del día')
+    visibilidad = models.FloatField(null=True, blank=True, help_text='Visibilidad en km')
+    uv_index = models.IntegerField(null=True, blank=True, help_text='Índice UV')
+    probabilidad_lluvia = models.IntegerField(null=True, blank=True, help_text='Probabilidad de lluvia %')
+    amanecer = models.TimeField(null=True, blank=True, help_text='Hora de amanecer')
+    atardecer = models.TimeField(null=True, blank=True, help_text='Hora de atardecer')
     
     # Datos del pronóstico (JSON)
     pronostico = models.JSONField(default=dict, help_text='Pronóstico para los próximos días')

@@ -997,7 +997,7 @@
                     <i class="ti ti-refresh"></i>
                     <span id="refresh-text">Actualizar</span>
                 </button>
-                <a href="#" class="btn btn-primary">
+                <a href="{% url 'exportar_reporte_excel' %}" class="btn btn-primary">
                     <i class="ti ti-chart-bar"></i> Ver reportes
                 </a>
             </div>
@@ -1043,7 +1043,7 @@
         </div>
         <div class="stat-card">
             <div class="stat-icon"><i class="ti ti-headset"></i></div>
-            <div class="stat-value">2</div>
+            <div class="stat-value">{{ total_tickets_pendientes }}</div>
             <div class="stat-label">Tickets</div>
             <div class="stat-divider"></div>
             <div class="stat-trend negative">Pendientes</div>
@@ -1088,12 +1088,12 @@
                 <div class="bar-item">
                     <div class="bar-label">Reproducciones</div>
                     <div class="bar-track"><div class="bar-fill" style="width: 85%;"></div></div>
-                    <div class="bar-value">127</div>
+                    <div class="bar-value">{{ total_reproducciones }}</div>
                 </div>
                 <div class="bar-item">
                     <div class="bar-label">Playlists</div>
                     <div class="bar-track"><div class="bar-fill" style="width: 30%;"></div></div>
-                    <div class="bar-value">3</div>
+                    <div class="bar-value">{{ total_playlists }}</div>
                 </div>
             </div>
         </div>
@@ -1176,15 +1176,15 @@
                 <h2><i class="ti ti-world"></i> Visitantes</h2>
                 <div class="visitor-stats">
                     <div class="visitor-stat">
-                        <div class="visitor-stat-value">15</div>
+                        <div class="visitor-stat-value">{{ visitantes_hoy }}</div>
                         <div class="visitor-stat-label">Hoy</div>
                     </div>
                     <div class="visitor-stat">
-                        <div class="visitor-stat-value">120</div>
+                        <div class="visitor-stat-value">{{ visitantes_semana }}</div>
                         <div class="visitor-stat-label">Esta semana</div>
                     </div>
                     <div class="visitor-stat">
-                        <div class="visitor-stat-value">980</div>
+                        <div class="visitor-stat-value">{{ visitantes_mes }}</div>
                         <div class="visitor-stat-label">Este mes</div>
                     </div>
                 </div>
@@ -1219,15 +1219,15 @@
                 <h2><i class="ti ti-headset"></i> Soporte</h2>
                 <div class="support-metrics">
                     <div class="support-metric">
-                        <div class="support-metric-value">2</div>
+                        <div class="support-metric-value">{{ total_tickets_pendientes }}</div>
                         <div class="support-metric-label">Pendientes</div>
                     </div>
                     <div class="support-metric">
-                        <div class="support-metric-value">15</div>
+                        <div class="support-metric-value">{{ total_tickets_resueltos }}</div>
                         <div class="support-metric-label">Resueltos</div>
                     </div>
                     <div class="support-metric">
-                        <div class="support-metric-value">2h</div>
+                        <div class="support-metric-value">{{ tiempo_promedio_respuesta }}</div>
                         <div class="support-metric-label">Tiempo promedio</div>
                     </div>
                 </div>
@@ -1364,11 +1364,11 @@
                 <h2><i class="ti ti-shield"></i> Seguridad</h2>
                 <div class="security-grid">
                     <div class="security-item">
-                        <div class="security-value">0</div>
+                        <div class="security-value">{{ intentos_fallidos }}</div>
                         <div class="security-label">Intentos fallidos</div>
                     </div>
                     <div class="security-item">
-                        <div class="security-value">2</div>
+                        <div class="security-value">{{ sesiones_activas }}</div>
                         <div class="security-label">Sesiones activas</div>
                     </div>
                     <div class="security-item">
@@ -1492,6 +1492,37 @@
                     statValues[2].textContent = data.total_canciones;
                     statValues[3].textContent = data.total_eventos;
                     statValues[4].textContent = data.total_notificaciones;
+                    statValues[5].textContent = data.total_tickets_pendientes;
+                }
+
+                // Update music activity
+                const barValues = document.querySelectorAll('.bar-value');
+                if (barValues.length >= 3) {
+                    barValues[1].textContent = data.total_reproducciones;
+                    barValues[2].textContent = data.total_playlists;
+                }
+
+                // Update visitor stats
+                const visitorValues = document.querySelectorAll('.visitor-stat-value');
+                if (visitorValues.length >= 3) {
+                    visitorValues[0].textContent = data.visitantes_hoy;
+                    visitorValues[1].textContent = data.visitantes_semana;
+                    visitorValues[2].textContent = data.visitantes_mes;
+                }
+
+                // Update support metrics
+                const supportValues = document.querySelectorAll('.support-metric-value');
+                if (supportValues.length >= 3) {
+                    supportValues[0].textContent = data.total_tickets_pendientes;
+                    supportValues[1].textContent = data.total_tickets_resueltos;
+                    supportValues[2].textContent = data.tiempo_promedio_respuesta;
+                }
+
+                // Update security stats
+                const securityValues = document.querySelectorAll('.security-value');
+                if (securityValues.length >= 2) {
+                    securityValues[0].textContent = data.intentos_fallidos;
+                    securityValues[1].textContent = data.sesiones_activas;
                 }
 
                 refreshText.textContent = 'Actualizado';

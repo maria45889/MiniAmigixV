@@ -102,7 +102,7 @@ INSTALLED_APPS = [
     'soporte',
     'tutorial',
     'estudio',
-    'clima',
+    'apps.clima',
     'traductor',
     'apps.blog',
     'rest_framework',
@@ -306,6 +306,7 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 GOOGLE_API_KEY = os.getenv("GEMINI_API_KEY")
 OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
+WEATHERAPI_KEY = os.getenv("WEATHERAPI_KEY")
 YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 OLLAMA_API_URL = os.getenv("OLLAMA_API_URL", "http://localhost:11434")
 if OLLAMA_API_URL and not OLLAMA_API_URL.endswith('/v1') and not OLLAMA_API_URL.endswith('/v1/'):

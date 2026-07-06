@@ -22,10 +22,6 @@
                     <input type="text" id="ciudad-input" placeholder="Buscar ciudad..." class="search-input" autocomplete="off">
                     <button type="button" id="search-btn" class="search-button">Buscar</button>
                 </div>
-                <button id="geo-btn" class="geo-button">
-                    <i data-lucide="map-pin" class="geo-icon"></i>
-                    Mi ubicación
-                </button>
             </div>
         </div>
     </div>
@@ -282,27 +278,14 @@
         }
     });
     
-    // Geolocation functionality
-    document.getElementById('geo-btn').addEventListener('click', async function() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(async function(position) {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-                await obtenerClimaPorGeo(lat, lon);
-            }, function(error) {
-                mostrarError('No se pudo obtener la ubicación. Por favor, permite el acceso a la ubicación.');
-            });
-        } else {
-            mostrarError('Geolocalización no soportada en este navegador.');
-        }
-    });
-    
     async function obtenerClima(ciudad) {
         mostrarLoading(true);
         try {
             const response = await fetch(`/clima/api/obtener-clima/?ciudad=${ciudad}`);
+            console.log('Response status:', response.status);
             const data = await response.json();
-            
+            console.log('Response data:', data);
+
             if (data.success) {
                 actualizarUI(data.data);
                 addToRecentSearches(ciudad);
@@ -310,35 +293,15 @@
                 mostrarError(data.error || 'Error al obtener el clima');
             }
         } catch (error) {
-            mostrarError('Error de conexión con el servidor');
-        } finally {
-            mostrarLoading(false);
-        }
-    }
-    
-    async function obtenerClimaPorGeo(lat, lon) {
-        mostrarLoading(true);
-        try {
-            const response = await fetch(`/clima/api/geolocalizar/?lat=${lat}&lon=${lon}&from_geo=true`);
-            const data = await response.json();
-            
-            if (data.success) {
-                actualizarUI(data.data);
-                if (data.data.ciudad) {
-                    document.getElementById('ciudad-input').value = data.data.ciudad;
-                    addToRecentSearches(data.data.ciudad);
-                }
-            } else {
-                mostrarError(data.error || 'Error al obtener el clima');
-            }
-        } catch (error) {
-            mostrarError('Error de conexión con el servidor');
+            console.error('Error fetching weather:', error);
+            mostrarError('Error de conexión con el servidor: ' + error.message);
         } finally {
             mostrarLoading(false);
         }
     }
     
     function actualizarUI(data) {
+        console.log('actualizarUI called with data:', data);
         currentWeatherData = data;
         
         // Update main weather card
@@ -453,14 +416,14 @@
         hourlyData.slice(0, 24).forEach((hour, index) => {
             const time = new Date(hour.dt * 1000);
             const timeStr = time.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
-            const icon = getWeatherIcon(hour.weather[0].description);
+            const icon = getWeatherIcon(hour.descripcion);
             
             const item = document.createElement('div');
             item.className = 'hourly-item';
             item.innerHTML = `
                 <div class="hourly-time">${timeStr}</div>
                 <i data-lucide="${icon}" class="hourly-icon"></i>
-                <div class="hourly-temp">${Math.round(hour.main.temp)}°</div>
+                <div class="hourly-temp">${Math.round(hour.temp)}°</div>
             `;
             container.appendChild(item);
         });
@@ -480,9 +443,9 @@
         const days = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
         
         dailyData.slice(0, 7).forEach((day, index) => {
-            const date = new Date(day.dt * 1000);
+            const date = new Date(day.fecha);
             const dayName = index === 0 ? 'Hoy' : days[date.getDay()];
-            const icon = getWeatherIcon(day.weather[0].description);
+            const icon = getWeatherIcon(day.descripcion);
             
             const item = document.createElement('div');
             item.className = 'weekly-item';
@@ -490,8 +453,8 @@
                 <div class="weekly-day">${dayName}</div>
                 <i data-lucide="${icon}" class="weekly-icon"></i>
                 <div class="weekly-temp">
-                    <span class="weekly-max">${Math.round(day.main.temp_max)}°</span>
-                    <span class="weekly-min">${Math.round(day.main.temp_min)}°</span>
+                    <span class="weekly-max">${Math.round(day.temperatura_max)}°</span>
+                    <span class="weekly-min">${Math.round(day.temperatura_min)}°</span>
                 </div>
             `;
             container.appendChild(item);
@@ -677,23 +640,8 @@
     
     // Auto-load weather on page load
     window.addEventListener('load', function() {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                async function(position) {
-                    const lat = position.coords.latitude;
-                    const lon = position.coords.longitude;
-                    await obtenerClimaPorGeo(lat, lon);
-                },
-                function(error) {
-                    document.getElementById('ciudad-input').value = 'Madrid';
-                    obtenerClima('Madrid');
-                },
-                { timeout: 8000 }
-            );
-        } else {
-            document.getElementById('ciudad-input').value = 'Madrid';
-            obtenerClima('Madrid');
-        }
+        document.getElementById('ciudad-input').value = 'Madrid';
+        obtenerClima('Madrid');
     });
     
     // Update "last updated" time every minute

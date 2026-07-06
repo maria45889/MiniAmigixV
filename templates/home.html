@@ -219,7 +219,9 @@
 <script>
 // Configuración del Gráfico de Estadísticas
 document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('activityChart').getContext('2d');
+    const canvas = document.getElementById('activityChart');
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
     
     // Variables enviadas desde Django
     const dataChats = {{ stats_chats|default:0 }};

@@ -26,6 +26,9 @@ urlpatterns = [
     # Blog
     path('blog/', include('apps.blog.urls')),
     
+    # Clima
+    path('clima/', include('apps.clima.urls')),
+    
     # Main Application
     path('', include('app.urls')),
 ]
