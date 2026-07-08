@@ -461,27 +461,6 @@
             <button class="login-action" type="submit">Entrar</button>
         </form>
 
-        <div class="separator"><span>O</span></div>
-
-        {% if providers %}
-        <!-- Social login providers -->
-        <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
-            {% load socialaccount %}
-            {% for provider in providers %}
-                <a href="{% provider_login_url provider.provider %}" class="social-button" title="Entrar con {{ provider.name }}">
-                    <span class="social-icon">
-                        {% if provider.provider == 'google' %}G
-                        {% elif provider.provider == 'github' %}GH
-                        {% elif provider.provider == 'microsoft' %}MS
-                        {% else %}{{ provider.name|slice:":1"|upper }}
-                        {% endif %}
-                    </span>
-                    Entrar con {{ provider.name }}
-                </a>
-            {% endfor %}
-        </div>
-        {% endif %}
-
         <p class="login-footer">
             ¿No tienes cuenta? <a href="{% url 'register' %}">Regístrate aquí</a>
         </p>
