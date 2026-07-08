@@ -34,14 +34,13 @@ logger = logging.getLogger(__name__)
 
 
 def is_admin_user(user):
+    """Solo permite acceso admin al email configurado en ADMIN_EMAILS"""
     allowed_admins = getattr(settings, 'ADMIN_EMAILS', ['miniamigixv@gmail.com'])
     if isinstance(allowed_admins, str):
         allowed_admins = [allowed_admins]
     allowed_admins = [email.strip().lower() for email in allowed_admins if email]
     user_email = (getattr(user, 'email', '') or '').strip().lower()
-    return bool(user and user.is_authenticated and (
-        user.is_staff or user.is_superuser or user_email in allowed_admins
-    ))
+    return bool(user and user.is_authenticated and user_email in allowed_admins)
 
 
 def generate_ai_response(messages, settings_obj, imagen=False, max_tokens=500, image_base64=None, message=None):
