@@ -28,3 +28,12 @@ def user_theme(request):
         'perfil_tema': perfil_tema,
         'perfil_idioma': perfil_idioma
     }
+
+def is_admin_user(request):
+    """
+    Context processor para verificar si el usuario es admin (solo email en ADMIN_EMAILS)
+    """
+    from apps.app.views import is_admin_user as check_admin
+    return {
+        'is_admin_user': check_admin(request.user)
+    }

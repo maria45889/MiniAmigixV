@@ -150,6 +150,7 @@ TEMPLATES = [
                 'perfil.context_processors.perfil_settings',
                 'config.context_processors.site_url',
                 'config.context_processors.user_theme',
+                'config.context_processors.is_admin_user',
             ],
             'loaders': [
                 'django.template.loaders.filesystem.Loader',
