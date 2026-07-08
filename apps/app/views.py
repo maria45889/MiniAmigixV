@@ -315,14 +315,8 @@ def login_view(request):
         else:
             return render(request, 'login.html', {'error': 'Usuario o contraseña incorrectos'})
     
-    # Get providers that are configured in the database for the current site
-    site = Site.objects.get_current()
-    installed_providers = SocialApp.objects.filter(sites=site).exclude(provider__in=['google', 'github'])
-    
-    # Pass the SocialApp model instances directly to the template.
-    # The template will use the `.provider` attribute (string ID).
-    context = {'providers': installed_providers}
-    # Keep register_view in sync
+    # No social login providers for login page
+    context = {'providers': []}
     return render(request, 'login.html', context)
 
 def register_view(request):
@@ -355,7 +349,8 @@ def register_view(request):
     
     # Get providers that are configured in the database for the current site
     site = Site.objects.get_current()
-    installed_providers = SocialApp.objects.filter(sites=site).exclude(provider__in=['google', 'github'])
+    # Show only Google OAuth on register page
+    installed_providers = SocialApp.objects.filter(sites=site, provider='google')
     # Pass the SocialApp model instances directly to the template.
     # The template will use the `.provider` attribute (string ID).
     context = {'providers': installed_providers}

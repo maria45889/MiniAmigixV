@@ -478,12 +478,10 @@
         {% if providers %}
         <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
             {% for provider in providers %}
-                {% if provider.provider == 'google' %}
-                    <a href="{% provider_login_url provider.provider %}" class="social-button">
-                        <span class="social-icon">G</span>
-                        Registrarse con Google
-                    </a>
-                {% endif %}
+                <a href="{% provider_login_url provider.provider %}" class="social-button">
+                    <span class="social-icon">G</span>
+                    Registrarse con Google
+                </a>
             {% endfor %}
         </div>
         {% endif %}
