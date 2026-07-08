@@ -35,7 +35,7 @@
         <div class="welcome-content">
             <i data-lucide="map-pin" class="welcome-icon"></i>
             <h2>Busca una ciudad</h2>
-            <p>Ingresa el nombre de una ciudad o usa tu ubicación actual para ver el clima</p>
+            <p>Escribe una ciudad o usa tu ubicación.</p>
         </div>
     </div>
 
@@ -217,7 +217,13 @@
 </div>
 
 <script>
-    lucide.createIcons();
+    function initLucideIcons() {
+        if (typeof lucide !== 'undefined' && lucide && typeof lucide.createIcons === 'function') {
+            lucide.createIcons();
+        }
+    }
+
+    initLucideIcons();
     
     // State management
     let currentWeatherData = null;
@@ -442,7 +448,7 @@
         document.getElementById('error-msg').style.display = 'none';
         
         // Recreate icons
-        lucide.createIcons();
+        initLucideIcons();
     }
     
     function updateWeatherIcon(description) {
@@ -498,7 +504,7 @@
             container.appendChild(item);
         });
         
-        lucide.createIcons();
+        initLucideIcons();
     }
     
     function updateWeeklyForecast(dailyData) {
@@ -530,7 +536,7 @@
             container.appendChild(item);
         });
         
-        lucide.createIcons();
+        initLucideIcons();
     }
     
     function getWeatherIcon(description) {

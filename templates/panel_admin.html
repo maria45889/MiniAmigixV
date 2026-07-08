@@ -1112,10 +1112,10 @@
                         <input type="text" placeholder="🔍 Buscar usuario..." id="user-search">
                     </div>
                     <div class="filter-tabs">
-                        <div class="filter-tab active" onclick="filterUsers('all')">Todos</div>
-                        <div class="filter-tab" onclick="filterUsers('active')">Activos</div>
-                        <div class="filter-tab" onclick="filterUsers('admin')">Administradores</div>
-                        <div class="filter-tab" onclick="filterUsers('new')">Nuevos</div>
+                        <div class="filter-tab active" onclick="filterUsers(event, 'all')">Todos</div>
+                        <div class="filter-tab" onclick="filterUsers(event, 'active')">Activos</div>
+                        <div class="filter-tab" onclick="filterUsers(event, 'admin')">Administradores</div>
+                        <div class="filter-tab" onclick="filterUsers(event, 'new')">Nuevos</div>
                     </div>
                 </div>
                 <div class="table-container">
@@ -1131,7 +1131,7 @@
                         </thead>
                         <tbody>
                             {% for u in ultimos_usuarios %}
-                            <tr>
+                            <tr data-date-joined="{{ u.date_joined|date:'Y-m-d' }}">
                                 <td>
                                     <div class="user-cell">
                                         <div class="user-avatar">{{ u.username.0|upper }}</div>
@@ -1151,7 +1151,7 @@
                                     {% endif %}
                                 </td>
                                 <td>{{ u.date_joined|date:"M Y" }}</td>
-                                <td>Hace 5 minutos</td>
+                                <td>{% if u.last_login %}{{ u.last_login|date:"d M Y, H:i" }}{% else %}Nunca{% endif %}</td>
                                 <td>
                                     <div style="display: flex; gap: 8px;">
                                         {% if u.email %}
@@ -1328,32 +1328,32 @@
                         <div class="report-icon">👥</div>
                         <div class="report-label">Usuarios</div>
                         <div class="report-actions">
-                            <button class="report-action-btn">PDF</button>
-                            <button class="report-action-btn">Excel</button>
+                            <button class="report-action-btn disabled" disabled>PDF</button>
+                            <a href="{% url 'exportar_reporte_excel' %}?tipo=usuarios" class="report-action-btn">Excel</a>
                         </div>
                     </div>
                     <div class="report-card">
                         <div class="report-icon">📅</div>
                         <div class="report-label">Eventos</div>
                         <div class="report-actions">
-                            <button class="report-action-btn">PDF</button>
-                            <button class="report-action-btn">Excel</button>
+                            <button class="report-action-btn disabled" disabled>PDF</button>
+                            <a href="{% url 'exportar_reporte_excel' %}?tipo=eventos" class="report-action-btn">Excel</a>
                         </div>
                     </div>
                     <div class="report-card">
                         <div class="report-icon">💬</div>
                         <div class="report-label">Chats IA</div>
                         <div class="report-actions">
-                            <button class="report-action-btn">PDF</button>
-                            <button class="report-action-btn">Excel</button>
+                            <button class="report-action-btn disabled" disabled>PDF</button>
+                            <a href="{% url 'exportar_reporte_excel' %}?tipo=chats" class="report-action-btn">Excel</a>
                         </div>
                     </div>
                     <div class="report-card">
                         <div class="report-icon">🔔</div>
                         <div class="report-label">Notificaciones</div>
                         <div class="report-actions">
-                            <button class="report-action-btn">PDF</button>
-                            <button class="report-action-btn">Excel</button>
+                            <button class="report-action-btn disabled" disabled>PDF</button>
+                            <a href="{% url 'exportar_reporte_excel' %}?tipo=notificaciones" class="report-action-btn">Excel</a>
                         </div>
                     </div>
                 </div>
@@ -1422,49 +1422,50 @@
 {% block extra_js %}
 <script>
     // User search and filter functionality
-    function filterUsers(filter) {
-        const tabs = document.querySelectorAll('.filter-tab');
-        tabs.forEach(tab => tab.classList.remove('active'));
-        event.target.classList.add('active');
-        
-        const searchValue = document.getElementById('user-search').value.toLowerCase();
+    let currentUserFilter = 'all';
+    const searchInput = document.getElementById('user-search');
+
+    function applyUserFilter() {
+        const searchValue = searchInput?.value.toLowerCase() || '';
         const rows = document.querySelectorAll('.admin-table tbody tr');
-        
+
         rows.forEach(row => {
             const username = row.querySelector('.user-name')?.textContent.toLowerCase() || '';
             const email = row.querySelector('.user-email')?.textContent.toLowerCase() || '';
             const badge = row.querySelector('.badge')?.textContent.toLowerCase() || '';
-            
+            const joinedDate = row.dataset.dateJoined || '';
+
             let matchesFilter = true;
-            if (filter === 'active' && !badge.includes('activo')) {
-                matchesFilter = false;
-            } else if (filter === 'admin' && !badge.includes('superadmin') && !badge.includes('staff')) {
-                matchesFilter = false;
-            } else if (filter === 'new') {
-                // Filter logic for new users (last 7 days)
-                const dateText = row.cells[2]?.textContent || '';
-                // Simplified logic - in production, use actual date comparison
+            if (currentUserFilter === 'active') {
+                matchesFilter = badge.includes('activo') || badge.includes('staff') || badge.includes('superadmin');
+            } else if (currentUserFilter === 'admin') {
+                matchesFilter = badge.includes('superadmin') || badge.includes('staff');
+            } else if (currentUserFilter === 'new') {
+                if (joinedDate) {
+                    const joined = new Date(joinedDate);
+                    const sevenDaysAgo = new Date();
+                    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+                    matchesFilter = joined >= sevenDaysAgo;
+                } else {
+                    matchesFilter = false;
+                }
             }
-            
+
             const matchesSearch = username.includes(searchValue) || email.includes(searchValue);
-            
             row.style.display = (matchesFilter && matchesSearch) ? '' : 'none';
         });
     }
 
-    // Search functionality
-    document.getElementById('user-search')?.addEventListener('input', function() {
-        const searchValue = this.value.toLowerCase();
-        const rows = document.querySelectorAll('.admin-table tbody tr');
-        
-        rows.forEach(row => {
-            const username = row.querySelector('.user-name')?.textContent.toLowerCase() || '';
-            const email = row.querySelector('.user-email')?.textContent.toLowerCase() || '';
-            
-            const matchesSearch = username.includes(searchValue) || email.includes(searchValue);
-            row.style.display = matchesSearch ? '' : 'none';
-        });
-    });
+    function filterUsers(event, filter) {
+        event.preventDefault();
+        currentUserFilter = filter;
+        const tabs = document.querySelectorAll('.filter-tab');
+        tabs.forEach(tab => tab.classList.remove('active'));
+        event.target.classList.add('active');
+        applyUserFilter();
+    }
+
+    searchInput?.addEventListener('input', applyUserFilter);
 
     async function refreshStats() {
         const refreshBtn = document.getElementById('refresh-btn');

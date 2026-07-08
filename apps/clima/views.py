@@ -13,6 +13,53 @@ import time
 
 logger = logging.getLogger(__name__)
 
+
+def _get_coordinates_from_city(ciudad):
+    """Obtiene coordenadas y metadatos de una ciudad usando Open-Meteo geocoding."""
+    geocoding_url = "https://geocoding-api.open-meteo.com/v1/search"
+    params = {
+        "name": ciudad,
+        "count": 1,
+        "language": "es",
+        "format": "json",
+    }
+    response = requests.get(geocoding_url, params=params, timeout=5)
+    response.raise_for_status()
+    geo_data = response.json()
+
+    if not geo_data.get("results"):
+        raise ValueError("Ciudad no encontrada")
+
+    result = geo_data["results"][0]
+    return (
+        float(result["latitude"]),
+        float(result["longitude"]),
+        result.get("name", ciudad),
+        result.get("country", ""),
+    )
+
+
+def _get_city_from_coordinates(lat, lon, fallback_name=None):
+    """Obtiene nombre de ciudad y país desde coordenadas usando Open-Meteo reverse geocoding."""
+    reverse_url = "https://geocoding-api.open-meteo.com/v1/reverse"
+    params = {
+        "latitude": lat,
+        "longitude": lon,
+        "language": "es",
+        "format": "json",
+    }
+    response = requests.get(reverse_url, params=params, timeout=5)
+    response.raise_for_status()
+    data = response.json()
+
+    results = data.get("results") or []
+    if not results:
+        return fallback_name or f"Ubicación ({lat}, {lon})", ""
+
+    result = results[0]
+    return result.get("name") or fallback_name or f"Ubicación ({lat}, {lon})", result.get("country", "")
+
+
 def clima_view(request):
     """Vista principal del módulo clima"""
     return render(request, 'clima/clima.html')
@@ -38,26 +85,21 @@ def obtener_clima(request):
                 cached_coords = cache.get(cache_key)
 
                 if cached_coords:
-                    lat, lon, ciudad = cached_coords
+                    if len(cached_coords) == 4:
+                        lat, lon, ciudad, _ = cached_coords
+                    else:
+                        lat, lon, ciudad = cached_coords
                     logger.info(f"Usando caché de geocodificación para {ciudad}")
                 else:
                     # Geocodificar la ciudad para obtener coordenadas
-                    geocoding_url = f"https://nominatim.openstreetmap.org/search?format=json&q={ciudad}&limit=1"
                     try:
-                        geo_response = requests.get(geocoding_url, timeout=3)  # Reducido de 5 a 3 segundos
-                        geo_response.raise_for_status()
-                        geo_data = geo_response.json()
-                        if geo_data:
-                            lat = float(geo_data[0]['lat'])
-                            lon = float(geo_data[0]['lon'])
-                            ciudad = geo_data[0].get('display_name', ciudad).split(',')[0]
-                            # Guardar en caché por 24 horas
-                            cache.set(cache_key, (lat, lon, ciudad), 86400)
-                        else:
-                            return JsonResponse({
-                                'success': False,
-                                'error': 'Ciudad no encontrada'
-                            }, status=404)
+                        lat, lon, ciudad, pais = _get_coordinates_from_city(ciudad)
+                        cache.set(cache_key, (lat, lon, ciudad, pais), 86400)
+                    except ValueError:
+                        return JsonResponse({
+                            'success': False,
+                            'error': 'Ciudad no encontrada'
+                        }, status=404)
                     except requests.RequestException as e:
                         logger.error(f"Error geocodificando ciudad: {str(e)}")
                         return JsonResponse({
@@ -78,24 +120,11 @@ def obtener_clima(request):
                 ciudad, pais = cached_city
                 logger.info(f"Usando caché de geocodificación inversa para {lat}, {lon}")
             else:
-                nominatim_url = f"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}&zoom=10&addressdetails=1"
                 try:
-                    nominatim_response = requests.get(nominatim_url, timeout=3)  # Reducido de 5 a 3 segundos
-                    nominatim_response.raise_for_status()
-                    nominatim_data = nominatim_response.json()
-                    if 'address' in nominatim_data:
-                        address = nominatim_data['address']
-                        ciudad = address.get('city') or address.get('town') or address.get('village') or address.get('municipality') or ciudad_buscada
-                        pais = address.get('country', "")
-                        # Guardar en caché por 24 horas
-                        cache.set(cache_key, (ciudad, pais), 86400)
-                    else:
-                        # Si no se encuentra la ciudad, usar un valor por defecto
-                        ciudad = ciudad_buscada or "Ubicación desconocida"
-                        pais = ""
+                    ciudad, pais = _get_city_from_coordinates(float(lat), float(lon), fallback_name=ciudad_buscada)
+                    cache.set(cache_key, (ciudad, pais), 86400)
                 except requests.RequestException as e:
-                    logger.error(f"Error consultando Nominatim: {str(e)}")
-                    # Usar valor por defecto si falla la geocodificación inversa
+                    logger.error(f"Error consultando geocodificación inversa: {str(e)}")
                     ciudad = ciudad_buscada or f"Ubicación ({lat}, {lon})"
                     pais = ""
 

@@ -1083,9 +1083,10 @@ body.light .status-item-info h4 {
    SOCIAL SECTION
    ============================================================ */
 .social-section {
+    margin-top: 40px;
     margin-bottom: 40px;
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(40px);
     transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.25s;
 }
 
@@ -1096,8 +1097,17 @@ body.light .status-item-info h4 {
 
 .social-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 16px;
+}
+
+.social-youtube .social-icon {
+    background: linear-gradient(135deg, #ff0000, #e50914);
+    box-shadow: 0 0 0 4px rgba(255, 0, 0, 0.15);
+}
+
+.social-youtube:hover .social-icon {
+    box-shadow: 0 18px 30px rgba(229, 9, 20, 0.2);
 }
 
 .social-card {
