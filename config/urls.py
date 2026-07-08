@@ -20,8 +20,8 @@ urlpatterns = [
     # API routes
     path('api/', include('apps.api.urls')),
     
-    # MongoDB Analytics
-    path('mongodb/', include('mongodb.urls')),
+    # MongoDB Analytics - Temporalmente deshabilitado
+    # path('mongodb/', include('mongodb.urls')),
     
     # Blog
     path('blog/', include('apps.blog.urls')),

@@ -4,10 +4,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
 from django.utils import timezone
+from django.core.cache import cache
 from .models import WeatherCache
 from datetime import timedelta, datetime
 import requests
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -17,240 +19,320 @@ def clima_view(request):
 
 @csrf_exempt
 def obtener_clima(request):
-    """API para obtener el clima actual de una ciudad usando WeatherAPI"""
+    """API para obtener el clima actual usando Open-Meteo (gratis, sin API key)"""
+    start_time = time.time()
     try:
-        api_key = getattr(settings, 'WEATHERAPI_KEY', None)
-        if not api_key:
-            return JsonResponse({
-                'success': False,
-                'error': 'API Key de WeatherAPI no configurada'
-            }, status=500)
-
-        ciudad = request.GET.get('ciudad', 'Madrid')
+        ciudad = request.GET.get('ciudad')
         lat = request.GET.get('lat')
         lon = request.GET.get('lon')
         from_geo = request.GET.get('from_geo', 'false') == 'true'
-        
-        # Guardar el nombre original de la ciudad buscada
+
         ciudad_buscada = ciudad
-        
-        logger.info(f"obtener_clima - ciudad: {ciudad}, lat: {lat}, lon: {lon}, from_geo: {from_geo}")
-        
-        # Si viene de geolocalización, ignorar caché para obtener datos frescos
-        if from_geo:
-            cache = None
-        else:
-            # Verificar si hay caché válido
-            if lat and lon:
-                cache = WeatherCache.objects.filter(
-                    latitud=lat, 
-                    longitud=lon
-                ).first()
+        logger.info(f"obtener_clima - ciudad: {ciudad}, lat: {lat}, lon: {lon}")
+
+        # Si no hay coordenadas, usar geocodificación para obtenerlas
+        if not lat or not lon:
+            if ciudad:
+                # Usar caché para geocodificación
+                cache_key = f"geo_{ciudad.lower()}"
+                cached_coords = cache.get(cache_key)
+
+                if cached_coords:
+                    lat, lon, ciudad = cached_coords
+                    logger.info(f"Usando caché de geocodificación para {ciudad}")
+                else:
+                    # Geocodificar la ciudad para obtener coordenadas
+                    geocoding_url = f"https://nominatim.openstreetmap.org/search?format=json&q={ciudad}&limit=1"
+                    try:
+                        geo_response = requests.get(geocoding_url, timeout=3)  # Reducido de 5 a 3 segundos
+                        geo_response.raise_for_status()
+                        geo_data = geo_response.json()
+                        if geo_data:
+                            lat = float(geo_data[0]['lat'])
+                            lon = float(geo_data[0]['lon'])
+                            ciudad = geo_data[0].get('display_name', ciudad).split(',')[0]
+                            # Guardar en caché por 24 horas
+                            cache.set(cache_key, (lat, lon, ciudad), 86400)
+                        else:
+                            return JsonResponse({
+                                'success': False,
+                                'error': 'Ciudad no encontrada'
+                            }, status=404)
+                    except requests.RequestException as e:
+                        logger.error(f"Error geocodificando ciudad: {str(e)}")
+                        return JsonResponse({
+                            'success': False,
+                            'error': 'Error al buscar la ciudad'
+                        }, status=500)
             else:
-                cache = WeatherCache.objects.filter(
-                    ciudad=ciudad
-                ).first()
-        
-        if cache and not cache.esta_expirado():
+                return JsonResponse({
+                    'success': False,
+                    'error': 'Se requiere una ciudad o coordenadas'
+                }, status=400)
+        else:
+            # Obtener nombre de la ciudad a partir de lat/lon usando Nominatim
+            cache_key = f"reverse_geo_{lat}_{lon}"
+            cached_city = cache.get(cache_key)
+
+            if cached_city:
+                ciudad, pais = cached_city
+                logger.info(f"Usando caché de geocodificación inversa para {lat}, {lon}")
+            else:
+                nominatim_url = f"https://nominatim.openstreetmap.org/reverse?format=json&lat={lat}&lon={lon}&zoom=10&addressdetails=1"
+                try:
+                    nominatim_response = requests.get(nominatim_url, timeout=3)  # Reducido de 5 a 3 segundos
+                    nominatim_response.raise_for_status()
+                    nominatim_data = nominatim_response.json()
+                    if 'address' in nominatim_data:
+                        address = nominatim_data['address']
+                        ciudad = address.get('city') or address.get('town') or address.get('village') or address.get('municipality') or ciudad_buscada
+                        pais = address.get('country', "")
+                        # Guardar en caché por 24 horas
+                        cache.set(cache_key, (ciudad, pais), 86400)
+                    else:
+                        # Si no se encuentra la ciudad, usar un valor por defecto
+                        ciudad = ciudad_buscada or "Ubicación desconocida"
+                        pais = ""
+                except requests.RequestException as e:
+                    logger.error(f"Error consultando Nominatim: {str(e)}")
+                    # Usar valor por defecto si falla la geocodificación inversa
+                    ciudad = ciudad_buscada or f"Ubicación ({lat}, {lon})"
+                    pais = ""
+
+        # Asegurar que ciudad siempre tenga un valor
+        if not ciudad:
+            ciudad = f"Ubicación ({lat}, {lon})"
+
+        # Verificar caché en base de datos
+        weather_cache_key = f"weather_{lat}_{lon}"
+        cached_weather = cache.get(weather_cache_key)
+
+        if cached_weather:
+            logger.info(f"Usando caché de clima para {lat}, {lon}")
+            elapsed = time.time() - start_time
+            logger.info(f"Tiempo de respuesta (caché): {elapsed:.2f}s")
             return JsonResponse({
                 'success': True,
-                'data': {
-                    'temperatura': cache.temperatura,
-                    'sensacion_termica': cache.sensacion_termica,
-                    'humedad': cache.humedad,
-                    'presion': cache.presion,
-                    'viento_velocidad': cache.viento_velocidad,
-                    'viento_direccion': cache.viento_direccion,
-                    'descripcion': cache.descripcion,
-                    'icono': cache.icono,
-                    'ciudad': cache.ciudad,
-                    'pais': cache.pais,
-                    'latitud': cache.latitud,
-                    'longitud': cache.longitud,
-                    'temp_max': cache.temp_max,
-                    'temp_min': cache.temp_min,
-                    'visibilidad': cache.visibilidad,
-                    'uv_index': cache.uv_index,
-                    'probabilidad_lluvia': cache.probabilidad_lluvia,
-                    'amanecer': cache.amanecer.strftime('%H:%M') if cache.amanecer else None,
-                    'atardecer': cache.atardecer.strftime('%H:%M') if cache.atardecer else None,
-                    'pronostico': cache.pronostico,
-                    'pronostico_hora': [],
-                    'from_cache': True
-                }
+                'data': cached_weather,
+                'from_cache': True
             })
-        
-        # Si no hay caché o está expirado, consultar WeatherAPI
-        # Construir query para WeatherAPI
-        if lat and lon:
-            query = f"{lat},{lon}"
-        else:
-            # Para búsquedas por ciudad, agregar el país para obtener resultados más precisos
-            # o usar el parámetro 'q' directamente
-            query = ciudad
-        
-        # Obtener clima actual y pronóstico de 7 días con más datos
-        # Agregamos 'lang=es' para español y 'aqi=no' para no incluir calidad del aire
-        url = f"https://api.weatherapi.com/v1/forecast.json?key={api_key}&q={query}&days=7&lang=es&aqi=no&alerts=no"
-        
-        response = requests.get(url, timeout=10)
+
+        # Si no está en caché, buscar en base de datos
+        db_cache = WeatherCache.objects.filter(
+            latitud=lat,
+            longitud=lon
+        ).first()
+
+        if db_cache and not db_cache.esta_expirado():
+            # Agregar etiquetas de días al pronóstico del caché
+            dias_semana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
+            hoy = datetime.now().weekday()
+            pronostico_con_dias = []
+            for i, item in enumerate(db_cache.pronostico):
+                if i == 0:
+                    dia_label = "Hoy"
+                else:
+                    dia_index = (hoy + i) % 7
+                    dia_label = dias_semana[dia_index]
+                pronostico_con_dias.append({
+                    **item,
+                    'dia': dia_label
+                })
+
+            weather_data = {
+                'temperatura': db_cache.temperatura,
+                'sensacion_termica': db_cache.sensacion_termica,
+                'humedad': db_cache.humedad,
+                'presion': db_cache.presion,
+                'viento_velocidad': db_cache.viento_velocidad,
+                'viento_direccion': db_cache.viento_direccion,
+                'descripcion': db_cache.descripcion,
+                'icono': db_cache.icono,
+                'ciudad': db_cache.ciudad,
+                'pais': db_cache.pais,
+                'latitud': db_cache.latitud,
+                'longitud': db_cache.longitud,
+                'temp_max': db_cache.temp_max,
+                'temp_min': db_cache.temp_min,
+                'visibilidad': db_cache.visibilidad,
+                'uv_index': db_cache.uv_index,
+                'probabilidad_lluvia': db_cache.probabilidad_lluvia,
+                'amanecer': db_cache.amanecer.strftime('%H:%M') if db_cache.amanecer else None,
+                'atardecer': db_cache.atardecer.strftime('%H:%M') if db_cache.atardecer else None,
+                'pronostico': pronostico_con_dias,
+                'pronostico_hora': [],
+            }
+
+            # Guardar en caché de Django por 55 minutos (menos que la expiración de BD)
+            cache.set(weather_cache_key, weather_data, 3300)
+
+            elapsed = time.time() - start_time
+            logger.info(f"Tiempo de respuesta (caché BD): {elapsed:.2f}s")
+
+            return JsonResponse({
+                'success': True,
+                'data': weather_data,
+                'from_cache': True
+            })
+
+        # Consultar Open-Meteo API (gratis, sin API key)
+        url = f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}&current=temperature_2m,relative_humidity_2m,apparent_temperature,weather_code,wind_speed_10m,pressure_msl&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max&timezone=auto&forecast_days=7"
+
+        response = requests.get(url, timeout=5)  # Reducido de 10 a 5 segundos
         response.raise_for_status()
         data = response.json()
         
-        # Extraer datos de la respuesta de WeatherAPI
-        location = data['location']
+        # Extraer datos actuales
         current = data['current']
-        forecast = data['forecast']['forecastday']
+        daily = data['daily']
         
-        # Usar el nombre de la ciudad buscada si es una búsqueda por nombre
-        # Si la ubicación devuelta es muy específica, usar region o el nombre buscado
-        if lat and lon:
-            # Para geolocalización, usar el nombre que devuelve WeatherAPI
-            ciudad = location['name']
-        else:
-            # Para búsqueda por nombre, usar el nombre original buscado
-            # para mostrar lo que el usuario escribió
-            ciudad = ciudad_buscada
+        temperatura = current['temperature_2m']
+        sensacion_termica = current['apparent_temperature']
+        humedad = current['relative_humidity_2m']
+        presion = current['pressure_msl']
+        viento_velocidad = current['wind_speed_10m']
+        weather_code = current['weather_code']
         
-        pais = location['country']
-        lat = location['lat']
-        lon = location['lon']
+        # Mapear código del tiempo a descripción e icono
+        weather_descriptions = {
+            0: ("Despejado", "01d"),
+            1: ("Mayormente despejado", "02d"),
+            2: ("Parcialmente nublado", "03d"),
+            3: ("Nublado", "04d"),
+            45: ("Niebla", "50d"),
+            48: ("Niebla con escarcha", "50d"),
+            51: ("Llovizna ligera", "10d"),
+            53: ("Llovizna moderada", "10d"),
+            55: ("Llovizna densa", "10d"),
+            61: ("Lluvia ligera", "10d"),
+            63: ("Lluvia moderada", "10d"),
+            65: ("Lluvia fuerte", "10d"),
+            71: ("Nieve ligera", "13d"),
+            73: ("Nieve moderada", "13d"),
+            75: ("Nieve fuerte", "13d"),
+            80: ("Chubascos ligeros", "09d"),
+            81: ("Chubascos moderados", "09d"),
+            82: ("Chubascos violentos", "09d"),
+            95: ("Tormenta", "11d"),
+            96: ("Tormenta con granizo ligero", "11d"),
+            99: ("Tormenta con granizo fuerte", "11d"),
+        }
         
-        temperatura = current['temp_c']
-        sensacion_termica = current['feelslike_c']
-        humedad = current['humidity']
-        presion = current['pressure_mb']
-        viento_velocidad = current['wind_kph'] / 3.6  # Convertir a m/s
-        viento_direccion = current['wind_degree']
-        descripcion = current['condition']['text']
-        icono = "https:" + current['condition']['icon']
+        descripcion, icon_code = weather_descriptions.get(weather_code, ("Desconocido", "01d"))
+        icono = f"https://openweathermap.org/img/wn/{icon_code}@2x.png"
         
-        # Datos adicionales
-        visibilidad = current.get('vis_km', 10)
-        uv_index = current.get('uv', 0)
+        # Datos del primer día
+        temp_max = daily['temperature_2m_max'][0]
+        temp_min = daily['temperature_2m_min'][0]
+        probabilidad_lluvia = daily['precipitation_probability_max'][0] if 'precipitation_probability_max' in daily else 0
         
-        # Datos del primer día para temp_max/min y probabilidad de lluvia
-        if forecast:
-            day_data = forecast[0]['day']
-            temp_max = day_data['maxtemp_c']
-            temp_min = day_data['mintemp_c']
-            probabilidad_lluvia = day_data.get('daily_chance_of_rain', 0)
-            
-            # Convertir horas de amanecer/atardecer de string a Time
-            try:
-                amanecer_str = forecast[0]['astro']['sunrise']
-                atardecer_str = forecast[0]['astro']['sunset']
-                # WeatherAPI devuelve formato "06:15 AM" o "06:15"
-                if amanecer_str:
-                    try:
-                        amanecer = datetime.strptime(amanecer_str, '%I:%M %p').time()
-                    except ValueError:
-                        amanecer = datetime.strptime(amanecer_str, '%H:%M').time()
-                else:
-                    amanecer = None
-                    
-                if atardecer_str:
-                    try:
-                        atardecer = datetime.strptime(atardecer_str, '%I:%M %p').time()
-                    except ValueError:
-                        atardecer = datetime.strptime(atardecer_str, '%H:%M').time()
-                else:
-                    atardecer = None
-            except (ValueError, KeyError):
-                amanecer = None
-                atardecer = None
-        else:
-            temp_max = None
-            temp_min = None
-            probabilidad_lluvia = 0
+        # Amanecer y atardecer
+        try:
+            amanecer_str = daily['sunrise'][0]
+            atardecer_str = daily['sunset'][0]
+            amanecer = datetime.fromisoformat(amanecer_str.replace('Z', '+00:00')).time()
+            atardecer = datetime.fromisoformat(atardecer_str.replace('Z', '+00:00')).time()
+        except:
             amanecer = None
             atardecer = None
         
         # Procesar pronóstico (7 días)
         pronostico_procesado = []
-        for day in forecast:
-            day_data = day['day']
-            pronostico_procesado.append({
-                'fecha': day['date'],
-                'temperatura_max': day_data['maxtemp_c'],
-                'temperatura_min': day_data['mintemp_c'],
-                'descripcion': day_data['condition']['text'],
-                'icono': "https:" + day_data['condition']['icon']
-            })
+        dias_semana = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb']
+        hoy = datetime.now().weekday()
         
-        # Procesar pronóstico por horas (24 horas)
-        pronostico_hora_procesado = []
-        if forecast and 'hour' in forecast[0]:
-            for hour in forecast[0]['hour'][:24]:
-                pronostico_hora_procesado.append({
-                    'dt': hour['time_epoch'],
-                    'temp': hour['temp_c'],
-                    'descripcion': hour['condition']['text'],
-                    'icono': hour['condition']['icon']
-                })
+        for i in range(len(daily['time'])):
+            day_code = daily['weather_code'][i]
+            day_desc, day_icon = weather_descriptions.get(day_code, ("Desconocido", "01d"))
+            
+            # Calcular el día de la semana correcto
+            if i == 0:
+                dia_label = "Hoy"
+            else:
+                dia_index = (hoy + i) % 7
+                dia_label = dias_semana[dia_index]
+            
+            pronostico_procesado.append({
+                'fecha': daily['time'][i],
+                'dia': dia_label,
+                'temperatura_max': daily['temperature_2m_max'][i],
+                'temperatura_min': daily['temperature_2m_min'][i],
+                'descripcion': day_desc,
+                'icono': f"https://openweathermap.org/img/wn/{day_icon}@2x.png"
+            })
         
         # Guardar en caché
         weather_cache = WeatherCache.objects.create(
             usuario=request.user if request.user.is_authenticated else None,
             ciudad=ciudad,
-            pais=pais,
-            latitud=float(lat) if lat else None,
-            longitud=float(lon) if lon else None,
+            pais=pais if pais else "Desconocido",
+            latitud=float(lat),
+            longitud=float(lon),
             temperatura=temperatura,
             sensacion_termica=sensacion_termica,
             humedad=humedad,
             presion=presion,
             viento_velocidad=viento_velocidad,
-            viento_direccion=viento_direccion,
+            viento_direccion=0,
             descripcion=descripcion,
             icono=icono,
             temp_max=temp_max,
             temp_min=temp_min,
-            visibilidad=visibilidad,
-            uv_index=uv_index,
+            visibilidad=10000,  # 10km en metros
+            uv_index=0,
             probabilidad_lluvia=probabilidad_lluvia,
             amanecer=amanecer,
             atardecer=atardecer,
             pronostico=pronostico_procesado,
             fecha_expiracion=timezone.now() + timedelta(hours=1)
         )
-        
+
+        weather_data = {
+            'temperatura': weather_cache.temperatura,
+            'sensacion_termica': weather_cache.sensacion_termica,
+            'humedad': weather_cache.humedad,
+            'presion': weather_cache.presion,
+            'viento_velocidad': weather_cache.viento_velocidad,
+            'viento_direccion': weather_cache.viento_direccion,
+            'descripcion': weather_cache.descripcion,
+            'icono': weather_cache.icono,
+            'ciudad': weather_cache.ciudad,
+            'pais': weather_cache.pais,
+            'latitud': weather_cache.latitud,
+            'longitud': weather_cache.longitud,
+            'temp_max': weather_cache.temp_max,
+            'temp_min': weather_cache.temp_min,
+            'visibilidad': weather_cache.visibilidad,
+            'uv_index': weather_cache.uv_index,
+            'probabilidad_lluvia': weather_cache.probabilidad_lluvia,
+            'amanecer': weather_cache.amanecer.strftime('%H:%M') if weather_cache.amanecer else None,
+            'atardecer': weather_cache.atardecer.strftime('%H:%M') if weather_cache.atardecer else None,
+            'pronostico': weather_cache.pronostico,
+            'pronostico_hora': [],
+        }
+
+        # Guardar en caché de Django por 55 minutos
+        cache.set(weather_cache_key, weather_data, 3300)
+
+        elapsed = time.time() - start_time
+        logger.info(f"Tiempo de respuesta (API): {elapsed:.2f}s")
+
         return JsonResponse({
             'success': True,
-            'data': {
-                'temperatura': weather_cache.temperatura,
-                'sensacion_termica': weather_cache.sensacion_termica,
-                'humedad': weather_cache.humedad,
-                'presion': weather_cache.presion,
-                'viento_velocidad': weather_cache.viento_velocidad,
-                'viento_direccion': weather_cache.viento_direccion,
-                'descripcion': weather_cache.descripcion,
-                'icono': weather_cache.icono,
-                'ciudad': weather_cache.ciudad,
-                'pais': weather_cache.pais,
-                'latitud': weather_cache.latitud,
-                'longitud': weather_cache.longitud,
-                'temp_max': weather_cache.temp_max,
-                'temp_min': weather_cache.temp_min,
-                'visibilidad': weather_cache.visibilidad,
-                'uv_index': weather_cache.uv_index,
-                'probabilidad_lluvia': weather_cache.probabilidad_lluvia,
-                'amanecer': weather_cache.amanecer.strftime('%H:%M') if weather_cache.amanecer else None,
-                'atardecer': weather_cache.atardecer.strftime('%H:%M') if weather_cache.atardecer else None,
-                'pronostico': weather_cache.pronostico,
-                'pronostico_hora': pronostico_hora_procesado,
-                'from_cache': False
-            }
+            'data': weather_data,
+            'from_cache': False
         })
-        
+
     except requests.RequestException as e:
-        logger.error(f"Error consultando WeatherAPI: {str(e)}")
+        elapsed = time.time() - start_time
+        logger.error(f"Error consultando Open-Meteo: {str(e)} - Tiempo: {elapsed:.2f}s")
         return JsonResponse({
             'success': False,
             'error': 'Error al consultar el servicio del clima'
         }, status=500)
     except Exception as e:
-        logger.error(f"Error inesperado en obtener_clima: {str(e)}", exc_info=True)
+        elapsed = time.time() - start_time
+        logger.error(f"Error inesperado en obtener_clima: {str(e)} - Tiempo: {elapsed:.2f}s", exc_info=True)
         return JsonResponse({
             'success': False,
             'error': f'Error inesperado: {str(e)}'

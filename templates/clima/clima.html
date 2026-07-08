@@ -4,7 +4,7 @@
 {% block title %}Clima{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/clima-modern.css' %}?v=2">
+<link rel="stylesheet" href="{% static 'css/pages/clima-modern.css' %}?v=3">
 <script src="https://unpkg.com/lucide@latest"></script>
 {% endblock %}
 
@@ -15,14 +15,27 @@
     <div class="clima-header">
         <div class="header-content">
             <h1 class="clima-title">🌤 Clima</h1>
-            
-            <div class="search-section">
-                <div class="search-bar">
-                    <i data-lucide="search" class="search-icon"></i>
-                    <input type="text" id="ciudad-input" placeholder="Buscar ciudad..." class="search-input" autocomplete="off">
-                    <button type="button" id="search-btn" class="search-button">Buscar</button>
-                </div>
+        </div>
+
+        <div style="margin-top: 20px; width: 100%; max-width: 600px;">
+            <div style="display: flex; gap: 10px; align-items: center; background: rgba(30, 41, 59, 0.7); border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 12px 20px;">
+                <i data-lucide="search" style="width: 20px; height: 20px; color: #94a3b8;"></i>
+                <input type="text" id="ciudad-input" placeholder="Buscar ciudad..." style="flex: 1; background: transparent; border: none; color: #f8fafc; font-size: 1rem; outline: none;" autocomplete="off">
+                <button type="button" id="search-btn" style="background: #3b82f6; color: white; border: none; border-radius: 12px; padding: 10px 24px; font-weight: 600; cursor: pointer; white-space: nowrap;">Buscar</button>
             </div>
+            <button type="button" id="geo-btn" style="margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 8px; background: rgba(30, 41, 59, 0.7); color: #f8fafc; border: 2px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 12px 24px; font-weight: 600; font-size: 0.95rem; cursor: pointer; white-space: nowrap; width: 100%;">
+                <i data-lucide="map-pin" style="width: 18px; height: 18px;"></i>
+                Mi ubicación
+            </button>
+        </div>
+    </div>
+
+    <!-- Welcome Message -->
+    <div id="welcome-msg" class="welcome-message">
+        <div class="welcome-content">
+            <i data-lucide="map-pin" class="welcome-icon"></i>
+            <h2>Busca una ciudad</h2>
+            <p>Ingresa el nombre de una ciudad o usa tu ubicación actual para ver el clima</p>
         </div>
     </div>
 
@@ -269,7 +282,7 @@
         if (!ciudad) return;
         await obtenerClima(ciudad);
     });
-    
+
     document.getElementById('ciudad-input').addEventListener('keypress', async function(e) {
         if (e.key === 'Enter') {
             const ciudad = this.value;
@@ -277,6 +290,60 @@
             await obtenerClima(ciudad);
         }
     });
+
+    // Geolocation functionality
+    document.getElementById('geo-btn').addEventListener('click', async function() {
+        if (!navigator.geolocation) {
+            mostrarError('Tu navegador no soporta geolocalización');
+            return;
+        }
+
+        mostrarLoading(true);
+        navigator.geolocation.getCurrentPosition(
+            async function(position) {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                await obtenerClimaPorCoordenadas(lat, lon);
+            },
+            function(error) {
+                mostrarLoading(false);
+                let errorMsg = 'Error al obtener ubicación';
+                switch(error.code) {
+                    case error.PERMISSION_DENIED:
+                        errorMsg = 'Permiso de ubicación denegado';
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        errorMsg = 'Ubicación no disponible';
+                        break;
+                    case error.TIMEOUT:
+                        errorMsg = 'Tiempo de espera agotado';
+                        break;
+                }
+                mostrarError(errorMsg);
+            },
+            { timeout: 10000 }
+        );
+    });
+
+    async function obtenerClimaPorCoordenadas(lat, lon) {
+        mostrarLoading(true);
+        try {
+            const response = await fetch(`/clima/api/geolocalizar/?lat=${lat}&lon=${lon}`);
+            const data = await response.json();
+
+            if (data.success) {
+                actualizarUI(data.data);
+                addToRecentSearches(data.data.ciudad);
+            } else {
+                mostrarError(data.error || 'Error al obtener el clima');
+            }
+        } catch (error) {
+            console.error('Error fetching weather by coordinates:', error);
+            mostrarError('Error de conexión con el servidor: ' + error.message);
+        } finally {
+            mostrarLoading(false);
+        }
+    }
     
     async function obtenerClima(ciudad) {
         mostrarLoading(true);
@@ -303,6 +370,9 @@
     function actualizarUI(data) {
         console.log('actualizarUI called with data:', data);
         currentWeatherData = data;
+        
+        // Ocultar mensaje de bienvenida
+        document.getElementById('welcome-msg').style.display = 'none';
         
         // Update main weather card
         document.getElementById('main-city').textContent = data.ciudad;
@@ -638,11 +708,11 @@
         }, 300);
     }
     
-    // Auto-load weather on page load
-    window.addEventListener('load', function() {
-        document.getElementById('ciudad-input').value = 'Madrid';
-        obtenerClima('Madrid');
-    });
+    // Auto-load weather on page load - Desactivado para que el usuario busque su ciudad
+    // window.addEventListener('load', function() {
+    //     document.getElementById('ciudad-input').value = 'Madrid';
+    //     obtenerClima('Madrid');
+    // });
     
     // Update "last updated" time every minute
     setInterval(function() {

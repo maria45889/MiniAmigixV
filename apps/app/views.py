@@ -28,7 +28,7 @@ import yt_dlp
 from .models import ConversacionChat, MensajeChat, Cancion, Playlist, Favorite, Game, Score, Achievement, UserAchievement, EstadoAnimo, RecomendacionEntretenimiento
 from eventos.models import Evento
 from notificaciones.models import Notificacion
-from apps.mongodb.services import DualDatabaseService
+# from apps.mongodb.services import DualDatabaseService  # Temporalmente deshabilitado
 
 logger = logging.getLogger(__name__)
 
@@ -175,14 +175,14 @@ def chat_api(request):
                 return JsonResponse({'error': f'Error al guardar mensaje: {str(e)}'}, status=500)
             conversacion.save() # Forzamos la actualización de fecha_actualizacion (auto_now)
             
-            # Guardar también en MongoDB (historial y análisis)
-            DualDatabaseService.guardar_chat_mensaje(
-                usuario=request.user.username,
-                mensaje=message,
-                respuesta=None,
-                imagen_url=imagen_url,
-                usar_mongodb=True
-            )
+            # Guardar también en MongoDB (historial y análisis) - Temporalmente deshabilitado
+            # DualDatabaseService.guardar_chat_mensaje(
+            #     usuario=request.user.username,
+            #     mensaje=message,
+            #     respuesta=None,
+            #     imagen_url=imagen_url,
+            #     usar_mongodb=True
+            # )
             
             # Get conversation history
             # Fetch latest 10 and reverse to restore chronological order
@@ -217,7 +217,7 @@ def chat_api(request):
             for msg in mensajes:
                 role = "user" if msg.es_usuario else "assistant"
                 messages.append({"role": role, "content": msg.texto})
-        else:
+        else: 
             # For non-authenticated users, just use current message
             fecha_actual = datetime.datetime.now().strftime("%d/%m/%Y %H:%M")
             messages = [
@@ -255,13 +255,13 @@ def chat_api(request):
             )
             conversacion.save() # Mantenemos el chat al principio de la lista
             
-            # Guardar también en MongoDB (historial y análisis)
-            DualDatabaseService.guardar_chat_mensaje(
-                usuario=request.user.username,
-                mensaje=bot_response,
-                respuesta=bot_response,
-                usar_mongodb=True
-            )
+            # Guardar también en MongoDB (historial y análisis) - Temporalmente deshabilitado
+            # DualDatabaseService.guardar_chat_mensaje(
+            #     usuario=request.user.username,
+            #     mensaje=bot_response,
+            #     respuesta=bot_response,
+            #     usar_mongodb=True
+            # )
 
             # Crear notificación de nueva respuesta del chat
             try:
@@ -273,14 +273,14 @@ def chat_api(request):
                     enlace='/chat/'
                 )
                 
-                # Guardar también en MongoDB (historial y análisis)
-                DualDatabaseService.guardar_notificacion(
-                    usuario=request.user.username,
-                    titulo='💬 Nueva respuesta del Chat IA',
-                    mensaje=f'MiniAmigix ha respondido: "{bot_response[:100]}..."',
-                    tipo='info',
-                    usar_mongodb=True
-                )
+                # Guardar también en MongoDB (historial y análisis) - Temporalmente deshabilitado
+                # DualDatabaseService.guardar_notificacion(
+                #     usuario=request.user.username,
+                #     titulo='💬 Nueva respuesta del Chat IA',
+                #     mensaje=f'MiniAmigix ha respondido: "{bot_response[:100]}..."',
+                #     tipo='info',
+                #     usar_mongodb=True
+                # )
             except Exception as e:
                 logger.error(f"Error al crear notificación de chat: {str(e)}")
         
@@ -351,18 +351,18 @@ def register_view(request):
     return render(request, 'register.html', context)
 
 def home(request):
-    # Registrar actividad en MongoDB
-    if request.user.is_authenticated:
-        DualDatabaseService.log_actividad(
-            usuario=request.user.username,
-            accion='visit_home',
-            descripcion='Usuario visitó la página principal',
-            ip_address=request.META.get('REMOTE_ADDR', None)
-        )
-        DualDatabaseService.registrar_analitica(
-            usuario=request.user.username,
-            pagina='/home/'
-        )
+    # Registrar actividad en MongoDB - Temporalmente deshabilitado
+    # if request.user.is_authenticated:
+    #     DualDatabaseService.log_actividad(
+    #         usuario=request.user.username,
+    #         accion='visit_home',
+    #         descripcion='Usuario visitó la página principal',
+    #         ip_address=request.META.get('REMOTE_ADDR', None)
+    #     )
+    #     DualDatabaseService.registrar_analitica(
+    #         usuario=request.user.username,
+    #         pagina='/home/'
+    #     )
     
     context = {}
     
@@ -419,18 +419,18 @@ def index(request):
     return redirect('tutorial_home')
 
 def chat(request):
-    # Registrar actividad en MongoDB
-    if request.user.is_authenticated:
-        DualDatabaseService.log_actividad(
-            usuario=request.user.username,
-            accion='visit_chat',
-            descripcion='Usuario visitó la página de chat',
-            ip_address=request.META.get('REMOTE_ADDR', None)
-        )
-        DualDatabaseService.registrar_analitica(
-            usuario=request.user.username,
-            pagina='/chat/'
-        )
+    # Registrar actividad en MongoDB - Temporalmente deshabilitado
+    # if request.user.is_authenticated:
+    #     DualDatabaseService.log_actividad(
+    #         usuario=request.user.username,
+    #         accion='visit_chat',
+    #         descripcion='Usuario visitó la página de chat',
+    #         ip_address=request.META.get('REMOTE_ADDR', None)
+    #     )
+    #     DualDatabaseService.registrar_analitica(
+    #         usuario=request.user.username,
+    #         pagina='/chat/'
+    #     )
     
     mensajes = []
     conversaciones = []
@@ -478,18 +478,18 @@ def chat(request):
     })
 
 def musica(request):
-    # Registrar actividad en MongoDB
-    if request.user.is_authenticated:
-        DualDatabaseService.log_actividad(
-            usuario=request.user.username,
-            accion='visit_musica',
-            descripcion='Usuario visitó la página de música',
-            ip_address=request.META.get('REMOTE_ADDR', None)
-        )
-        DualDatabaseService.registrar_analitica(
-            usuario=request.user.username,
-            pagina='/musica/'
-        )
+    # Registrar actividad en MongoDB - Temporalmente deshabilitado
+    # if request.user.is_authenticated:
+    #     DualDatabaseService.log_actividad(
+    #         usuario=request.user.username,
+    #         accion='visit_musica',
+    #         descripcion='Usuario visitó la página de música',
+    #         ip_address=request.META.get('REMOTE_ADDR', None)
+    #     )
+    #     DualDatabaseService.registrar_analitica(
+    #         usuario=request.user.username,
+    #         pagina='/musica/'
+    #     )
     
     canciones = []
     playlists = []
@@ -584,18 +584,18 @@ def toggle_favorito(request):
     return JsonResponse({'error': 'Método no permitido'}, status=405)
 
 def juegos(request):
-    # Registrar actividad en MongoDB
-    if request.user.is_authenticated:
-        DualDatabaseService.log_actividad(
-            usuario=request.user.username,
-            accion='visit_juegos',
-            descripcion='Usuario visitó la página de juegos',
-            ip_address=request.META.get('REMOTE_ADDR', None)
-        )
-        DualDatabaseService.registrar_analitica(
-            usuario=request.user.username,
-            pagina='/juegos/'
-        )
+    # Registrar actividad en MongoDB - Temporalmente deshabilitado
+    # if request.user.is_authenticated:
+    #     DualDatabaseService.log_actividad(
+    #         usuario=request.user.username,
+    #         accion='visit_juegos',
+    #         descripcion='Usuario visitó la página de juegos',
+    #         ip_address=request.META.get('REMOTE_ADDR', None)
+    #     )
+    #     DualDatabaseService.registrar_analitica(
+    #         usuario=request.user.username,
+    #         pagina='/juegos/'
+    #     )
     
     juegos_disponibles = Game.objects.filter(activo=True)
     puntuaciones_usuario = []
@@ -644,18 +644,18 @@ def juegos(request):
     })
 
 def estudio(request):
-    # Registrar actividad en MongoDB
-    if request.user.is_authenticated:
-        DualDatabaseService.log_actividad(
-            usuario=request.user.username,
-            accion='visit_estudio',
-            descripcion='Usuario visitó la página de estudio',
-            ip_address=request.META.get('REMOTE_ADDR', None)
-        )
-        DualDatabaseService.registrar_analitica(
-            usuario=request.user.username,
-            pagina='/estudio/'
-        )
+    # Registrar actividad en MongoDB - Temporalmente deshabilitado
+    # if request.user.is_authenticated:
+    #     DualDatabaseService.log_actividad(
+    #         usuario=request.user.username,
+    #         accion='visit_estudio',
+    #         descripcion='Usuario visitó la página de estudio',
+    #         ip_address=request.META.get('REMOTE_ADDR', None)
+    #     )
+    #     DualDatabaseService.registrar_analitica(
+    #         usuario=request.user.username,
+    #         pagina='/estudio/'
+    #     )
     
     from estudio.models import StudyResource, StudyCategory, StudyProgress
     

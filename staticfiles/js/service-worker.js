@@ -36,6 +36,12 @@ self.addEventListener('activate', event => {
 
 // Fetch de recursos
 self.addEventListener('fetch', event => {
+    // No cachear llamadas a la API
+    if (event.request.url.includes('/api/') || event.request.url.includes('/clima/')) {
+        event.respondWith(fetch(event.request));
+        return;
+    }
+
     event.respondWith(
         caches.match(event.request)
             .then(response => {

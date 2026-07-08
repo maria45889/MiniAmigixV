@@ -555,6 +555,50 @@ textarea:focus, input:focus {
    LIGHT MODE OVERRIDES
    ========================================================================== */
 
+/* Body background override for estudio page */
+body.light {
+    background-color: #f8fafc !important;
+}
+
+/* Dashboard Background */
+body.light .dashboard {
+    background: 
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.08), transparent 40%),
+        radial-gradient(circle at bottom right, rgba(124, 58, 237, 0.08), transparent 35%),
+        #f8fafc !important;
+}
+
+/* Summary Panel */
+body.light .summary-panel {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(0, 0, 0, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.06);
+}
+body.light .summary-header {
+    border-bottom-color: rgba(0, 0, 0, 0.1);
+}
+body.light .summary-stats .stat-item {
+    background: rgba(255, 255, 255, 0.6);
+    border-color: rgba(0, 0, 0, 0.06);
+}
+body.light .stat-value {
+    color: #0f172a;
+}
+body.light .stat-label {
+    color: #64748b;
+}
+
+/* Quick Actions */
+body.light .quick-action-btn {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: #0f172a;
+}
+body.light .quick-action-btn:hover {
+    background: var(--accent-gradient);
+    color: white;
+}
+
 /* Cards */
 body.light .nota-card {
     background: rgba(255, 255, 255, 0.7);
@@ -666,6 +710,66 @@ body.light .preset-btn:hover {
 }
 
 body.light #temporizador-preset p {
+    color: #64748b;
+}
+
+/* Pomodoro Components */
+body.light .progress-ring-bg {
+    stroke: rgba(0, 0, 0, 0.1);
+}
+body.light #pomodoro-time {
+    color: #0f172a;
+    text-shadow: none;
+}
+body.light .pomodoro-progress-bar {
+    background: rgba(0, 0, 0, 0.1);
+}
+body.light .preset-pomodoro {
+    background: rgba(255, 255, 255, 0.8);
+    color: #0f172a;
+    border-color: rgba(0, 0, 0, 0.1);
+}
+body.light .preset-pomodoro:hover {
+    background: rgba(255, 255, 255, 1);
+    border-color: rgba(124, 58, 237, 0.3);
+}
+
+/* Stats Cards */
+body.light .stat-card {
+    background: rgba(255, 255, 255, 0.6);
+    border-color: rgba(0, 0, 0, 0.06);
+}
+body.light .stat-card .stat-value {
+    color: #0f172a;
+}
+body.light .stat-card .stat-label {
+    color: #64748b;
+}
+body.light .weekly-chart {
+    background: rgba(255, 255, 255, 0.6);
+}
+body.light .chart-value {
+    color: #0f172a;
+}
+body.light .chart-label {
+    color: #64748b;
+}
+
+/* Motivation Card */
+body.light .motivation-card {
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.05), rgba(6, 182, 212, 0.05));
+}
+body.light .motivation-tip {
+    background: rgba(255, 255, 255, 0.6);
+    border-color: rgba(0, 0, 0, 0.06);
+}
+body.light .tip-text {
+    color: #1e293b;
+}
+body.light .motivation-stats {
+    background: rgba(255, 255, 255, 0.6);
+}
+body.light .mot-label {
     color: #64748b;
 }
 

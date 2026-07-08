@@ -88,10 +88,10 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.github',
     'allauth.socialaccount.providers.microsoft',
     # 'webpush', # Temporalmente deshabilitado - incompatible con Django 6.0
-    # MongoEngine
-    'mongoengine',
-    # MongoDB App
-    'mongodb',
+    # MongoEngine - Temporalmente deshabilitado
+    # 'mongoengine',
+    # MongoDB App - Temporalmente deshabilitado
+    # 'mongodb',
     # Project Apps
     'app.apps.AppConfig',
     'configuracion',
@@ -170,24 +170,24 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
-# PostgreSQL (Producción)
+# SQLite (Desarrollo)
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB', 'miniamigixv_db'),
-        'USER': os.getenv('POSTGRES_USER', 'postgres'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'postgres'),
-        'HOST': os.getenv('POSTGRES_HOST', 'localhost'),
-        'PORT': os.getenv('POSTGRES_PORT', '5432'),
-    }
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    },
 }
 
-# SQLite (Desarrollo - Fallback)
+# PostgreSQL (Producción - comentado para desarrollo)
 # DATABASES = {
 #     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     },
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': os.getenv('POSTGRES_DB', 'miniamigixv_db'),
+#         'USER': os.getenv('POSTGRES_USER', 'postgres'),
+#         'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'postgres'),
+#         'HOST': os.getenv('POSTGRES_HOST', 'localhost'),
+#         'PORT': os.getenv('POSTGRES_PORT', '5432'),
+#     }
 # }
 
 # Aplicaciones que usarán MongoDB (deshabilitado temporalmente)
@@ -367,15 +367,15 @@ SIMPLE_JWT = {
 MONGODB_URI = os.getenv('MONGODB_URI', 'mongodb://localhost:27017/')
 MONGODB_NAME = os.getenv('MONGODB_NAME', 'miniamigixv_db')
 
-# Conectar a MongoDB (opcional)
-try:
-    from mongoengine import connect
-    connect(db=MONGODB_NAME, host=MONGODB_URI, alias='default')
-    print(f"[OK] Conectado a MongoDB: {MONGODB_NAME}")
-except ImportError:
-    print("[WARN] mongoengine no esta instalado. MongoDB no estara disponible.")
-except Exception as e:
-    print(f"[ERROR] Error al conectar a MongoDB: {str(e)}")
+# Conectar a MongoDB (opcional - desactivado temporalmente)
+# try:
+#     from mongoengine import connect
+#     connect(db=MONGODB_NAME, host=MONGODB_URI, alias='default')
+#     print(f"[OK] Conectado a MongoDB: {MONGODB_NAME}")
+# except ImportError:
+#     print("[WARN] mongoengine no esta instalado. MongoDB no estara disponible.")
+# except Exception as e:
+#     print(f"[ERROR] Error al conectar a MongoDB: {str(e)}")
 
 # Configuración de MongoEngine
 MONGOENGINE_USER_DOCUMENT = 'mongoengine.django.auth.User'
