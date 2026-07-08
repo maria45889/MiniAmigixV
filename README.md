@@ -365,7 +365,23 @@ Abre tu navegador y navega a:
 
 ## 🔔 Cambios Recientes
 
-### 🆕 Última Actualización - Exportación de Reportes Excel
+### 🆕 Última Actualización - Permisos de Panel Admin Mejorados
+
+**Commit:** `cda2e64`
+
+**Novedades:**
+- 🔐 Función helper `is_admin_user()` para centralizar validaciones de permisos
+- ✅ Acceso admin ahora permitido para usuarios con `is_staff` o `is_superuser`
+- 📧 Compatible con `ADMIN_EMAILS` configurados en settings
+- 🎯 Permisos unificados en: `panel_admin()`, `exportar_reporte_excel()`, `admin_stats_api()` y `panel_admin_email_user()`
+- 🧹 Código más limpio y mantenible con lógica centralizada
+
+**Archivos Modificados:**
+- `apps/app/views.py` - Nueva función `is_admin_user()` y actualización de vistas admin
+
+---
+
+### 📊 Actualización Anterior - Exportación de Reportes Excel
 
 **Commit:** `cf0b2cf`
 
