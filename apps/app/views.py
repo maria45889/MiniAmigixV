@@ -33,6 +33,17 @@ from notificaciones.models import Notificacion
 logger = logging.getLogger(__name__)
 
 
+def is_admin_user(user):
+    allowed_admins = getattr(settings, 'ADMIN_EMAILS', ['miniamigixv@gmail.com'])
+    if isinstance(allowed_admins, str):
+        allowed_admins = [allowed_admins]
+    allowed_admins = [email.strip().lower() for email in allowed_admins if email]
+    user_email = (getattr(user, 'email', '') or '').strip().lower()
+    return bool(user and user.is_authenticated and (
+        user.is_staff or user.is_superuser or user_email in allowed_admins
+    ))
+
+
 def generate_ai_response(messages, settings_obj, imagen=False, max_tokens=500, image_base64=None, message=None):
     provider_configs = []
 
@@ -306,7 +317,7 @@ def login_view(request):
     
     # Get providers that are configured in the database for the current site
     site = Site.objects.get_current()
-    installed_providers = SocialApp.objects.filter(sites=site).exclude(provider='google')
+    installed_providers = SocialApp.objects.filter(sites=site).exclude(provider__in=['google', 'github'])
     
     # Pass the SocialApp model instances directly to the template.
     # The template will use the `.provider` attribute (string ID).
@@ -344,7 +355,7 @@ def register_view(request):
     
     # Get providers that are configured in the database for the current site
     site = Site.objects.get_current()
-    installed_providers = SocialApp.objects.filter(sites=site)
+    installed_providers = SocialApp.objects.filter(sites=site).exclude(provider__in=['google', 'github'])
     # Pass the SocialApp model instances directly to the template.
     # The template will use the `.provider` attribute (string ID).
     context = {'providers': installed_providers}
@@ -1379,9 +1390,7 @@ def enviar_sugerencia_rapida(request):
 
 @login_required
 def panel_admin(request):
-    # Verificar si el usuario es staff, superuser o tiene email en ADMIN_EMAILS
-    allowed_admins = getattr(settings, 'ADMIN_EMAILS', ['miniamigixv@gmail.com'])
-    if not (request.user.is_staff or request.user.is_superuser or request.user.email in allowed_admins):
+    if not is_admin_user(request.user):
         return redirect('home')
     from sugerencias.models import Visitante, Sugerencia
     from soporte.models import TicketSoporte
@@ -1457,16 +1466,158 @@ def panel_admin(request):
 
 @login_required
 def exportar_reporte_excel(request):
-    # Verificar si el usuario es staff, superuser o tiene email en ADMIN_EMAILS
-    allowed_admins = getattr(settings, 'ADMIN_EMAILS', ['miniamigixv@gmail.com'])
-    if not (request.user.is_staff or request.user.is_superuser or request.user.email in allowed_admins):
+    if not is_admin_user(request.user):
         return JsonResponse({'error': 'Unauthorized'}, status=403)
     
+    report_type = (request.GET.get('tipo') or '').lower()
     from sugerencias.models import Visitante, Sugerencia
     from soporte.models import TicketSoporte
     
     # Crear workbook
     wb = Workbook()
+    if 'Sheet' in wb.sheetnames:
+        del wb['Sheet']
+
+    header_font = Font(name='Arial', size=12, bold=True, color='FFFFFF')
+    header_fill = PatternFill(start_color='4472C4', end_color='4472C4', fill_type='solid')
+    header_alignment = Alignment(horizontal='center', vertical='center')
+    border = Border(
+        left=Side(style='thin'),
+        right=Side(style='thin'),
+        top=Side(style='thin'),
+        bottom=Side(style='thin')
+    )
+
+    if report_type == 'usuarios':
+        ws = wb.create_sheet('Usuarios', 0)
+        ws['A1'] = 'Reporte de Usuarios'
+        ws['A1'].font = Font(name='Arial', size=16, bold=True)
+        ws.merge_cells('A1:E1')
+        ws['A2'] = f'Fecha de generación: {datetime.datetime.now().strftime("%d/%m/%Y %H:%M")}'
+        ws['A2'].font = Font(name='Arial', size=10, italic=True)
+        ws.merge_cells('A2:E2')
+
+        headers = ['Usuario', 'Email', 'Fecha Registro', 'Último Acceso', 'Estado']
+        for col_idx, header in enumerate(headers, start=1):
+            cell = ws.cell(row=4, column=col_idx, value=header)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = header_alignment
+            cell.border = border
+
+        for row_idx, usuario in enumerate(User.objects.order_by('-date_joined'), start=5):
+            ws.cell(row=row_idx, column=1, value=usuario.username).border = border
+            ws.cell(row=row_idx, column=2, value=usuario.email or '').border = border
+            ws.cell(row=row_idx, column=3, value=usuario.date_joined.strftime('%d/%m/%Y %H:%M')).border = border
+            ws.cell(row=row_idx, column=4, value=usuario.last_login.strftime('%d/%m/%Y %H:%M') if usuario.last_login else 'Nunca').border = border
+            estado = 'Superadmin' if usuario.is_superuser else ('Staff' if usuario.is_staff else 'Activo')
+            ws.cell(row=row_idx, column=5, value=estado).border = border
+
+        for col in range(1, 6):
+            ws.column_dimensions[get_column_letter(col)].width = 22
+
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename=reporte_usuarios_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+        wb.save(response)
+        return response
+
+    if report_type == 'eventos':
+        ws = wb.create_sheet('Eventos', 0)
+        ws['A1'] = 'Reporte de Eventos'
+        ws['A1'].font = Font(name='Arial', size=16, bold=True)
+        ws.merge_cells('A1:F1')
+        ws['A2'] = f'Fecha de generación: {datetime.datetime.now().strftime("%d/%m/%Y %H:%M")}'
+        ws['A2'].font = Font(name='Arial', size=10, italic=True)
+        ws.merge_cells('A2:F2')
+
+        headers = ['Título', 'Usuario', 'Categoría', 'Fecha', 'Ubicación', 'Estado Recordatorio']
+        for col_idx, header in enumerate(headers, start=1):
+            cell = ws.cell(row=4, column=col_idx, value=header)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = header_alignment
+            cell.border = border
+
+        for row_idx, evento in enumerate(Evento.objects.order_by('-fecha_creacion'), start=5):
+            ws.cell(row=row_idx, column=1, value=evento.titulo).border = border
+            ws.cell(row=row_idx, column=2, value=evento.usuario.username if evento.usuario else 'Sistema').border = border
+            ws.cell(row=row_idx, column=3, value=evento.get_categoria_emoji() + ' ' + evento.get_categoria_display()).border = border
+            ws.cell(row=row_idx, column=4, value=evento.fecha.strftime('%d/%m/%Y %H:%M')).border = border
+            ws.cell(row=row_idx, column=5, value=evento.ubicacion or '').border = border
+            ws.cell(row=row_idx, column=6, value='Activo' if evento.recordatorio_activo else 'Inactivo').border = border
+
+        for col in range(1, 7):
+            ws.column_dimensions[get_column_letter(col)].width = 24
+
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename=reporte_eventos_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+        wb.save(response)
+        return response
+
+    if report_type == 'chats':
+        ws = wb.create_sheet('Chats IA', 0)
+        ws['A1'] = 'Reporte de Chats IA'
+        ws['A1'].font = Font(name='Arial', size=16, bold=True)
+        ws.merge_cells('A1:E1')
+        ws['A2'] = f'Fecha de generación: {datetime.datetime.now().strftime("%d/%m/%Y %H:%M")}'
+        ws['A2'].font = Font(name='Arial', size=10, italic=True)
+        ws.merge_cells('A2:E2')
+
+        headers = ['ID de Chat', 'Usuario', 'Título', 'Fecha Creación', 'Última Actualización']
+        for col_idx, header in enumerate(headers, start=1):
+            cell = ws.cell(row=4, column=col_idx, value=header)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = header_alignment
+            cell.border = border
+
+        for row_idx, chat in enumerate(ConversacionChat.objects.order_by('-fecha_actualizacion'), start=5):
+            ws.cell(row=row_idx, column=1, value=chat.id).border = border
+            ws.cell(row=row_idx, column=2, value=chat.usuario.username if chat.usuario else 'Desconocido').border = border
+            ws.cell(row=row_idx, column=3, value=chat.titulo).border = border
+            ws.cell(row=row_idx, column=4, value=chat.fecha_creacion.strftime('%d/%m/%Y %H:%M')).border = border
+            ws.cell(row=row_idx, column=5, value=chat.fecha_actualizacion.strftime('%d/%m/%Y %H:%M')).border = border
+
+        for col in range(1, 6):
+            ws.column_dimensions[get_column_letter(col)].width = 24
+
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename=reporte_chats_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+        wb.save(response)
+        return response
+
+    if report_type == 'notificaciones':
+        ws = wb.create_sheet('Notificaciones', 0)
+        ws['A1'] = 'Reporte de Notificaciones'
+        ws['A1'].font = Font(name='Arial', size=16, bold=True)
+        ws.merge_cells('A1:F1')
+        ws['A2'] = f'Fecha de generación: {datetime.datetime.now().strftime("%d/%m/%Y %H:%M")}'
+        ws['A2'].font = Font(name='Arial', size=10, italic=True)
+        ws.merge_cells('A2:F2')
+
+        headers = ['Título', 'Usuario', 'Tipo', 'Categoría', 'Prioridad', 'Fecha Creación']
+        for col_idx, header in enumerate(headers, start=1):
+            cell = ws.cell(row=4, column=col_idx, value=header)
+            cell.font = header_font
+            cell.fill = header_fill
+            cell.alignment = header_alignment
+            cell.border = border
+
+        for row_idx, notif in enumerate(Notificacion.objects.order_by('-fecha_creacion'), start=5):
+            ws.cell(row=row_idx, column=1, value=notif.titulo).border = border
+            ws.cell(row=row_idx, column=2, value=notif.usuario.username if notif.usuario else 'Sistema').border = border
+            ws.cell(row=row_idx, column=3, value=notif.tipo).border = border
+            ws.cell(row=row_idx, column=4, value=notif.categoria).border = border
+            ws.cell(row=row_idx, column=5, value=notif.prioridad).border = border
+            ws.cell(row=row_idx, column=6, value=notif.fecha_creacion.strftime('%d/%m/%Y %H:%M')).border = border
+
+        for col in range(1, 7):
+            ws.column_dimensions[get_column_letter(col)].width = 24
+
+        response = HttpResponse(content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = f'attachment; filename=reporte_notificaciones_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.xlsx'
+        wb.save(response)
+        return response
     
     # Eliminar hoja por defecto
     if 'Sheet' in wb.sheetnames:
@@ -1768,8 +1919,7 @@ def exportar_reporte_excel(request):
 
 @login_required
 def admin_stats_api(request):
-    # Verificar si el usuario es staff o superuser en lugar de verificar email específico
-    if not (request.user.is_staff or request.user.is_superuser):
+    if not is_admin_user(request.user):
         return JsonResponse({'error': 'Unauthorized'}, status=403)
 
     from sugerencias.models import Visitante
@@ -1856,11 +2006,7 @@ def admin_stats_api(request):
 
 @login_required
 def panel_admin_email_user(request, user_id):
-    admin_emails = getattr(settings, 'ADMIN_EMAILS', ['miniamigixv@gmail.com'])
-    if isinstance(admin_emails, str):
-        admin_emails = [admin_emails]
-
-    if request.user.email not in admin_emails:
+    if not is_admin_user(request.user):
         return redirect('home')
 
     user_target = get_object_or_404(User, id=user_id)
