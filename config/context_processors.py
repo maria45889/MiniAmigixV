@@ -33,7 +33,12 @@ def is_admin_user(request):
     """
     Context processor para verificar si el usuario es admin (solo email en ADMIN_EMAILS)
     """
-    from apps.app.views import is_admin_user as check_admin
+    allowed_admins = getattr(settings, 'ADMIN_EMAILS', ['miniamigixv@gmail.com'])
+    if isinstance(allowed_admins, str):
+        allowed_admins = [allowed_admins]
+    allowed_admins = [email.strip().lower() for email in allowed_admins if email]
+    user_email = (getattr(request.user, 'email', '') or '').strip().lower()
+    is_admin = bool(request.user and request.user.is_authenticated and user_email in allowed_admins)
     return {
-        'is_admin_user': check_admin(request.user)
+        'is_admin_user': is_admin
     }
