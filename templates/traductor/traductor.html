@@ -194,116 +194,108 @@ body.light .history-title {
 
         <!-- Text Translation Section -->
         <div id="textTranslationSection">
-        <!-- Language Selector Cards -->
-        <div class="lang-selector">
-            <!-- Source Language Card -->
-            <div class="lang-card source-card">
-                <div class="lang-card-header">
-                    <span class="lang-card-icon">🌎</span>
-                    <span class="lang-card-title">Idioma origen</span>
-                </div>
-                <div class="lang-card-select">
-                    <select id="idiomaOrigen" class="lang-select-modern">
-                        <option value="es">🇪🇸 Español</option>
-                        <option value="en">🇺🇸 Inglés</option>
-                        <option value="fr">🇫🇷 Francés</option>
-                        <option value="de">🇩🇪 Alemán</option>
-                        <option value="pt">🇧🇷 Portugués</option>
-                        <option value="it">🇮🇹 Italiano</option>
-                        <option value="ja">🇯🇵 Japonés</option>
-                        <option value="ko">🇰🇷 Coreano</option>
-                        <option value="zh">🇨🇳 Chino</option>
-                        <option value="ru">🇷🇺 Ruso</option>
-                        <option value="ar">🇸🇦 Árabe</option>
-                    </select>
-                </div>
-            </div>
-
-            <!-- Swap Button -->
-            <button class="btn-swap-modern" onclick="intercambiarIdiomas()" title="Intercambiar idiomas">
-                <span class="swap-icon">⇄</span>
-            </button>
-
-            <!-- Target Language Card -->
-            <div class="lang-card target-card">
-                <div class="lang-card-header">
-                    <span class="lang-card-icon">🌍</span>
-                    <span class="lang-card-title">Traducir a</span>
-                </div>
-                <div class="lang-card-select">
-                    <select id="idiomaDestino" class="lang-select-modern">
-                        <option value="en">🇺🇸 Inglés</option>
-                        <option value="es">🇪🇸 Español</option>
-                        <option value="fr">🇫🇷 Francés</option>
-                        <option value="de">🇩🇪 Alemán</option>
-                        <option value="pt">🇧🇷 Portugués</option>
-                        <option value="it">🇮🇹 Italiano</option>
-                        <option value="ja">🇯🇵 Japonés</option>
-                        <option value="ko">🇰🇷 Coreano</option>
-                        <option value="zh">🇨🇳 Chino</option>
-                        <option value="ru">🇷🇺 Ruso</option>
-                        <option value="ar">🇸🇦 Árabe</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <!-- Text Panels -->
-        <div class="text-panels">
-            <!-- Input Panel -->
-            <div class="text-panel input-panel">
-                <div class="scan-line"></div>
-                <div class="panel-header">
-                    <span class="panel-label">Texto original</span>
-                    <div class="panel-actions">
-                        <button class="panel-btn" onclick="hablarTexto('textoOriginal')" title="Dictar texto">
-                            <span class="mic-icon">🎤</span>
-                            <span class="mic-status">Habla ahora...</span>
-                        </button>
-                        <button class="panel-btn" onclick="limpiarTexto()" title="Limpiar">🧹</button>
+            <div class="lang-selector">
+                <div class="lang-card source-card">
+                    <div class="lang-card-header">
+                        <span class="lang-card-icon">🌎</span>
+                        <span class="lang-card-title">Idioma origen</span>
+                    </div>
+                    <div class="lang-card-select">
+                        <select id="idiomaOrigen" class="lang-select-modern">
+                            <option value="es">🇪🇸 Español</option>
+                            <option value="en">🇺🇸 Inglés</option>
+                            <option value="fr">🇫🇷 Francés</option>
+                            <option value="de">🇩🇪 Alemán</option>
+                            <option value="pt">🇧🇷 Portugués</option>
+                            <option value="it">🇮🇹 Italiano</option>
+                            <option value="ja">🇯🇵 Japonés</option>
+                            <option value="ko">🇰🇷 Coreano</option>
+                            <option value="zh">🇨🇳 Chino</option>
+                            <option value="ru">🇷🇺 Ruso</option>
+                            <option value="ar">🇸🇦 Árabe</option>
+                        </select>
                     </div>
                 </div>
-                <textarea id="textoOriginal" placeholder="Escribe o pega texto aquí..." maxlength="5000"></textarea>
-                <div class="panel-footer">
-                    <div class="char-progress">
-                        <div class="char-bar">
-                            <div class="char-fill" id="charFill"></div>
+
+                <button class="btn-swap-modern" onclick="intercambiarIdiomas()" title="Intercambiar idiomas">
+                    <span class="swap-icon">⇄</span>
+                </button>
+
+                <div class="lang-card target-card">
+                    <div class="lang-card-header">
+                        <span class="lang-card-icon">🌍</span>
+                        <span class="lang-card-title">Traducir a</span>
+                    </div>
+                    <div class="lang-card-select">
+                        <select id="idiomaDestino" class="lang-select-modern">
+                            <option value="en">🇺🇸 Inglés</option>
+                            <option value="es">🇪🇸 Español</option>
+                            <option value="fr">🇫🇷 Francés</option>
+                            <option value="de">🇩🇪 Alemán</option>
+                            <option value="pt">🇧🇷 Portugués</option>
+                            <option value="it">🇮🇹 Italiano</option>
+                            <option value="ja">🇯🇵 Japonés</option>
+                            <option value="ko">🇰🇷 Coreano</option>
+                            <option value="zh">🇨🇳 Chino</option>
+                            <option value="ru">🇷🇺 Ruso</option>
+                            <option value="ar">🇸🇦 Árabe</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="text-panels">
+                <div class="text-panel input-panel">
+                    <div class="scan-line"></div>
+                    <div class="panel-header">
+                        <span class="panel-label">Texto original</span>
+                        <div class="panel-actions">
+                            <button class="panel-btn" onclick="hablarTexto('textoOriginal')" title="Dictar texto">
+                                <span class="mic-icon">🎤</span>
+                                <span class="mic-status">Habla ahora...</span>
+                            </button>
+                            <button class="panel-btn" onclick="limpiarTexto()" title="Limpiar">🧹</button>
                         </div>
-                        <span class="char-count" id="charCount">0 / 5000 caracteres</span>
                     </div>
-                    <button class="panel-btn-copy" onclick="copiarTextoOriginal()" title="Copiar">📋</button>
+                    <textarea id="textoOriginal" placeholder="Escribe o pega texto aquí..." maxlength="5000"></textarea>
+                    <div class="panel-footer">
+                        <div class="char-progress">
+                            <div class="char-bar">
+                                <div class="char-fill" id="charFill"></div>
+                            </div>
+                            <span class="char-count" id="charCount">0 / 5000 caracteres</span>
+                        </div>
+                        <button class="panel-btn-copy" onclick="copiarTextoOriginal()" title="Copiar">📋</button>
+                    </div>
+                </div>
+
+                <div class="text-panel output-panel">
+                    <div class="scan-line"></div>
+                    <div class="panel-header">
+                        <span class="panel-label">Traducción</span>
+                        <div class="panel-actions">
+                            <button class="panel-btn" onclick="escucharTraduccion()" title="Escuchar">🔊</button>
+                            <button class="panel-btn" onclick="copiarTraduccion()" title="Copiar">📋</button>
+                            <button class="panel-btn" onclick="toggleFavorito()" title="Guardar en favoritos" id="btnFavorito">⭐</button>
+                        </div>
+                    </div>
+                    <textarea id="textoTraducido" placeholder="La traducción aparecerá aquí..." readonly></textarea>
+                    <div class="panel-footer">
+                        <span class="char-count" id="outputInfo"></span>
+                        <div class="pronunciation" id="pronunciationSection" style="display:none;">
+                            <span class="pronunciation-label">Pronunciación:</span>
+                            <span class="pronunciation-text" id="pronunciationText">/həˈləʊ/</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Output Panel -->
-            <div class="text-panel output-panel">
-                <div class="scan-line"></div>
-                <div class="panel-header">
-                    <span class="panel-label">Traducción</span>
-                    <div class="panel-actions">
-                        <button class="panel-btn" onclick="escucharTraduccion()" title="Escuchar">🔊</button>
-                        <button class="panel-btn" onclick="copiarTraduccion()" title="Copiar">📋</button>
-                        <button class="panel-btn" onclick="toggleFavorito()" title="Guardar en favoritos" id="btnFavorito">⭐</button>
-                    </div>
-                </div>
-                <textarea id="textoTraducido" placeholder="La traducción aparecerá aquí..." readonly></textarea>
-                <div class="panel-footer">
-                    <span class="char-count" id="outputInfo"></span>
-                    <div class="pronunciation" id="pronunciationSection" style="display:none;">
-                        <span class="pronunciation-label">Pronunciación:</span>
-                        <span class="pronunciation-text" id="pronunciationText">/həˈləʊ/</span>
-                    </div>
-                </div>
+            <div class="translate-bar">
+                <button class="btn-translate-modern" id="btnTranslate" onclick="traducir()">
+                    <span class="btn-icon">⚡</span>
+                    <span class="btn-text">Traducir</span>
+                </button>
             </div>
-        </div>
-
-        <!-- Translate Button -->
-        <div class="translate-bar">
-            <button class="btn-translate-modern" id="btnTranslate" onclick="traducir()">
-                <span class="btn-icon">⚡</span>
-                <span class="btn-text">Traducir</span>
-            </button>
-        </div>
         </div>
     </div>
 

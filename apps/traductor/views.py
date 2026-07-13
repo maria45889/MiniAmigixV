@@ -23,7 +23,7 @@ def traductor_view(request):
 
 @csrf_exempt
 def traducir_texto(request):
-    """API para traducir texto"""
+    """API para traducir texto (usado internamente para resultados de imagen/documento)"""
     texto = request.POST.get('texto', '')
     idioma_destino = request.POST.get('idioma_destino', 'en')
     idioma_origen = request.POST.get('idioma_origen', 'auto')
@@ -38,7 +38,6 @@ def traducir_texto(request):
     idioma_detectado = None
     if idioma_origen == 'auto':
         try:
-            # Usar GoogleTranslator para detectar idioma
             translator = GoogleTranslator(source='auto', target='en')
             idioma_detectado = translator.detect(texto).lower()
             idioma_origen = idioma_detectado
