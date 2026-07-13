@@ -158,6 +158,42 @@ body.light .history-title {
     <!-- Main Translation Card -->
     <div class="tr-card" id="translatorCard">
 
+        <!-- Image Upload Section -->
+        <div id="imageUploadSection" style="display: none;">
+            <div class="upload-section">
+                <h3>📷 Traducir Imagen</h3>
+                <p>Sube una imagen para extraer y traducir su texto</p>
+                <div class="file-input-wrapper">
+                    <input type="file" id="imageInput" accept="image/*" class="file-input">
+                    <label for="imageInput" class="file-input-label">
+                        <span class="upload-icon">📷</span>
+                        <span class="upload-text">Seleccionar imagen</span>
+                        <span class="upload-subtext">Formatos: JPG, PNG, GIF, WebP</span>
+                    </label>
+                </div>
+                <button onclick="uploadImage()" class="upload-btn">⚡ Traducir Imagen</button>
+            </div>
+        </div>
+
+        <!-- Document Upload Section -->
+        <div id="documentUploadSection" style="display: none;">
+            <div class="upload-section">
+                <h3>📄 Traducir Documento</h3>
+                <p>Sube un documento de texto para traducir su contenido</p>
+                <div class="file-input-wrapper">
+                    <input type="file" id="documentInput" accept=".txt,.doc,.docx,.pdf" class="file-input">
+                    <label for="documentInput" class="file-input-label">
+                        <span class="upload-icon">📄</span>
+                        <span class="upload-text">Seleccionar documento</span>
+                        <span class="upload-subtext">Formatos: TXT, DOC, DOCX, PDF</span>
+                    </label>
+                </div>
+                <button onclick="uploadDocument()" class="upload-btn">⚡ Traducir Documento</button>
+            </div>
+        </div>
+
+        <!-- Text Translation Section -->
+        <div id="textTranslationSection">
         <!-- Language Selector Cards -->
         <div class="lang-selector">
             <!-- Source Language Card -->
@@ -268,6 +304,7 @@ body.light .history-title {
                 <span class="btn-text">Traducir</span>
             </button>
         </div>
+        </div>
     </div>
 
     <!-- Detected Language Card -->
@@ -351,10 +388,174 @@ function setMode(mode) {
     document.querySelectorAll('.quick-btn').forEach(btn => btn.classList.remove('active'));
     document.querySelector(`.quick-btn[data-mode="${mode}"]`).classList.add('active');
     
-    // Placeholder for future functionality
-    if (mode === 'image' || mode === 'document') {
-        alert('Esta función estará disponible próximamente');
+    // Show/hide upload sections based on mode
+    const imageUploadSection = document.getElementById('imageUploadSection');
+    const documentUploadSection = document.getElementById('documentUploadSection');
+    const textTranslationSection = document.getElementById('textTranslationSection');
+    
+    if (imageUploadSection) imageUploadSection.style.display = 'none';
+    if (documentUploadSection) documentUploadSection.style.display = 'none';
+    if (textTranslationSection) textTranslationSection.style.display = 'none';
+    
+    if (mode === 'image') {
+        if (imageUploadSection) imageUploadSection.style.display = 'block';
+    } else if (mode === 'document') {
+        if (documentUploadSection) documentUploadSection.style.display = 'block';
+    } else {
+        if (textTranslationSection) textTranslationSection.style.display = 'block';
     }
+}
+
+// ===== IMAGE UPLOAD =====
+function uploadImage() {
+    const fileInput = document.getElementById('imageInput');
+    const idiomaDestino = document.getElementById('idiomaDestino').value;
+    
+    if (!fileInput.files.length) {
+        alert('Por favor selecciona una imagen');
+        return;
+    }
+    
+    // Update button to show loading state
+    const uploadBtn = document.querySelector('#imageUploadSection .upload-btn');
+    uploadBtn.textContent = '🔄 Procesando...';
+    uploadBtn.disabled = true;
+    
+    const formData = new FormData();
+    formData.append('imagen', fileInput.files[0]);
+    formData.append('idioma_destino', idiomaDestino);
+    
+    fetch('/traductor/api/traducir-imagen/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('textoOriginal').value = data.data.texto_original;
+            document.getElementById('textoTraducido').value = data.data.texto_traducido;
+            document.getElementById('outputInfo').textContent = `Traducido del ${data.data.idioma_origen} al ${data.data.idioma_destino}`;
+            
+            // Switch to text mode to show results
+            setMode('text');
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al procesar la imagen. Asegúrate de tener Tesseract OCR instalado.');
+    })
+    .finally(() => {
+        uploadBtn.textContent = '⚡ Traducir Imagen';
+        uploadBtn.disabled = false;
+    });
+}
+
+// Handle file input change to show selected filename
+document.addEventListener('DOMContentLoaded', function() {
+    const imageInput = document.getElementById('imageInput');
+    const documentInput = document.getElementById('documentInput');
+    
+    if (imageInput) {
+        imageInput.addEventListener('change', function(e) {
+            const label = document.querySelector('#imageUploadSection .file-input-label');
+            const textSpan = label.querySelector('.upload-text');
+            const subtextSpan = label.querySelector('.upload-subtext');
+            
+            if (this.files.length > 0) {
+                textSpan.textContent = this.files[0].name;
+                subtextSpan.textContent = `${(this.files[0].size / 1024).toFixed(2)} KB`;
+            } else {
+                textSpan.textContent = 'Seleccionar imagen';
+                subtextSpan.textContent = 'Formatos: JPG, PNG, GIF, WebP';
+            }
+        });
+    }
+    
+    if (documentInput) {
+        documentInput.addEventListener('change', function(e) {
+            const label = document.querySelector('#documentUploadSection .file-input-label');
+            const textSpan = label.querySelector('.upload-text');
+            const subtextSpan = label.querySelector('.upload-subtext');
+            
+            if (this.files.length > 0) {
+                textSpan.textContent = this.files[0].name;
+                subtextSpan.textContent = `${(this.files[0].size / 1024).toFixed(2)} KB`;
+            } else {
+                textSpan.textContent = 'Seleccionar documento';
+                subtextSpan.textContent = 'Formatos: TXT, DOC, DOCX, PDF';
+            }
+        });
+    }
+});
+
+// ===== DOCUMENT UPLOAD =====
+function uploadDocument() {
+    const fileInput = document.getElementById('documentInput');
+    const idiomaDestino = document.getElementById('idiomaDestino').value;
+    
+    if (!fileInput.files.length) {
+        alert('Por favor selecciona un documento');
+        return;
+    }
+    
+    // Update button to show loading state
+    const uploadBtn = document.querySelector('#documentUploadSection .upload-btn');
+    uploadBtn.textContent = '🔄 Procesando...';
+    uploadBtn.disabled = true;
+    
+    const formData = new FormData();
+    formData.append('documento', fileInput.files[0]);
+    formData.append('idioma_destino', idiomaDestino);
+    
+    fetch('/traductor/api/traducir-documento/', {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': getCookie('csrftoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('textoOriginal').value = data.data.texto_original;
+            document.getElementById('textoTraducido').value = data.data.texto_traducido;
+            document.getElementById('outputInfo').textContent = `Traducido del ${data.data.idioma_origen} al ${data.data.idioma_destino}`;
+            
+            // Switch to text mode to show results
+            setMode('text');
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al procesar el documento');
+    })
+    .finally(() => {
+        uploadBtn.textContent = '⚡ Traducir Documento';
+        uploadBtn.disabled = false;
+    });
+}
+
+// ===== CSRF TOKEN HELPER =====
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
 }
 
 // ===== SWAP =====

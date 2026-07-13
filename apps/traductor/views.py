@@ -3,10 +3,16 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from django.conf import settings
 from .models import TranslationCache
 from datetime import timedelta
 from deep_translator import GoogleTranslator
 import logging
+import base64
+import io
+from PIL import Image
+import pytesseract
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -214,3 +220,146 @@ def obtener_idiomas_soportados(request):
         'success': True,
         'data': idiomas_comunes
     })
+
+@csrf_exempt
+def traducir_imagen(request):
+    """API para traducir texto de una imagen usando OCR con Tesseract"""
+    if request.method != 'POST':
+        return JsonResponse({
+            'success': False,
+            'error': 'Método no permitido'
+        }, status=405)
+    
+    imagen = request.FILES.get('imagen')
+    idioma_destino = request.POST.get('idioma_destino', 'en')
+    
+    if not imagen:
+        return JsonResponse({
+            'success': False,
+            'error': 'No se proporcionó imagen'
+        }, status=400)
+    
+    try:
+        # Leer imagen
+        image_content = imagen.read()
+        
+        # Abrir imagen con PIL
+        image = Image.open(io.BytesIO(image_content))
+        
+        # Convertir a RGB si es necesario
+        if image.mode != 'RGB':
+            image = image.convert('RGB')
+        
+        # Usar Tesseract para OCR
+        # Configurar ruta de Tesseract si es necesario
+        tesseract_path = os.getenv('TESSERACT_PATH', r'C:\Program Files\Tesseract-OCR\tesseract.exe')
+        if os.path.exists(tesseract_path):
+            pytesseract.pytesseract.tesseract_cmd = tesseract_path
+        
+        texto_extraido = pytesseract.image_to_string(image, lang='spa+eng')
+        
+        if not texto_extraido.strip():
+            return JsonResponse({
+                'success': False,
+                'error': 'No se detectó texto en la imagen'
+            }, status=400)
+        
+        # Traducir el texto extraído
+        translator = GoogleTranslator(source='auto', target=idioma_destino)
+        texto_traducido = translator.translate(texto_extraido)
+        
+        # Guardar en caché
+        translation_cache = TranslationCache.objects.create(
+            usuario=request.user if request.user.is_authenticated else None,
+            texto_original=texto_extraido,
+            texto_traducido=texto_traducido,
+            idioma_origen='auto',
+            idioma_destino=idioma_destino,
+            idioma_detectado='auto',
+            fecha_expiracion=timezone.now() + timedelta(days=7)
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'data': {
+                'texto_original': texto_extraido,
+                'texto_traducido': texto_traducido,
+                'idioma_destino': idioma_destino,
+                'from_cache': False
+            }
+        })
+        
+    except Exception as e:
+        logger.error(f"Error traduciendo imagen: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': f'Error al procesar la imagen: {str(e)}. Asegúrate de tener Tesseract OCR instalado.'
+        }, status=500)
+
+@csrf_exempt
+def traducir_documento(request):
+    """API para traducir texto de un documento"""
+    if request.method != 'POST':
+        return JsonResponse({
+            'success': False,
+            'error': 'Método no permitido'
+        }, status=405)
+    
+    documento = request.FILES.get('documento')
+    idioma_destino = request.POST.get('idioma_destino', 'en')
+    
+    if not documento:
+        return JsonResponse({
+            'success': False,
+            'error': 'No se proporcionó documento'
+        }, status=400)
+    
+    try:
+        # Leer documento (PDF, DOCX, TXT)
+        contenido = documento.read()
+        
+        # Si es PDF o DOCX, necesitaríamos librerías adicionales
+        # Por ahora, asumimos que es texto plano
+        try:
+            texto_extraido = contenido.decode('utf-8')
+        except UnicodeDecodeError:
+            # Si no es texto plano, intentar con otros encodings
+            texto_extraido = contenido.decode('latin-1')
+        
+        if not texto_extraido.strip():
+            return JsonResponse({
+                'success': False,
+                'error': 'El documento está vacío o no se pudo leer'
+            }, status=400)
+        
+        # Traducir el texto extraído
+        translator = GoogleTranslator(source='auto', target=idioma_destino)
+        texto_traducido = translator.translate(texto_extraido)
+        
+        # Guardar en caché
+        translation_cache = TranslationCache.objects.create(
+            usuario=request.user if request.user.is_authenticated else None,
+            texto_original=texto_extraido,
+            texto_traducido=texto_traducido,
+            idioma_origen='auto',
+            idioma_destino=idioma_destino,
+            idioma_detectado='auto',
+            fecha_expiracion=timezone.now() + timedelta(days=7)
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'data': {
+                'texto_original': texto_extraido,
+                'texto_traducido': texto_traducido,
+                'idioma_destino': idioma_destino,
+                'from_cache': False
+            }
+        })
+        
+    except Exception as e:
+        logger.error(f"Error traduciendo documento: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': f'Error al procesar el documento: {str(e)}'
+        }, status=500)
