@@ -121,6 +121,12 @@ class Game(models.Model):
         ('matematicas', 'Matemáticas'),
         ('palabras', 'Palabras'),
         ('logica', 'Lógica'),
+        ('reflejos', 'Reflejos'),
+        ('fidget', 'Fidget'),
+        ('respiracion', 'Respiración'),
+        ('snake', 'Snake'),
+        ('tres_en_raya', '3 en Raya'),
+        ('ajedrez', 'Ajedrez'),
     ], default='quiz')
     dificultad = models.CharField(max_length=20, choices=[
         ('facil', 'Fácil'),

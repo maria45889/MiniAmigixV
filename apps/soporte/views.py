@@ -4,6 +4,7 @@ from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils import timezone
+from django.http import JsonResponse
 from .models import TicketSoporte
 from notificaciones.models import Notificacion
 import logging
@@ -130,6 +131,8 @@ def soporte_home(request):
             # Verificar si el correo se envió correctamente
             if resultado == 0:
                 print(f"ERROR: El correo no se envió. Configuración SMTP: {settings.EMAIL_HOST}:{settings.EMAIL_PORT}")
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({'success': False, 'error': 'No se pudo enviar el correo. Verifica la configuración SMTP.'})
                 return render(request, "soporte/index.html", {"error": True, "error_msg": "No se pudo enviar el correo. Verifica la configuración SMTP."})
 
             # Crear notificación si el usuario está autenticado
@@ -145,10 +148,15 @@ def soporte_home(request):
                 except Exception as e:
                     logging.error(f"Error al crear notificación de soporte: {str(e)}")
 
+            # Return JSON for AJAX requests
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': True})
             return render(request, "soporte/index.html", {"enviado": True})
         except Exception as e:
             print(f"ERROR al enviar correo: {str(e)}")
             print(f"Configuración SMTP: {settings.EMAIL_HOST}:{settings.EMAIL_PORT}, TLS: {settings.EMAIL_USE_TLS}")
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': False, 'error': f"Error: {str(e)}"})
             return render(request, "soporte/index.html", {"error": True, "error_msg": f"Error: {str(e)}"})
 
     return render(request, "soporte/index.html")

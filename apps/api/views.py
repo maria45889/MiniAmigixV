@@ -5,13 +5,13 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from .serializers import RegisterSerializer, UserSerializer, ConversacionChatSerializer, CustomTokenObtainPairSerializer
 from rest_framework.views import APIView
 from rest_framework_simplejwt.views import TokenObtainPairView
-from app.models import ConversacionChat, MensajeChat
+from apps.app.models import ConversacionChat, MensajeChat
 from django.conf import settings
 import openai
 from notificaciones.models import Notificacion
 from perfil.models import Perfil
 import logging
-from app.views import generate_ai_response
+from apps.app.views import generate_ai_response
 
 logger = logging.getLogger(__name__)
 

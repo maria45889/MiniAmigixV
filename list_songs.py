@@ -4,7 +4,7 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
-from app.models import Cancion
+from apps.app.models import Cancion
 
 songs = Cancion.objects.all().order_by('-id')[:10]
 print(f"Total songs: {Cancion.objects.count()}")

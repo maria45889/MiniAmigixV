@@ -5,7 +5,7 @@ django.setup()
 
 from unittest.mock import patch
 import openai
-from app.views import generate_ai_response
+from apps.app.views import generate_ai_response
 
 class FakeOpenAIClient:
     def __init__(self, **kwargs):
@@ -30,7 +30,7 @@ class SettingsStub:
     OLLAMA_API_URL = 'http://localhost:11434'
     OLLAMA_MODEL = 'llama3.3'
 
-with patch('app.views.openai.OpenAI', side_effect=lambda **kwargs: FakeOpenAIClient(**kwargs)):
+with patch('apps.app.views.openai.OpenAI', side_effect=lambda **kwargs: FakeOpenAIClient(**kwargs)):
     result = generate_ai_response(
         messages=[{'role': 'user', 'content': 'hola'}],
         settings_obj=SettingsStub(),

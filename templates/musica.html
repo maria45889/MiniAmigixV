@@ -279,10 +279,21 @@ let playerReady = false;
 let progressInterval = null;
 let buttonSyncInterval = null;
 let isAudioPlaying = false; // Variable de estado manual para audio
+let playerLoadTimeout = null; // Timeout para la carga del player
 const isAuthenticated = {{ request.user.is_authenticated|lower }};
 
 function onPlayerError(event) {
+    console.log('onPlayerError llamado, event.data:', event.data);
     const iframeContainer = document.getElementById('player-wrapper');
+
+    // Limpiar timeout si existe
+    if (playerLoadTimeout) {
+        clearTimeout(playerLoadTimeout);
+        playerLoadTimeout = null;
+    }
+
+    // Resetear playerReady ya que hubo un error
+    playerReady = false;
 
     if (event.data === 150 || event.data === 153) {
         // Video no se puede incrustar - intentar reproducir solo el audio
@@ -304,6 +315,7 @@ function onPlayerError(event) {
                     if (response.status === 401) {
                         console.log('Usuario no autenticado');
                         showYouTubeError(youtubeId);
+                        resetPlayButton();
                         return null;
                     }
                     return response.json();
@@ -319,18 +331,21 @@ function onPlayerError(event) {
                             currentAudio = null;
                         }
 
+                        // Mostrar mensaje de modo audio pero SIN reproductor HTML5 visible
+                        // El audio será controlado por los controles principales
                         iframeContainer.innerHTML = `
                             <div style="text-align: center; padding: 40px 20px; background: linear-gradient(145deg, #1e293b, #0f172a); border-radius: 12px; height: 100%; min-height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);">
                                 <div style="font-size: 48px; margin-bottom: 15px; text-shadow: 0 0 15px rgba(6, 182, 212, 0.5);">🎵</div>
                                 <p style="color: #06b6d4; margin-bottom: 25px; font-weight: 600; font-size: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Modo Audio Activado</p>
-                                <audio id="local-audio-player" controls style="width: 85%; max-width: 400px; border-radius: 30px; outline: none; box-shadow: 0 4px 15px rgba(6, 182, 212, 0.2);">
-                                    <source src="${data.url}" type="audio/mp4">
-                                </audio>
-                                <p style="color: #64748b; font-size: 13px; margin-top: 20px;">El video no permite incrustación, reproduciendo solo el audio.</p>
+                                <p style="color: #64748b; font-size: 13px;">El video no permite incrustación, reproduciendo solo el audio.</p>
+                                <p style="color: #94a3b8; font-size: 11px; margin-top: 10px;">Usa los controles principales para reproducir/pausar</p>
                             </div>
+                            <audio id="local-audio-player" style="display: none;">
+                                <source src="${data.url}" type="audio/mp4">
+                            </audio>
                         `;
 
-                        // Configurar el audio local para sincronización
+                        // Configurar el audio local para sincronización con controles principales
                         requestAnimationFrame(() => {
                             const audioPlayer = document.getElementById('local-audio-player');
                             if (audioPlayer) {
@@ -396,6 +411,7 @@ function onPlayerError(event) {
 
                                 audioPlayer.addEventListener('error', (e) => {
                                     console.error('Error en reproductor de audio:', e);
+                                    resetPlayButton();
                                 });
 
                                 // Iniciar reproducción manualmente después de configurar eventos
@@ -413,22 +429,27 @@ function onPlayerError(event) {
                         // No se pudo extraer audio, mostrar error normal
                         console.log('No se pudo extraer audio, condición falsa');
                         showYouTubeError(youtubeId);
+                        resetPlayButton();
                     }
                 })
                 .catch(error => {
                     console.error("Error obteniendo audio:", error);
                     showYouTubeError(youtubeId);
+                    resetPlayButton();
                 });
         } else {
             // Usuario no autenticado, mostrar error normal
             showYouTubeError(youtubeId);
+            resetPlayButton();
         }
     } else if (event.data === 2) {
         // Parámetro inválido
         console.error('Parámetro inválido en el reproductor de YouTube');
+        resetPlayButton();
     } else if (event.data === 5) {
         // Contenido HTML5 no compatible
         console.error('Contenido HTML5 no compatible');
+        resetPlayButton();
     } else if (event.data === 100) {
         // Video no encontrado
         iframeContainer.innerHTML = `
@@ -436,6 +457,11 @@ function onPlayerError(event) {
                 <p style="color: #ef4444; font-size: 16px;">❌ Video no encontrado</p>
             </div>
         `;
+        resetPlayButton();
+    } else {
+        // Error desconocido
+        console.error('Error desconocido del reproductor de YouTube:', event.data);
+        resetPlayButton();
     }
 }
 
@@ -1258,7 +1284,14 @@ function editSong(songId, currentName, currentArtist) {
 }
 
 function playSongFromItem(songId) {
+    console.log('=== playSongFromItem llamado con songId:', songId, '===');
+
     const item = document.querySelector(`.playlist-item[data-id="${songId}"]`);
+    if (!item) {
+        console.error('No se encontró el item con ID:', songId);
+        return;
+    }
+
     const youtubeId = item.dataset.youtubeId;
     const audioUrl = item.dataset.audioUrl;
     const songName = item.dataset.name;
@@ -1266,17 +1299,66 @@ function playSongFromItem(songId) {
 
     currentPlayingId = songId;
 
-    // Actualizar UI del Reproductor
+    // ==================== LIMPIEZA COMPLETA DE ESTADO ANTERIOR ====================
+    console.log('Limpiando estado anterior...');
+
+    // Detener y limpiar audio anterior
+    if (currentAudio) {
+        console.log('Deteniendo audio anterior');
+        currentAudio.pause();
+        currentAudio.currentTime = 0;
+        currentAudio.remove();
+        currentAudio = null;
+    }
+    isAudioPlaying = false;
+
+    // Detener y limpiar player de YouTube anterior
+    if (player) {
+        console.log('Deteniendo player de YouTube anterior');
+        try {
+            if (typeof player.stopVideo === 'function') {
+                player.stopVideo();
+            }
+        } catch (e) {
+            console.error('Error deteniendo video:', e);
+        }
+        try {
+            player.destroy();
+        } catch (e) {
+            console.error('Error destruyendo player:', e);
+        }
+        player = null;
+    }
+    playerReady = false;
+
+    // Limpiar timeout si existe
+    if (playerLoadTimeout) {
+        console.log('Limpiando timeout anterior');
+        clearTimeout(playerLoadTimeout);
+        playerLoadTimeout = null;
+    }
+
+    // Detener actualización de progreso
+    stopProgressUpdate();
+
+    // Resetear botón de play/pause
+    const pauseBtn = document.getElementById('main-play-pause-btn');
+    const vinyl = document.getElementById('vinyl-record');
+    if (pauseBtn) pauseBtn.textContent = '▶️';
+    if (vinyl) {
+        vinyl.style.animationPlayState = 'paused';
+        vinyl.classList.remove('spinning');
+    }
+    activateEqualizer(false);
+
+    // ==================== ACTUALIZAR UI ====================
+    console.log('Actualizando UI...');
+
     document.getElementById('current-song-title').textContent = `${songName} ${artist ? '- ' + artist : ''}`;
     document.getElementById('current-song-artist').textContent = artist || 'Artista Desconocido';
 
-    // Actualizar portada del álbum
     updateAlbumCover(youtubeId);
-
-    // Actualizar thumbnail del video
     updateVideoThumbnail(youtubeId);
-
-    // Resaltar canción activa en la playlist
     highlightActiveSong(songId);
 
     // Sincronizar con mini player global
@@ -1284,17 +1366,7 @@ function playSongFromItem(songId) {
     console.log('updateMiniPlayerUI existe?', typeof updateMiniPlayerUI === 'function');
     if (typeof updateMiniPlayerUI === 'function') {
         console.log('Llamando a updateMiniPlayerUI con:', songName, artist, youtubeId);
-        // Obtener estado actual de reproducción
-        let isPlaying = false;
-        let currentTime = 0;
-        if (player && typeof player.getPlayerState === 'function') {
-            isPlaying = player.getPlayerState() === YT.PlayerState.PLAYING;
-            currentTime = player.getCurrentTime() || 0;
-        } else if (currentAudio) {
-            isPlaying = !currentAudio.paused;
-            currentTime = currentAudio.currentTime || 0;
-        }
-        updateMiniPlayerUI(songName, artist, youtubeId, isPlaying, currentTime);
+        updateMiniPlayerUI(songName, artist, youtubeId, false, 0);
     } else {
         console.log('updateMiniPlayerUI no está definido');
     }
@@ -1306,155 +1378,212 @@ function playSongFromItem(songId) {
     } else {
         console.log('globalCurrentYoutubeId no está definido');
     }
-    
+
     // Buscar letras para esta canción
     searchLyricsForSong(songName, artist, songId);
-    
-    // Animar vinilo
-    const vinyl = document.getElementById('vinyl-record');
-    if (vinyl) {
-        vinyl.style.animationPlayState = 'running';
-        vinyl.classList.add('spinning');
-    }
-    
-    // Detener audio anterior si existe
-    if (currentAudio) {
-        currentAudio.pause();
-        currentAudio.remove();
-        currentAudio = null;
-    }
-    
-    // Si hay video de YouTube, reproducirlo en el contenedor visible
+
+    // ==================== CARGAR NUEVA CANCIÓN ====================
+    console.log('Cargando nueva canción...');
+
+    // Si hay video de YouTube, reproducirlo
     if (youtubeId) {
-        if (player && typeof player.loadVideoById === 'function') {
-            try {
-                console.log('Reutilizando reproductor de YouTube existente para video:', youtubeId);
-                player.loadVideoById(youtubeId);
-                playerReady = true;
-                if (vinyl) {
-                    vinyl.style.animationPlayState = 'running';
-                    vinyl.classList.add('spinning');
-                }
-                const pauseBtn = document.getElementById('main-play-pause-btn');
-                if (pauseBtn) pauseBtn.textContent = '⏸';
-                startProgressUpdate();
-                return;
-            } catch (err) {
-                console.warn('Error al reutilizar reproductor de YouTube, recreando...', err);
-            }
-        }
-
-        playerReady = false;
-        if (player) {
-            player.destroy();
-            player = null;
-        }
-
-        const wrapper = document.getElementById('player-wrapper');
-        wrapper.innerHTML = '<div id="youtube-iframe"></div>';
-
-        // Esperar a que la API esté lista antes de crear el reproductor
-        if (typeof YT !== 'undefined' && YT.Player) {
-            player = new YT.Player('youtube-iframe', {
-                host: 'https://www.youtube.com',
-                height: '400',
-                width: '100%',
-                videoId: youtubeId,
-                playerVars: {
-                    'autoplay': 1,
-                    'origin': window.location.origin,
-                    'rel': 0,
-                    'modestbranding': 1,
-                    'iv_load_policy': 3,
-                    'disablekb': 1,
-                    'fs': 0,
-                    'playsinline': 1,
-                    'controls': 1
-                },
-                events: {
-                    'onReady': function(event) {
-                        console.log('YouTube player ready');
-                        playerReady = true;
-                        try {
-                            event.target.playVideo();
-                        } catch (e) {
-                            console.error('Error al intentar reproducir en onReady:', e);
-                        }
-
-                        // Verificar estado inicial del player
-                        requestAnimationFrame(() => {
-                            try {
-                                const state = player.getPlayerState();
-                                console.log('Estado inicial del player:', state);
-                                const pauseBtn = document.getElementById('main-play-pause-btn');
-                                console.log('Botón en onReady:', pauseBtn ? pauseBtn.textContent : 'null');
-
-                                if (state === YT.PlayerState.PLAYING) {
-                                    console.log('Player está reproduciendo, actualizando botón a ⏸');
-                                    if (pauseBtn) pauseBtn.textContent = '⏸';
-                                    startProgressUpdate();
-                                } else {
-                                    console.log('Player no está reproduciendo, actualizando botón a ▶️');
-                                    if (pauseBtn) pauseBtn.textContent = '▶️';
-                                }
-                            } catch (e) {
-                                console.error('Error verificando estado inicial:', e);
-                            }
-                        });
-                    },
-                    'onError': onPlayerError,
-                    'onStateChange': onPlayerStateChange
-                }
-            });
-        } else {
-            // Si la API no está lista, esperar y luego crear el reproductor
-            const checkAPI = setInterval(() => {
-                if (typeof YT !== 'undefined' && YT.Player) {
-                    clearInterval(checkAPI);
-                    player = new YT.Player('youtube-iframe', {
-                        host: 'https://www.youtube.com',
-                        height: '400',
-                        width: '100%',
-                        videoId: youtubeId,
-                        playerVars: {
-                            'autoplay': 1,
-                            'origin': window.location.origin,
-                            'rel': 0,
-                            'modestbranding': 1,
-                            'iv_load_policy': 3,
-                            'disablekb': 1,
-                            'fs': 0,
-                            'playsinline': 1,
-                            'controls': 0
-                        },
-                        events: {
-                            'onReady': function(event) {
-                                console.log('YouTube player ready');
-                                playerReady = true;
-                                try {
-                                    event.target.playVideo();
-                                } catch (e) {
-                                    console.error('Error al intentar reproducir en onReady (interval):', e);
-                                }
-                            },
-                            'onError': onPlayerError,
-                            'onStateChange': onPlayerStateChange
-                        }
-                    });
-                }
-            }, 100);
-        }
-    } 
+        console.log('Cargando video de YouTube:', youtubeId);
+        loadYouTubeVideo(youtubeId, vinyl);
+    }
     // Si hay archivo de audio local, reproducirlo
     else if (audioUrl) {
+        console.log('Cargando audio local:', audioUrl);
         playAudioUrl(audioUrl, vinyl);
     }
     else {
+        console.error('Esta canción no tiene audio disponible');
         alert('Esta canción no tiene audio disponible');
+        resetPlayButton();
+    }
+}
+
+function loadYouTubeVideo(youtubeId, vinyl) {
+    console.log('=== loadYouTubeVideo llamado con youtubeId:', youtubeId, '===');
+
+    playerReady = false;
+
+    const wrapper = document.getElementById('player-wrapper');
+    wrapper.innerHTML = `
+        <div id="youtube-iframe"></div>
+        <div id="loading-indicator" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 10;">
+            <div style="width: 50px; height: 50px; border: 3px solid rgba(6, 182, 212, 0.3); border-top: 3px solid #06b6d4; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+            <p style="color: #06b6d4; margin-top: 15px; font-size: 14px;">Cargando...</p>
+        </div>
+        <style>
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+        </style>
+    `;
+
+    // Timeout de 10 segundos
+    playerLoadTimeout = setTimeout(() => {
+        console.warn('Timeout: El reproductor de YouTube tardó demasiado en cargar');
+        if (!playerReady) {
+            console.log('Intentando fallback a audio local');
+            if (player) {
+                try {
+                    player.destroy();
+                } catch (e) {
+                    console.error('Error destruyendo player timeout:', e);
+                }
+                player = null;
+            }
+            playerReady = false;
+
+            const item = document.querySelector(`.playlist-item[data-id="${currentPlayingId}"]`);
+            if (item && item.dataset.audioUrl) {
+                playAudioUrl(item.dataset.audioUrl, vinyl);
+            } else {
+                if (isAuthenticated && youtubeId) {
+                    fetch(`/api/stream-audio/${youtubeId}/`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data && data.success && data.url) {
+                                playAudioUrl(data.url, vinyl);
+                            } else {
+                                showYouTubeError(youtubeId);
+                                resetPlayButton();
+                            }
+                        })
+                        .catch(error => {
+                            console.error('Error en fallback timeout:', error);
+                            showYouTubeError(youtubeId);
+                            resetPlayButton();
+                        });
+                } else {
+                    showYouTubeError(youtubeId);
+                    resetPlayButton();
+                }
+            }
+        }
+    }, 10000);
+
+    // Crear reproductor de YouTube
+    if (typeof YT !== 'undefined' && YT.Player) {
+        player = new YT.Player('youtube-iframe', {
+            host: 'https://www.youtube.com',
+            height: '400',
+            width: '100%',
+            videoId: youtubeId,
+            playerVars: {
+                'autoplay': 1,
+                'origin': window.location.origin,
+                'rel': 0,
+                'modestbranding': 1,
+                'iv_load_policy': 3,
+                'disablekb': 1,
+                'fs': 0,
+                'playsinline': 1,
+                'controls': 1
+            },
+            events: {
+                'onReady': function(event) {
+                    console.log('YouTube player ready');
+                    if (playerLoadTimeout) {
+                        clearTimeout(playerLoadTimeout);
+                        playerLoadTimeout = null;
+                    }
+                    playerReady = true;
+
+                    const loadingIndicator = document.getElementById('loading-indicator');
+                    if (loadingIndicator) {
+                        loadingIndicator.remove();
+                    }
+
+                    try {
+                        event.target.playVideo();
+                    } catch (e) {
+                        console.error('Error al intentar reproducir en onReady:', e);
+                        resetPlayButton();
+                    }
+
+                    requestAnimationFrame(() => {
+                        try {
+                            const state = player.getPlayerState();
+                            console.log('Estado inicial del player:', state);
+                            const pauseBtn = document.getElementById('main-play-pause-btn');
+
+                            if (state === YT.PlayerState.PLAYING) {
+                                console.log('Player está reproduciendo, actualizando botón a ⏸');
+                                if (pauseBtn) pauseBtn.textContent = '⏸';
+                                if (vinyl) {
+                                    vinyl.style.animationPlayState = 'running';
+                                    vinyl.classList.add('spinning');
+                                }
+                                startProgressUpdate();
+                            } else {
+                                console.log('Player no está reproduciendo, actualizando botón a ▶️');
+                                if (pauseBtn) pauseBtn.textContent = '▶️';
+                            }
+                        } catch (e) {
+                            console.error('Error verificando estado inicial:', e);
+                            resetPlayButton();
+                        }
+                    });
+                },
+                'onError': onPlayerError,
+                'onStateChange': onPlayerStateChange
+            }
+        });
+    } else {
+        const checkAPI = setInterval(() => {
+            if (typeof YT !== 'undefined' && YT.Player) {
+                clearInterval(checkAPI);
+                player = new YT.Player('youtube-iframe', {
+                    host: 'https://www.youtube.com',
+                    height: '400',
+                    width: '100%',
+                    videoId: youtubeId,
+                    playerVars: {
+                        'autoplay': 1,
+                        'origin': window.location.origin,
+                        'rel': 0,
+                        'modestbranding': 1,
+                        'iv_load_policy': 3,
+                        'disablekb': 1,
+                        'fs': 0,
+                        'playsinline': 1,
+                        'controls': 0
+                    },
+                    events: {
+                        'onReady': function(event) {
+                            console.log('YouTube player ready');
+                            if (playerLoadTimeout) {
+                                clearTimeout(playerLoadTimeout);
+                                playerLoadTimeout = null;
+                            }
+                            playerReady = true;
+
+                            const loadingIndicator = document.getElementById('loading-indicator');
+                            if (loadingIndicator) {
+                                loadingIndicator.remove();
+                            }
+
+                            try {
+                                event.target.playVideo();
+                            } catch (e) {
+                                console.error('Error al intentar reproducir en onReady (interval):', e);
+                                resetPlayButton();
+                            }
+                        },
+                        'onError': onPlayerError,
+                        'onStateChange': onPlayerStateChange
+                    }
+                });
+            }
+        }, 100);
     }
 }
 
 function playAudioUrl(url, vinyl) {
+    console.log('=== playAudioUrl llamado con url:', url, '===');
     currentAudio = new Audio(url);
     currentAudio.autoplay = true;
     currentAudio.style.display = 'none';
@@ -1470,26 +1599,32 @@ function playAudioUrl(url, vinyl) {
     }
 
     currentAudio.addEventListener('play', () => {
+        console.log('Evento play disparado');
         isAudioPlaying = true;
         if (vinyl) {
             vinyl.style.animationPlayState = 'running';
             vinyl.classList.add('spinning');
         }
         if (pauseBtn) pauseBtn.textContent = '⏸';
+        activateEqualizer(true);
         startProgressUpdate();
     });
 
     currentAudio.addEventListener('pause', () => {
+        console.log('Evento pause disparado');
         isAudioPlaying = false;
         if (vinyl) vinyl.style.animationPlayState = 'paused';
         if (pauseBtn) pauseBtn.textContent = '▶️';
+        activateEqualizer(false);
         stopProgressUpdate();
     });
 
     currentAudio.addEventListener('ended', () => {
+        console.log('Evento ended disparado');
         isAudioPlaying = false;
         if (vinyl) vinyl.style.animationPlayState = 'paused';
         if (pauseBtn) pauseBtn.textContent = '▶️';
+        activateEqualizer(false);
         stopProgressUpdate();
         playNext();
     });
@@ -1500,8 +1635,15 @@ function playAudioUrl(url, vinyl) {
         }
     });
 
+    currentAudio.addEventListener('error', (e) => {
+        console.error('Error en reproductor de audio:', e);
+        resetPlayButton();
+    });
+
     requestAnimationFrame(() => {
-        currentAudio.play().catch(e => {
+        currentAudio.play().then(() => {
+            console.log('Audio iniciado correctamente');
+        }).catch(e => {
             console.log('Autoplay bloqueado por el navegador');
             if (pauseBtn) pauseBtn.textContent = '▶️';
             if (vinyl) vinyl.style.animationPlayState = 'paused';
@@ -1706,7 +1848,12 @@ function updateAlbumCover(youtubeId) {
 function updateVideoThumbnail(youtubeId) {
     const thumbnailImg = document.getElementById('thumbnail-img');
     const placeholder = document.querySelector('.thumbnail-placeholder');
-    
+
+    if (!thumbnailImg) {
+        console.warn('thumbnail-img no encontrado en el DOM');
+        return;
+    }
+
     if (youtubeId) {
         thumbnailImg.src = `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`;
         thumbnailImg.style.display = 'block';
@@ -1744,6 +1891,22 @@ function highlightActiveSong(songId) {
     if (activeItem) {
         activeItem.classList.add('active');
     }
+}
+
+// Resetear el botón de play/pause a estado inicial
+function resetPlayButton() {
+    const pauseBtn = document.getElementById('main-play-pause-btn');
+    const vinyl = document.getElementById('vinyl-record');
+    
+    if (pauseBtn) {
+        pauseBtn.textContent = '▶️';
+    }
+    if (vinyl) {
+        vinyl.style.animationPlayState = 'paused';
+    }
+    activateEqualizer(false);
+    stopProgressUpdate();
+    isAudioPlaying = false;
 }
 </script>
 {% endblock %}

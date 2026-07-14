@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from notificaciones.models import Notificacion
 from eventos.models import Evento
-from app.models import ConversacionChat, Cancion, Score
+from apps.app.models import ConversacionChat, Cancion, Score
 
 def ver_perfil(request):
     if request.user.is_authenticated:

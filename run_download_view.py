@@ -8,7 +8,7 @@ django.setup()
 # Now import models and test utilities
 from django.test import RequestFactory
 from django.contrib.auth.models import User
-from app.views import download_media_api
+from apps.app.views import download_media_api
 
 # Create a request factory
 factory = RequestFactory()

@@ -4,7 +4,7 @@
 {% block title %}Juegos{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/juegos.css' %}?v=4">
+<link rel="stylesheet" href="{% static 'css/pages/juegos.css' %}?v=6">
 <style>
 /* Gradient Background */
 .games-page-background {
@@ -312,200 +312,6 @@ body.light .games-page-background {
             <p style="color: #94a3b8; text-align: center; grid-column: 1 / -1;">No hay juegos disponibles</p>
             {% endfor %}
             
-            <!-- Juegos estáticos (compatibilidad) -->
-            <div class="game-card" data-category="logica" data-name="adivinanza" style="--game-color: #7c3aed;">
-                <button class="favorite-btn" onclick="toggleFavorite(this, event)" title="Agregar a favoritos">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M19.5 13.5l-7.5 -7.5l-7.5 7.5"></path>
-                        <path d="M12 3v10"></path>
-                    </svg>
-                </button>
-                <div class="game-icon-wrapper">🧩</div>
-                <h3>Adivinanza</h3>
-                <p>Resuelve los acertijos más difíciles.</p>
-                <div class="game-meta">
-                    <span class="difficulty-badge medium">🟡 Medio</span>
-                    <span class="time-badge">⏱ 3 min</span>
-                </div>
-                <div class="game-rating">⭐⭐⭐⭐☆</div>
-                <button class="game-play-btn" onclick="iniciarJuegoAdivinanza()">▶ Jugar</button>
-            </div>
-            
-            <div class="game-card" data-category="inteligencia" data-name="quiz master" style="--game-color: #3b82f6;">
-                <button class="favorite-btn" onclick="toggleFavorite(this, event)" title="Agregar a favoritos">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M19.5 13.5l-7.5 -7.5l-7.5 7.5"></path>
-                        <path d="M12 3v10"></path>
-                    </svg>
-                </button>
-                <div class="game-icon-wrapper">❓</div>
-                <h3>Quiz Master</h3>
-                <p>¿Qué tanto sabes del mundo?</p>
-                <div class="game-meta">
-                    <span class="difficulty-badge medium">🟡 Medio</span>
-                    <span class="time-badge">⏱ 5 min</span>
-                </div>
-                <div class="game-rating">⭐⭐⭐⭐⭐</div>
-                <button class="game-play-btn" onclick="iniciarJuegoQuiz()">▶ Jugar</button>
-            </div>
-            
-            <div class="game-card" data-category="precision" data-name="memoria" style="--game-color: #ec4899;">
-                <button class="favorite-btn" onclick="toggleFavorite(this, event)" title="Agregar a favoritos">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M19.5 13.5l-7.5 -7.5l-7.5 7.5"></path>
-                        <path d="M12 3v10"></path>
-                    </svg>
-                </button>
-                <div class="game-icon-wrapper">🎯</div>
-                <h3>Memoria</h3>
-                <p>Encuentra los pares idénticos.</p>
-                <div class="game-meta">
-                    <span class="difficulty-badge easy">🟢 Fácil</span>
-                    <span class="time-badge">⏱ 5 min</span>
-                </div>
-                <div class="game-rating">⭐⭐⭐⭐⭐</div>
-                <button class="game-play-btn" onclick="iniciarJuegoMemoria()">▶ Jugar</button>
-            </div>
-            
-            <div class="game-card" data-category="inteligencia" data-name="mente rapida" style="--game-color: #22c55e;">
-                <button class="favorite-btn" onclick="toggleFavorite(this, event)" title="Agregar a favoritos">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M19.5 13.5l-7.5 -7.5l-7.5 7.5"></path>
-                        <path d="M12 3v10"></path>
-                    </svg>
-                </button>
-                <div class="game-icon-wrapper">🔢</div>
-                <h3>Mente Rápida</h3>
-                <p>Cálculos mentales veloces.</p>
-                <div class="game-meta">
-                    <span class="difficulty-badge medium">🟡 Medio</span>
-                    <span class="time-badge">⏱ 3 min</span>
-                </div>
-                <div class="game-rating">⭐⭐⭐⭐☆</div>
-                <button class="game-play-btn" onclick="iniciarJuegoMatematicas()">▶ Jugar</button>
-            </div>
-
-            <div class="game-card" data-category="velocidad" data-name="reflejos" style="--game-color: #f59e0b;">
-                <button class="favorite-btn" onclick="toggleFavorite(this, event)" title="Agregar a favoritos">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M19.5 13.5l-7.5 -7.5l-7.5 7.5"></path>
-                        <path d="M12 3v10"></path>
-                    </svg>
-                </button>
-                <div class="game-icon-wrapper">⚡</div>
-                <h3>Reflejos</h3>
-                <p>Haz clic lo más rápido posible.</p>
-                <div class="game-meta">
-                    <span class="difficulty-badge hard">🔴 Difícil</span>
-                    <span class="time-badge">⏱ 2 min</span>
-                </div>
-                <div class="game-rating">⭐⭐⭐⭐☆</div>
-                <button class="game-play-btn" onclick="iniciarJuegoReflejos()">▶ Jugar</button>
-            </div>
-
-            <div class="game-card" data-category="relax" data-name="fidget" style="--game-color: #06b6d4;">
-                <button class="favorite-btn" onclick="toggleFavorite(this, event)" title="Agregar a favoritos">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M19.5 13.5l-7.5 -7.5l-7.5 7.5"></path>
-                        <path d="M12 3v10"></path>
-                    </svg>
-                </button>
-                <div class="game-icon-wrapper">🌀</div>
-                <h3>Fidget</h3>
-                <p>Relájate girando el spinner.</p>
-                <div class="game-meta">
-                    <span class="difficulty-badge easy">🟢 Fácil</span>
-                    <span class="time-badge">⏱ ∞</span>
-                </div>
-                <div class="game-rating">⭐⭐⭐☆☆</div>
-                <button class="game-play-btn" onclick="iniciarJuegoFidget()">▶ Jugar</button>
-            </div>
-
-            <!-- Snake (Nuevo Extra) -->
-            <div class="game-card" data-category="estrategia" data-name="snake neo" style="--game-color: #a855f7;">
-                <button class="favorite-btn" onclick="toggleFavorite(this, event)" title="Agregar a favoritos">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M19.5 13.5l-7.5 -7.5l-7.5 7.5"></path>
-                        <path d="M12 3v10"></path>
-                    </svg>
-                </button>
-                <div class="game-icon-wrapper">🐍</div>
-                <h3>Snake Neo</h3>
-                <p>El clásico juego de la serpiente.</p>
-                <div class="game-meta">
-                    <span class="difficulty-badge medium">🟡 Medio</span>
-                    <span class="time-badge">⏱ 5 min</span>
-                </div>
-                <div class="game-rating">⭐⭐⭐⭐⭐</div>
-                <button class="game-play-btn" onclick="iniciarJuegoSnake()">▶ Jugar</button>
-            </div>
-
-            <!-- Respiración (Nuevo para Relax) -->
-            <div class="game-card" data-category="relax" data-name="respiracion" style="--game-color: #2dd4bf;">
-                <button class="favorite-btn" onclick="toggleFavorite(this, event)" title="Agregar a favoritos">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M19.5 13.5l-7.5 -7.5l-7.5 7.5"></path>
-                        <path d="M12 3v10"></path>
-                    </svg>
-                </button>
-                <div class="game-icon-wrapper">🌬️</div>
-                <h3>Respiración</h3>
-                <p>Relájate y encuentra tu centro.</p>
-                <div class="game-meta">
-                    <span class="difficulty-badge easy">🟢 Fácil</span>
-                    <span class="time-badge">⏱ 5 min</span>
-                </div>
-                <div class="game-rating">⭐⭐⭐⭐⭐</div>
-                <button class="game-play-btn" onclick="iniciarJuegoRespiracion()">▶ Jugar</button>
-            </div>
-
-            <!-- 3 en Raya (Nuevo) -->
-            <div class="game-card" data-category="estrategia" data-name="3 en raya" style="--game-color: #ef4444;">
-                <button class="favorite-btn" onclick="toggleFavorite(this, event)" title="Agregar a favoritos">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M19.5 13.5l-7.5 -7.5l-7.5 7.5"></path>
-                        <path d="M12 3v10"></path>
-                    </svg>
-                </button>
-                <div class="game-icon-wrapper">❌⭕</div>
-                <h3>3 en Raya</h3>
-                <p>El clásico juego de estrategia.</p>
-                <div class="game-meta">
-                    <span class="difficulty-badge easy">🟢 Fácil</span>
-                    <span class="time-badge">⏱ 3 min</span>
-                </div>
-                <div class="game-rating">⭐⭐⭐⭐☆</div>
-                <button class="game-play-btn" onclick="iniciarJuegoTresEnRaya()">▶ Jugar</button>
-            </div>
-
-            <!-- Ajedrez (Nuevo) -->
-            <div class="game-card" data-category="estrategia" data-name="ajedrez" style="--game-color: #10b981;">
-                <button class="favorite-btn" onclick="toggleFavorite(this, event)" title="Agregar a favoritos">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M19.5 13.5l-7.5 -7.5l-7.5 7.5"></path>
-                        <path d="M12 3v10"></path>
-                    </svg>
-                </button>
-                <div class="game-icon-wrapper">♟️</div>
-                <h3>Ajedrez</h3>
-                <p>El juego de estrategia por excelencia.</p>
-                <div class="game-meta">
-                    <span class="difficulty-badge hard">🔴 Difícil</span>
-                    <span class="time-badge">⏱ 15 min</span>
-                </div>
-                <div class="game-rating">⭐⭐⭐⭐⭐</div>
-                <button class="game-play-btn" onclick="iniciarJuegoAjedrez()">▶ Jugar</button>
-            </div>
         </div>
 </div>
 {% endblock %}
@@ -549,9 +355,12 @@ function cerrarJuego() {
     modal.classList.remove('active');
     setTimeout(() => { container.innerHTML = ''; }, 300); // Limpiar después de animación
     
-    // Limpiar loops
+    // Limpiar loops y animaciones
     if (window.snakeLoop) clearInterval(window.snakeLoop);
+    if (window.snakeAnimation) cancelAnimationFrame(window.snakeAnimation);
     if (window.fidgetAnimacion) cancelAnimationFrame(window.fidgetAnimacion);
+    if (window.breathInterval) clearInterval(window.breathInterval);
+    if (window.breathTimeout) clearTimeout(window.breathTimeout);
 }
 
 // Cerrar al dar clic fuera del modal
@@ -858,7 +667,7 @@ function iniciarJuegoReflejos() {
         <div class="game-arena-subtitle">Haz clic en la esfera luminosa en cuanto cambie de color.</div>
         
         <div class="game-box" style="height: 300px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5);">
-            <div id="reflejos-circulo" style="width: 100px; height: 100px; background: #ef4444; border-radius: 50%; cursor: pointer; transition: background 0.1s; box-shadow: 0 0 20px #ef4444;"></div>
+            <div id="reflejos-circulo" class="reflejos-circle"></div>
         </div>
         
         <div class="game-score-board">
@@ -869,13 +678,12 @@ function iniciarJuegoReflejos() {
     
     const circulo = document.getElementById('reflejos-circulo');
     circulo.onclick = () => {
-        if (circulo.style.background === 'rgb(34, 197, 94)' || circulo.style.background === '#22c55e') {
+        if (circulo.classList.contains('active')) {
             const tiempo = Date.now() - window.reflejosTiempoInicio;
             const puntos = Math.max(0, 100 - Math.floor(tiempo / 10));
             window.reflejosPuntuacion += puntos;
             document.getElementById('reflejos-puntuacion').textContent = window.reflejosPuntuacion;
-            circulo.style.background = '#ef4444';
-            circulo.style.boxShadow = '0 0 20px #ef4444';
+            circulo.classList.remove('active');
             
             if (window.reflejosIntentos >= 5) {
                 showToast(`¡Juego terminado! Puntuación final: ${window.reflejosPuntuacion}`, 'success');
@@ -897,17 +705,15 @@ function iniciarRondaReflejos() {
     
     setTimeout(() => {
         if(!document.getElementById('reflejos-circulo')) return;
-        circulo.style.background = '#22c55e';
-        circulo.style.boxShadow = '0 0 40px #22c55e';
+        circulo.classList.add('active');
         window.reflejosTiempoInicio = Date.now();
         window.reflejosIntentos++;
         document.getElementById('reflejos-intentos').textContent = window.reflejosIntentos;
         
         setTimeout(() => {
             const circ = document.getElementById('reflejos-circulo');
-            if (circ && (circ.style.background === 'rgb(34, 197, 94)' || circ.style.background === '#22c55e')) {
-                circ.style.background = '#ef4444';
-                circ.style.boxShadow = '0 0 20px #ef4444';
+            if (circ && circ.classList.contains('active')) {
+                circ.classList.remove('active');
                 if (window.reflejosIntentos >= 5) {
                     showToast(`¡Muy lento! Fin del juego. Puntuación: ${window.reflejosPuntuacion}`, 'error');
                     cerrarJuego();
@@ -932,15 +738,13 @@ function iniciarJuegoFidget() {
         <div class="game-arena-subtitle">Arrastra para girar y relajar tu mente.</div>
         
         <div class="game-box" style="height: 350px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: transparent; border: none;">
-            <div id="fidget-spinner" style="width: 180px; height: 180px; position: relative; cursor: pointer; transition: transform 0.1s; filter: drop-shadow(0 0 15px rgba(6, 182, 212, 0.5));">
-                <div style="position: absolute; width: 100%; height: 100%; border: 12px solid #06b6d4; border-radius: 50%;"></div>
-                <div style="position: absolute; width: 40%; height: 40%; background: #3b82f6; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); border: 4px solid #fff;"></div>
-                
-                <div style="position: absolute; width: 35%; height: 35%; background: #7c3aed; border-radius: 50%; top: 0; left: 50%; transform: translate(-50%, -10%);"></div>
-                <div style="position: absolute; width: 35%; height: 35%; background: #7c3aed; border-radius: 50%; bottom: 0; left: 50%; transform: translate(-50%, 10%);"></div>
-                
-                <div style="position: absolute; width: 35%; height: 35%; background: #06b6d4; border-radius: 50%; top: 50%; left: 0; transform: translate(-10%, -50%);"></div>
-                <div style="position: absolute; width: 35%; height: 35%; background: #06b6d4; border-radius: 50%; top: 50%; right: 0; transform: translate(10%, -50%);"></div>
+            <div id="fidget-spinner" class="fidget-spinner">
+                <div class="fidget-ring"></div>
+                <div class="fidget-center"></div>
+                <div class="fidget-arm purple top"></div>
+                <div class="fidget-arm purple bottom"></div>
+                <div class="fidget-arm cyan left"></div>
+                <div class="fidget-arm cyan right"></div>
             </div>
         </div>
         
@@ -955,18 +759,30 @@ function iniciarJuegoFidget() {
     let lastX = 0; let lastY = 0;
     
     const girarSpinner = () => {
-        if (window.fidgetVelocidad > 0) {
+        if (window.fidgetVelocidad > 0.1) {
             window.fidgetRotacion += window.fidgetVelocidad;
             spinner.style.transform = `rotate(${window.fidgetRotacion}deg)`;
-            document.getElementById('fidget-velocidad').textContent = Math.floor(window.fidgetVelocidad * 10);
+            
+            // Only update DOM every few frames to reduce overhead
+            if (!window.fidgetFrameCount) window.fidgetFrameCount = 0;
+            window.fidgetFrameCount++;
+            if (window.fidgetFrameCount % 3 === 0) {
+                document.getElementById('fidget-velocidad').textContent = Math.floor(window.fidgetVelocidad * 10);
+            }
+            
             window.fidgetVelocidad *= 0.985;
             
-            if (window.fidgetVelocidad < 0.1) {
-                window.fidgetVelocidad = 0;
-                cancelAnimationFrame(window.fidgetAnimacion);
-            } else {
-                window.fidgetAnimacion = requestAnimationFrame(girarSpinner);
+            const shouldSpin = window.fidgetVelocidad > 5;
+            const isSpinning = spinner.classList.contains('spinning');
+            if (shouldSpin !== isSpinning) {
+                spinner.classList.toggle('spinning', shouldSpin);
             }
+            
+            window.fidgetAnimacion = requestAnimationFrame(girarSpinner);
+        } else {
+            window.fidgetVelocidad = 0;
+            spinner.classList.remove('spinning');
+            document.getElementById('fidget-velocidad').textContent = '0';
         }
     };
     
@@ -1005,28 +821,39 @@ function iniciarJuegoRespiracion() {
     const text = document.getElementById('breathing-text');
     let step = 0; 
     let active = true;
+    let breathTimeout = null;
 
     document.getElementById('game-modal').addEventListener('click', function(e) {
-        if (e.target === this) active = false; // Stop loop when closing modal
+        if (e.target === this) {
+            active = false;
+            if (breathTimeout) clearTimeout(breathTimeout);
+        }
     });
 
+    const steps = [
+        { text: "INHALA", className: "breath-circle inhale", duration: 4000 },
+        { text: "MANTÉN", className: "breath-circle hold", duration: 3000 },
+        { text: "EXHALA", className: "breath-circle exhale", duration: 4000 }
+    ];
+
     function runCycle() {
-        if (!active || !document.getElementById('breathing-circle')) return;
-        if (step === 0) {
-            text.innerText = "INHALA";
-            circle.className = "breath-circle inhale";
-            setTimeout(() => { step = 1; runCycle(); }, 4000);
-        } else if (step === 1) {
-            text.innerText = "MANTÉN";
-            circle.className = "breath-circle hold";
-            setTimeout(() => { step = 2; runCycle(); }, 3000);
-        } else {
-            text.innerText = "EXHALA";
-            circle.className = "breath-circle exhale";
-            setTimeout(() => { step = 0; runCycle(); }, 4000);
+        if (!active || !document.getElementById('breathing-circle')) {
+            if (breathTimeout) clearTimeout(breathTimeout);
+            return;
         }
+
+        const currentStep = steps[step];
+        text.innerText = currentStep.text;
+        circle.className = currentStep.className;
+
+        step = (step + 1) % steps.length;
+        breathTimeout = setTimeout(runCycle, currentStep.duration);
     }
-    setTimeout(runCycle, 1000);
+
+    breathTimeout = setTimeout(runCycle, 1000);
+    
+    // Store timeout for cleanup
+    window.breathTimeout = breathTimeout;
 }
 
 // Snake
@@ -1057,21 +884,34 @@ function iniciarJuegoSnake() {
     let food = {x: 5, y: 5};
     let dx = 0, dy = 0, nextDx = 0, nextDy = 0;
     let score = 0;
+    let lastTime = 0;
+    const gameSpeed = 120; // ms between frames
     
     if (window.snakeLoop) clearInterval(window.snakeLoop);
+    if (window.snakeAnimation) cancelAnimationFrame(window.snakeAnimation);
     
-    function drawGame() {
+    function drawGame(timestamp) {
         if (!document.getElementById('snakeCanvas')) {
-            clearInterval(window.snakeLoop);
+            if (window.snakeAnimation) cancelAnimationFrame(window.snakeAnimation);
             return;
         }
 
+        if (!lastTime) lastTime = timestamp;
+        const deltaTime = timestamp - lastTime;
+        
+        if (deltaTime < gameSpeed) {
+            window.snakeAnimation = requestAnimationFrame(drawGame);
+            return;
+        }
+        
+        lastTime = timestamp;
+        
         dx = nextDx; dy = nextDy;
         const head = {x: snake[0].x + dx, y: snake[0].y + dy};
         
         if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount || 
             (dx !== 0 && dy !== 0 && snake.some((s, i) => i !== 0 && s.x === head.x && s.y === head.y))) {
-            clearInterval(window.snakeLoop);
+            if (window.snakeAnimation) cancelAnimationFrame(window.snakeAnimation);
             document.getElementById('snake-game-over').style.display = 'flex';
             return;
         }
@@ -1081,6 +921,7 @@ function iniciarJuegoSnake() {
              ctx.clearRect(0, 0, canvas.width, canvas.height);
              ctx.fillStyle = '#ec4899'; ctx.beginPath(); ctx.arc(food.x * gridSize + 7.5, food.y * gridSize + 7.5, 5, 0, 2*Math.PI); ctx.fill();
              snake.forEach((s, i) => { ctx.fillStyle = i === 0 ? '#a855f7' : '#8b5cf6'; ctx.fillRect(s.x * gridSize + 1, s.y * gridSize + 1, gridSize - 2, gridSize - 2); });
+             window.snakeAnimation = requestAnimationFrame(drawGame);
              return;
         }
 
@@ -1106,6 +947,8 @@ function iniciarJuegoSnake() {
             ctx.fillStyle = i === 0 ? '#a855f7' : '#8b5cf6'; 
             ctx.fillRect(s.x * gridSize + 1, s.y * gridSize + 1, gridSize - 2, gridSize - 2); 
         });
+        
+        window.snakeAnimation = requestAnimationFrame(drawGame);
     }
 
     const keyHandler = e => {
@@ -1120,7 +963,7 @@ function iniciarJuegoSnake() {
     };
     
     window.addEventListener('keydown', keyHandler);
-    window.snakeLoop = setInterval(drawGame, 120);
+    window.snakeAnimation = requestAnimationFrame(drawGame);
 }
 
 // ==================== FUNCIONES PARA JUEGOS DINÁMICOS ====================
@@ -1154,6 +997,24 @@ function iniciarJuego(juegoId, tipo) {
             break;
         case 'logica':
             iniciarJuegoAdivinanza();
+            break;
+        case 'reflejos':
+            iniciarJuegoReflejos();
+            break;
+        case 'fidget':
+            iniciarJuegoFidget();
+            break;
+        case 'respiracion':
+            iniciarJuegoRespiracion();
+            break;
+        case 'snake':
+            iniciarJuegoSnake();
+            break;
+        case 'tres_en_raya':
+            iniciarJuegoTresEnRaya();
+            break;
+        case 'ajedrez':
+            iniciarJuegoAjedrez();
             break;
         default:
             showToast('Juego no disponible', 'error');
@@ -1206,20 +1067,16 @@ function iniciarJuegoTresEnRaya() {
         <div class="game-arena-subtitle">Jugador (X) vs CPU (O)</div>
         
         <div class="game-box" style="height: 350px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: transparent; border: none;">
-            <div id="tres-en-raya-tablero" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; width: 300px; height: 300px;">
+            <div id="tres-en-raya-tablero" class="tres-en-raya-tablero">
                 ${window.tablero.map((cell, index) => `
-                    <div class="tres-en-raya-celda" data-index="${index}" onclick="hacerMovimiento(${index})" 
-                         style="background: rgba(255,255,255,0.1); border: 2px solid rgba(255,255,255,0.2); 
-                                border-radius: 12px; display: flex; align-items: center; justify-content: center; 
-                                font-size: 3rem; font-weight: bold; cursor: pointer; transition: all 0.2s;">
-                    </div>
+                    <div class="tres-en-raya-celda" data-index="${index}" onclick="hacerMovimiento(${index})"></div>
                 `).join('')}
             </div>
         </div>
         
         <div class="game-score-board">
             <div id="tres-en-raya-estado">Tu turno (X)</div>
-            <button onclick="reiniciarTresEnRaya()" style="margin-top: 10px; padding: 10px 20px; background: #ef4444; border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: bold;">Reiniciar</button>
+            <button onclick="reiniciarTresEnRaya()" class="game-btn-outline" style="margin-top: 10px; background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.5); color: #ef4444;">Reiniciar</button>
         </div>
     `;
     
@@ -1339,12 +1196,31 @@ window.actualizarTableroTresEnRaya = function() {
     const celdas = document.querySelectorAll('.tres-en-raya-celda');
     celdas.forEach((celda, index) => {
         celda.textContent = window.tablero[index];
+        celda.classList.remove('x-mark', 'o-mark', 'winner');
+        
         if (window.tablero[index] === 'X') {
-            celda.style.color = '#ef4444';
+            celda.classList.add('x-mark');
         } else if (window.tablero[index] === 'O') {
-            celda.style.color = '#3b82f6';
+            celda.classList.add('o-mark');
         }
     });
+    
+    // Highlight winning cells
+    const combinacionesGanadoras = [
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
+    ];
+    
+    for (let combo of combinacionesGanadoras) {
+        const [a, b, c] = combo;
+        if (window.tablero[a] && window.tablero[a] === window.tablero[b] && window.tablero[a] === window.tablero[c]) {
+            celdas[a].classList.add('winner');
+            celdas[b].classList.add('winner');
+            celdas[c].classList.add('winner');
+            break;
+        }
+    }
 };
 
 window.reiniciarTresEnRaya = function() {

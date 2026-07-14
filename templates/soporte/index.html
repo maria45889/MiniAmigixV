@@ -249,46 +249,128 @@
             <h2>📚 Guías Rápidas</h2>
         </div>
         <div class="guides-grid">
-            <a href="/chat/" class="guide-card">
+            <div class="guide-card" onclick="toggleGuide('chat-guide')">
                 <div class="guide-icon">
                     <i class="ti ti-player-play"></i>
                 </div>
                 <h4>Cómo usar el Chat IA</h4>
                 <p>Aprende a interactuar con la IA</p>
-            </a>
-            <a href="/eventos/" class="guide-card">
+                <i class="ti ti-chevron-down guide-chevron"></i>
+            </div>
+            <div class="guide-card" onclick="toggleGuide('eventos-guide')">
                 <div class="guide-icon">
                     <i class="ti ti-player-play"></i>
                 </div>
                 <h4>Crear un evento</h4>
                 <p>Organiza tu agenda fácilmente</p>
-            </a>
-            <a href="/traductor/" class="guide-card">
+                <i class="ti ti-chevron-down guide-chevron"></i>
+            </div>
+            <div class="guide-card" onclick="toggleGuide('traductor-guide')">
                 <div class="guide-icon">
                     <i class="ti ti-player-play"></i>
                 </div>
                 <h4>Traducir texto</h4>
                 <p>Traduce entre idiomas</p>
-            </a>
-            <a href="/musica/" class="guide-card">
+                <i class="ti ti-chevron-down guide-chevron"></i>
+            </div>
+            <div class="guide-card" onclick="toggleGuide('musica-guide')">
                 <div class="guide-icon">
                     <i class="ti ti-player-play"></i>
                 </div>
                 <h4>Escuchar música</h4>
                 <p>Disfruta tu música favorita</p>
-            </a>
-            <a href="/perfil/" class="guide-card">
+                <i class="ti ti-chevron-down guide-chevron"></i>
+            </div>
+            <div class="guide-card" onclick="toggleGuide('perfil-guide')">
                 <div class="guide-icon">
                     <i class="ti ti-player-play"></i>
                 </div>
                 <h4>Configurar tu perfil</h4>
                 <p>Personaliza tu cuenta</p>
-            </a>
+                <i class="ti ti-chevron-down guide-chevron"></i>
+            </div>
+        </div>
+        
+        <!-- Guide Content Panels -->
+        <div id="chat-guide" class="guide-content-panel" style="display: none;">
+            <div class="guide-content-inner">
+                <h3>🤖 Cómo usar el Chat IA</h3>
+                <p>El Chat IA es tu asistente inteligente personal. Aquí te explicamos cómo usarlo:</p>
+                <ol>
+                    <li>Accede a la sección de Chat desde el menú lateral</li>
+                    <li>Escribe tu pregunta o solicitud en el campo de texto</li>
+                    <li>Pulsa el botón de enviar o presiona Enter</li>
+                    <li>La IA responderá en segundos con información útil</li>
+                    <li>Puedes continuar la conversación haciendo más preguntas</li>
+                </ol>
+                <p><strong>Tip:</strong> Sé específico en tus preguntas para obtener mejores respuestas.</p>
+            </div>
+        </div>
+        
+        <div id="eventos-guide" class="guide-content-panel" style="display: none;">
+            <div class="guide-content-inner">
+                <h3>📅 Crear un evento</h3>
+                <p>Organiza tu agenda personal con el sistema de eventos:</p>
+                <ol>
+                    <li>Ve a la sección de Eventos desde el menú</li>
+                    <li>Haz clic en "Crear nuevo evento"</li>
+                    <li>Completa los datos: título, fecha, hora y descripción</li>
+                    <li>Puedes agregar recordatorios para no olvidarte</li>
+                    <li>Guarda el evento y aparecerá en tu calendario</li>
+                </ol>
+                <p><strong>Tip:</strong> Usa recordatorios para eventos importantes.</p>
+            </div>
+        </div>
+        
+        <div id="traductor-guide" class="guide-content-panel" style="display: none;">
+            <div class="guide-content-inner">
+                <h3>🌐 Traducir texto</h3>
+                <p>Traduce entre múltiples idiomas fácilmente:</p>
+                <ol>
+                    <li>Accede a la sección de Traductor</li>
+                    <li>Escribe o pega el texto que quieres traducir</li>
+                    <li>Selecciona el idioma de origen y destino</li>
+                    <li>Haz clic en "Traducir"</li>
+                    <li>El resultado aparecerá instantáneamente</li>
+                </ol>
+                <p><strong>Tip:</strong> Soporta más de 100 idiomas diferentes.</p>
+            </div>
+        </div>
+        
+        <div id="musica-guide" class="guide-content-panel" style="display: none;">
+            <div class="guide-content-inner">
+                <h3>🎵 Escuchar música</h3>
+                <p>Disfruta de tu música favorita en la plataforma:</p>
+                <ol>
+                    <li>Ve a la sección de Música desde el menú</li>
+                    <li>Busca canciones por nombre o artista</li>
+                    <li>Haz clic en una canción para reproducirla</li>
+                    <li>Usa los controles para pausar, avanzar o retroceder</li>
+                    <li>Crea playlists para organizar tu música</li>
+                </ol>
+                <p><strong>Tip:</strong> Puedes agregar canciones a favoritos para acceder rápido.</p>
+            </div>
+        </div>
+        
+        <div id="perfil-guide" class="guide-content-panel" style="display: none;">
+            <div class="guide-content-inner">
+                <h3>👤 Configurar tu perfil</h3>
+                <p>Personaliza tu cuenta y preferencias:</p>
+                <ol>
+                    <li>Accede a tu perfil desde el menú de usuario</li>
+                    <li>Haz clic en "Editar perfil"</li>
+                    <li>Actualiza tu foto de perfil</li>
+                    <li>Modifica tu información personal</li>
+                    <li>Configura el tema (claro/oscuro)</li>
+                    <li>Guarda los cambios</li>
+                </ol>
+                <p><strong>Tip:</strong> Una foto de perfil ayuda a personalizar tu experiencia.</p>
+            </div>
         </div>
     </section>
 
     <!-- System Status Section -->
-    <section class="system-status-section">
+    <section class="system-status-section" style="display: none;">
         <div class="section-header">
             <i class="ti ti-server"></i>
             <h2>⚙ Estado del Sistema</h2>
@@ -605,6 +687,40 @@
         if (!isOpen) item.classList.add('open');
     }
 
+    // Guide Toggle
+    function toggleGuide(guideId) {
+        const guidePanel = document.getElementById(guideId);
+        const allPanels = document.querySelectorAll('.guide-content-panel');
+        const allChevrons = document.querySelectorAll('.guide-chevron');
+        
+        // Close all panels
+        allPanels.forEach(panel => {
+            if (panel.id !== guideId) {
+                panel.style.display = 'none';
+            }
+        });
+        
+        // Reset all chevrons
+        allChevrons.forEach(chevron => {
+            chevron.style.transform = 'rotate(0deg)';
+        });
+        
+        // Toggle clicked panel
+        if (guidePanel.style.display === 'none' || !guidePanel.style.display) {
+            guidePanel.style.display = 'block';
+            // Find the chevron for this guide and rotate it
+            const guideCard = document.querySelector(`.guide-card[onclick="toggleGuide('${guideId}')"]`);
+            if (guideCard) {
+                const chevron = guideCard.querySelector('.guide-chevron');
+                if (chevron) {
+                    chevron.style.transform = 'rotate(180deg)';
+                }
+            }
+        } else {
+            guidePanel.style.display = 'none';
+        }
+    }
+
     // Form validation
     const form = document.getElementById('soporte-form');
     if (form) {
@@ -619,7 +735,7 @@
             });
         });
 
-        // Form submit validation
+        // Form submit validation and async submission
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             
@@ -635,9 +751,117 @@
                 btn.querySelector('.btn-text').style.display = 'none';
                 btn.querySelector('.btn-loading').style.display = 'inline-flex';
                 btn.disabled = true;
-                form.submit();
+
+                // Collect form data
+                const formData = new FormData(form);
+                formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+
+                // Submit via fetch
+                fetch(window.location.href, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Reset button
+                    btn.querySelector('.btn-text').style.display = 'inline-flex';
+                    btn.querySelector('.btn-loading').style.display = 'none';
+                    btn.disabled = false;
+
+                    // Show success message
+                    if (data.success) {
+                        showSuccessMessage();
+                        form.reset();
+                        // Reset validation states
+                        inputs.forEach(input => {
+                            input.classList.remove('error');
+                            const group = input.closest('.form-group');
+                            if (group) {
+                                group.classList.remove('error');
+                                const errorDiv = group.querySelector('.error-message');
+                                if (errorDiv) errorDiv.textContent = '';
+                            }
+                        });
+                    } else {
+                        showErrorMessage(data.error || 'Error al enviar el mensaje');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    btn.querySelector('.btn-text').style.display = 'inline-flex';
+                    btn.querySelector('.btn-loading').style.display = 'none';
+                    btn.disabled = false;
+                    showErrorMessage('Error de conexión. Por favor intenta nuevamente.');
+                });
             }
         });
+    }
+
+    function showSuccessMessage() {
+        // Remove existing alerts
+        const existingAlerts = document.querySelectorAll('.alert-message');
+        existingAlerts.forEach(alert => alert.remove());
+
+        // Create success alert
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert-message alert-success';
+        alertDiv.innerHTML = `
+            <div class="alert-icon"><i class="ti ti-circle-check"></i></div>
+            <div>
+                <strong>¡Mensaje enviado!</strong>
+                <p>Te responderemos pronto. Gracias por contactarnos.</p>
+            </div>
+        `;
+
+        // Insert before form
+        const formPanel = document.querySelector('.contact-form-panel');
+        if (formPanel) {
+            formPanel.insertBefore(alertDiv, formPanel.firstChild);
+            
+            // Scroll to alert
+            alertDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                alertDiv.style.opacity = '0';
+                setTimeout(() => alertDiv.remove(), 300);
+            }, 5000);
+        }
+    }
+
+    function showErrorMessage(message) {
+        // Remove existing alerts
+        const existingAlerts = document.querySelectorAll('.alert-message');
+        existingAlerts.forEach(alert => alert.remove());
+
+        // Create error alert
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert-message alert-error';
+        alertDiv.innerHTML = `
+            <div class="alert-icon"><i class="ti ti-alert-circle"></i></div>
+            <div>
+                <strong>Error al enviar</strong>
+                <p>${message}</p>
+            </div>
+        `;
+
+        // Insert before form
+        const formPanel = document.querySelector('.contact-form-panel');
+        if (formPanel) {
+            formPanel.insertBefore(alertDiv, formPanel.firstChild);
+            
+            // Scroll to alert
+            alertDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Auto-remove after 5 seconds
+            setTimeout(() => {
+                alertDiv.style.opacity = '0';
+                setTimeout(() => alertDiv.remove(), 300);
+            }, 5000);
+        }
     }
 
     function validateField(input) {

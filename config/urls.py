@@ -30,7 +30,7 @@ urlpatterns = [
     path('clima/', include('apps.clima.urls')),
     
     # Main Application
-    path('', include('app.urls')),
+    path('', include('apps.app.urls')),
 ]
 
 # Serve PWA files in development
