@@ -54,27 +54,27 @@
     transform: scale(1.02);
 }
 
-/* Digital Clock Mejorado */
+/* Digital Clock Mejorado - Diseño sutil y elegante */
 .digital-clock {
-    font-family: 'Courier New', monospace;
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(6, 182, 212, 0.1));
-    padding: 12px 20px;
-    border-radius: 14px;
-    border: 1px solid rgba(139, 92, 246, 0.3);
-    color: #a78bfa;
-    font-size: 1.4rem;
-    font-weight: 700;
-    letter-spacing: 2px;
-    min-width: 140px;
+    font-family: 'Inter', system-ui, sans-serif;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 8px 16px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-muted);
+    font-size: 1.1rem;
+    font-weight: 500;
+    letter-spacing: 1px;
+    min-width: 100px;
     text-align: center;
-    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    margin-left: 16px;
     transition: all 0.3s ease;
 }
 
 .digital-clock:hover {
-    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
-    border-color: rgba(139, 92, 246, 0.5);
-    transform: translateY(-2px);
+    background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(139, 92, 246, 0.2);
+    color: var(--text-main);
 }
 
 /* Search Bar Mejorada */
@@ -332,10 +332,15 @@ body.light .navbar {
 }
 
 body.light .digital-clock {
-    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(6, 182, 212, 0.08));
-    border-color: rgba(139, 92, 246, 0.25);
-    color: #7c3aed;
-    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.1);
+    background: rgba(0, 0, 0, 0.04);
+    border-color: rgba(0, 0, 0, 0.1);
+    color: var(--text-muted);
+}
+
+body.light .digital-clock:hover {
+    background: rgba(0, 0, 0, 0.06);
+    border-color: rgba(139, 92, 246, 0.3);
+    color: var(--text-main);
 }
 
 body.light .search-input {
