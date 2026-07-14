@@ -1,22 +1,4 @@
 {% load static %}
-<style>
-    .sidebar-header {
-        padding: 1rem 1rem 0.2rem;
-        text-align: center;
-    }
-    .sidebar-header .logo {
-        width: 100%;
-        max-width: 240px;
-        height: auto;
-        object-fit: contain;
-        filter: drop-shadow(0 0 10px rgba(124, 58, 237, 0.2));
-        margin-bottom: 0.3rem;
-        border-radius: 10px;
-    }
-    .sidebar-header .logo-text {
-        display: none; /* Logo image already shows the name */
-    }
-</style>
 <aside class="sidebar">
     <div class="sidebar-header">
         <img src="{% static 'imagenes/logo.png' %}" alt="MiniAmigixV Logo" class="logo">
@@ -51,9 +33,9 @@
         {% endif %}
     </nav>
     <div class="sidebar-footer">
-        <a href="{% url 'perfil' %}" class="nav-item" title="Perfil"><i data-lucide="user"></i></a>
-        <a href="{% url 'tutorial_home' %}" class="nav-item" title="Tutorial"><i data-lucide="help-circle"></i></a>
-        <a href="{% url 'configuracion_view' %}" class="nav-item" title="Configuración"><i data-lucide="settings"></i></a>
+        <a href="{% url 'perfil' %}" class="nav-item" title="Perfil" aria-label="Perfil de usuario"><i data-lucide="user"></i></a>
+        <a href="{% url 'tutorial_home' %}" class="nav-item" title="Tutorial" aria-label="Tutorial de ayuda"><i data-lucide="help-circle"></i></a>
+        <a href="{% url 'configuracion_view' %}" class="nav-item" title="Configuración" aria-label="Configuración de la cuenta"><i data-lucide="settings"></i></a>
     </div>
 </aside>
 
