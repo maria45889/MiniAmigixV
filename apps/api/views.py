@@ -11,7 +11,7 @@ import openai
 from notificaciones.models import Notificacion
 from perfil.models import Perfil
 import logging
-from apps.app.views import generate_ai_response
+from apps.app.services import ChatService
 
 logger = logging.getLogger(__name__)
 
@@ -66,11 +66,12 @@ class ChatSendView(APIView):
             messages.append({"role": role, "content": msg.texto})
 
         try:
-            bot_response = generate_ai_response(
+            bot_response = ChatService.generate_ai_response(
                 messages=messages,
                 settings_obj=settings,
                 imagen=False,
                 max_tokens=150,
+                image_base64=None,
                 message=message,
             )
             

@@ -22,8 +22,23 @@ load_dotenv(os.path.join(Path(__file__).resolve().parent.parent, '.env'), overri
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Add apps directory to Python path
+# Add directories to Python path for clean architecture
 sys.path.insert(0, str(BASE_DIR / 'apps'))
+sys.path.insert(0, str(BASE_DIR / 'core'))
+sys.path.insert(0, str(BASE_DIR / 'application'))
+sys.path.insert(0, str(BASE_DIR / 'infrastructure'))
+sys.path.insert(0, str(BASE_DIR / 'presentation'))
+
+# Add apps/app/ subdirectories to Python path for folder-based structure
+sys.path.insert(0, str(BASE_DIR / 'apps' / 'app' / 'services'))
+sys.path.insert(0, str(BASE_DIR / 'apps' / 'app' / 'selectors'))
+sys.path.insert(0, str(BASE_DIR / 'apps' / 'app' / 'api'))
+sys.path.insert(0, str(BASE_DIR / 'apps' / 'app' / 'constants'))
+sys.path.insert(0, str(BASE_DIR / 'apps' / 'app' / 'prompts'))
+sys.path.insert(0, str(BASE_DIR / 'apps' / 'app' / 'repositories'))
+sys.path.insert(0, str(BASE_DIR / 'apps' / 'app' / 'serializers'))
+sys.path.insert(0, str(BASE_DIR / 'apps' / 'app' / 'forms'))
+sys.path.insert(0, str(BASE_DIR / 'apps' / 'app' / 'views'))
 
 HAS_DJANGO_RATELIMIT = find_spec('django_ratelimit') is not None
 HAS_CORSHEADERS = find_spec('corsheaders') is not None

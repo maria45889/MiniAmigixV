@@ -1,53 +1,794 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Organizador Personal{% endblock %}
+{% block title %}Mis Eventos · Organizador Personal{% endblock %}
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/modules/eventos.css' %}?v=3">
 {% endblock %}
 
 {% block content %}
-<div class="eventos-container">
-    <!-- Header con estadísticas -->
-    <div class="stats-header">
-        <div class="stats-title">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-event" width="32" height="32" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <path d="M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
-                <path d="M16 3l0 4"></path>
-                <path d="M8 3l0 4"></path>
-                <path d="M4 11l16 0"></path>
-                <path d="M8 15h2v2h-2z"></path>
-            </svg>
-            <h1>Mis Eventos</h1>
-        </div>
-        <div class="stats-cards">
-            <div class="stat-card">
-                <span class="stat-icon">📅</span>
-                <div class="stat-info">
-                    <span class="stat-value">{{ eventos_hoy.count }}</span>
-                    <span class="stat-label">Hoy</span>
-                </div>
-            </div>
-            <div class="stat-card">
-                <span class="stat-icon">📆</span>
-                <div class="stat-info">
-                    <span class="stat-value">{{ eventos_semana.count }}</span>
-                    <span class="stat-label">Esta semana</span>
-                </div>
-            </div>
-            <div class="stat-card">
-                <span class="stat-icon">🗓️</span>
-                <div class="stat-info">
-                    <span class="stat-value">{{ eventos_mes.count }}</span>
-                    <span class="stat-label">Este mes</span>
-                </div>
-            </div>
-        </div>
-    </div>
+<style>
+  /* ── TOKENS ─────────────────────────────────────────────── */
+  :root {
+    --pink:        #ec4899;
+    --pink-light:  #f472b6;
+    --pink-dark:   #be185d;
+    --bg:          #0a0a0f;
+    --surface:     rgba(255,255,255,0.04);
+    --surface-hov: rgba(255,255,255,0.07);
+    --border:      rgba(236,72,153,0.18);
+    --border-hov:  rgba(236,72,153,0.45);
+    --text:        #f1f5f9;
+    --muted:       #94a3b8;
+    --radius:      18px;
+    --radius-sm:   10px;
+    --shadow-pink: 0 0 40px rgba(236,72,153,0.18);
+    --glow:        0 0 18px rgba(236,72,153,0.5);
+  }
 
-    <!-- Próximo evento destacado -->
+  /* ── RESET & BASE ───────────────────────────────────────── */
+  .ev-page * { box-sizing: border-box; }
+  .ev-page {
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', system-ui, sans-serif;
+    padding-bottom: 120px;
+  }
+
+  /* ── KEYFRAMES ──────────────────────────────────────────── */
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(28px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes orbFloat1 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50%      { transform: translate(40px,-30px) scale(1.1); }
+  }
+  @keyframes orbFloat2 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50%      { transform: translate(-35px,25px) scale(0.95); }
+  }
+  @keyframes orbFloat3 {
+    0%,100% { transform: translate(0,0) scale(1); }
+    33%      { transform: translate(20px,20px) scale(1.05); }
+    66%      { transform: translate(-20px,-15px) scale(0.98); }
+  }
+  @keyframes pulse-border {
+    0%,100% { border-color: rgba(236,72,153,0.2); }
+    50%      { border-color: rgba(236,72,153,0.5); }
+  }
+  @keyframes countdownPulse {
+    0%,100% { text-shadow: 0 0 10px rgba(236,72,153,0.4); }
+    50%      { text-shadow: 0 0 25px rgba(236,72,153,0.9); }
+  }
+
+  /* ── HERO HEADER ────────────────────────────────────────── */
+  .ev-hero {
+    position: relative;
+    overflow: hidden;
+    padding: 64px 32px 52px;
+    margin-bottom: 32px;
+    background: linear-gradient(135deg,
+      rgba(236,72,153,0.07) 0%,
+      rgba(10,10,15,0) 60%);
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* orb blobs */
+  .ev-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(70px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .ev-orb-1 {
+    width: 420px; height: 420px;
+    background: radial-gradient(circle, rgba(236,72,153,0.25) 0%, transparent 70%);
+    top: -100px; right: -80px;
+    animation: orbFloat1 9s ease-in-out infinite;
+  }
+  .ev-orb-2 {
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(190,24,93,0.18) 0%, transparent 70%);
+    bottom: -80px; left: 60px;
+    animation: orbFloat2 12s ease-in-out infinite;
+  }
+  .ev-orb-3 {
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(244,114,182,0.14) 0%, transparent 70%);
+    top: 20px; left: 38%;
+    animation: orbFloat3 15s ease-in-out infinite;
+  }
+
+  .ev-hero-inner {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+
+  .ev-hero-top {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 10px;
+    animation: fadeSlideUp 0.55s ease both;
+  }
+  .ev-hero-emoji {
+    font-size: 3rem;
+    filter: drop-shadow(0 0 16px rgba(236,72,153,0.6));
+    line-height: 1;
+  }
+  .ev-hero-title {
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(135deg, #fff 30%, var(--pink-light) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.1;
+  }
+  .ev-hero-desc {
+    font-size: 1rem;
+    color: var(--muted);
+    margin: 0 0 28px 0;
+    animation: fadeSlideUp 0.55s 0.1s ease both;
+  }
+
+  /* stat chips */
+  .ev-stat-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    animation: fadeSlideUp 0.55s 0.2s ease both;
+  }
+  .ev-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(236,72,153,0.08);
+    border: 1px solid rgba(236,72,153,0.22);
+    border-radius: 50px;
+    padding: 10px 20px;
+    backdrop-filter: blur(12px);
+    transition: all 0.25s;
+  }
+  .ev-chip:hover {
+    background: rgba(236,72,153,0.15);
+    border-color: var(--pink);
+    box-shadow: var(--glow);
+    transform: translateY(-2px);
+  }
+  .ev-chip-emoji { font-size: 1.2rem; }
+  .ev-chip-val {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: var(--pink-light);
+    line-height: 1;
+  }
+  .ev-chip-lbl {
+    font-size: 0.78rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+  }
+
+  /* ── GLASS PANEL ────────────────────────────────────────── */
+  .glass-panel {
+    background: var(--surface);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .glass-panel:hover {
+    border-color: rgba(236,72,153,0.3);
+    box-shadow: var(--shadow-pink);
+  }
+
+  /* ── WRAPPER ────────────────────────────────────────────── */
+  .ev-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ── NEXT EVENT HIGHLIGHT ───────────────────────────────── */
+  .next-event-highlight {
+    padding: 24px 28px;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+    animation: fadeSlideUp 0.55s 0.25s ease both;
+    background: linear-gradient(135deg,
+      rgba(236,72,153,0.1) 0%,
+      rgba(255,255,255,0.03) 100%);
+    border: 1px solid rgba(236,72,153,0.3);
+    animation: pulse-border 4s ease infinite, fadeSlideUp 0.55s 0.25s ease both;
+  }
+  .next-event-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .12em;
+    color: var(--pink);
+    margin-bottom: 14px;
+  }
+  .next-event-content {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  .next-event-icon {
+    font-size: 2.6rem;
+    filter: drop-shadow(0 0 10px rgba(236,72,153,0.5));
+    flex-shrink: 0;
+  }
+  .next-event-details { flex: 1; min-width: 160px; }
+  .next-event-details h3 {
+    margin: 0 0 6px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+  }
+  .next-event-meta {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    font-size: 0.85rem;
+    color: var(--muted);
+  }
+
+  /* countdown */
+  .countdown-timer {
+    display: flex;
+    gap: 12px;
+    margin-left: auto;
+  }
+  .countdown-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: rgba(236,72,153,0.1);
+    border: 1px solid rgba(236,72,153,0.25);
+    border-radius: var(--radius-sm);
+    padding: 10px 16px;
+    min-width: 60px;
+  }
+  .countdown-value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--pink-light);
+    line-height: 1;
+    animation: countdownPulse 2s ease infinite;
+  }
+  .countdown-label {
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    margin-top: 4px;
+  }
+
+  /* ── SEARCH & FILTERS ───────────────────────────────────── */
+  .search-filters {
+    padding: 18px 22px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-wrap: wrap;
+    animation: fadeSlideUp 0.55s 0.3s ease both;
+  }
+  .search-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 50px;
+    padding: 10px 18px;
+    flex: 1;
+    min-width: 200px;
+    transition: border-color 0.25s, box-shadow 0.25s;
+  }
+  .search-box:focus-within {
+    border-color: var(--pink);
+    box-shadow: 0 0 0 3px rgba(236,72,153,0.15);
+  }
+  .search-box svg { color: var(--muted); flex-shrink: 0; }
+  .search-box input {
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-size: 0.95rem;
+    width: 100%;
+  }
+  .search-box input::placeholder { color: var(--muted); }
+
+  .filter-tabs {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .filter-tab {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--muted);
+    border-radius: 50px;
+    padding: 8px 16px;
+    font-size: 0.88rem;
+    cursor: pointer;
+    transition: all 0.22s;
+    font-weight: 500;
+  }
+  .filter-tab:hover {
+    border-color: var(--pink);
+    color: var(--pink-light);
+    background: rgba(236,72,153,0.08);
+  }
+  .filter-tab.active {
+    background: linear-gradient(135deg, var(--pink-dark), var(--pink));
+    border-color: transparent;
+    color: #fff;
+    font-weight: 700;
+    box-shadow: 0 4px 14px rgba(236,72,153,0.35);
+  }
+
+  /* ── VIEW TABS ──────────────────────────────────────────── */
+  .view-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 24px;
+    animation: fadeSlideUp 0.55s 0.35s ease both;
+  }
+  .view-tab {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    border-radius: var(--radius-sm);
+    padding: 10px 22px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.22s;
+    font-weight: 500;
+    backdrop-filter: blur(12px);
+  }
+  .view-tab:hover {
+    border-color: var(--pink);
+    color: var(--pink-light);
+    background: rgba(236,72,153,0.07);
+  }
+  .view-tab.active {
+    background: linear-gradient(135deg, rgba(236,72,153,0.22), rgba(190,24,93,0.22));
+    border-color: var(--pink);
+    color: var(--pink-light);
+    font-weight: 700;
+    box-shadow: inset 0 0 20px rgba(236,72,153,0.08);
+  }
+
+  /* ── LAYOUT ─────────────────────────────────────────────── */
+  .eventos-layout {
+    display: grid;
+    grid-template-columns: 340px 1fr;
+    gap: 24px;
+    animation: fadeSlideUp 0.55s 0.4s ease both;
+  }
+  @media (max-width: 900px) {
+    .eventos-layout { grid-template-columns: 1fr; }
+  }
+
+  /* ── CALENDAR ───────────────────────────────────────────── */
+  .calendar-section {
+    padding: 24px;
+    align-self: start;
+    position: sticky;
+    top: 24px;
+  }
+  .calendar-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 18px;
+  }
+  #calendar-mes-ano {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--text);
+    letter-spacing: .03em;
+  }
+  .calendar-nav {
+    background: rgba(236,72,153,0.1);
+    border: 1px solid rgba(236,72,153,0.25);
+    color: var(--pink-light);
+    border-radius: 8px;
+    padding: 6px;
+    cursor: pointer;
+    display: flex;
+    transition: all 0.2s;
+  }
+  .calendar-nav:hover {
+    background: rgba(236,72,153,0.2);
+    box-shadow: 0 0 12px rgba(236,72,153,0.3);
+  }
+
+  .calendar-dias-semana {
+    display: grid;
+    grid-template-columns: repeat(7,1fr);
+    gap: 2px;
+    margin-bottom: 8px;
+  }
+  .calendar-dias-semana span {
+    text-align: center;
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    padding: 4px 0;
+  }
+
+  .calendar-dias {
+    display: grid;
+    grid-template-columns: repeat(7,1fr);
+    gap: 3px;
+  }
+  .calendar-dia {
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.82rem;
+    border-radius: 8px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.18s;
+    color: var(--text);
+    font-weight: 500;
+    gap: 2px;
+  }
+  .calendar-dia:hover:not(.empty) {
+    background: rgba(236,72,153,0.12);
+    color: var(--pink-light);
+  }
+  .calendar-dia.hoy {
+    background: linear-gradient(135deg, var(--pink-dark), var(--pink));
+    color: #fff;
+    font-weight: 800;
+    box-shadow: 0 4px 14px rgba(236,72,153,0.4);
+  }
+  .calendar-dia.con-evento .evento-dot {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .calendar-dia.empty { opacity: 0; pointer-events: none; }
+
+  /* mini agenda */
+  .mini-agenda {
+    margin-top: 22px;
+    border-top: 1px solid var(--border);
+    padding-top: 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .mini-agenda-section h4 {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--pink);
+    margin: 0 0 10px;
+  }
+  .mini-event {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 12px;
+    background: rgba(236,72,153,0.05);
+    border: 1px solid rgba(236,72,153,0.12);
+    border-radius: var(--radius-sm);
+    transition: all 0.2s;
+  }
+  .mini-event:hover {
+    background: rgba(236,72,153,0.1);
+    border-color: rgba(236,72,153,0.3);
+  }
+  .mini-time {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: var(--pink-light);
+    white-space: nowrap;
+  }
+  .mini-title {
+    font-size: 0.82rem;
+    color: var(--text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .no-mini-events {
+    font-size: 0.8rem;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* ── EVENTS LIST ────────────────────────────────────────── */
+  .eventos-list-section { padding: 28px; }
+  .section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 22px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(236,72,153,0.3), transparent);
+  }
+
+  .eventos-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  /* event card */
+  .evento-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    padding: 20px 22px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    backdrop-filter: blur(12px);
+    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .evento-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: linear-gradient(180deg, var(--pink), var(--pink-dark));
+    border-radius: 3px 0 0 3px;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+  .evento-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 40px rgba(236,72,153,0.2), var(--shadow-pink);
+    border-color: var(--border-hov);
+  }
+  .evento-card:hover::before { opacity: 1; }
+
+  /* date badge */
+  .evento-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: linear-gradient(135deg, rgba(236,72,153,0.15), rgba(190,24,93,0.15));
+    border: 1px solid rgba(236,72,153,0.3);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    flex-shrink: 0;
+    min-width: 54px;
+    text-align: center;
+  }
+  .date-day {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--pink-light);
+    line-height: 1;
+  }
+  .date-month {
+    font-size: 0.68rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--muted);
+    letter-spacing: .06em;
+    margin-top: 2px;
+  }
+
+  /* event info */
+  .evento-info { flex: 1; min-width: 0; }
+  .evento-category-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    border: 1px solid;
+    border-radius: 50px;
+    padding: 4px 10px;
+    margin-bottom: 8px;
+  }
+  .evento-info h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .evento-info p {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin: 0 0 10px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .evento-meta {
+    display: flex;
+    gap: 14px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .evento-time, .evento-location, .evento-reminder {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  .evento-time svg, .evento-location svg, .evento-reminder svg {
+    color: var(--pink);
+  }
+
+  /* actions */
+  .evento-actions {
+    display: flex;
+    gap: 8px;
+    flex-direction: column;
+    flex-shrink: 0;
+    align-items: center;
+  }
+  .btn-edit-event, .btn-delete-event {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    color: var(--muted);
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.22s;
+  }
+  .btn-edit-event:hover {
+    background: rgba(99,179,237,0.15);
+    border-color: rgba(99,179,237,0.4);
+    color: #63b3ed;
+    transform: scale(1.1);
+  }
+  .btn-delete-event:hover {
+    background: rgba(239,68,68,0.15);
+    border-color: rgba(239,68,68,0.4);
+    color: #ef4444;
+    transform: scale(1.1);
+  }
+  .evento-delete-form { margin: 0; padding: 0; }
+
+  /* empty state */
+  .no-eventos {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 60px 20px;
+    gap: 12px;
+  }
+  .no-eventos svg { color: var(--pink); opacity: 0.25; }
+  .no-eventos h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
+  }
+  .no-eventos p {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  /* ── FAB BUTTON ─────────────────────────────────────────── */
+  .fab-button {
+    position: fixed;
+    bottom: 36px;
+    right: 36px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: linear-gradient(135deg, var(--pink-dark), var(--pink), var(--pink-light));
+    background-size: 200% 200%;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 50px;
+    padding: 16px 28px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: .02em;
+    box-shadow: 0 8px 32px rgba(236,72,153,0.5);
+    transition: all 0.3s;
+    z-index: 100;
+    border: 1px solid rgba(255,255,255,0.2);
+    animation: fadeSlideUp 0.55s 0.5s ease both;
+  }
+  .fab-button:hover {
+    transform: translateY(-4px) scale(1.04);
+    box-shadow: 0 14px 45px rgba(236,72,153,0.65), 0 0 0 3px rgba(236,72,153,0.2);
+    color: #fff;
+  }
+  .fab-button svg { flex-shrink: 0; }
+
+  /* ── STATS LEGACY (compat) ──────────────────────────────── */
+  .stats-header, .stats-cards, .stat-card { display: none !important; }
+</style>
+
+<div class="ev-page">
+
+  <!-- ── HERO ──────────────────────────────────────────────── -->
+  <div class="ev-hero">
+    <div class="ev-orb ev-orb-1"></div>
+    <div class="ev-orb ev-orb-2"></div>
+    <div class="ev-orb ev-orb-3"></div>
+    <div class="ev-hero-inner">
+      <div class="ev-hero-top">
+        <span class="ev-hero-emoji">📅</span>
+        <h1 class="ev-hero-title">Mis Eventos</h1>
+      </div>
+      <p class="ev-hero-desc">Organiza y visualiza todos tus compromisos en un solo lugar.</p>
+      <div class="ev-stat-chips">
+        <div class="ev-chip">
+          <span class="ev-chip-emoji">📅</span>
+          <div>
+            <div class="ev-chip-val">{{ eventos_hoy.count }}</div>
+            <div class="ev-chip-lbl">Hoy</div>
+          </div>
+        </div>
+        <div class="ev-chip">
+          <span class="ev-chip-emoji">📆</span>
+          <div>
+            <div class="ev-chip-val">{{ eventos_semana.count }}</div>
+            <div class="ev-chip-lbl">Esta semana</div>
+          </div>
+        </div>
+        <div class="ev-chip">
+          <span class="ev-chip-emoji">🗓️</span>
+          <div>
+            <div class="ev-chip-val">{{ eventos_mes.count }}</div>
+            <div class="ev-chip-lbl">Este mes</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ev-content">
+
+    <!-- ── PRÓXIMO EVENTO ─────────────────────────────────── -->
     {% if proximo_evento %}
     <div class="next-event-highlight glass-panel">
         <div class="next-event-label">⏰ Próximo evento</div>
@@ -80,7 +821,7 @@
     </div>
     {% endif %}
 
-    <!-- Buscador y filtros -->
+    <!-- ── SEARCH & FILTERS ──────────────────────────────── -->
     <div class="search-filters glass-panel">
         <div class="search-box">
             <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
@@ -102,7 +843,7 @@
         </div>
     </div>
 
-    <!-- Vista tabs -->
+    <!-- ── VIEW TABS ─────────────────────────────────────── -->
     <div class="view-tabs">
         <button class="view-tab {% if vista == 'mes' %}active{% endif %}" onclick="changeView('mes')">
             📅 Mes
@@ -115,118 +856,121 @@
         </button>
     </div>
 
+    <!-- ── MAIN LAYOUT ───────────────────────────────────── -->
     <div class="eventos-layout">
-        <!-- Calendario -->
-        <div class="glass-panel calendar-section">
-            <div class="calendar-header">
-                <button onclick="cambiarMes(-1)" class="calendar-nav">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M15 6l-6 6l6 6"></path></svg>
-                </button>
-                <span id="calendar-mes-ano"></span>
-                <button onclick="cambiarMes(1)" class="calendar-nav">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M9 6l6 6l-6 6"></path></svg>
-                </button>
-            </div>
-            <div class="calendar-dias-semana">
-                <span>Dom</span><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span>
-            </div>
-            <div id="calendar-dias" class="calendar-dias"></div>
-            
-            <!-- Mini agenda -->
-            <div class="mini-agenda">
-                <div class="mini-agenda-section">
-                    <h4>📅 Hoy</h4>
-                    {% for evento in eventos_hoy_lista %}
-                    <div class="mini-event">
-                        <span class="mini-time">{{ evento.fecha|date:"H:i" }}</span>
-                        <span class="mini-title">{{ evento.get_categoria_emoji }} {{ evento.titulo }}</span>
-                    </div>
-                    {% empty %}
-                    <span class="no-mini-events">Sin eventos</span>
-                    {% endfor %}
-                </div>
-                <div class="mini-agenda-section">
-                    <h4>📅 Mañana</h4>
-                    {% for evento in eventos_manana %}
-                    <div class="mini-event">
-                        <span class="mini-time">{{ evento.fecha|date:"H:i" }}</span>
-                        <span class="mini-title">{{ evento.get_categoria_emoji }} {{ evento.titulo }}</span>
-                    </div>
-                    {% empty %}
-                    <span class="no-mini-events">Sin eventos</span>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-        
-        <!-- Lista de Eventos -->
-        <div class="glass-panel eventos-list-section">
-            <h3 class="section-title">⏰ Próximos eventos</h3>
-            
-            <div class="eventos-list">
-                {% for evento in proximos_eventos %}
-                <div class="evento-card" data-fecha="{{ evento.fecha|date:"Y-m-d" }}" data-categoria="{{ evento.categoria }}">
-                    <div class="evento-date">
-                        <span class="date-day">{{ evento.fecha|date:"d" }}</span>
-                        <span class="date-month">{{ evento.fecha|date:"M" }}</span>
-                    </div>
-                    <div class="evento-info">
-                        <div class="evento-category-badge" style="background: {{ evento.get_categoria_color }}20; border-color: {{ evento.get_categoria_color }}">
-                            {{ evento.get_categoria_emoji }} {{ evento.get_categoria|title }}
-                        </div>
-                        <h3>{{ evento.titulo }}</h3>
-                        {% if evento.descripcion %}
-                        <p>{{ evento.descripcion }}</p>
-                        {% endif %}
-                        <div class="evento-meta">
-                            <span class="evento-time">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock-hour-4" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path><path d="M12 12l3 2"></path><path d="M12 7v5"></path></svg>
-                                {{ evento.fecha|date:"H:i" }}
-                            </span>
-                            {% if evento.ubicacion %}
-                            <span class="evento-location">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-map-pin" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"></path><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z"></path></svg>
-                                {{ evento.ubicacion }}
-                            </span>
-                            {% endif %}
-                            {% if evento.recordatorio_activo %}
-                            <span class="evento-reminder">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-bell" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 5v9a1 1 0 0 1 -1 1h-10a1 1 0 0 1 -1 -1v-9a7 7 0 0 1 4 -5"></path><path d="M9 17v1a3 3 0 0 0 6 0v-1"></path></svg>
-                                {{ evento.recordatorio_minutos_antes }}min
-                            </span>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="evento-actions">
-                        <a href="{% url 'editar_evento' evento.id %}" class="btn-edit-event" title="Editar evento">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-pencil" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4"></path><path d="M13.5 6.5l4 4"></path></svg>
-                        </a>
-                        <form method="POST" action="{% url 'eliminar_evento' evento.id %}" class="evento-delete-form">
-                            {% csrf_token %}
-                            <button type="submit" class="btn-delete-event" onclick="return confirm('¿Eliminar este evento?')" title="Eliminar evento">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M4 7l16 0"></path><path d="M10 11l0 6"></path><path d="M14 11l0 6"></path><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path></svg>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-                {% empty %}
-                <div class="no-eventos">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar" width="64" height="64" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.3; margin-bottom: 20px;">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
-                        <path d="M16 3l0 4"></path>
-                        <path d="M8 3l0 4"></path>
-                        <path d="M4 11l16 0"></path>
-                    </svg>
-                    <h3>No tienes eventos próximos</h3>
-                    <p>Empieza creando uno nuevo para organizarte mejor</p>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-    </div>
 
-    <!-- Botón flotante para nuevo evento -->
+      <!-- Calendar -->
+      <div class="glass-panel calendar-section">
+          <div class="calendar-header">
+              <button onclick="cambiarMes(-1)" class="calendar-nav">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M15 6l-6 6l6 6"></path></svg>
+              </button>
+              <span id="calendar-mes-ano"></span>
+              <button onclick="cambiarMes(1)" class="calendar-nav">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M9 6l6 6l-6 6"></path></svg>
+              </button>
+          </div>
+          <div class="calendar-dias-semana">
+              <span>Dom</span><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span>
+          </div>
+          <div id="calendar-dias" class="calendar-dias"></div>
+
+          <!-- Mini agenda -->
+          <div class="mini-agenda">
+              <div class="mini-agenda-section">
+                  <h4>📅 Hoy</h4>
+                  {% for evento in eventos_hoy_lista %}
+                  <div class="mini-event">
+                      <span class="mini-time">{{ evento.fecha|date:"H:i" }}</span>
+                      <span class="mini-title">{{ evento.get_categoria_emoji }} {{ evento.titulo }}</span>
+                  </div>
+                  {% empty %}
+                  <span class="no-mini-events">Sin eventos</span>
+                  {% endfor %}
+              </div>
+              <div class="mini-agenda-section">
+                  <h4>📅 Mañana</h4>
+                  {% for evento in eventos_manana %}
+                  <div class="mini-event">
+                      <span class="mini-time">{{ evento.fecha|date:"H:i" }}</span>
+                      <span class="mini-title">{{ evento.get_categoria_emoji }} {{ evento.titulo }}</span>
+                  </div>
+                  {% empty %}
+                  <span class="no-mini-events">Sin eventos</span>
+                  {% endfor %}
+              </div>
+          </div>
+      </div>
+
+      <!-- Events list -->
+      <div class="glass-panel eventos-list-section">
+          <h3 class="section-title">⏰ Próximos eventos</h3>
+
+          <div class="eventos-list">
+              {% for evento in proximos_eventos %}
+              <div class="evento-card" data-fecha="{{ evento.fecha|date:"Y-m-d" }}" data-categoria="{{ evento.categoria }}">
+                  <div class="evento-date">
+                      <span class="date-day">{{ evento.fecha|date:"d" }}</span>
+                      <span class="date-month">{{ evento.fecha|date:"M" }}</span>
+                  </div>
+                  <div class="evento-info">
+                      <div class="evento-category-badge" style="background: {{ evento.get_categoria_color }}20; border-color: {{ evento.get_categoria_color }}">
+                          {{ evento.get_categoria_emoji }} {{ evento.get_categoria|title }}
+                      </div>
+                      <h3>{{ evento.titulo }}</h3>
+                      {% if evento.descripcion %}
+                      <p>{{ evento.descripcion }}</p>
+                      {% endif %}
+                      <div class="evento-meta">
+                          <span class="evento-time">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock-hour-4" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path><path d="M12 12l3 2"></path><path d="M12 7v5"></path></svg>
+                              {{ evento.fecha|date:"H:i" }}
+                          </span>
+                          {% if evento.ubicacion %}
+                          <span class="evento-location">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-map-pin" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"></path><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z"></path></svg>
+                              {{ evento.ubicacion }}
+                          </span>
+                          {% endif %}
+                          {% if evento.recordatorio_activo %}
+                          <span class="evento-reminder">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-bell" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 5v9a1 1 0 0 1 -1 1h-10a1 1 0 0 1 -1 -1v-9a7 7 0 0 1 4 -5"></path><path d="M9 17v1a3 3 0 0 0 6 0v-1"></path></svg>
+                              {{ evento.recordatorio_minutos_antes }}min
+                          </span>
+                          {% endif %}
+                      </div>
+                  </div>
+                  <div class="evento-actions">
+                      <a href="{% url 'editar_evento' evento.id %}" class="btn-edit-event" title="Editar evento">
+                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-pencil" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4"></path><path d="M13.5 6.5l4 4"></path></svg>
+                      </a>
+                      <form method="POST" action="{% url 'eliminar_evento' evento.id %}" class="evento-delete-form">
+                          {% csrf_token %}
+                          <button type="submit" class="btn-delete-event" onclick="return confirm('¿Eliminar este evento?')" title="Eliminar evento">
+                              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M4 7l16 0"></path><path d="M10 11l0 6"></path><path d="M14 11l0 6"></path><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path></svg>
+                          </button>
+                      </form>
+                  </div>
+              </div>
+              {% empty %}
+              <div class="no-eventos">
+                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar" width="64" height="64" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.3; margin-bottom: 20px;">
+                      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
+                      <path d="M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
+                      <path d="M16 3l0 4"></path>
+                      <path d="M8 3l0 4"></path>
+                      <path d="M4 11l16 0"></path>
+                  </svg>
+                  <h3>No tienes eventos próximos</h3>
+                  <p>Empieza creando uno nuevo para organizarte mejor</p>
+              </div>
+              {% endfor %}
+          </div>
+      </div>
+
+    </div><!-- /eventos-layout -->
+
+    <!-- ── FAB ───────────────────────────────────────────── -->
     <a href="{% url 'crear_evento' %}" class="fab-button">
         <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="32" height="32" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
             <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -235,7 +979,9 @@
         </svg>
         <span>Nuevo Evento</span>
     </a>
-</div>
+
+  </div><!-- /ev-content -->
+</div><!-- /ev-page -->
 {% endblock %}
 
 {% block extra_js %}

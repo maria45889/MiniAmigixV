@@ -127,6 +127,126 @@ body.light .history-title {
 {% endblock %}
 
 {% block content %}
+<style>
+    :root {
+        --accent:         #14b8a6;
+        --accent-light:   #2dd4bf;
+        --accent-dark:    #0f766e;
+        --bg:            #0a0a0f;
+        --surface:       rgba(255,255,255,0.04);
+        --surface-hov:   rgba(255,255,255,0.07);
+        --border:        rgba(255,255,255,0.1);
+        --border-hov:    #14b8a650;
+        --text:          #f1f5f9;
+        --muted:         #94a3b8;
+        --radius:        24px;
+        --shadow-accent: 0 0 40px #14b8a630;
+        --glow:          0 0 18px #14b8a680;
+    }
+
+    .traductor-page * { box-sizing: border-box; }
+    .traductor-page {
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'Inter', system-ui, sans-serif;
+        padding-bottom: 40px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .traductor-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        pointer-events: none;
+        z-index: 0;
+    }
+    .traductor-orb-1 {
+        width: 400px; height: 400px;
+        background: radial-gradient(circle, #14b8a633 0%, transparent 70%);
+        top: -100px; left: -100px;
+        animation: orbFloat1 10s ease-in-out infinite;
+    }
+    .traductor-orb-2 {
+        width: 350px; height: 350px;
+        background: radial-gradient(circle, #2dd4bf26 0%, transparent 70%);
+        bottom: -50px; right: -50px;
+        animation: orbFloat2 12s ease-in-out infinite;
+    }
+
+    @keyframes orbFloat1 {
+        0%,100% { transform: translate(0,0) scale(1); }
+        50%      { transform: translate(40px,40px) scale(1.1); }
+    }
+    @keyframes orbFloat2 {
+        0%,100% { transform: translate(0,0) scale(1); }
+        50%      { transform: translate(-40px,-40px) scale(0.9); }
+    }
+    @keyframes fadeSlideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .traductor-hero {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        padding: 40px 20px 20px;
+        animation: fadeSlideUp 0.5s ease both;
+    }
+    .traductor-hero h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #fff 30%, var(--accent-light) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 10px 0 5px;
+    }
+    .traductor-hero p { color: var(--muted); margin: 0; }
+
+    /* Glassmorphism Overrides */
+    .traductor-page > div:not(.traductor-hero):not(.traductor-orb) {
+        position: relative;
+        z-index: 1;
+        animation: fadeSlideUp 0.5s 0.2s ease both;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+    
+    .games-hero-banner, .translator-header, .movies-header, .stats-cards, .games-grid, .ticket-list, .translator-layout {
+        background: var(--surface) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: var(--radius) !important;
+        backdrop-filter: blur(20px) !important;
+        box-shadow: var(--shadow-accent) !important;
+        margin-bottom: 24px;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .game-card, .movie-card, .series-card, .ticket-card, .translator-box {
+        background: rgba(0,0,0,0.2) !important;
+        border: 1px solid rgba(255,255,255,0.05) !important;
+        border-radius: 16px !important;
+        transition: all 0.3s;
+    }
+    
+    .game-card:hover, .movie-card:hover, .series-card:hover, .ticket-card:hover {
+        border-color: var(--accent) !important;
+        background: #14b8a60D !important;
+        transform: translateY(-4px) !important;
+    }
+    
+    .hero-continue-btn, .btn-primary, .translate-btn {
+        background: linear-gradient(135deg, var(--accent), var(--accent-light)) !important;
+        color: #fff !important;
+        border: none !important;
+        box-shadow: var(--glow) !important;
+        border-radius: 12px !important;
+        font-weight: 700 !important;
+    }
+</style>
 <div class="traductor-wrapper">
 
     <!-- Header -->

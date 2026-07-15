@@ -5,782 +5,1050 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/modules/profile.css' %}?v=6">
-<style>
-.perfil-container.modern {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 30px;
-    background: radial-gradient(circle at top, rgba(124, 58, 237, 0.13), transparent 35%),
-                radial-gradient(circle at bottom, rgba(37, 99, 235, 0.13), transparent 40%),
-                #09090f;
-    min-height: 100vh;
-}
-
-.perfil-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 25px;
-}
-
-.perfil-card {
-    background: rgba(17, 24, 39, 0.7);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 20px;
-    padding: 25px;
-    transition: all 0.3s ease;
-}
-
-.perfil-card:hover {
-    border-color: rgba(124, 58, 237, 0.3);
-    box-shadow: 0 8px 30px rgba(124, 58, 237, 0.15);
-}
-
-.card-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.card-title {
-    font-size: 1.3rem;
-    font-weight: 700;
-    color: #f8fafc;
-    margin: 0;
-}
-
-.card-full {
-    grid-column: 1 / -1;
-}
-
-/* Header Card */
-.perfil-header-card {
-    text-align: center;
-    padding: 40px;
-}
-
-.perfil-avatar-large {
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 5px solid rgba(124, 58, 237, 0.5);
-    box-shadow: 0 0 40px rgba(124, 58, 237, 0.4);
-    margin-bottom: 20px;
-    transition: transform 0.3s ease;
-}
-
-.perfil-avatar-large:hover {
-    transform: scale(1.05) rotate(-3deg);
-}
-
-.perfil-avatar-large.placeholder {
-    background: linear-gradient(135deg, #7c3aed, #06b6d4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 4rem;
-}
-
-.perfil-username-large {
-    font-size: 2.5rem;
-    font-weight: 800;
-    background: linear-gradient(135deg, #f8fafc, #c084fc);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 10px;
-}
-
-.perfil-bio-large {
-    color: #94a3b8;
-    font-size: 1.1rem;
-    margin-bottom: 20px;
-    line-height: 1.6;
-    font-style: italic;
-}
-
-.perfil-info-row {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-    flex-wrap: wrap;
-    margin-bottom: 20px;
-}
-
-.info-badge {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 8px 16px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 20px;
-    color: #e2e8f0;
-    font-size: 0.9rem;
-}
-
-.online-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    background: rgba(16, 185, 129, 0.2);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    border-radius: 20px;
-    color: #10b981;
-    font-size: 0.85rem;
-    font-weight: 600;
-}
-
-.online-dot {
-    width: 8px;
-    height: 8px;
-    background: #10b981;
-    border-radius: 50%;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-}
-
-/* Stats Grid */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-    gap: 15px;
-}
-
-.stat-item {
-    text-align: center;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 16px;
-    transition: all 0.3s ease;
-}
-
-.stat-item:hover {
-    background: rgba(255, 255, 255, 0.06);
-    transform: translateY(-3px);
-}
-
-.stat-icon-wrapper {
-    font-size: 2rem;
-    margin-bottom: 10px;
-}
-
-.stat-number {
-    font-size: 2rem;
-    font-weight: 800;
-    color: #f8fafc;
-    margin-bottom: 5px;
-}
-
-.stat-label {
-    color: #94a3b8;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-/* Level Progress */
-.level-section {
-    margin-bottom: 25px;
-}
-
-.level-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 10px;
-}
-
-.level-badge {
-    background: linear-gradient(135deg, #7c3aed, #a855f7);
-    padding: 8px 20px;
-    border-radius: 20px;
-    font-weight: 700;
-    color: white;
-    font-size: 1.1rem;
-}
-
-.level-xp {
-    color: #94a3b8;
-    font-size: 0.9rem;
-}
-
-.progress-bar {
-    height: 12px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 6px;
-    overflow: hidden;
-}
-
-.progress-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #7c3aed, #06b6d4);
-    border-radius: 6px;
-    transition: width 0.5s ease;
-}
-
-/* Achievements */
-.achievements-list {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 15px;
-}
-
-.achievement-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 15px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    transition: all 0.3s ease;
-}
-
-.achievement-item:hover {
-    background: rgba(255, 255, 255, 0.06);
-    transform: translateX(5px);
-}
-
-.achievement-icon {
-    font-size: 2rem;
-}
-
-.achievement-info h4 {
-    margin: 0 0 5px 0;
-    color: #f8fafc;
-    font-size: 0.95rem;
-}
-
-.achievement-info p {
-    margin: 0;
-    color: #94a3b8;
-    font-size: 0.8rem;
-}
-
-.achievement-locked {
-    opacity: 0.5;
-    filter: grayscale(1);
-}
-
-/* Activity Feed */
-.activity-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.activity-item {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 15px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    transition: all 0.3s ease;
-}
-
-.activity-item:hover {
-    background: rgba(255, 255, 255, 0.06);
-}
-
-.activity-icon {
-    width: 45px;
-    height: 45px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.3rem;
-    flex-shrink: 0;
-}
-
-.activity-details {
-    flex: 1;
-}
-
-.activity-details h4 {
-    margin: 0 0 5px 0;
-    color: #f8fafc;
-    font-size: 0.95rem;
-}
-
-.activity-details p {
-    margin: 0;
-    color: #94a3b8;
-    font-size: 0.8rem;
-}
-
-.activity-time {
-    color: #64748b;
-    font-size: 0.75rem;
-    white-space: nowrap;
-}
-
-/* Preferences */
-.preferences-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-}
-
-.preference-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 15px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-}
-
-.preference-icon {
-    font-size: 1.5rem;
-}
-
-.preference-info h4 {
-    margin: 0 0 3px 0;
-    color: #f8fafc;
-    font-size: 0.9rem;
-}
-
-.preference-info p {
-    margin: 0;
-    color: #94a3b8;
-    font-size: 0.8rem;
-}
-
-/* Account Info */
-.account-info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 15px;
-}
-
-.account-info-item {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    padding: 15px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-}
-
-.account-info-icon {
-    font-size: 1.5rem;
-}
-
-.account-info-details h4 {
-    margin: 0 0 5px 0;
-    color: #94a3b8;
-    font-size: 0.85rem;
-    text-transform: uppercase;
-}
-
-.account-info-details p {
-    margin: 0;
-    color: #f8fafc;
-    font-size: 1rem;
-    font-weight: 600;
-}
-
-/* Security Section */
-.security-list {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.security-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 15px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-radius: 12px;
-    transition: all 0.3s ease;
-}
-
-.security-item:hover {
-    background: rgba(255, 255, 255, 0.06);
-}
-
-.security-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.security-icon {
-    font-size: 1.3rem;
-}
-
-.security-info h4 {
-    margin: 0;
-    color: #f8fafc;
-    font-size: 0.95rem;
-}
-
-.security-action {
-    color: #7c3aed;
-    font-size: 0.9rem;
-    font-weight: 600;
-    text-decoration: none;
-    transition: color 0.3s;
-}
-
-.security-action:hover {
-    color: #a855f7;
-}
-
-/* Bio Prompt */
-.bio-prompt-card {
-    background: rgba(6, 182, 212, 0.1);
-    border: 1px dashed rgba(6, 182, 212, 0.3);
-    border-radius: 16px;
-    padding: 25px;
-    text-align: center;
-}
-
-.bio-prompt-card i {
-    font-size: 2rem;
-    color: #06b6d4;
-    margin-bottom: 15px;
-}
-
-.bio-prompt-card p {
-    color: #e2e8f0;
-    margin-bottom: 15px;
-}
-
-.bio-prompt-card a {
-    color: #06b6d4;
-    text-decoration: none;
-    font-weight: 600;
-}
-
-.bio-prompt-card a:hover {
-    text-decoration: underline;
-}
-
-@media (max-width: 1024px) {
-    .perfil-grid {
-        grid-template-columns: 1fr;
-    }
-}
-
-@media (max-width: 768px) {
-    .perfil-container.modern {
-        padding: 15px;
-    }
-    
-    .perfil-header-card {
-        padding: 25px;
-    }
-    
-    .perfil-avatar-large {
-        width: 100px;
-        height: 100px;
-    }
-    
-    .perfil-username-large {
-        font-size: 1.8rem;
-    }
-    
-    .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-}
-</style>
 {% endblock %}
 
 {% block content %}
-<div class="perfil-container modern">
+<style>
+    :root {
+        --accent:         #eab308;
+        --accent-light:   #fde047;
+        --accent-dark:    #ca8a04;
+        --bg:            #0a0a0f;
+        --surface:       rgba(255,255,255,0.04);
+        --surface-hov:   rgba(255,255,255,0.07);
+        --border:        rgba(255,255,255,0.1);
+        --border-hov:    #eab30850;
+        --text:          #f1f5f9;
+        --muted:         #94a3b8;
+        --radius:        24px;
+        --shadow-accent: 0 0 40px #eab30830;
+        --glow:          0 0 18px #eab30880;
+    }
+
+    .perfil-page * { box-sizing: border-box; }
+    .perfil-page {
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'Inter', system-ui, sans-serif;
+        padding-bottom: 40px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .perfil-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        pointer-events: none;
+        z-index: 0;
+    }
+    .perfil-orb-1 {
+        width: 400px; height: 400px;
+        background: radial-gradient(circle, #eab30833 0%, transparent 70%);
+        top: -100px; left: -100px;
+        animation: orbFloat1 10s ease-in-out infinite;
+    }
+    .perfil-orb-2 {
+        width: 350px; height: 350px;
+        background: radial-gradient(circle, #fde04726 0%, transparent 70%);
+        bottom: -50px; right: -50px;
+        animation: orbFloat2 12s ease-in-out infinite;
+    }
+
+    @keyframes orbFloat1 {
+        0%,100% { transform: translate(0,0) scale(1); }
+        50%      { transform: translate(40px,40px) scale(1.1); }
+    }
+    @keyframes orbFloat2 {
+        0%,100% { transform: translate(0,0) scale(1); }
+        50%      { transform: translate(-40px,-40px) scale(0.9); }
+    }
+    @keyframes fadeSlideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .perfil-hero {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        padding: 40px 20px 20px;
+        animation: fadeSlideUp 0.5s ease both;
+    }
+    .perfil-hero h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #fff 30%, var(--accent-light) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 10px 0 5px;
+    }
+    .perfil-hero p { color: var(--muted); margin: 0; }
+
+    /* Glassmorphism Overrides */
+    .perfil-page > div:not(.perfil-hero):not(.perfil-orb) {
+        position: relative;
+        z-index: 1;
+        animation: fadeSlideUp 0.5s 0.2s ease both;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+    
+    .weather-dashboard, .notifications-container, .profile-card, .profile-stats, .profile-recent-activity, .weather-current, .weather-details, .weather-forecast, .notification-card {
+        background: var(--surface) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: var(--radius) !important;
+        backdrop-filter: blur(20px) !important;
+        box-shadow: var(--shadow-accent) !important;
+        margin-bottom: 24px;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .weather-current:hover, .weather-details:hover, .weather-forecast:hover, .notification-card:hover {
+        border-color: var(--accent) !important;
+        background: #eab3080D !important;
+        transform: translateY(-4px) !important;
+    }
+    
+    .btn-primary, .mark-all-read, .edit-profile-btn {
+        background: linear-gradient(135deg, var(--accent), var(--accent-light)) !important;
+        color: #fff !important;
+        border: none !important;
+        box-shadow: var(--glow) !important;
+        border-radius: 12px !important;
+        font-weight: 700 !important;
+    }
+</style>
+<style>
+  /* ── Google Font ── */
+  @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+
+  /* ── Reset & Base ── */
+  .perfil-wrap * { box-sizing: border-box; }
+  .perfil-wrap { font-family: 'Outfit', sans-serif; }
+
+  /* ── Animations ── */
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(32px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes orbFloat {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50%       { transform: translateY(-30px) scale(1.06); }
+  }
+  @keyframes spin-slow {
+    to { transform: rotate(360deg); }
+  }
+  @keyframes pulse-gold {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(234,179,8,.55); }
+    50%       { box-shadow: 0 0 0 18px rgba(234,179,8,0); }
+  }
+  @keyframes shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position:  200% center; }
+  }
+  @keyframes pulseGreen {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50%       { opacity: .55; transform: scale(1.35); }
+  }
+  @keyframes progressGrow {
+    from { width: 0%; }
+  }
+
+  /* ── Page wrapper ── */
+  .perfil-wrap {
+    position: relative;
+    min-height: 100vh;
+    background: #0a0a0f;
+    overflow-x: hidden;
+    padding: 40px 20px 60px;
+  }
+
+  /* ── Golden orb blobs ── */
+  .perfil-wrap .orb {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(90px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .orb-1 {
+    width: 520px; height: 520px;
+    background: radial-gradient(circle, rgba(234,179,8,.22) 0%, transparent 70%);
+    top: -160px; right: -120px;
+    animation: orbFloat 9s ease-in-out infinite;
+  }
+  .orb-2 {
+    width: 380px; height: 380px;
+    background: radial-gradient(circle, rgba(234,179,8,.14) 0%, transparent 70%);
+    bottom: 5%; left: -80px;
+    animation: orbFloat 12s ease-in-out infinite reverse;
+  }
+  .orb-3 {
+    width: 280px; height: 280px;
+    background: radial-gradient(circle, rgba(245,158,11,.12) 0%, transparent 70%);
+    top: 40%; left: 45%;
+    animation: orbFloat 15s ease-in-out infinite;
+  }
+
+  /* ── Layout ── */
+  .perfil-container {
+    position: relative;
+    z-index: 1;
+    max-width: 1360px;
+    margin: 0 auto;
+  }
+
+  .perfil-bento {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: auto;
+    gap: 20px;
+  }
+
+  /* ── Glass card base ── */
+  .g-card {
+    background: rgba(15,15,25,.72);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border: 1px solid rgba(234,179,8,.13);
+    border-radius: 22px;
+    padding: 28px;
+    transition: border-color .35s, box-shadow .35s, transform .35s;
+    animation: fadeSlideUp .55s ease both;
+  }
+  .g-card:hover {
+    border-color: rgba(234,179,8,.38);
+    box-shadow: 0 12px 48px rgba(234,179,8,.12);
+    transform: translateY(-4px);
+  }
+
+  /* stagger delays */
+  .g-card:nth-child(1)  { animation-delay: .05s; }
+  .g-card:nth-child(2)  { animation-delay: .10s; }
+  .g-card:nth-child(3)  { animation-delay: .15s; }
+  .g-card:nth-child(4)  { animation-delay: .20s; }
+  .g-card:nth-child(5)  { animation-delay: .25s; }
+  .g-card:nth-child(6)  { animation-delay: .30s; }
+  .g-card:nth-child(7)  { animation-delay: .35s; }
+  .g-card:nth-child(8)  { animation-delay: .40s; }
+  .g-card:nth-child(9)  { animation-delay: .45s; }
+  .g-card:nth-child(10) { animation-delay: .50s; }
+
+  /* span helpers */
+  .col-span-3 { grid-column: 1 / -1; }
+  .col-span-2 { grid-column: span 2; }
+  .col-span-1 { grid-column: span 1; }
+
+  /* ── Card header ── */
+  .c-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 22px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid rgba(234,179,8,.12);
+  }
+  .c-header-icon {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: rgba(234,179,8,.12);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem;
+  }
+  .c-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #fef9c3;
+    margin: 0;
+    letter-spacing: .3px;
+  }
+
+  /* ══════════════════════════════════
+     HEADER CARD
+  ══════════════════════════════════ */
+  .header-card {
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg,
+      rgba(120,80,0,.55) 0%,
+      rgba(234,179,8,.28) 40%,
+      rgba(15,15,25,.85) 80%
+    );
+    border-color: rgba(234,179,8,.35);
+    text-align: center;
+    padding: 50px 40px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .header-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23eab308' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    pointer-events: none;
+    opacity: .6;
+  }
+  .header-card:hover { transform: none; box-shadow: 0 16px 60px rgba(234,179,8,.18); }
+
+  /* Avatar */
+  .avatar-ring {
+    position: relative;
+    width: 150px; height: 150px;
+    margin: 0 auto 24px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .avatar-ring::before {
+    content: '';
+    position: absolute;
+    inset: -5px;
+    border-radius: 50%;
+    background: conic-gradient(#eab308, #fbbf24, #f59e0b, #eab308);
+    animation: spin-slow 4s linear infinite;
+  }
+  .avatar-ring::after {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 50%;
+    background: #0a0a0f;
+  }
+  .perfil-avatar-large {
+    width: 140px; height: 140px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid rgba(234,179,8,.6);
+    position: relative;
+    z-index: 1;
+    animation: pulse-gold 3s ease-in-out infinite;
+    transition: transform .35s;
+  }
+  .perfil-avatar-large:hover { transform: scale(1.07) rotate(-3deg); }
+  .perfil-avatar-large.placeholder {
+    background: linear-gradient(135deg, #92400e, #eab308);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 4rem;
+  }
+
+  /* Username */
+  .perfil-username-large {
+    font-size: 2.6rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #fef9c3 0%, #eab308 45%, #f59e0b 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s linear infinite;
+    margin-bottom: 10px;
+    line-height: 1.1;
+  }
+  .perfil-bio-large {
+    color: #d4b96a;
+    font-size: 1.05rem;
+    font-style: italic;
+    margin-bottom: 22px;
+    max-width: 560px;
+    margin-left: auto; margin-right: auto;
+    line-height: 1.7;
+  }
+
+  /* Badges row */
+  .perfil-info-row {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .info-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 16px;
+    background: rgba(234,179,8,.1);
+    border: 1px solid rgba(234,179,8,.25);
+    border-radius: 30px;
+    color: #fde68a;
+    font-size: .88rem;
+    font-weight: 500;
+  }
+  .online-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 16px;
+    background: rgba(16,185,129,.15);
+    border: 1px solid rgba(16,185,129,.3);
+    border-radius: 30px;
+    color: #6ee7b7;
+    font-size: .88rem;
+    font-weight: 600;
+  }
+  .online-dot {
+    width: 8px; height: 8px;
+    background: #10b981;
+    border-radius: 50%;
+    animation: pulseGreen 2s ease-in-out infinite;
+  }
+
+  /* Edit button */
+  .btn-edit-modern {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 13px 34px;
+    background: linear-gradient(135deg, #ca8a04 0%, #eab308 50%, #f59e0b 100%);
+    color: #0a0a0f;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 800;
+    font-size: .97rem;
+    border-radius: 50px;
+    text-decoration: none;
+    letter-spacing: .4px;
+    transition: all .3s;
+    box-shadow: 0 6px 24px rgba(234,179,8,.35);
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-edit-modern::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,.18) 50%, transparent 100%);
+    transform: translateX(-100%);
+    transition: transform .45s;
+  }
+  .btn-edit-modern:hover::after { transform: translateX(100%); }
+  .btn-edit-modern:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 36px rgba(234,179,8,.5);
+  }
+
+  /* ══════════════════════════════════
+     LEVEL CARD
+  ══════════════════════════════════ */
+  .level-section { margin-bottom: 0; }
+  .level-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+  }
+  .level-badge {
+    background: linear-gradient(135deg, #92400e, #eab308);
+    padding: 8px 22px;
+    border-radius: 30px;
+    font-weight: 800;
+    font-size: 1.05rem;
+    color: #0a0a0f;
+    letter-spacing: .3px;
+  }
+  .level-xp {
+    color: #d4b96a;
+    font-size: .9rem;
+    font-weight: 500;
+  }
+  .progress-bar {
+    height: 13px;
+    background: rgba(234,179,8,.1);
+    border: 1px solid rgba(234,179,8,.2);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #92400e, #eab308, #fbbf24);
+    border-radius: 8px;
+    animation: progressGrow .9s ease .3s both;
+    box-shadow: 0 0 12px rgba(234,179,8,.45);
+  }
+
+  /* ══════════════════════════════════
+     STATS GRID
+  ══════════════════════════════════ */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+  .stat-item {
+    text-align: center;
+    padding: 18px 10px;
+    background: rgba(234,179,8,.06);
+    border: 1px solid rgba(234,179,8,.12);
+    border-radius: 16px;
+    transition: all .3s;
+    cursor: default;
+  }
+  .stat-item:hover {
+    background: rgba(234,179,8,.12);
+    border-color: rgba(234,179,8,.35);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(234,179,8,.15);
+  }
+  .stat-icon-wrapper { font-size: 1.7rem; margin-bottom: 8px; }
+  .stat-number {
+    font-size: 1.9rem;
+    font-weight: 900;
+    color: #fef9c3;
+    line-height: 1;
+    margin-bottom: 5px;
+  }
+  .stat-label {
+    color: #a78533;
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    font-weight: 600;
+  }
+
+  /* ══════════════════════════════════
+     ACHIEVEMENTS
+  ══════════════════════════════════ */
+  .achievements-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 14px;
+  }
+  .achievement-item {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    padding: 15px;
+    background: rgba(234,179,8,.06);
+    border: 1px solid rgba(234,179,8,.18);
+    border-radius: 15px;
+    transition: all .3s;
+  }
+  .achievement-item:hover {
+    background: rgba(234,179,8,.13);
+    border-color: rgba(234,179,8,.4);
+    transform: translateX(5px);
+    box-shadow: 0 4px 20px rgba(234,179,8,.12);
+  }
+  .achievement-icon { font-size: 1.9rem; }
+  .achievement-info h4 {
+    margin: 0 0 4px;
+    color: #fef9c3;
+    font-size: .92rem;
+    font-weight: 700;
+  }
+  .achievement-info p {
+    margin: 0;
+    color: #a78533;
+    font-size: .78rem;
+  }
+  .achievement-locked { opacity: .45; filter: grayscale(.8); }
+
+  /* ══════════════════════════════════
+     ACTIVITY FEED
+  ══════════════════════════════════ */
+  .activity-list { display: flex; flex-direction: column; gap: 10px; }
+  .activity-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px;
+    background: rgba(234,179,8,.05);
+    border: 1px solid rgba(234,179,8,.10);
+    border-radius: 14px;
+    transition: all .3s;
+  }
+  .activity-item:hover {
+    background: rgba(234,179,8,.1);
+    border-color: rgba(234,179,8,.28);
+  }
+  .activity-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+    background: rgba(234,179,8,.12);
+    border: 1px solid rgba(234,179,8,.2);
+  }
+  .activity-details { flex: 1; }
+  .activity-details h4 { margin: 0 0 4px; color: #fef9c3; font-size: .92rem; font-weight: 700; }
+  .activity-details p  { margin: 0; color: #a78533; font-size: .8rem; }
+  .activity-time { color: #6b5800; font-size: .74rem; white-space: nowrap; font-weight: 500; }
+
+  /* ══════════════════════════════════
+     PREFERENCES
+  ══════════════════════════════════ */
+  .preferences-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  .preference-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: rgba(234,179,8,.06);
+    border: 1px solid rgba(234,179,8,.12);
+    border-radius: 14px;
+    transition: all .3s;
+  }
+  .preference-item:hover {
+    background: rgba(234,179,8,.11);
+    border-color: rgba(234,179,8,.3);
+  }
+  .preference-icon { font-size: 1.5rem; }
+  .preference-info h4 { margin: 0 0 3px; color: #fef9c3; font-size: .88rem; font-weight: 700; }
+  .preference-info p  { margin: 0; color: #a78533; font-size: .8rem; }
+
+  /* ══════════════════════════════════
+     ACCOUNT INFO
+  ══════════════════════════════════ */
+  .account-info-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .account-info-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 16px;
+    background: rgba(234,179,8,.06);
+    border: 1px solid rgba(234,179,8,.12);
+    border-radius: 14px;
+    transition: all .3s;
+  }
+  .account-info-item:hover {
+    background: rgba(234,179,8,.11);
+    border-color: rgba(234,179,8,.3);
+  }
+  .account-info-icon { font-size: 1.5rem; }
+  .account-info-details h4 {
+    margin: 0 0 4px;
+    color: #a78533;
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .8px;
+    font-weight: 600;
+  }
+  .account-info-details p {
+    margin: 0;
+    color: #fef9c3;
+    font-size: .95rem;
+    font-weight: 700;
+  }
+
+  /* ══════════════════════════════════
+     SECURITY
+  ══════════════════════════════════ */
+  .security-list { display: flex; flex-direction: column; gap: 10px; }
+  .security-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    background: rgba(234,179,8,.06);
+    border: 1px solid rgba(234,179,8,.1);
+    border-radius: 14px;
+    transition: all .3s;
+  }
+  .security-item:hover {
+    background: rgba(234,179,8,.11);
+    border-color: rgba(234,179,8,.28);
+  }
+  .security-info { display: flex; align-items: center; gap: 12px; }
+  .security-icon { font-size: 1.3rem; }
+  .security-info h4 { margin: 0; color: #fef9c3; font-size: .93rem; font-weight: 700; }
+  .security-action {
+    color: #eab308;
+    font-size: .88rem;
+    font-weight: 700;
+    text-decoration: none;
+    padding: 5px 14px;
+    border: 1px solid rgba(234,179,8,.3);
+    border-radius: 20px;
+    transition: all .3s;
+  }
+  .security-action:hover {
+    background: rgba(234,179,8,.15);
+    border-color: rgba(234,179,8,.6);
+    color: #fef9c3;
+  }
+
+  /* ══════════════════════════════════
+     BIO PROMPT
+  ══════════════════════════════════ */
+  .bio-prompt-card {
+    grid-column: 1 / -1;
+    background: rgba(234,179,8,.07);
+    border: 1.5px dashed rgba(234,179,8,.35);
+    border-radius: 20px;
+    padding: 32px;
+    text-align: center;
+    transition: all .3s;
+  }
+  .bio-prompt-card:hover {
+    background: rgba(234,179,8,.12);
+    border-color: rgba(234,179,8,.6);
+    transform: none;
+    box-shadow: 0 8px 32px rgba(234,179,8,.12);
+  }
+  .bio-prompt-card i { font-size: 2.2rem; color: #eab308; margin-bottom: 14px; display: block; }
+  .bio-prompt-card p { color: #d4b96a; margin-bottom: 16px; font-size: 1rem; }
+  .bio-prompt-card a {
+    color: #0a0a0f;
+    background: linear-gradient(135deg, #ca8a04, #eab308);
+    padding: 9px 24px;
+    border-radius: 30px;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: .9rem;
+    transition: all .3s;
+    display: inline-block;
+  }
+  .bio-prompt-card a:hover {
+    box-shadow: 0 6px 20px rgba(234,179,8,.4);
+    transform: translateY(-2px);
+  }
+
+  /* ══════════════════════════════════
+     NOT LOGGED IN
+  ══════════════════════════════════ */
+  .no-login-card {
+    text-align: center;
+    padding: 60px;
+  }
+  .no-login-card i { font-size: 3.5rem; color: #a78533; margin-bottom: 18px; display: block; }
+  .no-login-card h2 { color: #fef9c3; margin-bottom: 10px; font-size: 1.7rem; }
+  .no-login-card p  { color: #a78533; margin-bottom: 24px; }
+
+  /* ══════════════════════════════════
+     SECTION LABEL
+  ══════════════════════════════════ */
+  .section-label {
+    grid-column: 1 / -1;
+    font-size: .78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.8px;
+    color: rgba(234,179,8,.5);
+    padding: 4px 0 0;
+    margin: 0;
+  }
+
+  /* ══════════════════════════════════
+     RESPONSIVE
+  ══════════════════════════════════ */
+  @media (max-width: 1100px) {
+    .perfil-bento { grid-template-columns: 1fr 1fr; }
+    .col-span-2   { grid-column: span 2; }
+  }
+  @media (max-width: 700px) {
+    .perfil-bento { grid-template-columns: 1fr; }
+    .col-span-2, .col-span-3 { grid-column: 1; }
+    .perfil-wrap  { padding: 20px 14px 40px; }
+    .header-card  { padding: 36px 20px 28px; }
+    .perfil-username-large { font-size: 2rem; }
+    .stats-grid   { grid-template-columns: repeat(2, 1fr); }
+    .preferences-grid { grid-template-columns: 1fr; }
+    .avatar-ring  { width: 120px; height: 120px; }
+    .perfil-avatar-large { width: 112px; height: 112px; }
+  }
+</style>
+
+<!-- ▸ Golden orbs -->
+<div class="perfil-wrap">
+  <span class="orb orb-1"></span>
+  <span class="orb orb-2"></span>
+  <span class="orb orb-3"></span>
+
+  <div class="perfil-container">
     {% if perfil %}
-    <div class="perfil-grid">
-        
-        <!-- Header Card -->
-        <div class="perfil-card card-full perfil-header-card">
-            <div class="perfil-avatar-wrapper">
-                {% if perfil.avatar %}
-                <img src="{{ perfil.avatar.url }}" class="perfil-avatar-large">
+    <div class="perfil-bento">
+
+      <!-- ════════ HEADER ════════ -->
+      <div class="g-card header-card">
+        <div class="avatar-ring">
+          {% if perfil.avatar %}
+          <img src="{{ perfil.avatar.url }}" class="perfil-avatar-large" alt="avatar">
+          {% else %}
+          <div class="perfil-avatar-large placeholder">👤</div>
+          {% endif %}
+        </div>
+
+        <h1 class="perfil-username-large">{{ perfil.usuario.username }}</h1>
+        <p class="perfil-bio-large">
+          {% if perfil.bio %}
+          "{{ perfil.bio }}"
+          {% else %}
+          <em>Sin biografía</em>
+          {% endif %}
+        </p>
+
+        <div class="perfil-info-row">
+          {% if perfil.ubicacion %}
+          <span class="info-badge">📍 {{ perfil.ubicacion }}</span>
+          {% endif %}
+          <span class="info-badge">📅 Miembro desde {{ perfil.creado|date:"M Y" }}</span>
+          <span class="online-status">
+            <span class="online-dot"></span>
+            En línea
+          </span>
+        </div>
+
+        <a href="{% url 'editar_perfil' %}" class="btn-edit-modern">
+          <i data-lucide="edit-3"></i> Editar Perfil
+        </a>
+      </div>
+
+      <!-- ════════ SECTION: Progreso ════════ -->
+      <p class="section-label">⚡ Progreso &amp; Estadísticas</p>
+
+      <!-- Level -->
+      <div class="g-card col-span-1">
+        <div class="c-header">
+          <div class="c-header-icon">🏆</div>
+          <h3 class="c-title">Nivel</h3>
+        </div>
+        <div class="level-section">
+          <div class="level-header">
+            <span class="level-badge">Nivel {{ perfil.nivel }}</span>
+            <span class="level-xp">{{ perfil.experiencia }} / {{ perfil.experiencia_siguiente_nivel }} XP</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" style="width: {{ progreso_nivel }}%;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="g-card col-span-2">
+        <div class="c-header">
+          <div class="c-header-icon">📊</div>
+          <h3 class="c-title">Estadísticas</h3>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-item">
+            <div class="stat-icon-wrapper">📅</div>
+            <div class="stat-number">{{ total_eventos }}</div>
+            <div class="stat-label">Eventos</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-icon-wrapper">🔔</div>
+            <div class="stat-number">{{ total_notificaciones }}</div>
+            <div class="stat-label">Alertas</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-icon-wrapper">🔥</div>
+            <div class="stat-number">{{ dias_activo }}</div>
+            <div class="stat-label">Días activos</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-icon-wrapper">💬</div>
+            <div class="stat-number">{{ total_chats }}</div>
+            <div class="stat-label">Chats IA</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-icon-wrapper">🎵</div>
+            <div class="stat-number">{{ total_canciones }}</div>
+            <div class="stat-label">Canciones</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-icon-wrapper">🎮</div>
+            <div class="stat-number">{{ total_juegos }}</div>
+            <div class="stat-label">Juegos</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ════════ SECTION: Logros & Actividad ════════ -->
+      <p class="section-label">🏅 Logros &amp; Actividad</p>
+
+      <!-- Achievements -->
+      <div class="g-card col-span-2">
+        <div class="c-header">
+          <div class="c-header-icon">🥇</div>
+          <h3 class="c-title">Logros</h3>
+        </div>
+        <div class="achievements-list">
+          {% if logros_desbloqueados %}
+            {% for logro_usuario in logros_desbloqueados %}
+            <div class="achievement-item">
+              <div class="achievement-icon">{{ logro_usuario.logro.icono }}</div>
+              <div class="achievement-info">
+                <h4>{{ logro_usuario.logro.nombre }}</h4>
+                <p>{{ logro_usuario.logro.descripcion }}</p>
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="achievement-item achievement-locked">
+              <div class="achievement-icon">🔒</div>
+              <div class="achievement-info">
+                <h4>Sin logros</h4>
+                <p>Usa la aplicación para desbloquear logros</p>
+              </div>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="g-card col-span-1">
+        <div class="c-header">
+          <div class="c-header-icon">⏱️</div>
+          <h3 class="c-title">Actividad Reciente</h3>
+        </div>
+        <div class="activity-list">
+          {% if actividades_recientes %}
+            {% for actividad in actividades_recientes %}
+            <div class="activity-item">
+              <div class="activity-icon">
+                {% if actividad.tipo_actividad == 'chat' %}🤖
+                {% elif actividad.tipo_actividad == 'musica' %}🎵
+                {% elif actividad.tipo_actividad == 'evento' %}📅
+                {% elif actividad.tipo_actividad == 'juego' %}🎮
+                {% elif actividad.tipo_actividad == 'estudio' %}📚
+                {% elif actividad.tipo_actividad == 'traduccion' %}🌍
+                {% elif actividad.tipo_actividad == 'blog' %}📝
+                {% else %}⭐
+                {% endif %}
+              </div>
+              <div class="activity-details">
+                <h4>{{ actividad.get_tipo_actividad_display }}</h4>
+                <p>{{ actividad.descripcion|default:"Actividad registrada" }}</p>
+              </div>
+              <div class="activity-time">
+                {% if actividad.fecha|timesince %}
+                Hace {{ actividad.fecha|timesince }}
                 {% else %}
-                <div class="perfil-avatar-large placeholder">👤</div>
+                Justo ahora
                 {% endif %}
+              </div>
             </div>
-            <h1 class="perfil-username-large">{{ perfil.usuario.username }}</h1>
-            <p class="perfil-bio-large">
-                {% if perfil.bio %}
-                "{{ perfil.bio }}"
-                {% else %}
-                <em>Sin biografía</em>
-                {% endif %}
-            </p>
-            
-            <div class="perfil-info-row">
-                {% if perfil.ubicacion %}
-                <span class="info-badge">📍 {{ perfil.ubicacion }}</span>
-                {% endif %}
-                <span class="info-badge">📅 Miembro desde {{ perfil.creado|date:"M Y" }}</span>
-                <span class="online-status">
-                    <span class="online-dot"></span>
-                    En línea
-                </span>
+            {% endfor %}
+          {% else %}
+            <div class="activity-item">
+              <div class="activity-icon">📋</div>
+              <div class="activity-details">
+                <h4>Sin actividad</h4>
+                <p>Comienza a usar la aplicación</p>
+              </div>
             </div>
-            
-            <a href="{% url 'editar_perfil' %}" class="btn-edit-modern">
-                <i data-lucide="edit-3"></i> Editar Perfil
-            </a>
+          {% endif %}
         </div>
-        
-        <!-- Level Progress -->
-        <div class="perfil-card">
-            <div class="card-header">
-                <i data-lucide="trophy" style="color: #7c3aed;"></i>
-                <h3 class="card-title">Nivel</h3>
-            </div>
-            <div class="level-section">
-                <div class="level-header">
-                    <span class="level-badge">Nivel {{ perfil.nivel }}</span>
-                    <span class="level-xp">{{ perfil.experiencia }} / {{ perfil.experiencia_siguiente_nivel }} XP</span>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: {{ progreso_nivel }}%;"></div>
-                </div>
-            </div>
+      </div>
+
+      <!-- ════════ SECTION: Configuración ════════ -->
+      <p class="section-label">⚙️ Configuración &amp; Cuenta</p>
+
+      <!-- Preferences -->
+      <div class="g-card col-span-1">
+        <div class="c-header">
+          <div class="c-header-icon">🎨</div>
+          <h3 class="c-title">Preferencias</h3>
         </div>
-        
-        <!-- Stats -->
-        <div class="perfil-card">
-            <div class="card-header">
-                <i data-lucide="bar-chart-2" style="color: #06b6d4;"></i>
-                <h3 class="card-title">Estadísticas</h3>
+        <div class="preferences-grid">
+          <div class="preference-item">
+            <div class="preference-icon">🌙</div>
+            <div class="preference-info">
+              <h4>Tema</h4>
+              <p>{{ perfil.get_tema_display }}</p>
             </div>
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-icon-wrapper">📅</div>
-                    <div class="stat-number">{{ total_eventos }}</div>
-                    <div class="stat-label">Eventos</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-icon-wrapper">🔔</div>
-                    <div class="stat-number">{{ total_notificaciones }}</div>
-                    <div class="stat-label">Alertas</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-icon-wrapper">🔥</div>
-                    <div class="stat-number">{{ dias_activo }}</div>
-                    <div class="stat-label">Días activos</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-icon-wrapper">💬</div>
-                    <div class="stat-number">{{ total_chats }}</div>
-                    <div class="stat-label">Chats IA</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-icon-wrapper">🎵</div>
-                    <div class="stat-number">{{ total_canciones }}</div>
-                    <div class="stat-label">Canciones</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-icon-wrapper">🎮</div>
-                    <div class="stat-number">{{ total_juegos }}</div>
-                    <div class="stat-label">Juegos</div>
-                </div>
+          </div>
+          <div class="preference-item">
+            <div class="preference-icon">🌎</div>
+            <div class="preference-info">
+              <h4>Idioma</h4>
+              <p>{{ perfil.idioma|upper }}</p>
             </div>
+          </div>
+          <div class="preference-item">
+            <div class="preference-icon">🎨</div>
+            <div class="preference-info">
+              <h4>Color</h4>
+              <p>{{ perfil.get_color_acento_display }}</p>
+            </div>
+          </div>
+          <div class="preference-item">
+            <div class="preference-icon">⏰</div>
+            <div class="preference-info">
+              <h4>Reloj</h4>
+              <p>{{ perfil.get_formato_reloj_display }}</p>
+            </div>
+          </div>
         </div>
-        
-        <!-- Achievements -->
-        <div class="perfil-card">
-            <div class="card-header">
-                <i data-lucide="award" style="color: #f59e0b;"></i>
-                <h3 class="card-title">Logros</h3>
-            </div>
-            <div class="achievements-list">
-                {% if logros_desbloqueados %}
-                    {% for logro_usuario in logros_desbloqueados %}
-                    <div class="achievement-item">
-                        <div class="achievement-icon">{{ logro_usuario.logro.icono }}</div>
-                        <div class="achievement-info">
-                            <h4>{{ logro_usuario.logro.nombre }}</h4>
-                            <p>{{ logro_usuario.logro.descripcion }}</p>
-                        </div>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="achievement-item achievement-locked">
-                        <div class="achievement-icon">🔒</div>
-                        <div class="achievement-info">
-                            <h4>Sin logros</h4>
-                            <p>Usa la aplicación para desbloquear logros</p>
-                        </div>
-                    </div>
-                {% endif %}
-            </div>
+      </div>
+
+      <!-- Account Info -->
+      <div class="g-card col-span-1">
+        <div class="c-header">
+          <div class="c-header-icon">👤</div>
+          <h3 class="c-title">Cuenta</h3>
         </div>
-        
-        <!-- Recent Activity -->
-        <div class="perfil-card">
-            <div class="card-header">
-                <i data-lucide="clock" style="color: #10b981;"></i>
-                <h3 class="card-title">Actividad Reciente</h3>
+        <div class="account-info-grid">
+          <div class="account-info-item">
+            <div class="account-info-icon">📧</div>
+            <div class="account-info-details">
+              <h4>Correo</h4>
+              <p>{{ perfil.usuario.email|default:"No configurado" }}</p>
             </div>
-            <div class="activity-list">
-                {% if actividades_recientes %}
-                    {% for actividad in actividades_recientes %}
-                    <div class="activity-item">
-                        <div class="activity-icon" style="background: rgba(124, 58, 237, 0.2);">
-                            {% if actividad.tipo_actividad == 'chat' %}🤖
-                            {% elif actividad.tipo_actividad == 'musica' %}🎵
-                            {% elif actividad.tipo_actividad == 'evento' %}📅
-                            {% elif actividad.tipo_actividad == 'juego' %}🎮
-                            {% elif actividad.tipo_actividad == 'estudio' %}📚
-                            {% elif actividad.tipo_actividad == 'traduccion' %}🌍
-                            {% elif actividad.tipo_actividad == 'blog' %}📝
-                            {% else %}⭐
-                            {% endif %}
-                        </div>
-                        <div class="activity-details">
-                            <h4>{{ actividad.get_tipo_actividad_display }}</h4>
-                            <p>{{ actividad.descripcion|default:"Actividad registrada" }}</p>
-                        </div>
-                        <div class="activity-time">
-                            {% if actividad.fecha|timesince %}
-                            Hace {{ actividad.fecha|timesince }}
-                            {% else %}
-                            Justo ahora
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% endfor %}
-                {% else %}
-                    <div class="activity-item">
-                        <div class="activity-icon" style="background: rgba(148, 163, 184, 0.2);">📋</div>
-                        <div class="activity-details">
-                            <h4>Sin actividad</h4>
-                            <p>Comienza a usar la aplicación</p>
-                        </div>
-                    </div>
-                {% endif %}
+          </div>
+          <div class="account-info-item">
+            <div class="account-info-icon">📅</div>
+            <div class="account-info-details">
+              <h4>Miembro desde</h4>
+              <p>{{ perfil.creado|date:"d M Y" }}</p>
             </div>
+          </div>
         </div>
-        
-        <!-- Preferences -->
-        <div class="perfil-card">
-            <div class="card-header">
-                <i data-lucide="settings" style="color: #8b5cf6;"></i>
-                <h3 class="card-title">Preferencias</h3>
-            </div>
-            <div class="preferences-grid">
-                <div class="preference-item">
-                    <div class="preference-icon">🌙</div>
-                    <div class="preference-info">
-                        <h4>Tema</h4>
-                        <p>{{ perfil.get_tema_display }}</p>
-                    </div>
-                </div>
-                <div class="preference-item">
-                    <div class="preference-icon">🌎</div>
-                    <div class="preference-info">
-                        <h4>Idioma</h4>
-                        <p>{{ perfil.idioma|upper }}</p>
-                    </div>
-                </div>
-                <div class="preference-item">
-                    <div class="preference-icon">🎨</div>
-                    <div class="preference-info">
-                        <h4>Color</h4>
-                        <p>{{ perfil.get_color_acento_display }}</p>
-                    </div>
-                </div>
-                <div class="preference-item">
-                    <div class="preference-icon">⏰</div>
-                    <div class="preference-info">
-                        <h4>Reloj</h4>
-                        <p>{{ perfil.get_formato_reloj_display }}</p>
-                    </div>
-                </div>
-            </div>
+      </div>
+
+      <!-- Security -->
+      <div class="g-card col-span-1">
+        <div class="c-header">
+          <div class="c-header-icon">🛡️</div>
+          <h3 class="c-title">Seguridad</h3>
         </div>
-        
-        <!-- Account Info -->
-        <div class="perfil-card">
-            <div class="card-header">
-                <i data-lucide="user" style="color: #6366f1;"></i>
-                <h3 class="card-title">Cuenta</h3>
+        <div class="security-list">
+          <div class="security-item">
+            <div class="security-info">
+              <div class="security-icon">🔒</div>
+              <h4>Cambiar contraseña</h4>
             </div>
-            <div class="account-info-grid">
-                <div class="account-info-item">
-                    <div class="account-info-icon">📧</div>
-                    <div class="account-info-details">
-                        <h4>Correo</h4>
-                        <p>{{ perfil.usuario.email|default:"No configurado" }}</p>
-                    </div>
-                </div>
-                <div class="account-info-item">
-                    <div class="account-info-icon">📅</div>
-                    <div class="account-info-details">
-                        <h4>Miembro desde</h4>
-                        <p>{{ perfil.creado|date:"d M Y" }}</p>
-                    </div>
-                </div>
+            <a href="{% url 'account_reset_password' %}" class="security-action">Cambiar</a>
+          </div>
+          <div class="security-item">
+            <div class="security-info">
+              <div class="security-icon">📱</div>
+              <h4>Sesiones activas</h4>
             </div>
+            <span class="security-action">1 sesión</span>
+          </div>
         </div>
-        
-        <!-- Security -->
-        <div class="perfil-card">
-            <div class="card-header">
-                <i data-lucide="shield" style="color: #ef4444;"></i>
-                <h3 class="card-title">Seguridad</h3>
-            </div>
-            <div class="security-list">
-                <div class="security-item">
-                    <div class="security-info">
-                        <div class="security-icon">🔒</div>
-                        <h4>Cambiar contraseña</h4>
-                    </div>
-                    <a href="{% url 'account_reset_password' %}" class="security-action">Cambiar</a>
-                </div>
-                <div class="security-item">
-                    <div class="security-info">
-                        <div class="security-icon">📱</div>
-                        <h4>Sesiones activas</h4>
-                    </div>
-                    <span class="security-action">1 sesión</span>
-                </div>
-            </div>
-        </div>
-        
-        {% if not perfil.bio %}
-        <!-- Bio Prompt -->
-        <div class="perfil-card card-full bio-prompt-card">
-            <i data-lucide="sparkles"></i>
-            <p>Todavía no tienes una biografía. Cuéntales a los demás quién eres.</p>
-            <a href="{% url 'editar_perfil' %}">Agregar biografía</a>
-        </div>
-        {% endif %}
-        
-    </div>
+      </div>
+
+      <!-- Bio Prompt -->
+      {% if not perfil.bio %}
+      <div class="g-card bio-prompt-card">
+        <i data-lucide="sparkles"></i>
+        <p>Todavía no tienes una biografía. Cuéntales a los demás quién eres.</p>
+        <a href="{% url 'editar_perfil' %}">Agregar biografía</a>
+      </div>
+      {% endif %}
+
+    </div><!-- /perfil-bento -->
+
     {% else %}
-    <div class="perfil-card" style="text-align: center; padding: 50px;">
-        <i data-lucide="user-x" style="font-size: 4rem; color: #94a3b8; margin-bottom: 20px;"></i>
-        <h2 style="color: #f8fafc; margin-bottom: 10px;">No has iniciado sesión</h2>
-        <p style="color: #94a3b8; margin-bottom: 20px;">Inicia sesión para ver tu perfil</p>
-        <a href="{% url 'login' %}" class="btn-edit-modern">Iniciar Sesión</a>
+    <!-- Not logged in -->
+    <div class="g-card no-login-card">
+      <i data-lucide="user-x"></i>
+      <h2>No has iniciado sesión</h2>
+      <p>Inicia sesión para ver tu perfil</p>
+      <a href="{% url 'login' %}" class="btn-edit-modern">Iniciar Sesión</a>
     </div>
     {% endif %}
-</div>
+
+  </div><!-- /perfil-container -->
+</div><!-- /perfil-wrap -->
 {% endblock %}

@@ -6,6 +6,7 @@
 {% block extra_head %}
 <meta charset="UTF-8">
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 {% endblock %}
 
 {% block extra_css %}
@@ -13,178 +14,951 @@
 {% endblock %}
 
 {% block content %}
-<div class="blog-container">
-    {% if messages %}
-    <div class="messages">
-        {% for message in messages %}
-        <div class="alert alert-{{ message.tags }}">
-            {{ message }}
+<style>
+  /* ── Reset & Base ─────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  .blog-wrapper {
+    font-family: 'Inter', sans-serif;
+    background: #0a0a0f;
+    min-height: 100vh;
+    color: #e2e8f0;
+    padding-bottom: 80px;
+  }
+
+  /* ── Messages ─────────────────────────────────────────── */
+  .blog-messages {
+    position: fixed;
+    top: 80px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .alert {
+    padding: 14px 20px;
+    border-radius: 12px;
+    font-size: 0.88rem;
+    font-weight: 500;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(99,102,241,0.4);
+    background: rgba(99,102,241,0.15);
+    color: #c7d2fe;
+    animation: slideInRight 0.4s ease forwards;
+    max-width: 340px;
+  }
+  .alert-success { border-color: rgba(52,211,153,0.4); background: rgba(52,211,153,0.1); color: #6ee7b7; }
+  .alert-error   { border-color: rgba(248,113,113,0.4); background: rgba(248,113,113,0.1); color: #fca5a5; }
+
+  /* ── Hero ─────────────────────────────────────────────── */
+  .blog-hero {
+    position: relative;
+    overflow: hidden;
+    padding: 90px 24px 70px;
+    text-align: center;
+  }
+  .hero-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    animation: float 8s ease-in-out infinite;
+  }
+  .hero-orb-1 {
+    width: 520px; height: 520px;
+    background: radial-gradient(circle, rgba(99,102,241,0.35) 0%, transparent 70%);
+    top: -160px; left: -120px;
+    animation-delay: 0s;
+  }
+  .hero-orb-2 {
+    width: 420px; height: 420px;
+    background: radial-gradient(circle, rgba(139,92,246,0.28) 0%, transparent 70%);
+    top: -80px; right: -100px;
+    animation-delay: -3s;
+  }
+  .hero-orb-3 {
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(79,70,229,0.22) 0%, transparent 70%);
+    bottom: -60px; left: 50%;
+    transform: translateX(-50%);
+    animation-delay: -5s;
+  }
+  .hero-inner { position: relative; z-index: 2; }
+  .hero-emoji {
+    font-size: 4rem;
+    display: inline-block;
+    margin-bottom: 16px;
+    animation: bounceIn 0.8s cubic-bezier(0.36,0.07,0.19,0.97) both;
+    filter: drop-shadow(0 0 30px rgba(99,102,241,0.6));
+  }
+  .hero-title {
+    font-size: clamp(2.4rem, 6vw, 4rem);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #a5b4fc 0%, #818cf8 40%, #6366f1 70%, #4f46e5 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 14px;
+  }
+  .hero-subtitle {
+    font-size: 1.1rem;
+    color: #94a3b8;
+    font-weight: 400;
+    margin-bottom: 32px;
+    letter-spacing: 0.01em;
+  }
+  .hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 36px;
+  }
+  .stat-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+    font-weight: 600;
+    backdrop-filter: blur(16px);
+    background: rgba(99,102,241,0.12);
+    border: 1px solid rgba(99,102,241,0.35);
+    color: #a5b4fc;
+    letter-spacing: 0.02em;
+  }
+  .stat-chip .chip-icon { font-size: 1rem; }
+
+  /* ── Create-post button ───────────────────────────────── */
+  .btn-new-post {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 14px 32px;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: #fff;
+    border: none;
+    border-radius: 999px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+    box-shadow: 0 8px 32px rgba(99,102,241,0.45), 0 0 0 1px rgba(165,180,252,0.15);
+    letter-spacing: 0.02em;
+  }
+  .btn-new-post:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 14px 40px rgba(99,102,241,0.6), 0 0 0 1px rgba(165,180,252,0.25);
+    filter: brightness(1.08);
+  }
+  .btn-new-post:active { transform: translateY(0) scale(0.98); }
+
+  /* ── Create-post form panel ───────────────────────────── */
+  .create-post-panel {
+    max-width: 760px;
+    margin: 0 auto 48px;
+    padding: 0 24px;
+    animation: fadeSlideUp 0.5s ease both;
+  }
+  .create-post-form-inner {
+    background: rgba(15,15,25,0.85);
+    backdrop-filter: blur(24px);
+    border: 1px solid rgba(99,102,241,0.3);
+    border-radius: 20px;
+    padding: 36px 32px;
+    box-shadow: 0 0 60px rgba(99,102,241,0.08), 0 4px 32px rgba(0,0,0,0.5);
+  }
+  .create-post-form-inner h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #a5b4fc;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .form-group {
+    margin-bottom: 20px;
+  }
+  .form-group label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #94a3b8;
+    margin-bottom: 7px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .form-group input[type="text"],
+  .form-group textarea,
+  .form-group select {
+    width: 100%;
+    background: rgba(99,102,241,0.06);
+    border: 1px solid rgba(99,102,241,0.25);
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: #e2e8f0;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.9rem;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+    outline: none;
+    resize: vertical;
+  }
+  .form-group input[type="text"]:focus,
+  .form-group textarea:focus,
+  .form-group select:focus {
+    border-color: rgba(99,102,241,0.7);
+    background: rgba(99,102,241,0.1);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+  }
+  .form-group select option { background: #1e1e2e; color: #e2e8f0; }
+  .form-group input[type="file"] {
+    color: #94a3b8;
+    font-size: 0.85rem;
+    padding: 10px 0;
+    cursor: pointer;
+  }
+  .form-group-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .form-group-check label {
+    font-size: 0.88rem;
+    font-weight: 500;
+    color: #94a3b8;
+    cursor: pointer;
+    letter-spacing: 0;
+    text-transform: none;
+  }
+  .form-group-check input[type="checkbox"] {
+    width: 17px;
+    height: 17px;
+    accent-color: #6366f1;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .form-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(99,102,241,0.15);
+  }
+  .btn-cancel {
+    padding: 11px 24px;
+    background: rgba(99,102,241,0.08);
+    border: 1px solid rgba(99,102,241,0.25);
+    border-radius: 10px;
+    color: #94a3b8;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-cancel:hover { background: rgba(99,102,241,0.15); color: #c7d2fe; }
+  .btn-submit {
+    padding: 11px 28px;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 0.88rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 4px 16px rgba(99,102,241,0.4);
+  }
+  .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(99,102,241,0.55); }
+
+  /* ── Page layout ─────────────────────────────────────── */
+  .blog-main { max-width: 1240px; margin: 0 auto; padding: 0 24px; }
+
+  /* ── Section headers ─────────────────────────────────── */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .section-icon {
+    width: 42px; height: 42px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(99,102,241,0.25) 0%, rgba(79,70,229,0.15) 100%);
+    border: 1px solid rgba(99,102,241,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+  }
+  .section-title {
+    font-size: 1.35rem;
+    font-weight: 800;
+    color: #e2e8f0;
+    letter-spacing: -0.02em;
+  }
+  .section-divider {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(99,102,241,0.3) 0%, transparent 100%);
+    margin-left: 8px;
+  }
+
+  /* ── Blog sections spacing ───────────────────────────── */
+  .blog-section { margin-bottom: 64px; }
+
+  /* ── Posts grid ─────────────────────────────────────── */
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 24px;
+  }
+
+  /* ── Post card ──────────────────────────────────────── */
+  .post-card {
+    background: rgba(15,15,26,0.8);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(99,102,241,0.18);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+    animation: fadeSlideUp 0.5s ease both;
+    position: relative;
+  }
+  .post-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(99,102,241,0.5);
+    box-shadow: 0 20px 60px rgba(99,102,241,0.18), 0 0 0 1px rgba(99,102,241,0.2);
+  }
+  .post-card.pinned {
+    border-color: rgba(99,102,241,0.5);
+    box-shadow: 0 0 0 1px rgba(99,102,241,0.25), 0 8px 32px rgba(99,102,241,0.12);
+  }
+  /* stagger delays */
+  .post-card:nth-child(1) { animation-delay: 0.05s; }
+  .post-card:nth-child(2) { animation-delay: 0.10s; }
+  .post-card:nth-child(3) { animation-delay: 0.15s; }
+  .post-card:nth-child(4) { animation-delay: 0.20s; }
+  .post-card:nth-child(5) { animation-delay: 0.25s; }
+  .post-card:nth-child(6) { animation-delay: 0.30s; }
+
+  /* Pinned badge */
+  .pinned-badge {
+    position: absolute;
+    top: 14px; right: 14px;
+    z-index: 5;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 12px;
+    background: rgba(99,102,241,0.85);
+    backdrop-filter: blur(8px);
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* Post image */
+  .post-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.4s ease;
+  }
+  .post-card:hover .post-image { transform: scale(1.04); }
+  .post-image-wrapper {
+    overflow: hidden;
+    position: relative;
+  }
+  .post-image-wrapper::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 60px;
+    background: linear-gradient(to top, rgba(15,15,26,0.9) 0%, transparent 100%);
+    pointer-events: none;
+  }
+
+  /* Post content area */
+  .post-content { padding: 22px 22px 18px; }
+
+  .post-category {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 4px 12px;
+    background: rgba(99,102,241,0.12);
+    border: 1px solid rgba(99,102,241,0.25);
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #a5b4fc;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .post-content h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    line-height: 1.4;
+    margin-bottom: 10px;
+    letter-spacing: -0.01em;
+  }
+
+  .post-excerpt {
+    font-size: 0.87rem;
+    color: #64748b;
+    line-height: 1.65;
+    margin-bottom: 16px;
+  }
+
+  /* Post meta */
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 0.78rem;
+    color: #475569;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .post-meta span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .meta-avatar {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: #fff;
+    flex-shrink: 0;
+  }
+
+  /* Post actions */
+  .post-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-top: 14px;
+    border-top: 1px solid rgba(99,102,241,0.1);
+  }
+  .btn-read-more {
+    flex: 1;
+    padding: 9px 16px;
+    background: rgba(99,102,241,0.1);
+    border: 1px solid rgba(99,102,241,0.25);
+    border-radius: 10px;
+    color: #a5b4fc;
+    font-size: 0.82rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+  }
+  .btn-read-more:hover {
+    background: rgba(99,102,241,0.2);
+    border-color: rgba(99,102,241,0.5);
+    color: #c7d2fe;
+  }
+  .btn-delete {
+    width: 36px; height: 36px;
+    border-radius: 10px;
+    background: rgba(239,68,68,0.08);
+    border: 1px solid rgba(239,68,68,0.2);
+    color: #f87171;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    font-size: 0.9rem;
+  }
+  .btn-delete:hover {
+    background: rgba(239,68,68,0.18);
+    border-color: rgba(239,68,68,0.45);
+    transform: scale(1.1);
+  }
+
+  /* Full content expand */
+  .post-full-content {
+    margin-top: 18px;
+    padding: 18px;
+    background: rgba(99,102,241,0.05);
+    border: 1px solid rgba(99,102,241,0.15);
+    border-radius: 12px;
+    font-size: 0.87rem;
+    color: #94a3b8;
+    line-height: 1.75;
+    animation: fadeSlideUp 0.3s ease both;
+  }
+  .post-full-content p { margin-bottom: 8px; }
+
+  /* ── Comments ─────────────────────────────────────────── */
+  .comments-section { margin-top: 20px; }
+  .comments-label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #475569;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .comments-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 14px; }
+  .comment {
+    background: rgba(99,102,241,0.05);
+    border: 1px solid rgba(99,102,241,0.12);
+    border-radius: 12px;
+    padding: 12px 14px;
+    animation: fadeSlideUp 0.3s ease both;
+  }
+  .comment-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    gap: 8px;
+  }
+  .comment-header strong {
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #a5b4fc;
+  }
+  .comment-header span {
+    font-size: 0.72rem;
+    color: #475569;
+  }
+  .comment p {
+    font-size: 0.83rem;
+    color: #94a3b8;
+    line-height: 1.55;
+  }
+  .no-comments {
+    font-size: 0.8rem;
+    color: #334155;
+    text-align: center;
+    padding: 10px 0;
+  }
+
+  /* Comment form */
+  .comment-form {
+    display: flex;
+    gap: 8px;
+    align-items: flex-end;
+  }
+  .comment-form textarea {
+    flex: 1;
+    background: rgba(99,102,241,0.06);
+    border: 1px solid rgba(99,102,241,0.2);
+    border-radius: 10px;
+    padding: 10px 14px;
+    color: #e2e8f0;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.83rem;
+    resize: none;
+    min-height: 42px;
+    max-height: 100px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    overflow: hidden;
+    line-height: 1.5;
+  }
+  .comment-form textarea:focus {
+    border-color: rgba(99,102,241,0.55);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+  }
+  .comment-form button {
+    padding: 10px 18px;
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    border: none;
+    border-radius: 10px;
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+    font-family: 'Inter', sans-serif;
+    box-shadow: 0 4px 14px rgba(99,102,241,0.35);
+    flex-shrink: 0;
+  }
+  .comment-form button:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99,102,241,0.5); }
+
+  /* ── Empty state ─────────────────────────────────────── */
+  .no-posts {
+    grid-column: 1/-1;
+    text-align: center;
+    padding: 60px 20px;
+    color: #334155;
+    font-size: 0.9rem;
+    background: rgba(99,102,241,0.04);
+    border: 1px dashed rgba(99,102,241,0.2);
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+  }
+  .no-posts::before { content: '📭'; font-size: 2.4rem; }
+
+  /* ── Keyframes ───────────────────────────────────────── */
+  @keyframes fadeSlideUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0) scale(1); }
+    50%       { transform: translateY(-22px) scale(1.04); }
+  }
+  @keyframes bounceIn {
+    0%   { transform: scale(0.3); opacity: 0; }
+    50%  { transform: scale(1.1); }
+    70%  { transform: scale(0.95); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes slideInRight {
+    from { opacity: 0; transform: translateX(40px); }
+    to   { opacity: 1; transform: translateX(0); }
+  }
+
+  /* ── Responsive ──────────────────────────────────────── */
+  @media (max-width: 640px) {
+    .posts-grid { grid-template-columns: 1fr; }
+    .create-post-form-inner { padding: 24px 18px; }
+    .blog-hero { padding: 70px 16px 50px; }
+  }
+
+  /* ── Formulario Modal ─────────────────────────────────── */
+  .create-post-panel {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(99,102,241,0.2);
+    border-radius: 20px;
+    margin-bottom: 40px;
+    backdrop-filter: blur(20px);
+    overflow: hidden;
+    animation: fadeSlideUp 0.4s ease;
+  }
+  .create-post-form-inner {
+    padding: 30px;
+  }
+  .create-post-form-inner h3 {
+    font-size: 1.5rem;
+    color: #e2e8f0;
+    margin-bottom: 24px;
+    border-bottom: 1px solid rgba(99,102,241,0.15);
+    padding-bottom: 15px;
+  }
+  .form-group label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #a5b4fc;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  .form-group input[type="text"],
+  .form-group textarea,
+  .form-group select {
+    width: 100%;
+    background: rgba(0,0,0,0.3);
+    border: 1px solid rgba(99,102,241,0.2);
+    border-radius: 12px;
+    padding: 14px 16px;
+    color: #f1f5f9;
+    font-size: 1rem;
+    margin-bottom: 20px;
+    transition: all 0.3s;
+    outline: none;
+    font-family: 'Inter', sans-serif;
+  }
+  .form-group input[type="text"]:focus,
+  .form-group textarea:focus,
+  .form-group select:focus {
+    border-color: rgba(99,102,241,0.6);
+    background: rgba(99,102,241,0.05);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.15);
+  }
+  .form-group input[type="file"] {
+    background: rgba(255,255,255,0.05);
+    padding: 10px;
+    border-radius: 12px;
+    border: 1px dashed rgba(99,102,241,0.4);
+    width: 100%;
+    color: #a5b4fc;
+    margin-bottom: 20px;
+  }
+  .form-group-check {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .form-group-check input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #6366f1;
+  }
+  .form-group-check label {
+    font-size: 0.95rem;
+    color: #e2e8f0;
+  }
+  .form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    margin-top: 30px;
+  }
+  .btn-cancel {
+    background: rgba(255,255,255,0.1);
+    color: #e2e8f0;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-cancel:hover { background: rgba(255,255,255,0.15); }
+  .btn-submit {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: #fff;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(99,102,241,0.4);
+    transition: all 0.2s;
+  }
+  .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99,102,241,0.5); }
+</style>
+
+
+<div class="blog-wrapper">
+
+  <!-- ── Messages ── -->
+  {% if messages %}
+  <div class="blog-messages">
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- ── Hero ── -->
+  <div class="blog-hero">
+    <div class="hero-orb hero-orb-1"></div>
+    <div class="hero-orb hero-orb-2"></div>
+    <div class="hero-orb hero-orb-3"></div>
+    <div class="hero-inner">
+      <div class="hero-emoji">✍️</div>
+      <h1 class="hero-title">Blog</h1>
+      <p class="hero-subtitle">Comparte tus ideas con la comunidad</p>
+      <div class="hero-stats">
+        <span class="stat-chip"><span class="chip-icon">🌐</span> Noticias Globales</span>
+        <span class="stat-chip"><span class="chip-icon">📝</span> Posts de la comunidad</span>
+        <span class="stat-chip"><span class="chip-icon">💬</span> Comentarios activos</span>
+      </div>
+      {% if user.is_authenticated %}
+      <button class="btn-new-post" onclick="toggleCreatePost()">
+        <span>✨</span> Nueva Publicación
+      </button>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ── Create Post Panel ── -->
+  {% if user.is_authenticated %}
+  <div class="create-post-panel">
+    <div id="create-post-form" style="display: none;">
+      <div class="create-post-form-inner">
+        <h3>✍️ Crear nueva publicación</h3>
+        <form id="post-form" method="POST" action="{% url 'crear_publicacion' %}" enctype="multipart/form-data">
+          {% csrf_token %}
+          <div class="form-group">
+            <label for="titulo">Título</label>
+            <input type="text" id="titulo" name="titulo" required autocomplete="off" placeholder="Dale un título memorable...">
+          </div>
+          <div class="form-group">
+            <label for="contenido">Contenido</label>
+            <textarea id="contenido" name="contenido" rows="5" required placeholder="Comparte tus ideas con la comunidad..."></textarea>
+          </div>
+          <div class="form-group">
+            <label for="categoria">Categoría</label>
+            <select id="categoria" name="categoria">
+              <option value="personal">📝 Personal</option>
+              <option value="consejos">💡 Consejos</option>
+              <option value="tutorial">🎯 Tutorial</option>
+              {% if user.is_staff %}
+              <option value="noticias">📰 Noticias</option>
+              <option value="anuncios">🚀 Anuncios</option>
+              <option value="mantenimiento">⚙️ Mantenimiento</option>
+              <option value="actualizaciones">🔄 Actualizaciones</option>
+              <option value="avisos_urgentes">⚠️ Avisos Urgentes</option>
+              {% endif %}
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="imagen">Imagen (opcional)</label>
+            <input type="file" id="imagen" name="imagen" accept="image/*">
+          </div>
+          <div class="form-group-check">
+            <input type="checkbox" name="visible_para_todos" id="visible_para_todos" checked>
+            <label for="visible_para_todos">Visible para todos</label>
+          </div>
+          {% if user.is_staff %}
+          <div class="form-group-check">
+            <input type="checkbox" name="es_oficial" id="es_oficial">
+            <label for="es_oficial">Publicación oficial</label>
+          </div>
+          <div class="form-group-check">
+            <input type="checkbox" name="fijado" id="fijado">
+            <label for="fijado">Fijar publicación</label>
+          </div>
+          {% endif %}
+          <div class="form-actions">
+            <button type="button" class="btn-cancel" onclick="toggleCreatePost()">Cancelar</button>
+            <button type="submit" class="btn-submit">🚀 Publicar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ── Blog Sections ── -->
+  <div class="blog-main">
+
+    <!-- Global News -->
+    <div class="blog-section">
+      <div class="section-header">
+        <div class="section-icon">🌐</div>
+        <h2 class="section-title">Noticias Globales</h2>
+        <div class="section-divider"></div>
+      </div>
+      <div class="posts-grid">
+        {% for post in noticias_globales %}
+        <div class="post-card {% if post.fijado %}pinned{% endif %}">
+          {% if post.fijado %}
+          <div class="pinned-badge">📌 Fijado</div>
+          {% endif %}
+          {% if post.imagen %}
+          <div class="post-image-wrapper">
+            <img src="{{ post.imagen.url }}" alt="{{ post.titulo }}" class="post-image">
+          </div>
+          {% endif %}
+          <div class="post-content">
+            <div class="post-category">{{ post.get_categoria_display }}</div>
+            <h3>{{ post.titulo }}</h3>
+            <p class="post-excerpt">{{ post.contenido|truncatewords:30 }}</p>
+            <div class="post-meta">
+              <span>
+                <span class="meta-avatar">{{ post.usuario.username|slice:":1"|upper }}</span>
+                {{ post.usuario.username }}
+              </span>
+              <span>📅 {{ post.fecha_publicacion|date:"d/m/Y H:i" }}</span>
+            </div>
+            <div class="post-actions">
+              <button class="btn-read-more" onclick="togglePostContent({{ post.id }})">Leer más</button>
+              {% if post.usuario == user %}
+              <button class="btn-delete" onclick="deletePost({{ post.id }})">🗑️</button>
+              {% endif %}
+            </div>
+            <div id="post-content-{{ post.id }}" class="post-full-content" style="display: none;">
+              <p>{{ post.contenido|linebreaks }}</p>
+            </div>
+            <div class="comments-section">
+              <div class="comments-label">💬 Comentarios</div>
+              <div class="comments-list">
+                {% for comentario in post.comentarios_lista %}
+                <div class="comment">
+                  <div class="comment-header">
+                    <strong>{{ comentario.usuario.username }}</strong>
+                    <span>{{ comentario.fecha_creacion|date:"d/m/Y H:i" }}</span>
+                  </div>
+                  <p>{{ comentario.contenido }}</p>
+                </div>
+                {% empty %}
+                <p class="no-comments">Sin comentarios aún</p>
+                {% endfor %}
+              </div>
+              {% if user.is_authenticated %}
+              <div class="comment-form">
+                <textarea id="comment-{{ post.id }}" placeholder="Escribe un comentario..." rows="1"></textarea>
+                <button onclick="addComment({{ post.id }})">Enviar</button>
+              </div>
+              {% endif %}
+            </div>
+          </div>
         </div>
+        {% empty %}
+        <p class="no-posts">No hay publicaciones globales</p>
         {% endfor %}
-    </div>
-    {% endif %}
-    
-    <div class="blog-header">
-        <h1><i data-lucide="file-text"></i> Blog</h1>
-        <p>Comparte tus ideas con la comunidad</p>
+      </div>
     </div>
 
+    <!-- My Posts -->
     {% if user.is_authenticated %}
-    <div class="create-post-section">
-        <button class="btn-create-post" onclick="toggleCreatePost()">
-            <i data-lucide="plus"></i> Nueva Publicación
-        </button>
-        
-        <div id="create-post-form" class="create-post-form" style="display: none;">
-            <form id="post-form" method="POST" action="{% url 'crear_publicacion' %}" enctype="multipart/form-data">
-                {% csrf_token %}
-                <div class="form-group">
-                    <label for="titulo">Título</label>
-                    <input type="text" id="titulo" name="titulo" required autocomplete="off">
-                </div>
-                <div class="form-group">
-                    <label for="contenido">Contenido</label>
-                    <textarea id="contenido" name="contenido" rows="5" required></textarea>
-                </div>
-                <div class="form-group">
-                    <label for="categoria">Categoría</label>
-                    <select id="categoria" name="categoria">
-                        <option value="personal">📝 Personal</option>
-                        <option value="consejos">💡 Consejos</option>
-                        <option value="tutorial">🎯 Tutorial</option>
-                        {% if user.is_staff %}
-                        <option value="noticias">📰 Noticias</option>
-                        <option value="anuncios">🚀 Anuncios</option>
-                        <option value="mantenimiento">⚙️ Mantenimiento</option>
-                        <option value="actualizaciones">🔄 Actualizaciones</option>
-                        <option value="avisos_urgentes">⚠️ Avisos Urgentes</option>
-                        {% endif %}
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="imagen">Imagen (opcional)</label>
-                    <input type="file" id="imagen" name="imagen" accept="image/*">
-                </div>
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" name="visible_para_todos" checked>
-                        Visible para todos
-                    </label>
-                </div>
-                {% if user.is_staff %}
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" name="es_oficial">
-                        Publicación oficial
-                    </label>
-                </div>
-                <div class="form-group">
-                    <label>
-                        <input type="checkbox" name="fijado">
-                        Fijar publicación
-                    </label>
-                </div>
-                {% endif %}
-                <div class="form-actions">
-                    <button type="button" class="btn-cancel" onclick="toggleCreatePost()">Cancelar</button>
-                    <button type="submit" class="btn-submit">Publicar</button>
-                </div>
-            </form>
+    <div class="blog-section">
+      <div class="section-header">
+        <div class="section-icon">👤</div>
+        <h2 class="section-title">Mis Publicaciones</h2>
+        <div class="section-divider"></div>
+      </div>
+      <div class="posts-grid">
+        {% for post in mis_publicaciones %}
+        <div class="post-card">
+          {% if post.imagen %}
+          <div class="post-image-wrapper">
+            <img src="{{ post.imagen.url }}" alt="{{ post.titulo }}" class="post-image">
+          </div>
+          {% endif %}
+          <div class="post-content">
+            <div class="post-category">{{ post.get_categoria_display }}</div>
+            <h3>{{ post.titulo }}</h3>
+            <p class="post-excerpt">{{ post.contenido|truncatewords:30 }}</p>
+            <div class="post-meta">
+              <span>📅 {{ post.fecha_publicacion|date:"d/m/Y H:i" }}</span>
+            </div>
+            <div class="post-actions">
+              <button class="btn-read-more" onclick="togglePostContent({{ post.id }})">Leer más</button>
+              <button class="btn-delete" onclick="deletePost({{ post.id }})">🗑️</button>
+            </div>
+            <div id="post-content-{{ post.id }}" class="post-full-content" style="display: none;">
+              <p>{{ post.contenido|linebreaks }}</p>
+            </div>
+          </div>
         </div>
+        {% empty %}
+        <p class="no-posts">No tienes publicaciones aún</p>
+        {% endfor %}
+      </div>
     </div>
     {% endif %}
 
-    <div class="blog-sections">
-        <div class="blog-section">
-            <h2><i data-lucide="globe"></i> Noticias Globales</h2>
-            <div class="posts-grid">
-                {% for post in noticias_globales %}
-                <div class="post-card {% if post.fijado %}pinned{% endif %}">
-                    {% if post.fijado %}
-                    <div class="pinned-badge"><i data-lucide="pin"></i> Fijado</div>
-                    {% endif %}
-                    {% if post.imagen %}
-                    <img src="{{ post.imagen.url }}" alt="{{ post.titulo }}" class="post-image">
-                    {% endif %}
-                    <div class="post-content">
-                        <div class="post-category">{{ post.get_categoria_display }}</div>
-                        <h3>{{ post.titulo }}</h3>
-                        <p class="post-excerpt">{{ post.contenido|truncatewords:30 }}</p>
-                        <div class="post-meta">
-                            <span><i data-lucide="user"></i> {{ post.usuario.username }}</span>
-                            <span><i data-lucide="calendar"></i> {{ post.fecha_publicacion|date:"d/m/Y H:i" }}</span>
-                        </div>
-                        <div class="post-actions">
-                            <button class="btn-read-more" onclick="togglePostContent({{ post.id }})">Leer más</button>
-                            {% if post.usuario == user %}
-                            <button class="btn-delete" onclick="deletePost({{ post.id }})"><i data-lucide="trash-2"></i></button>
-                            {% endif %}
-                        </div>
-                        <div id="post-content-{{ post.id }}" class="post-full-content" style="display: none;">
-                            <p>{{ post.contenido|linebreaks }}</p>
-                        </div>
-                        <div class="comments-section">
-                            <div class="comments-list">
-                                {% for comentario in post.comentarios_lista %}
-                                <div class="comment">
-                                    <div class="comment-header">
-                                        <strong>{{ comentario.usuario.username }}</strong>
-                                        <span>{{ comentario.fecha_creacion|date:"d/m/Y H:i" }}</span>
-                                    </div>
-                                    <p>{{ comentario.contenido }}</p>
-                                </div>
-                                {% empty %}
-                                <p class="no-comments">Sin comentarios</p>
-                                {% endfor %}
-                            </div>
-                            {% if user.is_authenticated %}
-                            <div class="comment-form">
-                                <textarea id="comment-{{ post.id }}" placeholder="Escribe un comentario..."></textarea>
-                                <button onclick="addComment({{ post.id }})">Comentar</button>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
-                {% empty %}
-                <p class="no-posts">No hay publicaciones globales</p>
-                {% endfor %}
-            </div>
-        </div>
-
-        {% if user.is_authenticated %}
-        <div class="blog-section">
-            <h2><i data-lucide="user"></i> Mis Publicaciones</h2>
-            <div class="posts-grid">
-                {% for post in mis_publicaciones %}
-                <div class="post-card">
-                    {% if post.imagen %}
-                    <img src="{{ post.imagen.url }}" alt="{{ post.titulo }}" class="post-image">
-                    {% endif %}
-                    <div class="post-content">
-                        <div class="post-category">{{ post.get_categoria_display }}</div>
-                        <h3>{{ post.titulo }}</h3>
-                        <p class="post-excerpt">{{ post.contenido|truncatewords:30 }}</p>
-                        <div class="post-meta">
-                            <span><i data-lucide="calendar"></i> {{ post.fecha_publicacion|date:"d/m/Y H:i" }}</span>
-                        </div>
-                        <div class="post-actions">
-                            <button class="btn-read-more" onclick="togglePostContent({{ post.id }})">Leer más</button>
-                            <button class="btn-delete" onclick="deletePost({{ post.id }})"><i data-lucide="trash-2"></i></button>
-                        </div>
-                        <div id="post-content-{{ post.id }}" class="post-full-content" style="display: none;">
-                            <p>{{ post.contenido|linebreaks }}</p>
-                        </div>
-                    </div>
-                </div>
-                {% empty %}
-                <p class="no-posts">No tienes publicaciones</p>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
-    </div>
-</div>
+  </div><!-- /blog-main -->
+</div><!-- /blog-wrapper -->
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -210,6 +984,17 @@ document.addEventListener('DOMContentLoaded', function() {
             return true;
         });
     }
+
+    // Auto-dismiss messages after 5s
+    const alerts = document.querySelectorAll('.alert');
+    alerts.forEach(function(alert) {
+        setTimeout(function() {
+            alert.style.opacity = '0';
+            alert.style.transform = 'translateX(40px)';
+            alert.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+            setTimeout(function() { alert.remove(); }, 400);
+        }, 5000);
+    });
 });
 
 function toggleCreatePost() {

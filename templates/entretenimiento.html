@@ -11,6 +11,126 @@
 {% endblock %}
 
 {% block content %}
+<style>
+    :root {
+        --accent:         #8b5cf6;
+        --accent-light:   #a78bfa;
+        --accent-dark:    #6d28d9;
+        --bg:            #0a0a0f;
+        --surface:       rgba(255,255,255,0.04);
+        --surface-hov:   rgba(255,255,255,0.07);
+        --border:        rgba(255,255,255,0.1);
+        --border-hov:    #8b5cf650;
+        --text:          #f1f5f9;
+        --muted:         #94a3b8;
+        --radius:        24px;
+        --shadow-accent: 0 0 40px #8b5cf630;
+        --glow:          0 0 18px #8b5cf680;
+    }
+
+    .entretenimiento-page * { box-sizing: border-box; }
+    .entretenimiento-page {
+        min-height: 100vh;
+        background: var(--bg);
+        color: var(--text);
+        font-family: 'Inter', system-ui, sans-serif;
+        padding-bottom: 40px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .entretenimiento-orb {
+        position: absolute;
+        border-radius: 50%;
+        filter: blur(80px);
+        pointer-events: none;
+        z-index: 0;
+    }
+    .entretenimiento-orb-1 {
+        width: 400px; height: 400px;
+        background: radial-gradient(circle, #8b5cf633 0%, transparent 70%);
+        top: -100px; left: -100px;
+        animation: orbFloat1 10s ease-in-out infinite;
+    }
+    .entretenimiento-orb-2 {
+        width: 350px; height: 350px;
+        background: radial-gradient(circle, #a78bfa26 0%, transparent 70%);
+        bottom: -50px; right: -50px;
+        animation: orbFloat2 12s ease-in-out infinite;
+    }
+
+    @keyframes orbFloat1 {
+        0%,100% { transform: translate(0,0) scale(1); }
+        50%      { transform: translate(40px,40px) scale(1.1); }
+    }
+    @keyframes orbFloat2 {
+        0%,100% { transform: translate(0,0) scale(1); }
+        50%      { transform: translate(-40px,-40px) scale(0.9); }
+    }
+    @keyframes fadeSlideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .entretenimiento-hero {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        padding: 40px 20px 20px;
+        animation: fadeSlideUp 0.5s ease both;
+    }
+    .entretenimiento-hero h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        background: linear-gradient(135deg, #fff 30%, var(--accent-light) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        margin: 10px 0 5px;
+    }
+    .entretenimiento-hero p { color: var(--muted); margin: 0; }
+
+    /* Glassmorphism Overrides */
+    .entretenimiento-page > div:not(.entretenimiento-hero):not(.entretenimiento-orb) {
+        position: relative;
+        z-index: 1;
+        animation: fadeSlideUp 0.5s 0.2s ease both;
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+    
+    .games-hero-banner, .translator-header, .movies-header, .stats-cards, .games-grid, .ticket-list, .translator-layout {
+        background: var(--surface) !important;
+        border: 1px solid var(--border) !important;
+        border-radius: var(--radius) !important;
+        backdrop-filter: blur(20px) !important;
+        box-shadow: var(--shadow-accent) !important;
+        margin-bottom: 24px;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+    
+    .game-card, .movie-card, .series-card, .ticket-card, .translator-box {
+        background: rgba(0,0,0,0.2) !important;
+        border: 1px solid rgba(255,255,255,0.05) !important;
+        border-radius: 16px !important;
+        transition: all 0.3s;
+    }
+    
+    .game-card:hover, .movie-card:hover, .series-card:hover, .ticket-card:hover {
+        border-color: var(--accent) !important;
+        background: #8b5cf60D !important;
+        transform: translateY(-4px) !important;
+    }
+    
+    .hero-continue-btn, .btn-primary, .translate-btn {
+        background: linear-gradient(135deg, var(--accent), var(--accent-light)) !important;
+        color: #fff !important;
+        border: none !important;
+        box-shadow: var(--glow) !important;
+        border-radius: 12px !important;
+        font-weight: 700 !important;
+    }
+</style>
 <div class="dashboard" style="position: relative; display: flex; flex-direction: column; width: 100%; box-sizing: border-box;">
 
     <!-- Floating Particles Background -->

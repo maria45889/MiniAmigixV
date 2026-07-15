@@ -1,37 +1,23 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.models import User
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_http_methods
+"""
+Main views module - imports from views/ folder.
+
+This file serves as a compatibility layer, importing all views from the
+new folder-based structure to maintain backward compatibility with existing URLs.
+"""
+
+# Import all views from the new views/ folder structure
+from .views.auth_views import login_view, register_view, logout_view
+from .views.chat_views import chat_view, chat_api
+from .views.home_views import home, index
+from .views.music_views import musica, crear_playlist, agregar_a_playlist, toggle_favorito
+from .views.calendar_views import eventos
+from .views.weather_views import clima
+from .views.study_views import estudio
+from .views.entertainment_views import entretenimiento
+from .views.profile_views import perfil, configuracion
+
+# Keep the is_admin_user function for compatibility
 from django.conf import settings
-from django.core.mail import send_mail
-from django.template.loader import render_to_string
-from django.utils.html import strip_tags
-from django.core.mail import EmailMultiAlternatives
-from django.core.files.storage import FileSystemStorage
-import json
-import os
-import re
-import logging
-import openai
-import requests
-import random
-import datetime
-from openpyxl import Workbook
-from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
-from openpyxl.chart import BarChart, Reference, PieChart
-from openpyxl.utils import get_column_letter
-from django.utils import timezone
-import yt_dlp
-from .models import ConversacionChat, MensajeChat, Cancion, Playlist, Favorite, Game, Score, Achievement, UserAchievement, EstadoAnimo, RecomendacionEntretenimiento
-from eventos.models import Evento
-from notificaciones.models import Notificacion
-# from apps.mongodb.services import DualDatabaseService  # Temporalmente deshabilitado
-
-logger = logging.getLogger(__name__)
-
 
 def is_admin_user(user):
     """Solo permite acceso admin al email configurado en ADMIN_EMAILS"""
@@ -43,7 +29,13 @@ def is_admin_user(user):
     return bool(user and user.is_authenticated and user_email in allowed_admins)
 
 
+# Import generate_ai_response from legacy views for compatibility
+# This function is still used by apps/api/views.py
+from .services import ChatService
+
 def generate_ai_response(messages, settings_obj, imagen=False, max_tokens=500, image_base64=None, message=None):
+    """Generate AI response using ChatService for backward compatibility."""
+    return ChatService.generate_ai_response(messages, settings_obj, imagen, max_tokens, image_base64, message)
     provider_configs = []
 
     if imagen and getattr(settings_obj, 'OPENAI_API_KEY', None):

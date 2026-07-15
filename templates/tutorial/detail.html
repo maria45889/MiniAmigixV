@@ -4,201 +4,787 @@
 {% block title %}{{ tutorial.title }} - MiniAmigixV{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'tutorial_home' %}">Tutoriales</a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'category_tutorials' tutorial.category.id %}">{{ tutorial.category.name }}</a></li>
-                    <li class="breadcrumb-item active">{{ tutorial.title }}</li>
-                </ol>
-            </nav>
-        </div>
-    </div>
+<div class="glow-bg-sphere sphere-1"></div>
+<div class="glow-bg-sphere sphere-2"></div>
 
-    <div class="row">
-        <div class="col-lg-8">
-            <!-- Tutorial Header -->
-            <div class="card mb-4">
-                {% if tutorial.image %}
-                <img src="{{ tutorial.image.url }}" class="card-img-top" alt="{{ tutorial.title }}" style="height: 300px; object-fit: cover;">
-                {% endif %}
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-3">
-                        <h1 class="card-title">{{ tutorial.title }}</h1>
-                        {% if tutorial.featured %}
-                        <span class="badge bg-warning">Destacado</span>
-                        {% endif %}
-                    </div>
-                    <p class="card-text">{{ tutorial.description }}</p>
-                    <div class="d-flex flex-wrap gap-3 mb-3">
-                        <span class="badge bg-{{ tutorial.difficulty == 'beginner'|yesno:'success,warning,danger' }}">
-                            {{ tutorial.get_difficulty_display }}
-                        </span>
-                        <span class="badge bg-info">
-                            <i data-lucide="folder"></i> {{ tutorial.category.name }}
-                        </span>
-                        <span class="badge bg-secondary">
-                            <i data-lucide="clock"></i> {{ tutorial.estimated_time }} min
-                        </span>
-                        <span class="badge bg-secondary">
-                            <i data-lucide="list"></i> {{ tutorial.total_steps }} pasos
-                        </span>
-                        <span class="badge bg-secondary">
-                            <i data-lucide="eye"></i> {{ tutorial.views }} vistas
-                        </span>
-                    </div>
-                    {% if tutorial.video_url %}
-                    <div class="ratio ratio-16x9 mb-3">
-                        <iframe src="{{ tutorial.video_url }}" allowfullscreen></iframe>
+<div class="page-content tutorial-theme">
+    <div class="container animate-fade-in">
+        
+        <!-- Breadcrumbs en Glassmorphism -->
+        <nav aria-label="breadcrumb" class="premium-breadcrumb">
+            <ol class="breadcrumb-list">
+                <li class="breadcrumb-item-custom"><a href="{% url 'tutorial_home' %}"><i class="ti ti-home"></i> Tutoriales</a></li>
+                <li class="breadcrumb-item-custom"><a href="{% url 'category_tutorials' tutorial.category.id %}"><i class="ti ti-folder"></i> {{ tutorial.category.name }}</a></li>
+                <li class="breadcrumb-item-custom active-item"><i class="ti ti-chevron-right"></i> {{ tutorial.title }}</li>
+            </ol>
+        </nav>
+
+        <div class="tutorial-grid-layout">
+            
+            <!-- Main Content Area (Left side) -->
+            <div class="tutorial-main-area">
+                
+                <!-- Card principal de información del tutorial -->
+                <div class="card-glass detail-main-card">
+                    <div class="card-glow-effect"></div>
+                    {% if tutorial.image %}
+                    <div class="detail-hero-image">
+                        <img src="{{ tutorial.image.url }}" alt="{{ tutorial.title }}">
+                        <div class="image-overlay"></div>
                     </div>
                     {% endif %}
-                </div>
-            </div>
-
-            <!-- Pasos del Tutorial -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3><i data-lucide="list-ordered"></i> Pasos del Tutorial</h3>
-                </div>
-                <div class="card-body">
-                    {% if user.is_authenticated %}
-                        {% if user_progress %}
-                        <div class="alert alert-info mb-3">
-                            <strong>Tu progreso:</strong> {{ user_progress.progress_percentage }}% completado
+                    
+                    <div class="card-body">
+                        <div class="detail-header-row">
+                            <h1 class="detail-title">{{ tutorial.title }}</h1>
+                            {% if tutorial.featured %}
+                            <span class="badge-custom gold-badge"><i class="ti ti-award"></i> Destacado</span>
+                            {% endif %}
                         </div>
-                        <div class="progress mb-3" style="height: 25px;">
-                            <div class="progress-bar" role="progressbar" style="width: {{ user_progress.progress_percentage }}%">
-                                {{ user_progress.progress_percentage }}%
-                            </div>
-                        </div>
-                        {% endif %}
-                        <a href="{% url 'tutorial_step' tutorial.id 1 %}" class="btn btn-primary btn-lg w-100">
-                            <i data-lucide="play-circle"></i> 
-                            {% if user_progress and user_progress.current_step %}
-                                Continuar Tutorial
+                        
+                        <p class="detail-description">{{ tutorial.description }}</p>
+                        
+                        <div class="detail-meta-badges">
+                            {% if tutorial.difficulty == 'beginner' %}
+                            <span class="badge-custom beginner-badge"><i class="ti ti-leaf"></i> {{ tutorial.get_difficulty_display }}</span>
+                            {% elif tutorial.difficulty == 'intermediate' %}
+                            <span class="badge-custom intermediate-badge"><i class="ti ti-bolt"></i> {{ tutorial.get_difficulty_display }}</span>
                             {% else %}
-                                Comenzar Tutorial
+                            <span class="badge-custom advanced-badge"><i class="ti ti-flame"></i> {{ tutorial.get_difficulty_display }}</span>
                             {% endif %}
-                        </a>
-                    {% else %}
-                        <div class="alert alert-warning">
-                            <i data-lucide="alert-triangle"></i> 
-                            <a href="{% url 'account_login' %}">Inicia sesión</a> para seguir tu progreso en este tutorial.
+                            
+                            <span class="badge-custom category-badge"><i class="ti ti-folder"></i> {{ tutorial.category.name }}</span>
+                            <span class="badge-custom time-badge"><i class="ti ti-clock"></i> {{ tutorial.estimated_time }} min</span>
+                            <span class="badge-custom steps-badge"><i class="ti ti-list-numbers"></i> {{ tutorial.total_steps }} pasos</span>
+                            <span class="badge-custom views-badge"><i class="ti ti-eye"></i> {{ tutorial.views }} vistas</span>
                         </div>
-                    {% endif %}
+                        
+                        {% if tutorial.video_url %}
+                        <div class="video-container-wrapper">
+                            <iframe src="{{ tutorial.video_url }}" allowfullscreen></iframe>
+                        </div>
+                        {% endif %}
+                    </div>
                 </div>
-            </div>
 
-            <!-- Lista de Pasos -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h3><i data-lucide="list"></i> Contenido del Tutorial</h3>
-                </div>
-                <div class="card-body">
-                    <ol class="list-group list-group-numbered">
-                        {% for step in steps %}
-                        <li class="list-group-item d-flex justify-content-between align-items-start">
-                            <div class="ms-2 me-auto">
-                                <div class="fw-bold">{{ step.title }}</div>
-                                <small class="text-muted">{{ step.content|truncatewords:15 }}</small>
-                                {% if step.is_optional %}
-                                <span class="badge bg-secondary">Opcional</span>
-                                {% endif %}
+                <!-- Pasos del Tutorial (Progreso / Botón de Acción) -->
+                <div class="card-glass action-progress-card">
+                    <div class="card-body">
+                        <h3 class="section-card-title"><i class="ti ti-progress"></i> Tu Progreso</h3>
+                        
+                        {% if user.is_authenticated %}
+                            {% if user_progress %}
+                            <div class="progress-info-row">
+                                <span class="progress-label">Porcentaje completado:</span>
+                                <span class="progress-percentage-val">{{ user_progress.progress_percentage }}%</span>
                             </div>
-                            {% if user.is_authenticated and user_progress %}
-                                {% if user_progress.current_step.order > step.order or user_progress.completed %}
-                                <span class="badge bg-success"><i data-lucide="check"></i> Completado</span>
-                                {% elif user_progress.current_step.order == step.order %}
-                                <span class="badge bg-primary">Actual</span>
-                                {% endif %}
+                            <div class="progress-bar-container-premium">
+                                <div class="progress-bar-fill" style="width: {{ user_progress.progress_percentage }}%"></div>
+                            </div>
                             {% endif %}
-                        </li>
-                        {% empty %}
-                        <li class="list-group-item">No hay pasos disponibles para este tutorial.</li>
-                        {% endfor %}
-                    </ol>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <!-- Calificación -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h4><i data-lucide="star"></i> Calificación</h4>
-                </div>
-                <div class="card-body">
-                    <p class="mb-2">Promedio: <strong>{{ tutorial.average_rating|floatformat:1 }}/5</strong></p>
-                    {% if user.is_authenticated %}
-                        {% if user_progress and user_progress.rating %}
-                        <p class="alert alert-success">Tu calificación: {{ user_progress.rating }}/5</p>
+                            
+                            <a href="{% url 'tutorial_step' tutorial.id 1 %}" class="action-btn-glow primary-action-btn">
+                                <i class="ti ti-player-play"></i>
+                                <span>
+                                {% if user_progress and user_progress.current_step %}
+                                    Continuar Tutorial
+                                {% else %}
+                                    Comenzar Tutorial
+                                {% endif %}
+                                </span>
+                            </a>
                         {% else %}
-                        <form method="POST" action="{% url 'rate_tutorial' tutorial.id %}" class="rating-form">
-                            {% csrf_token %}
-                            <div class="mb-3">
-                                <label class="form-label">Califica este tutorial:</label>
-                                <div class="btn-group w-100" role="group">
-                                    <input type="radio" class="btn-check" name="rating" value="1" id="star1">
-                                    <label class="btn btn-outline-warning" for="star1">1</label>
-                                    <input type="radio" class="btn-check" name="rating" value="2" id="star2">
-                                    <label class="btn btn-outline-warning" for="star2">2</label>
-                                    <input type="radio" class="btn-check" name="rating" value="3" id="star3">
-                                    <label class="btn btn-outline-warning" for="star3">3</label>
-                                    <input type="radio" class="btn-check" name="rating" value="4" id="star4">
-                                    <label class="btn btn-outline-warning" for="star4">4</label>
-                                    <input type="radio" class="btn-check" name="rating" value="5" id="star5">
-                                    <label class="btn btn-outline-warning" for="star5">5</label>
+                            <div class="login-warning-box">
+                                <i class="ti ti-alert-circle"></i>
+                                <p><a href="{% url 'account_login' %}" class="login-link">Inicia sesión</a> para poder guardar y seguir tu progreso en este tutorial.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Contenido de Pasos Detallados -->
+                <div class="card-glass steps-list-card">
+                    <div class="card-body">
+                        <h3 class="section-card-title"><i class="ti ti-list-numbers"></i> Índice de Contenido</h3>
+                        
+                        <div class="steps-list-wrapper">
+                            {% for step in steps %}
+                            <div class="step-list-item {% if user.is_authenticated and user_progress and user_progress.current_step.order == step.order %}current-step-active{% endif %}">
+                                <div class="step-number-circle">{{ step.order }}</div>
+                                <div class="step-info-detail">
+                                    <h4 class="step-item-title">{{ step.title }}</h4>
+                                    <p class="step-item-desc">{{ step.content|truncatewords:15 }}</p>
+                                    {% if step.is_optional %}
+                                    <span class="badge-custom optional-badge">Opcional</span>
+                                    {% endif %}
+                                </div>
+                                <div class="step-status-badge">
+                                    {% if user.is_authenticated and user_progress %}
+                                        {% if user_progress.current_step.order > step.order or user_progress.completed %}
+                                        <span class="badge-custom success-badge"><i class="ti ti-circle-check"></i> Completado</span>
+                                        {% elif user_progress.current_step.order == step.order %}
+                                        <span class="badge-custom current-badge"><i class="ti ti-player-play"></i> Actual</span>
+                                        {% endif %}
+                                    {% endif %}
                                 </div>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100">Enviar Calificación</button>
-                        </form>
+                            {% empty %}
+                            <p class="empty-steps-text">No hay pasos agregados para este tutorial aún.</p>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Sidebar (Right side) -->
+            <div class="tutorial-sidebar-area">
+                
+                <!-- Card de Calificación -->
+                <div class="card-glass rating-card">
+                    <div class="card-body">
+                        <h4 class="sidebar-card-title"><i class="ti ti-star"></i> Calificación</h4>
+                        <div class="rating-summary">
+                            <span class="avg-rating-num">{{ tutorial.average_rating|floatformat:1 }}</span>
+                            <span class="avg-rating-stars">/ 5 Estrellas</span>
+                        </div>
+                        
+                        {% if user.is_authenticated %}
+                            {% if user_progress and user_progress.rating %}
+                            <div class="user-rated-alert">
+                                <i class="ti ti-circle-check"></i>
+                                <span>Tu calificación: <strong>{{ user_progress.rating }}/5</strong></span>
+                            </div>
+                            {% else %}
+                            <form method="POST" action="{% url 'rate_tutorial' tutorial.id %}" class="rating-form-premium">
+                                {% csrf_token %}
+                                <p class="form-instruction-text">¿Qué tal te pareció este tutorial?</p>
+                                <div class="rating-star-selector">
+                                    {% for val in "12345" %}
+                                    <input type="radio" class="star-check-btn" name="rating" value="{{ val }}" id="star{{ val }}">
+                                    <label class="star-label-btn" for="star{{ val }}" title="Calificar con {{ val }}"><i class="ti ti-star"></i></label>
+                                    {% endfor %}
+                                </div>
+                                <button type="submit" class="sidebar-btn-submit">Enviar Calificación</button>
+                            </form>
+                            {% endif %}
+                        {% else %}
+                            <a href="{% url 'account_login' %}" class="sidebar-btn-outline">Inicia sesión para calificar</a>
                         {% endif %}
-                    {% else %}
-                    <a href="{% url 'account_login' %}" class="btn btn-outline-primary w-100">Inicia sesión para calificar</a>
-                    {% endif %}
+                    </div>
                 </div>
+
+                <!-- Card de Notas Personales -->
+                <div class="card-glass notes-card">
+                    <div class="card-body">
+                        <h4 class="sidebar-card-title"><i class="ti ti-note"></i> Notas Personales</h4>
+                        {% if user.is_authenticated %}
+                            <form method="POST" action="{% url 'save_notes' tutorial.id %}" class="notes-form-premium">
+                                {% csrf_token %}
+                                <textarea class="premium-textarea" name="notes" rows="6" placeholder="Escribe tus anotaciones sobre este tutorial aquí..." required>{% if user_progress %}{{ user_progress.notes }}{% endif %}</textarea>
+                                <button type="submit" class="sidebar-btn-submit secondary-btn-glow">Guardar Notas</button>
+                            </form>
+                        {% else %}
+                            <a href="{% url 'account_login' %}" class="sidebar-btn-outline">Inicia sesión para guardar notas</a>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Tutoriales Relacionados -->
+                <div class="card-glass related-card">
+                    <div class="card-body">
+                        <h4 class="sidebar-card-title"><i class="ti ti-bookmark"></i> Más Contenido</h4>
+                        <a href="{% url 'category_tutorials' tutorial.category.id %}" class="related-category-link">
+                            <i class="ti ti-folder-open"></i> Ver todo en {{ tutorial.category.name }}
+                        </a>
+                    </div>
+                </div>
+
             </div>
 
-            <!-- Notas Personales -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h4><i data-lucide="sticky-note"></i> Notas Personales</h4>
-                </div>
-                <div class="card-body">
-                    {% if user.is_authenticated %}
-                        <form method="POST" action="{% url 'save_notes' tutorial.id %}" class="notes-form">
-                            {% csrf_token %}
-                            <textarea class="form-control mb-3" name="notes" rows="5" placeholder="Escribe tus notas aquí...">{% if user_progress %}{{ user_progress.notes }}{% endif %}</textarea>
-                            <button type="submit" class="btn btn-primary w-100">Guardar Notas</button>
-                        </form>
-                    {% else %}
-                    <a href="{% url 'account_login' %}" class="btn btn-outline-primary w-100">Inicia sesión para guardar notas</a>
-                    {% endif %}
-                </div>
-            </div>
-
-            <!-- Tutoriales Relacionados -->
-            <div class="card">
-                <div class="card-header">
-                    <h4><i data-lucide="book"></i> Más en {{ tutorial.category.name }}</h4>
-                </div>
-                <div class="card-body">
-                    <p class="text-muted">Próximamente...</p>
-                </div>
-            </div>
         </div>
+
+        <!-- Botón de Volver -->
+        <div class="navigation-actions">
+            <a href="{% url 'tutorial_home' %}" class="btn-glow-explore back-btn">
+                <i class="ti ti-arrow-left"></i>
+                <span>Volver a Inicio de Tutoriales</span>
+            </a>
+        </div>
+
     </div>
 </div>
 
-<script>
-if (typeof lucide !== 'undefined') {
-    lucide.createIcons();
+<style>
+/* Base themes */
+.tutorial-theme {
+    position: relative;
+    padding: 30px 10px;
+    z-index: 1;
 }
 
-// Rating form submission
-document.querySelector('.rating-form')?.addEventListener('submit', function(e) {
+/* Background Glowing spheres */
+.glow-bg-sphere {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.15;
+    pointer-events: none;
+    z-index: 0;
+    animation: float-slow 15s infinite alternate ease-in-out;
+}
+.sphere-1 { width: 350px; height: 350px; background: #8b5cf6; top: 15%; left: -5%; }
+.sphere-2 { width: 450px; height: 450px; background: #06b6d4; bottom: 15%; right: -5%; animation-delay: -5s; }
+
+@keyframes float-slow {
+    0% { transform: translateY(0) scale(1); }
+    100% { transform: translateY(-40px) scale(1.05); }
+}
+
+/* Premium Breadcrumbs */
+.premium-breadcrumb {
+    margin-bottom: 25px;
+    animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.breadcrumb-list {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+.breadcrumb-item-custom a {
+    color: var(--text-muted, #94a3b8);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.3s;
+}
+.breadcrumb-item-custom a:hover {
+    color: #fff;
+}
+.breadcrumb-item-custom {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: var(--text-muted, #94a3b8);
+    gap: 8px;
+}
+.active-item {
+    color: #c084fc;
+    font-weight: 600;
+}
+
+/* Layout Grid */
+.tutorial-grid-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+    align-items: start;
+}
+
+.tutorial-main-area, .tutorial-sidebar-area {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* Glassmorphism Cards */
+.card-glass {
+    position: relative;
+    background: rgba(25, 25, 35, 0.45);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.card-glow-effect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.05) 0%, transparent 60%);
+    pointer-events: none;
+}
+.card-body {
+    padding: 30px;
+}
+
+/* Hero image in detail */
+.detail-hero-image {
+    position: relative;
+    width: 100%;
+    height: 260px;
+    overflow: hidden;
+}
+.detail-hero-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.detail-hero-image .image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent, rgba(10, 10, 15, 0.95));
+}
+
+/* Headers */
+.detail-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+.detail-title {
+    font-family: var(--font-title, 'Syne', sans-serif);
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #fff;
+    margin: 0;
+}
+.detail-description {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    margin-bottom: 25px;
+}
+
+/* Badges */
+.badge-custom {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+.gold-badge { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24; }
+.beginner-badge { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; }
+.intermediate-badge { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24; }
+.advanced-badge { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; }
+.category-badge { background: rgba(139, 92, 246, 0.15); border: 1px solid rgba(139, 92, 246, 0.3); color: #c084fc; }
+.time-badge, .steps-badge, .views-badge { background: rgba(255, 255, 255, 0.04); border: 1px solid rgba(255, 255, 255, 0.08); color: var(--text-muted); }
+
+.detail-meta-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+/* Video embed */
+.video-container-wrapper {
+    position: relative;
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    height: 0;
+    overflow: hidden;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.video-container-wrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Progress bar inside Action Card */
+.section-card-title {
+    font-family: var(--font-title, 'Syne', sans-serif);
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.section-card-title i {
+    color: #8b5cf6;
+}
+
+.progress-info-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+}
+.progress-label { color: var(--text-muted); }
+.progress-percentage-val { color: #34d399; font-weight: 700; }
+
+.progress-bar-container-premium {
+    width: 100%;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 25px;
+}
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #8b5cf6, #34d399);
+    border-radius: 20px;
+}
+
+.action-btn-glow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    padding: 16px;
+    border-radius: 14px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.05rem;
+    transition: all 0.3s;
+    cursor: pointer;
+    border: none;
+}
+.primary-action-btn {
+    background: var(--accent-gradient, linear-gradient(135deg, #8b5cf6, #06b6d4));
+    color: #fff !important;
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.35);
+}
+.primary-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(139, 92, 246, 0.5);
+}
+
+.login-warning-box {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.25);
+    border-radius: 12px;
+    color: #fbcfe8;
+}
+.login-warning-box i { font-size: 1.5rem; color: #fbbf24; }
+.login-warning-box p { margin: 0; font-size: 0.95rem; }
+.login-link { color: #fbbf24; font-weight: 600; text-decoration: underline; }
+
+/* Index Steps content */
+.steps-list-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.step-list-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 18px 22px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 16px;
+    transition: all 0.3s ease;
+}
+.step-number-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.95rem;
+}
+.step-info-detail {
+    flex: 1;
+}
+.step-item-title {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #fff;
+    margin: 0 0 4px 0;
+}
+.step-item-desc {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+.optional-badge {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    margin-top: 5px;
+}
+
+.success-badge { background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; }
+.current-badge { background: rgba(6, 182, 212, 0.12); border: 1px solid rgba(6, 182, 212, 0.3); color: #22d3ee; }
+
+.current-step-active {
+    border-color: rgba(6, 182, 212, 0.3);
+    background: rgba(6, 182, 212, 0.03);
+}
+.current-step-active .step-number-circle {
+    background: #06b6d4;
+    border-color: #06b6d4;
+    box-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
+}
+
+/* Sidebar Rating Card */
+.avg-rating-num {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #fbbf24;
+    text-shadow: 0 0 20px rgba(245, 158, 11, 0.3);
+}
+.avg-rating-stars {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+}
+.rating-summary {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+.sidebar-card-title {
+    font-family: var(--font-title, 'Syne', sans-serif);
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 15px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.sidebar-card-title i { color: #fbbf24; }
+
+.form-instruction-text {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin-bottom: 15px;
+}
+
+/* Star selector */
+.rating-star-selector {
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row-reverse; /* For CSS hover tricks if wanted, or basic buttons */
+    margin-bottom: 20px;
+    gap: 5px;
+}
+.star-check-btn { display: none; }
+.star-label-btn {
+    flex: 1;
+    text-align: center;
+    padding: 10px 0;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: all 0.2s;
+}
+.star-label-btn:hover {
+    background: rgba(245, 158, 11, 0.1);
+    color: #fbbf24;
+    border-color: #fbbf24;
+}
+
+/* JS will highlight active states, or simple CSS if checked */
+.star-check-btn:checked + .star-label-btn {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+    border-color: #fbbf24;
+}
+
+.star-check-btn:checked ~ .star-label-btn {
+    color: #fbbf24;
+}
+
+.sidebar-btn-submit {
+    width: 100%;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: #fff;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.sidebar-btn-submit:hover {
+    background: #fbbf24;
+    color: #000;
+    border-color: #fbbf24;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3);
+}
+
+.user-rated-alert {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    background: rgba(16, 185, 129, 0.08);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+    border-radius: 10px;
+    color: #34d399;
+}
+
+/* Sidebar Note Card */
+.notes-form-premium {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.premium-textarea {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 15px;
+    color: #fff;
+    font-family: var(--font-ui);
+    font-size: 0.95rem;
+    resize: none;
+    outline: none;
+    transition: border-color 0.3s;
+}
+.premium-textarea:focus {
+    border-color: #8b5cf6;
+}
+.secondary-btn-glow:hover {
+    background: #8b5cf6;
+    color: #fff;
+    border-color: #8b5cf6;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+
+.sidebar-btn-outline {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 10px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+.sidebar-btn-outline:hover {
+    border-color: #fff;
+    color: #fff;
+}
+
+.related-category-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: #06b6d4;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+.related-category-link:hover {
+    color: #22d3ee;
+}
+
+/* Back button navigation */
+.navigation-actions {
+    text-align: center;
+    margin-top: 40px;
+    animation: slideUpFade 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-glow-explore {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 30px;
+    background: rgba(18, 18, 26, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+.btn-glow-explore:hover {
+    border-color: #8b5cf6;
+    transform: translateY(-2px);
+    background: rgba(18, 18, 26, 0.8);
+    box-shadow: 0 10px 25px rgba(139, 92, 246, 0.2);
+}
+
+/* Keyframes */
+@keyframes slideUpFade {
+    0% { transform: translateY(20px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+@media (max-width: 1024px) {
+    .tutorial-grid-layout {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+    
+    // Star Rating Click helper to highlight stars dynamically
+    const stars = document.querySelectorAll('.star-check-btn');
+    const labels = document.querySelectorAll('.star-label-btn');
+    
+    stars.forEach((star) => {
+        star.addEventListener('change', () => {
+            const val = parseInt(star.value);
+            labels.forEach((label, idx) => {
+                // Reverse order mapping
+                const starVal = idx + 1;
+                if (starVal <= val) {
+                    label.style.color = '#fbbf24';
+                    label.style.borderColor = '#fbbf24';
+                } else {
+                    label.style.color = 'var(--text-muted)';
+                    label.style.borderColor = 'rgba(255, 255, 255, 0.08)';
+                }
+            });
+        });
+    });
+});
+
+// Rating form submission AJAX style
+document.querySelector('.rating-form-premium')?.addEventListener('submit', function(e) {
     e.preventDefault();
     const formData = new FormData(this);
     fetch(this.action, {
@@ -211,16 +797,22 @@ document.querySelector('.rating-form')?.addEventListener('submit', function(e) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert('¡Gracias por tu calificación!');
+            alert('¡Gracias por calificar este tutorial!');
             location.reload();
+        } else {
+            alert('Hubo un error al procesar tu calificación.');
         }
     });
 });
 
-// Notes form submission
-document.querySelector('.notes-form')?.addEventListener('submit', function(e) {
+// Notes form submission AJAX style
+document.querySelector('.notes-form-premium')?.addEventListener('submit', function(e) {
     e.preventDefault();
     const formData = new FormData(this);
+    const submitBtn = this.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Guardando...';
+    
     fetch(this.action, {
         method: 'POST',
         body: formData,
@@ -230,9 +822,17 @@ document.querySelector('.notes-form')?.addEventListener('submit', function(e) {
     })
     .then(response => response.json())
     .then(data => {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Guardar Notas';
         if (data.success) {
-            alert('Notas guardadas correctamente');
+            alert('¡Notas guardadas correctamente!');
+        } else {
+            alert('Hubo un problema al guardar tus notas.');
         }
+    })
+    .catch(() => {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Guardar Notas';
     });
 });
 </script>

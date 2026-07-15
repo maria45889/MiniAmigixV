@@ -4,141 +4,624 @@
 {% block title %}Todos los Tutoriales - MiniAmigixV{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <h1 class="mb-4"><i data-lucide="list"></i> Todos los Tutoriales</h1>
-        </div>
-    </div>
+<div class="glow-bg-sphere sphere-1"></div>
+<div class="glow-bg-sphere sphere-2"></div>
 
-    <!-- Filtros -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <form method="GET" class="row g-3">
-                        <div class="col-md-3">
-                            <label class="form-label">Categoría</label>
-                            <select name="category" class="form-select">
-                                <option value="">Todas</option>
+<div class="page-content tutorial-theme">
+    <div class="container animate-fade-in">
+        
+        <!-- Breadcrumbs en Glassmorphism -->
+        <nav aria-label="breadcrumb" class="premium-breadcrumb">
+            <ol class="breadcrumb-list">
+                <li class="breadcrumb-item-custom"><a href="{% url 'tutorial_home' %}"><i class="ti ti-home"></i> Tutoriales</a></li>
+                <li class="breadcrumb-item-custom active-item"><i class="ti ti-chevron-right"></i> Todos los Tutoriales</li>
+            </ol>
+        </nav>
+
+        <!-- Header -->
+        <div class="list-header-premium">
+            <div class="header-glow"></div>
+            <h1><i class="ti ti-list"></i> Todos los Tutoriales</h1>
+            <p>Explora nuestra biblioteca completa de tutoriales y conviértete en un experto en MiniAmigixV.</p>
+        </div>
+
+        <!-- Filtros Box -->
+        <div class="card-glass filters-card">
+            <div class="card-body">
+                <form method="GET" class="premium-filters-form">
+                    <div class="filter-field">
+                        <label class="filter-label">Categoría</label>
+                        <div class="select-wrapper">
+                            <select name="category" class="premium-select">
+                                <option value="">Todas las Categorías</option>
                                 {% for category in categories %}
                                 <option value="{{ category.name }}" {% if selected_category == category.name %}selected{% endif %}>
                                     {{ category.name }}
                                 </option>
                                 {% endfor %}
                             </select>
+                            <i class="ti ti-chevron-down select-arrow"></i>
                         </div>
-                        <div class="col-md-3">
-                            <label class="form-label">Dificultad</label>
-                            <select name="difficulty" class="form-select">
-                                <option value="">Todas</option>
+                    </div>
+
+                    <div class="filter-field">
+                        <label class="filter-label">Dificultad</label>
+                        <div class="select-wrapper">
+                            <select name="difficulty" class="premium-select">
+                                <option value="">Todas las Dificultades</option>
                                 <option value="beginner" {% if selected_difficulty == 'beginner' %}selected{% endif %}>Principiante</option>
                                 <option value="intermediate" {% if selected_difficulty == 'intermediate' %}selected{% endif %}>Intermedio</option>
                                 <option value="advanced" {% if selected_difficulty == 'advanced' %}selected{% endif %}>Avanzado</option>
                             </select>
+                            <i class="ti ti-chevron-down select-arrow"></i>
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label">Buscar</label>
-                            <input type="text" name="search" class="form-control" value="{{ search_query }}" placeholder="Buscar tutoriales...">
+                    </div>
+
+                    <div class="filter-field search-field">
+                        <label class="filter-label">Buscar por texto</label>
+                        <div class="filter-search-input-wrapper">
+                            <i class="ti ti-search search-field-icon"></i>
+                            <input type="text" name="search" class="premium-input" value="{{ search_query|default:'' }}" placeholder="Buscar por título o contenido...">
                         </div>
-                        <div class="col-md-2 d-flex align-items-end">
-                            <button type="submit" class="btn btn-primary w-100">
-                                <i data-lucide="search"></i> Filtrar
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                    </div>
+
+                    <div class="filter-actions">
+                        <button type="submit" class="action-btn-glow primary-action-btn filter-submit-btn">
+                            <i class="ti ti-filter"></i>
+                            <span>Filtrar</span>
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
-    </div>
 
-    <!-- Lista de Tutoriales -->
-    <div class="row">
-        {% for tutorial in page_obj %}
-        <div class="col-md-4 mb-4">
-            <div class="card h-100">
-                {% if tutorial.image %}
-                <img src="{{ tutorial.image.url }}" class="card-img-top" alt="{{ tutorial.title }}" style="height: 200px; object-fit: cover;">
+        <!-- Grid de Tutoriales -->
+        <div class="tutorial-section">
+            <div class="grid-3 tutorials-grid">
+                {% for tutorial in page_obj %}
+                <div class="card-glass tutorial-card-premium">
+                    <div class="card-glow-effect"></div>
+                    {% if tutorial.image %}
+                    <div class="card-image-wrapper">
+                        <img src="{{ tutorial.image.url }}" class="card-img" alt="{{ tutorial.title }}">
+                        <div class="image-overlay"></div>
+                    </div>
+                    {% endif %}
+                    <div class="card-body">
+                        <div class="card-badges-wrapper">
+                            {% if tutorial.difficulty == 'beginner' %}
+                            <span class="badge-custom beginner-badge"><i class="ti ti-leaf"></i> {{ tutorial.get_difficulty_display }}</span>
+                            {% elif tutorial.difficulty == 'intermediate' %}
+                            <span class="badge-custom intermediate-badge"><i class="ti ti-bolt"></i> {{ tutorial.get_difficulty_display }}</span>
+                            {% else %}
+                            <span class="badge-custom advanced-badge"><i class="ti ti-flame"></i> {{ tutorial.get_difficulty_display }}</span>
+                            {% endif %}
+                            
+                            {% if tutorial.featured %}
+                            <span class="badge-custom gold-badge"><i class="ti ti-star"></i> Destacado</span>
+                            {% endif %}
+                        </div>
+                        
+                        <h3>{{ tutorial.title }}</h3>
+                        <p>{{ tutorial.description|truncatewords:20 }}</p>
+                        
+                        <div class="card-meta-info">
+                            <span class="meta-item"><i class="ti ti-folder"></i> {{ tutorial.category.name }}</span>
+                            <span class="meta-item"><i class="ti ti-clock"></i> {{ tutorial.estimated_time }} min</span>
+                        </div>
+                        
+                        <div class="card-meta-info ratings-meta">
+                            <span class="meta-item"><i class="ti ti-eye"></i> {{ tutorial.views }} vistas</span>
+                            <span class="meta-item"><i class="ti ti-list-numbers"></i> {{ tutorial.total_steps }} pasos</span>
+                        </div>
+                        
+                        <a href="{% url 'tutorial_detail' tutorial.id %}" class="action-link-btn primary-action mt-auto">
+                            <span>Comenzar Tutorial</span> <i class="ti ti-player-play"></i>
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-state-glass">
+                    <i class="ti ti-search-off"></i>
+                    <p>No se encontraron tutoriales que coincidan con los filtros seleccionados.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Paginación -->
+        {% if page_obj.has_other_pages %}
+        <div class="pagination-wrapper">
+            <nav class="premium-pagination">
+                {% if page_obj.has_previous %}
+                <a href="?page={{ page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_difficulty %}&difficulty={{ selected_difficulty }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="page-link-btn">
+                    <i class="ti ti-chevron-left"></i> Anterior
+                </a>
                 {% endif %}
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <span class="badge bg-{{ tutorial.difficulty == 'beginner'|yesno:'success,warning,danger' }}">
-                            {{ tutorial.get_difficulty_display }}
-                        </span>
-                        {% if tutorial.featured %}
-                        <span class="badge bg-warning">Destacado</span>
-                        {% endif %}
-                    </div>
-                    <h5 class="card-title">{{ tutorial.title }}</h5>
-                    <p class="card-text">{{ tutorial.description|truncatewords:20 }}</p>
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <small class="text-muted">
-                            <i data-lucide="folder"></i> {{ tutorial.category.name }}
-                        </small>
-                        <small class="text-muted">
-                            <i data-lucide="clock"></i> {{ tutorial.estimated_time }} min
-                        </small>
-                    </div>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-muted">
-                            <i data-lucide="eye"></i> {{ tutorial.views }} vistas
-                        </small>
-                        <small class="text-muted">
-                            <i data-lucide="list"></i> {{ tutorial.total_steps }} pasos
-                        </small>
-                    </div>
-                    <a href="{% url 'tutorial_detail' tutorial.id %}" class="btn btn-primary mt-2 w-100">
-                        <i data-lucide="play-circle"></i> Comenzar Tutorial
-                    </a>
-                </div>
-            </div>
-        </div>
-        {% empty %}
-        <div class="col-12">
-            <div class="alert alert-info">
-                <i data-lucide="info"></i> No se encontraron tutoriales con los filtros actuales.
-            </div>
-        </div>
-        {% endfor %}
-    </div>
 
-    <!-- Paginación -->
-    {% if page_obj.has_other_pages %}
-    <div class="row mt-4">
-        <div class="col-12">
-            <nav>
-                <ul class="pagination justify-content-center">
-                    {% if page_obj.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_difficulty %}&difficulty={{ selected_difficulty }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">Anterior</a>
-                    </li>
-                    {% endif %}
-                    
-                    {% for num in page_obj.paginator.page_range %}
-                    {% if page_obj.number == num %}
-                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ num }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_difficulty %}&difficulty={{ selected_difficulty }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a>
-                    </li>
-                    {% endif %}
-                    {% endfor %}
-                    
-                    {% if page_obj.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_difficulty %}&difficulty={{ selected_difficulty }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">Siguiente</a>
-                    </li>
-                    {% endif %}
-                </ul>
+                <span class="page-current-info">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span>
+
+                {% if page_obj.has_next %}
+                <a href="?page={{ page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_difficulty %}&difficulty={{ selected_difficulty }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}" class="page-link-btn">
+                    Siguiente <i class="ti ti-chevron-right"></i>
+                </a>
+                {% endif %}
             </nav>
         </div>
+        {% endif %}
+
+        <!-- Botón de Volver -->
+        <div class="navigation-actions">
+            <a href="{% url 'tutorial_home' %}" class="btn-glow-explore back-btn">
+                <i class="ti ti-arrow-left"></i>
+                <span>Volver a Inicio de Tutoriales</span>
+            </a>
+        </div>
+
     </div>
-    {% endif %}
 </div>
 
-<script>
-if (typeof lucide !== 'undefined') {
-    lucide.createIcons();
+<style>
+/* Base themes */
+.tutorial-theme {
+    position: relative;
+    padding: 30px 10px;
+    z-index: 1;
 }
+
+/* Background Glowing spheres */
+.glow-bg-sphere {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.15;
+    pointer-events: none;
+    z-index: 0;
+    animation: float-slow 15s infinite alternate ease-in-out;
+}
+.sphere-1 { width: 350px; height: 350px; background: #8b5cf6; top: 15%; left: -5%; }
+.sphere-2 { width: 450px; height: 450px; background: #06b6d4; bottom: 15%; right: -5%; animation-delay: -5s; }
+
+@keyframes float-slow {
+    0% { transform: translateY(0) scale(1); }
+    100% { transform: translateY(-40px) scale(1.05); }
+}
+
+/* Premium Breadcrumbs */
+.premium-breadcrumb {
+    margin-bottom: 25px;
+    animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.breadcrumb-list {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+.breadcrumb-item-custom a {
+    color: var(--text-muted, #94a3b8);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.3s;
+}
+.breadcrumb-item-custom a:hover {
+    color: #fff;
+}
+.breadcrumb-item-custom {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: var(--text-muted, #94a3b8);
+    gap: 8px;
+}
+.active-item {
+    color: #c084fc;
+    font-weight: 600;
+}
+
+/* Header Premium */
+.list-header-premium {
+    position: relative;
+    padding: 35px 40px;
+    background: rgba(18, 18, 26, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 24px;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+    margin-bottom: 40px;
+    animation: slideUpFade 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.list-header-premium .header-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, rgba(6, 182, 212, 0.1) 0%, transparent 70%);
+    pointer-events: none;
+}
+.list-header-premium h1 {
+    font-family: var(--font-title, 'Syne', sans-serif);
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+.list-header-premium h1 i {
+    color: #06b6d4;
+}
+.list-header-premium p {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+/* Filter Box */
+.filters-card {
+    margin-bottom: 45px;
+    animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.premium-filters-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr 2fr auto;
+    gap: 20px;
+    align-items: flex-end;
+}
+.filter-field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.filter-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Custom select inputs */
+.select-wrapper {
+    position: relative;
+    width: 100%;
+}
+.premium-select {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 12px 35px 12px 16px;
+    color: #fff;
+    font-size: 0.95rem;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.premium-select:focus {
+    border-color: #8b5cf6;
+    background: rgba(255, 255, 255, 0.06);
+}
+.select-arrow {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+/* Filter search box */
+.filter-search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.search-field-icon {
+    position: absolute;
+    left: 15px;
+    color: var(--text-muted);
+    font-size: 1.1rem;
+}
+.premium-input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 12px 15px 12px 45px;
+    color: #fff;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.3s;
+}
+.premium-input:focus {
+    border-color: #8b5cf6;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.filter-submit-btn {
+    padding: 12px 28px;
+    border-radius: 12px;
+    height: 48px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    font-weight: 700;
+    border: none;
+}
+.action-btn-glow {
+    background: var(--accent-gradient, linear-gradient(135deg, #8b5cf6, #06b6d4));
+    color: #fff !important;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+    transition: all 0.3s;
+}
+.action-btn-glow:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);
+}
+
+/* Grid layout & Glassmorphism Cards */
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+}
+.card-glass {
+    position: relative;
+    background: rgba(25, 25, 35, 0.45);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+}
+.card-glow-effect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.05) 0%, transparent 60%);
+    pointer-events: none;
+}
+.card-image-wrapper {
+    position: relative;
+    width: 100%;
+    height: 170px;
+    overflow: hidden;
+}
+.card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s ease;
+}
+.image-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to bottom, transparent, rgba(10, 10, 15, 0.8));
+}
+.card-body {
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.card-badges-wrapper {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+.badge-custom {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+.beginner-badge { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; }
+.intermediate-badge { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24; }
+.advanced-badge { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; }
+.gold-badge { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24; }
+
+.card-glass h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 10px 0;
+}
+.card-glass p {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.card-meta-info {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 12px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 12px;
+}
+.ratings-meta {
+    border-top: none;
+    padding-top: 0;
+    margin-bottom: 20px;
+}
+.meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.primary-action {
+    background: var(--accent-gradient, linear-gradient(135deg, #8b5cf6, #06b6d4));
+    color: white !important;
+    padding: 12px 20px;
+    border-radius: 12px;
+    width: 100%;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+    text-decoration: none;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+}
+.primary-action:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);
+}
+
+/* Card Hover animation */
+.card-glass:hover {
+    transform: translateY(-6px);
+    background: rgba(25, 25, 35, 0.65);
+    border-color: rgba(139, 92, 246, 0.3);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+}
+.card-glass:hover .card-img {
+    transform: scale(1.05);
+}
+
+/* Pagination styles */
+.pagination-wrapper {
+    display: flex;
+    justify-content: center;
+    margin: 40px 0 20px 0;
+}
+.premium-pagination {
+    display: inline-flex;
+    align-items: center;
+    gap: 15px;
+    padding: 8px 18px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 50px;
+    backdrop-filter: blur(10px);
+}
+.page-link-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+    padding: 6px 14px;
+    border-radius: 30px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: all 0.3s;
+}
+.page-link-btn:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    box-shadow: 0 0 10px rgba(139, 92, 246, 0.4);
+}
+.page-current-info {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+}
+
+/* Back navigation */
+.navigation-actions {
+    text-align: center;
+    margin-top: 40px;
+    animation: slideUpFade 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.btn-glow-explore {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 15px 30px;
+    background: rgba(18, 18, 26, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s;
+}
+.btn-glow-explore:hover {
+    border-color: #8b5cf6;
+    transform: translateY(-2px);
+    background: rgba(18, 18, 26, 0.8);
+    box-shadow: 0 10px 25px rgba(139, 92, 246, 0.2);
+}
+
+.empty-state-glass {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 50px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    color: var(--text-muted);
+}
+.empty-state-glass i {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+}
+
+/* Keyframes */
+@keyframes slideUpFade {
+    0% { transform: translateY(20px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+@media (max-width: 768px) {
+    .premium-filters-form {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    .filter-submit-btn {
+        width: 100%;
+    }
+    .grid-3 {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+});
 </script>
 {% endblock %}

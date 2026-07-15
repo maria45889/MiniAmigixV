@@ -3,238 +3,763 @@
 
 {% block title %}Inicio{% endblock %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/home-improved.css' %}?v=1">
-{% endblock %}
-
 {% block content %}
-<div class="dashboard">
-    <div class="hero-section">
-        <h1 class="hero-title">Bienvenido a MiniAmigixV</h1>
-        <p class="hero-subtitle">Tu espacio personal interactivo</p>
-        <div class="hero-illustration">🤖</div>
-        <button id="pwa-install-hero" class="pwa-install-hero-btn" style="display: none;">
-            <i class="ti ti-download"></i>
-            <span>
-                Instalar App
-                <span class="pwa-subtext">Disponible como PWA</span>
-            </span>
-        </button>
-    </div>
+<div class="home-bento-wrapper">
 
-    <div class="widgets-grid">
-        <!-- Tarjeta: Frase del Día -->
-        <div class="widget-card quote-card">
-            <div class="quote-icon">✨</div>
-            <h3>Frase del Día</h3>
-            <p class="quote-text">"{{ frase_texto }}"</p>
-            <p class="quote-author">- {{ frase_autor }}</p>
+    <!-- === HERO === -->
+    <div class="hero-bento">
+        <div class="hero-bg-orbs">
+            <div class="orb orb-1"></div>
+            <div class="orb orb-2"></div>
+            <div class="orb orb-3"></div>
         </div>
 
-        <!-- Tarjeta: Estadísticas KPI -->
-        <div class="widget-card stats-card">
-            <h3>Tu Actividad</h3>
-            <div class="kpi-grid">
-                <div class="kpi-item">
-                    <div class="kpi-icon">💬</div>
-                    <div class="kpi-value">{{ stats_chats|default:0 }}</div>
-                    <div class="kpi-label">Chats</div>
-                </div>
-                <div class="kpi-item">
-                    <div class="kpi-icon">🎵</div>
-                    <div class="kpi-value">{{ stats_canciones|default:0 }}</div>
-                    <div class="kpi-label">Canciones</div>
-                </div>
-                <div class="kpi-item">
-                    <div class="kpi-icon">📅</div>
-                    <div class="kpi-value">{{ stats_eventos|default:0 }}</div>
-                    <div class="kpi-label">Eventos</div>
-                </div>
-                <div class="kpi-item">
-                    <div class="kpi-icon">🌦</div>
-                    <div class="kpi-value">23°C</div>
-                    <div class="kpi-label">Clima</div>
-                </div>
+        <!-- Left: Text Content -->
+        <div class="hero-left">
+            <div class="hero-eyebrow">
+                <span class="eyebrow-dot"></span>
+                <span>Plataforma activa</span>
+            </div>
+            <h1 class="hero-display">
+                Hola,<br>
+                <span class="hero-name">Bienvenido</span><br>
+                <span class="hero-to">a MiniAmigixV</span>
+            </h1>
+            <p class="hero-tagline">Tu espacio personal con inteligencia artificial, música, eventos y mucho más.</p>
+            <div class="hero-actions">
+                <a href="{% url 'chat' %}" class="btn-primary-hero">
+                    <i class="ti ti-message-chatbot"></i>
+                    Hablar con la IA
+                </a>
+                <a href="{% url 'tutorial_home' %}" class="btn-ghost-hero">
+                    Ver tutoriales
+                    <i class="ti ti-arrow-right"></i>
+                </a>
             </div>
         </div>
-    </div>
 
-    <!-- Quick Access Shortcuts -->
-    <div class="quick-access-section">
-        <h3 class="section-title">Accesos Rápidos</h3>
-        <div class="quick-access-grid">
-            <a href="{% url 'chat' %}" class="quick-access-item">
-                <div class="quick-access-icon">💬</div>
-                <div class="quick-access-label">IA</div>
-            </a>
-            <a href="{% url 'musica' %}" class="quick-access-item">
-                <div class="quick-access-icon">🎵</div>
-                <div class="quick-access-label">Música</div>
-            </a>
-            <a href="{% url 'juegos' %}" class="quick-access-item">
-                <div class="quick-access-icon">🎮</div>
-                <div class="quick-access-label">Juegos</div>
-            </a>
-            <a href="{% url 'traductor' %}" class="quick-access-item">
-                <div class="quick-access-icon">🌐</div>
-                <div class="quick-access-label">Traductor</div>
-            </a>
-        </div>
-    </div>
+        <!-- Right: Robot + KPIs -->
+        <div class="hero-right">
+            <div class="hero-robot-card">
+                <div class="robot-glow"></div>
+                <div class="robot-emoji">🤖</div>
+                <div class="robot-label">MiniAmigix</div>
+                <div class="robot-status">
+                    <span class="status-dot"></span>
+                    <span>En línea</span>
+                </div>
+            </div>
 
-    <div class="cards">
-        <a href="{% url 'chat' %}" class="card">
-            <div class="card-icon-wrapper chat-icon"><span class="emoji">💬</span></div>
-            <div class="card-content">
-                <h3>Chat IA</h3>
-                <p>Conversa y explora con tu asistente virtual inteligente.</p>
-            </div>
-        </a>
-        <a href="{% url 'musica' %}" class="card">
-            <div class="card-icon-wrapper music-icon"><span class="emoji">🎵</span></div>
-            <div class="card-content">
-                <h3>Música</h3>
-                <p>Escucha tus canciones favoritas en un solo lugar.</p>
-            </div>
-        </a>
-        <a href="{% url 'juegos' %}" class="card">
-            <div class="card-icon-wrapper games-icon"><span class="emoji">🎮</span></div>
-            <div class="card-content">
-                <h3>Juegos</h3>
-                <p>Diviértete y relájate con nuestra colección de juegos.</p>
-            </div>
-        </a>
-        <a href="{% url 'estudio' %}" class="card">
-            <div class="card-icon-wrapper study-icon"><span class="emoji">📚</span></div>
-            <div class="card-content">
-                <h3>Estudio</h3>
-                <p>Herramientas y recursos para mejorar tu aprendizaje.</p>
-            </div>
-        </a>
-        <a href="{% url 'clima' %}" class="card">
-            <div class="card-icon-wrapper weather-icon"><span class="emoji">🌤️</span></div>
-            <div class="card-content">
-                <h3>Clima</h3>
-                <p>Revisa el pronóstico y las condiciones actuales.</p>
-            </div>
-        </a>
-    </div>
-
-    <!-- Recent Activity Section -->
-    <div class="recent-activity-section">
-        <h3 class="section-title">Actividad Reciente</h3>
-        <div class="activity-list">
-            <div class="activity-item">
-                <div class="activity-icon">💬</div>
-                <div class="activity-content">
-                    <div class="activity-text">Chat IA</div>
-                    <div class="activity-time">Hoy</div>
+            <div class="hero-mini-stats">
+                <div class="mini-stat">
+                    <span class="mini-stat-icon">💬</span>
+                    <span class="mini-stat-val">{{ stats_chats|default:0 }}</span>
+                    <span class="mini-stat-lbl">Chats</span>
                 </div>
-                <div class="activity-check">✔</div>
-            </div>
-            <div class="activity-item">
-                <div class="activity-icon">🎵</div>
-                <div class="activity-content">
-                    <div class="activity-text">Música</div>
-                    <div class="activity-time">Hoy</div>
+                <div class="mini-stat">
+                    <span class="mini-stat-icon">🎵</span>
+                    <span class="mini-stat-val">{{ stats_canciones|default:0 }}</span>
+                    <span class="mini-stat-lbl">Canciones</span>
                 </div>
-                <div class="activity-check">✔</div>
-            </div>
-            <div class="activity-item">
-                <div class="activity-icon">📅</div>
-                <div class="activity-content">
-                    <div class="activity-text">Evento</div>
-                    <div class="activity-time">Hoy</div>
+                <div class="mini-stat">
+                    <span class="mini-stat-icon">📅</span>
+                    <span class="mini-stat-val">{{ stats_eventos|default:0 }}</span>
+                    <span class="mini-stat-lbl">Eventos</span>
                 </div>
-                <div class="activity-check">✔</div>
-            </div>
-            <div class="activity-item">
-                <div class="activity-icon">🌐</div>
-                <div class="activity-content">
-                    <div class="activity-text">Traductor</div>
-                    <div class="activity-time">Hoy</div>
+                <div class="mini-stat">
+                    <span class="mini-stat-icon">🌦</span>
+                    <span class="mini-stat-val">23°</span>
+                    <span class="mini-stat-lbl">Clima</span>
                 </div>
-                <div class="activity-check">✔</div>
             </div>
         </div>
     </div>
 
-    <!-- Footer -->
-    <footer class="app-footer">
-        <div class="footer-content">
-            <div class="footer-brand">
-                <span class="footer-logo">MiniAmigixV</span>
-            </div>
-            <div class="footer-info">
-                <span class="footer-version">Versión 1.0</span>
-                <span class="footer-copyright">© 2026</span>
+    <!-- === BENTO GRID === -->
+    <div class="bento-grid">
+
+        <!-- Frase del día — grande -->
+        <div class="bento-cell quote-cell">
+            <div class="bento-noise"></div>
+            <div class="quote-marks">"</div>
+            <p class="bento-quote-text">{{ frase_texto }}</p>
+            <span class="bento-quote-author">— {{ frase_autor }}</span>
+            <div class="quote-shimmer"></div>
+        </div>
+
+        <!-- Chat IA -->
+        <a href="{% url 'chat' %}" class="bento-cell module-cell chat-cell">
+            <div class="bento-noise"></div>
+            <div class="module-icon-wrap"><i class="ti ti-message-chatbot"></i></div>
+            <h3>Chat IA</h3>
+            <p>Conversa con tu asistente virtual inteligente</p>
+            <div class="cell-arrow"><i class="ti ti-arrow-up-right"></i></div>
+            <div class="cell-glow"></div>
+        </a>
+
+        <!-- Música -->
+        <a href="{% url 'musica' %}" class="bento-cell module-cell music-cell">
+            <div class="bento-noise"></div>
+            <div class="module-icon-wrap"><i class="ti ti-headphones"></i></div>
+            <h3>Música</h3>
+            <p>Escucha lo que quieras, cuando quieras</p>
+            <div class="cell-arrow"><i class="ti ti-arrow-up-right"></i></div>
+            <div class="cell-glow"></div>
+        </a>
+
+        <!-- Juegos — tall -->
+        <a href="{% url 'juegos' %}" class="bento-cell module-cell games-cell">
+            <div class="bento-noise"></div>
+            <div class="module-icon-wrap"><i class="ti ti-device-gamepad-2"></i></div>
+            <h3>Juegos</h3>
+            <p>Mini arcades y retos interactivos</p>
+            <div class="games-bg-emoji">🕹️</div>
+            <div class="cell-arrow"><i class="ti ti-arrow-up-right"></i></div>
+            <div class="cell-glow"></div>
+        </a>
+
+        <!-- Estudio -->
+        <a href="{% url 'estudio' %}" class="bento-cell module-cell study-cell">
+            <div class="bento-noise"></div>
+            <div class="module-icon-wrap"><i class="ti ti-book-2"></i></div>
+            <h3>Estudio</h3>
+            <p>Pomodoro y notas con IA</p>
+            <div class="cell-arrow"><i class="ti ti-arrow-up-right"></i></div>
+            <div class="cell-glow"></div>
+        </a>
+
+        <!-- Accesos rápidos — wide -->
+        <div class="bento-cell quick-cell">
+            <div class="bento-noise"></div>
+            <h3 class="quick-title">Accesos Rápidos</h3>
+            <div class="quick-chips">
+                <a href="{% url 'chat' %}" class="chip chip-purple"><i class="ti ti-message-chatbot"></i> Chat IA</a>
+                <a href="{% url 'musica' %}" class="chip chip-cyan"><i class="ti ti-music"></i> Música</a>
+                <a href="{% url 'juegos' %}" class="chip chip-green"><i class="ti ti-device-gamepad-2"></i> Juegos</a>
+                <a href="{% url 'traductor' %}" class="chip chip-teal"><i class="ti ti-language"></i> Traductor</a>
+                <a href="{% url 'clima' %}" class="chip chip-orange"><i class="ti ti-cloud-sun"></i> Clima</a>
+                <a href="{% url 'lista_eventos' %}" class="chip chip-red"><i class="ti ti-calendar-event"></i> Eventos</a>
             </div>
         </div>
+
+        <!-- Clima -->
+        <a href="{% url 'clima' %}" class="bento-cell module-cell weather-cell">
+            <div class="bento-noise"></div>
+            <div class="weather-big-icon">⛅</div>
+            <div class="weather-temp">23°C</div>
+            <div class="weather-desc">Parcialmente nublado</div>
+            <div class="module-icon-wrap mini"><i class="ti ti-cloud-sun"></i></div>
+            <div class="cell-glow"></div>
+        </a>
+
+        <!-- Traductor -->
+        <a href="{% url 'traductor' %}" class="bento-cell module-cell translator-cell">
+            <div class="bento-noise"></div>
+            <div class="module-icon-wrap"><i class="ti ti-world-www"></i></div>
+            <h3>Traductor</h3>
+            <p>Traduce texto en múltiples idiomas</p>
+            <div class="cell-arrow"><i class="ti ti-arrow-up-right"></i></div>
+            <div class="cell-glow"></div>
+        </a>
+
+        <!-- Actividad Reciente — wide -->
+        <div class="bento-cell activity-cell">
+            <div class="bento-noise"></div>
+            <h3 class="cell-heading"><i class="ti ti-history"></i> Actividad Reciente</h3>
+            <div class="activity-mini-list">
+                <div class="activity-row">
+                    <div class="activity-chip-icon chat-bg"><i class="ti ti-message-dots"></i></div>
+                    <span class="activity-row-name">Chat IA</span>
+                    <span class="activity-row-time">Hoy</span>
+                    <div class="activity-check"><i class="ti ti-circle-check-filled"></i></div>
+                </div>
+                <div class="activity-row">
+                    <div class="activity-chip-icon music-bg"><i class="ti ti-music"></i></div>
+                    <span class="activity-row-name">Música</span>
+                    <span class="activity-row-time">Hoy</span>
+                    <div class="activity-check"><i class="ti ti-circle-check-filled"></i></div>
+                </div>
+                <div class="activity-row">
+                    <div class="activity-chip-icon events-bg"><i class="ti ti-calendar"></i></div>
+                    <span class="activity-row-name">Evento creado</span>
+                    <span class="activity-row-time">Hoy</span>
+                    <div class="activity-check"><i class="ti ti-circle-check-filled"></i></div>
+                </div>
+                <div class="activity-row">
+                    <div class="activity-chip-icon translator-bg"><i class="ti ti-language"></i></div>
+                    <span class="activity-row-name">Traducción</span>
+                    <span class="activity-row-time">Hoy</span>
+                    <div class="activity-check"><i class="ti ti-circle-check-filled"></i></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tutorial CTA -->
+        <a href="{% url 'tutorial_home' %}" class="bento-cell tutorial-cta-cell">
+            <div class="bento-noise"></div>
+            <div class="tutorial-cta-bg">📚</div>
+            <div class="tutorial-cta-content">
+                <span class="cta-eyebrow">¿Primera vez?</span>
+                <h3>Explora los Tutoriales</h3>
+                <p>Aprende a usar todas las funciones de MiniAmigixV en minutos</p>
+                <span class="cta-btn">Comenzar ahora <i class="ti ti-arrow-right"></i></span>
+            </div>
+            <div class="cell-glow"></div>
+        </a>
+
+    </div>
+
+    <!-- Footer minimal -->
+    <footer class="bento-footer">
+        <span class="footer-brand">MiniAmigixV</span>
+        <span class="footer-right">Versión 1.0 &nbsp;·&nbsp; © 2026</span>
     </footer>
+
 </div>
-{% endblock %}
 
-{% block extra_js %}
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+/* =========================================
+   BENTO HOME — Complete Redesign
+   ========================================= */
+
+.home-bento-wrapper {
+    padding: 20px 24px 40px 24px;
+    min-height: 100%;
+    position: relative;
+}
+
+/* ---- HERO ---- */
+.hero-bento {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 30px;
+    padding: 50px 55px;
+    border-radius: 28px;
+    background: linear-gradient(135deg, rgba(17,17,30,0.9), rgba(10,10,20,0.95));
+    border: 1px solid rgba(255,255,255,0.07);
+    overflow: hidden;
+    margin-bottom: 28px;
+}
+
+.hero-bg-orbs { position: absolute; inset: 0; pointer-events: none; }
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(90px);
+    opacity: 0.35;
+}
+.orb-1 { width: 320px; height: 320px; background: #7c3aed; top: -80px; left: -80px; animation: orb-drift 12s ease-in-out infinite alternate; }
+.orb-2 { width: 280px; height: 280px; background: #06b6d4; bottom: -60px; right: 20%; animation: orb-drift 15s ease-in-out infinite alternate-reverse; }
+.orb-3 { width: 200px; height: 200px; background: #f472b6; top: 20%; right: -40px; animation: orb-drift 10s ease-in-out infinite alternate; }
+
+@keyframes orb-drift {
+    0% { transform: translate(0,0) scale(1); }
+    100% { transform: translate(30px, 20px) scale(1.15); }
+}
+
+.hero-left { flex: 1; position: relative; z-index: 2; }
+.hero-right { position: relative; z-index: 2; display: flex; flex-direction: column; align-items: flex-end; gap: 18px; }
+
+.hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.3);
+    color: #4ade80; padding: 5px 14px; border-radius: 30px;
+    font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 20px;
+}
+.eyebrow-dot {
+    width: 7px; height: 7px; border-radius: 50%; background: #4ade80;
+    animation: pulse-dot 2s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(0.7); }
+}
+
+.hero-display {
+    font-family: var(--font-title, 'Syne', sans-serif);
+    font-size: 3.8rem;
+    font-weight: 900;
+    line-height: 1.05;
+    color: #fff;
+    margin-bottom: 18px;
+    letter-spacing: -2px;
+}
+.hero-name {
+    background: linear-gradient(90deg, #a78bfa, #38bdf8, #f472b6);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: text-shine 4s linear infinite;
+}
+.hero-to { color: rgba(255,255,255,0.55); font-size: 2.8rem; }
+
+@keyframes text-shine {
+    0% { background-position: 0% center; }
+    100% { background-position: 200% center; }
+}
+
+.hero-tagline {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 32px;
+    max-width: 480px;
+    line-height: 1.6;
+}
+
+.hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+
+.btn-primary-hero {
+    display: inline-flex; align-items: center; gap: 10px;
+    padding: 14px 28px;
+    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+    color: #fff; text-decoration: none;
+    border-radius: 14px; font-weight: 700; font-size: 1rem;
+    box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+    transition: all 0.3s;
+}
+.btn-primary-hero:hover { transform: translateY(-3px); box-shadow: 0 14px 35px rgba(124, 58, 237, 0.55); }
+
+.btn-ghost-hero {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 14px 24px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.75); text-decoration: none;
+    border-radius: 14px; font-weight: 600; font-size: 1rem;
+    transition: all 0.3s;
+}
+.btn-ghost-hero:hover { background: rgba(255,255,255,0.1); color: #fff; }
+
+/* Robot Card */
+.hero-robot-card {
+    position: relative;
+    width: 140px; padding: 24px 20px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 24px;
+    text-align: center;
+    overflow: hidden;
+}
+.robot-glow {
+    position: absolute; inset: 0;
+    background: radial-gradient(circle at 50% 30%, rgba(139,92,246,0.25), transparent 70%);
+}
+.robot-emoji { font-size: 4rem; animation: robot-float 3s ease-in-out infinite; display: block; margin-bottom: 8px; }
+@keyframes robot-float {
+    0%,100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(4deg); }
+}
+.robot-label { font-weight: 700; font-size: 0.95rem; color: #fff; margin-bottom: 8px; }
+.robot-status { display: flex; align-items: center; justify-content: center; gap: 6px; font-size: 0.8rem; color: #4ade80; }
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: #4ade80; animation: pulse-dot 1.5s ease-in-out infinite; }
+
+/* Mini Stats */
+.hero-mini-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    width: 200px;
+}
+.mini-stat {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 14px;
+    padding: 12px;
+    text-align: center;
+    transition: all 0.3s;
+}
+.mini-stat:hover { background: rgba(255,255,255,0.08); transform: scale(1.04); }
+.mini-stat-icon { display: block; font-size: 1.4rem; margin-bottom: 4px; }
+.mini-stat-val { display: block; font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 2px; }
+.mini-stat-lbl { font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* =========================================
+   BENTO GRID
+   ========================================= */
+.bento-grid {
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    grid-auto-rows: 160px;
+    gap: 18px;
+    margin-bottom: 28px;
+}
+
+/* Noise overlay for texture */
+.bento-noise {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+    border-radius: inherit;
+    opacity: 0.5;
+}
+
+.bento-cell {
+    position: relative;
+    border-radius: 22px;
+    overflow: hidden;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s ease;
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+}
+
+.bento-cell:hover {
+    transform: translateY(-5px) scale(1.01);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    z-index: 5;
+}
+
+/* ---- Frase del día (5 cols × 2 rows) ---- */
+.quote-cell {
+    grid-column: span 5;
+    grid-row: span 2;
+    background: linear-gradient(145deg, #1a0533, #0d1b2a);
+    border: 1px solid rgba(139,92,246,0.3);
+    padding: 35px 32px;
+    justify-content: flex-end;
+}
+.quote-marks {
+    font-family: Georgia, serif;
+    font-size: 8rem;
+    line-height: 0.7;
+    color: rgba(139,92,246,0.25);
+    position: absolute;
+    top: 15px; left: 20px;
+}
+.bento-quote-text {
+    font-size: 1.35rem;
+    font-style: italic;
+    color: #e2e8f0;
+    line-height: 1.65;
+    margin-bottom: 15px;
+    position: relative;
+    z-index: 2;
+}
+.bento-quote-author {
+    font-size: 0.9rem;
+    color: rgba(255,255,255,0.4);
+    font-weight: 600;
+    position: relative; z-index: 2;
+}
+.quote-shimmer {
+    position: absolute; top: 0; right: 0;
+    width: 160px; height: 160px;
+    background: radial-gradient(circle, rgba(139,92,246,0.2), transparent 70%);
+    border-radius: 50%;
+}
+
+/* ---- Chat IA (4 cols × 1 row) ---- */
+.chat-cell {
+    grid-column: span 4;
+    background: linear-gradient(135deg, #1e0533, #0d0d1f);
+    border: 1px solid rgba(167,139,250,0.2);
+    padding: 26px 28px;
+}
+.chat-cell .cell-glow { background: radial-gradient(circle at 80% 20%, rgba(139,92,246,0.3), transparent 65%); }
+
+/* ---- Música (3 cols × 1 row) ---- */
+.music-cell {
+    grid-column: span 3;
+    background: linear-gradient(135deg, #001529, #003366);
+    border: 1px solid rgba(56,189,248,0.25);
+    padding: 26px 28px;
+}
+.music-cell .cell-glow { background: radial-gradient(circle at 80% 20%, rgba(56,189,248,0.3), transparent 65%); }
+
+/* ---- Juegos (3 cols × 2 rows) ---- */
+.games-cell {
+    grid-column: span 3;
+    grid-row: span 2;
+    background: linear-gradient(160deg, #0f1f0f, #143314);
+    border: 1px solid rgba(52,211,153,0.25);
+    padding: 28px;
+}
+.games-cell .cell-glow { background: radial-gradient(circle at 50% 70%, rgba(52,211,153,0.25), transparent 65%); }
+.games-bg-emoji {
+    position: absolute;
+    font-size: 7rem;
+    bottom: -10px; right: -10px;
+    opacity: 0.12;
+    filter: blur(1px);
+    transform: rotate(-10deg);
+}
+
+/* ---- Estudio (4 cols × 1 row) ---- */
+.study-cell {
+    grid-column: span 4;
+    background: linear-gradient(135deg, #1f1500, #2d1f00);
+    border: 1px solid rgba(251,191,36,0.25);
+    padding: 26px 28px;
+}
+.study-cell .cell-glow { background: radial-gradient(circle at 80% 20%, rgba(251,191,36,0.25), transparent 65%); }
+
+/* ---- Accesos Rápidos (5 cols × 1 row) ---- */
+.quick-cell {
+    grid-column: span 5;
+    background: rgba(18,18,30,0.8);
+    border: 1px solid rgba(255,255,255,0.07);
+    padding: 22px 28px;
+}
+.quick-title {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: rgba(255,255,255,0.35);
+    margin-bottom: 14px;
+}
+.quick-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.25s;
+    border: 1px solid transparent;
+}
+.chip:hover { transform: translateY(-2px) scale(1.04); }
+.chip-purple { background: rgba(139,92,246,0.15); color: #c084fc; border-color: rgba(139,92,246,0.3); }
+.chip-purple:hover { background: rgba(139,92,246,0.3); }
+.chip-cyan { background: rgba(6,182,212,0.15); color: #22d3ee; border-color: rgba(6,182,212,0.3); }
+.chip-cyan:hover { background: rgba(6,182,212,0.3); }
+.chip-green { background: rgba(52,211,153,0.15); color: #4ade80; border-color: rgba(52,211,153,0.3); }
+.chip-green:hover { background: rgba(52,211,153,0.3); }
+.chip-teal { background: rgba(20,184,166,0.15); color: #2dd4bf; border-color: rgba(20,184,166,0.3); }
+.chip-teal:hover { background: rgba(20,184,166,0.3); }
+.chip-orange { background: rgba(251,146,60,0.15); color: #fb923c; border-color: rgba(251,146,60,0.3); }
+.chip-orange:hover { background: rgba(251,146,60,0.3); }
+.chip-red { background: rgba(248,113,113,0.15); color: #f87171; border-color: rgba(248,113,113,0.3); }
+.chip-red:hover { background: rgba(248,113,113,0.3); }
+
+/* ---- Clima (3 cols × 1 row) ---- */
+.weather-cell {
+    grid-column: span 3;
+    background: linear-gradient(145deg, #00101f, #001830);
+    border: 1px solid rgba(125,211,252,0.2);
+    padding: 20px 24px;
+    justify-content: center;
+}
+.weather-cell .cell-glow { background: radial-gradient(circle at 30% 50%, rgba(125,211,252,0.2), transparent 65%); }
+.weather-big-icon { font-size: 3rem; margin-bottom: 2px; }
+.weather-temp { font-size: 2.5rem; font-weight: 900; color: #fff; line-height: 1; }
+.weather-desc { font-size: 0.85rem; color: rgba(255,255,255,0.4); margin-top: 5px; }
+.module-icon-wrap.mini { width: 28px; height: 28px; font-size: 1rem; border-radius: 8px; position: absolute; top: 16px; right: 16px; }
+
+/* ---- Traductor (4 cols × 1 row) ---- */
+.translator-cell {
+    grid-column: span 4;
+    background: linear-gradient(135deg, #001a1a, #002222);
+    border: 1px solid rgba(45,212,191,0.2);
+    padding: 26px 28px;
+}
+.translator-cell .cell-glow { background: radial-gradient(circle at 80% 20%, rgba(45,212,191,0.25), transparent 65%); }
+
+/* ---- Actividad Reciente (6 cols × 2 rows) ---- */
+.activity-cell {
+    grid-column: span 6;
+    grid-row: span 2;
+    background: rgba(15,15,25,0.9);
+    border: 1px solid rgba(255,255,255,0.07);
+    padding: 28px 30px;
+}
+.cell-heading {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.cell-heading i { color: #8b5cf6; }
+.activity-mini-list { display: flex; flex-direction: column; gap: 12px; }
+.activity-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 16px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 14px;
+    transition: all 0.3s;
+}
+.activity-row:hover { background: rgba(255,255,255,0.07); transform: translateX(5px); }
+.activity-chip-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; color: #fff;
+}
+.chat-bg { background: linear-gradient(135deg, #7c3aed, #4f46e5); }
+.music-bg { background: linear-gradient(135deg, #0ea5e9, #06b6d4); }
+.events-bg { background: linear-gradient(135deg, #f59e0b, #d97706); }
+.translator-bg { background: linear-gradient(135deg, #10b981, #059669); }
+.activity-row-name { flex: 1; font-weight: 600; font-size: 0.95rem; color: #e2e8f0; }
+.activity-row-time { font-size: 0.8rem; color: rgba(255,255,255,0.35); }
+.activity-check { color: #4ade80; font-size: 1.1rem; }
+
+/* ---- Tutorial CTA (6 cols × 2 rows) ---- */
+.tutorial-cta-cell {
+    grid-column: span 6;
+    grid-row: span 2;
+    background: linear-gradient(135deg, #1a0533 0%, #0d1b2a 50%, #001a12 100%);
+    border: 1px solid rgba(139,92,246,0.3);
+    padding: 32px 36px;
+    text-decoration: none;
+    overflow: hidden;
+}
+.tutorial-cta-bg {
+    position: absolute;
+    font-size: 9rem;
+    bottom: -20px; right: -10px;
+    opacity: 0.12;
+    transform: rotate(-15deg);
+    filter: blur(2px);
+}
+.tutorial-cta-content { position: relative; z-index: 2; }
+.cta-eyebrow {
+    display: inline-block;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #a78bfa;
+    margin-bottom: 12px;
+    font-weight: 600;
+}
+.tutorial-cta-cell h3 {
+    font-family: var(--font-title, 'Syne', sans-serif);
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #fff;
+    margin-bottom: 10px;
+}
+.tutorial-cta-cell p {
+    font-size: 1rem;
+    color: rgba(255,255,255,0.5);
+    line-height: 1.5;
+    margin-bottom: 22px;
+}
+.cta-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 12px 24px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 12px;
+    color: #fff; font-weight: 700;
+    transition: all 0.3s;
+}
+.tutorial-cta-cell:hover .cta-btn {
+    background: #7c3aed;
+    border-color: #7c3aed;
+    box-shadow: 0 8px 20px rgba(124,58,237,0.4);
+}
+
+/* ---- Shared elements for module cells ---- */
+.module-cell { padding: 26px 28px; }
+.module-icon-wrap {
+    width: 46px; height: 46px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.08);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.5rem;
+    color: #fff;
+    margin-bottom: 14px;
+    transition: transform 0.3s;
+}
+.bento-cell:hover .module-icon-wrap { transform: scale(1.1) rotate(5deg); }
+.module-cell h3 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 6px;
+}
+.module-cell p {
+    font-size: 0.88rem;
+    color: rgba(255,255,255,0.45);
+    line-height: 1.4;
+}
+.cell-arrow {
+    position: absolute;
+    top: 18px; right: 18px;
+    width: 32px; height: 32px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.4);
+    font-size: 0.95rem;
+    transition: all 0.3s;
+}
+.bento-cell:hover .cell-arrow {
+    background: rgba(255,255,255,0.14);
+    color: #fff;
+    transform: translate(-2px, -2px);
+}
+.cell-glow {
+    position: absolute; inset: 0; pointer-events: none;
+    border-radius: inherit;
+}
+
+/* ---- FOOTER ---- */
+.bento-footer {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 18px 4px;
+    border-top: 1px solid rgba(255,255,255,0.05);
+}
+.footer-brand {
+    font-family: var(--font-title, 'Syne', sans-serif);
+    font-weight: 800;
+    font-size: 1.1rem;
+    background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+.footer-right { font-size: 0.85rem; color: rgba(255,255,255,0.25); }
+
+/* =========================================
+   RESPONSIVE
+   ========================================= */
+@media (max-width: 1024px) {
+    .bento-grid { grid-template-columns: repeat(6, 1fr); }
+    .quote-cell { grid-column: span 6; grid-row: span 1; }
+    .chat-cell, .music-cell, .games-cell, .study-cell { grid-column: span 3; grid-row: span 1; }
+    .games-cell { grid-row: span 1; }
+    .quick-cell, .weather-cell, .translator-cell { grid-column: span 3; }
+    .activity-cell, .tutorial-cta-cell { grid-column: span 6; grid-row: span 1; }
+}
+
+@media (max-width: 768px) {
+    .hero-bento { flex-direction: column; padding: 35px 25px; }
+    .hero-right { flex-direction: row; align-items: flex-start; width: 100%; }
+    .hero-display { font-size: 2.8rem; }
+    .hero-to { font-size: 2.2rem; }
+    .bento-grid { grid-template-columns: repeat(2, 1fr); grid-auto-rows: 140px; }
+    .quote-cell, .games-cell, .activity-cell, .tutorial-cta-cell, .quick-cell { grid-column: span 2; grid-row: span 1; }
+    .chat-cell, .music-cell, .study-cell, .weather-cell, .translator-cell { grid-column: span 1; }
+    .hero-mini-stats { width: 100%; grid-template-columns: repeat(4, 1fr); }
+}
+</style>
+
 <script>
-// Configuración del Gráfico de Estadísticas
-document.addEventListener('DOMContentLoaded', function() {
-    const canvas = document.getElementById('activityChart');
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    
-    // Variables enviadas desde Django
-    const dataChats = {{ stats_chats|default:0 }};
-    const dataNotas = {{ stats_notas|default:0 }};
-    const dataEventos = {{ stats_eventos|default:0 }};
-    const dataCanciones = {{ stats_canciones|default:0 }};
-
-    // Crear gradiente para las barras
-    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, 'rgba(124, 58, 237, 0.8)');
-    gradient.addColorStop(1, 'rgba(6, 182, 212, 0.8)');
-
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: ['Chats', 'Eventos', 'Música'],
-            datasets: [{
-                label: 'Actividad',
-                data: [dataChats, dataEventos, dataCanciones],
-                backgroundColor: gradient,
-                borderRadius: 8,
-                borderSkipped: false,
-                barThickness: 20
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    backgroundColor: 'rgba(17, 28, 46, 0.9)',
-                    titleColor: '#e2e8f0',
-                    bodyColor: '#e2e8f0',
-                    borderColor: 'rgba(255,255,255,0.1)',
-                    borderWidth: 1,
-                    padding: 10,
-                    displayColors: false
-                }
-            },
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: { color: '#94a3b8', stepSize: 1 },
-                    grid: { color: 'rgba(255, 255, 255, 0.05)', drawBorder: false }
-                },
-                x: {
-                    ticks: { color: '#e2e8f0', font: { weight: 'bold' } },
-                    grid: { display: false, drawBorder: false }
-                }
-            }
-        }
+document.addEventListener('DOMContentLoaded', () => {
+    // PWA install button
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        const btn = document.getElementById('pwa-install-hero');
+        if (btn) btn.style.display = 'inline-flex';
     });
+
+    const pwaBtn = document.getElementById('pwa-install-hero');
+    if (pwaBtn) {
+        pwaBtn.addEventListener('click', () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+            }
+        });
+    }
 });
 </script>
 {% endblock %}

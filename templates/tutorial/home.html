@@ -1,127 +1,877 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Tutoriales - MiniAmigixV{% endblock %}
+{% block title %}Centro de Tutoriales - MiniAmigixV{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <h1 class="mb-4"><i data-lucide="book-open"></i> Centro de Tutoriales</h1>
-            <p class="lead">Aprende a utilizar todas las funciones de MiniAmigixV con nuestros tutoriales interactivos.</p>
-        </div>
-    </div>
+<!-- Decorative Background Spheres for Depth and Glow -->
+<div class="glow-bg-sphere sphere-1"></div>
+<div class="glow-bg-sphere sphere-2"></div>
+<div class="glow-bg-sphere sphere-3"></div>
 
-    <!-- Categorías -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2><i data-lucide="folder"></i> Categorías</h2>
-        </div>
-    </div>
-    <div class="row mb-5">
-        {% for category in categories %}
-        <div class="col-md-3 mb-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">
-                        {% if category.icon %}
-                        <i data-lucide="{{ category.icon }}"></i>
-                        {% endif %}
-                        {{ category.name }}
-                    </h5>
-                    <p class="card-text">{{ category.description }}</p>
-                    <a href="{% url 'category_tutorials' category.id %}" class="btn btn-primary">
-                        Ver Tutoriales
-                    </a>
+<div class="page-content tutorial-theme">
+    <div class="container animate-fade-in">
+        
+        <!-- Header Principal -->
+        <div class="tutorial-header-premium">
+            <div class="header-glow-overlay"></div>
+            <div class="header-particles">
+                <span class="particle"></span>
+                <span class="particle"></span>
+                <span class="particle"></span>
+                <span class="particle"></span>
+                <span class="particle"></span>
+            </div>
+            <div class="header-content">
+                <div class="header-badge">
+                    <i class="ti ti-sparkles"></i> <span>Aprende e Interactúa</span>
+                </div>
+                <h1 class="header-title">Centro de <span>Tutoriales</span></h1>
+                <p class="header-subtitle">Descubre y domina todas las herramientas de MiniAmigixV paso a paso con guías diseñadas especialmente para ti.</p>
+                
+                <!-- Buscador de Tutoriales -->
+                <div class="search-container">
+                    <form action="{% url 'tutorial_list' %}" method="GET" class="search-form-premium">
+                        <div class="search-input-wrapper">
+                            <i class="ti ti-search search-icon-animated"></i>
+                            <input type="text" name="search" id="tutorial-search" placeholder="¿Qué quieres aprender a hacer hoy en MiniAmigixV?" autocomplete="off">
+                            <button type="submit" class="search-btn-shine">
+                                <span>Buscar</span>
+                            </button>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
-        {% empty %}
-        <div class="col-12">
-            <p class="text-muted">No hay categorías disponibles.</p>
-        </div>
-        {% endfor %}
-    </div>
 
-    <!-- Tutoriales Destacados -->
-    {% if featured_tutorials %}
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2><i data-lucide="star"></i> Tutoriales Destacados</h2>
-        </div>
-    </div>
-    <div class="row mb-5">
-        {% for tutorial in featured_tutorials %}
-        <div class="col-md-4 mb-3">
-            <div class="card h-100 border-warning">
-                <div class="card-body">
-                    <span class="badge bg-warning">Destacado</span>
-                    <h5 class="card-title mt-2">{{ tutorial.title }}</h5>
-                    <p class="card-text">{{ tutorial.description|truncatewords:20 }}</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-muted">
-                            <i data-lucide="clock"></i> {{ tutorial.estimated_time }} min
-                        </small>
-                        <small class="badge bg-{{ tutorial.difficulty == 'beginner'|yesno:'success,warning,danger' }}">
-                            {{ tutorial.get_difficulty_display }}
-                        </small>
+        <!-- Categorías -->
+        <div class="tutorial-section" id="categories-section">
+            <div class="section-title-wrapper">
+                <div class="title-left">
+                    <div class="title-icon-box purple-glow"><i class="ti ti-folder-open"></i></div>
+                    <h2>Categorías</h2>
+                </div>
+                <span class="section-subtitle-badge">{{ categories|length }} Módulos</span>
+            </div>
+            
+            <div class="grid-4 categories-grid">
+                {% for category in categories %}
+                <div class="card-glass tutorial-card-premium category-card" data-title="{{ category.name }}" data-desc="{{ category.description }}">
+                    <div class="card-glow-effect"></div>
+                    <div class="card-body">
+                        <div class="card-icon-container">
+                            <div class="icon-circle {{ category.icon|default:'folder' }}">
+                                {% if category.icon %}
+                                <i class="ti ti-{{ category.icon }}"></i>
+                                {% else %}
+                                <i class="ti ti-folder"></i>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <h3>{{ category.name }}</h3>
+                        <p>{{ category.description }}</p>
+                        <a href="{% url 'category_tutorials' category.id %}" class="action-link-btn">
+                            <span>Ver Tutoriales</span> <i class="ti ti-arrow-right"></i>
+                        </a>
                     </div>
-                    <a href="{% url 'tutorial_detail' tutorial.id %}" class="btn btn-primary mt-2">
-                        Comenzar Tutorial
-                    </a>
                 </div>
+                {% empty %}
+                <div class="empty-state-glass">
+                    <i class="ti ti-folder-off"></i>
+                    <p>No hay categorías disponibles en este momento.</p>
+                </div>
+                {% endfor %}
             </div>
         </div>
-        {% endfor %}
-    </div>
-    {% endif %}
 
-    <!-- Tutoriales Recientes -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <h2><i data-lucide="clock"></i> Tutoriales Recientes</h2>
-        </div>
-    </div>
-    <div class="row mb-5">
-        {% for tutorial in recent_tutorials %}
-        <div class="col-md-4 mb-3">
-            <div class="card h-100">
-                <div class="card-body">
-                    <h5 class="card-title">{{ tutorial.title }}</h5>
-                    <p class="card-text">{{ tutorial.description|truncatewords:15 }}</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <small class="text-muted">
-                            <i data-lucide="folder"></i> {{ tutorial.category.name }}
-                        </small>
-                        <small class="text-muted">
-                            <i data-lucide="eye"></i> {{ tutorial.views }}
-                        </small>
+        <!-- Tutoriales Destacados -->
+        {% if featured_tutorials %}
+        <div class="tutorial-section" id="featured-section">
+            <div class="section-title-wrapper">
+                <div class="title-left">
+                    <div class="title-icon-box gold-glow"><i class="ti ti-star"></i></div>
+                    <h2>Tutoriales Destacados</h2>
+                </div>
+                <span class="section-subtitle-badge gold">Premium</span>
+            </div>
+            
+            <div class="grid-3 featured-grid">
+                {% for tutorial in featured_tutorials %}
+                <div class="card-glass tutorial-card-premium featured-card" data-title="{{ tutorial.title }}" data-desc="{{ tutorial.description }}">
+                    <div class="animated-border-glow"></div>
+                    <div class="card-glow-effect"></div>
+                    <div class="card-body">
+                        <div class="card-badges-wrapper">
+                            <span class="badge-custom gold-badge"><i class="ti ti-award"></i> Destacado</span>
+                            {% if tutorial.difficulty == 'beginner' %}
+                            <span class="badge-custom beginner-badge"><i class="ti ti-leaf"></i> {{ tutorial.get_difficulty_display }}</span>
+                            {% elif tutorial.difficulty == 'intermediate' %}
+                            <span class="badge-custom intermediate-badge"><i class="ti ti-bolt"></i> {{ tutorial.get_difficulty_display }}</span>
+                            {% else %}
+                            <span class="badge-custom advanced-badge"><i class="ti ti-flame"></i> {{ tutorial.get_difficulty_display }}</span>
+                            {% endif %}
+                        </div>
+                        <h3>{{ tutorial.title }}</h3>
+                        <p>{{ tutorial.description|truncatewords:20 }}</p>
+                        
+                        <div class="card-meta-info">
+                            <span class="meta-item"><i class="ti ti-clock"></i> {{ tutorial.estimated_time }} min</span>
+                            <span class="meta-item"><i class="ti ti-folder"></i> {{ tutorial.category.name }}</span>
+                        </div>
+                        
+                        <a href="{% url 'tutorial_detail' tutorial.id %}" class="action-link-btn primary-action">
+                            <span>Comenzar Tutorial</span> <i class="ti ti-player-play"></i>
+                        </a>
                     </div>
-                    <a href="{% url 'tutorial_detail' tutorial.id %}" class="btn btn-outline-primary mt-2">
-                        Ver Tutorial
-                    </a>
                 </div>
+                {% endfor %}
             </div>
         </div>
-        {% empty %}
-        <div class="col-12">
-            <p class="text-muted">No hay tutoriales disponibles.</p>
-        </div>
-        {% endfor %}
-    </div>
+        {% endif %}
 
-    <div class="row">
-        <div class="col-12">
-            <a href="{% url 'tutorial_list' %}" class="btn btn-lg btn-primary">
-                <i data-lucide="list"></i> Ver Todos los Tutoriales
+        <!-- Tutoriales Recientes -->
+        <div class="tutorial-section" id="recent-section">
+            <div class="section-title-wrapper">
+                <div class="title-left">
+                    <div class="title-icon-box cyan-glow"><i class="ti ti-history"></i></div>
+                    <h2>Tutoriales Recientes</h2>
+                </div>
+                <span class="section-subtitle-badge cyan">Lo Nuevo</span>
+            </div>
+            
+            <div class="grid-3 recent-grid">
+                {% for tutorial in recent_tutorials %}
+                <div class="card-glass tutorial-card-premium standard-card" data-title="{{ tutorial.title }}" data-desc="{{ tutorial.description }}">
+                    <div class="card-glow-effect"></div>
+                    <div class="card-body">
+                        <div class="card-badges-wrapper">
+                            {% if tutorial.difficulty == 'beginner' %}
+                            <span class="badge-custom beginner-badge"><i class="ti ti-leaf"></i> {{ tutorial.get_difficulty_display }}</span>
+                            {% elif tutorial.difficulty == 'intermediate' %}
+                            <span class="badge-custom intermediate-badge"><i class="ti ti-bolt"></i> {{ tutorial.get_difficulty_display }}</span>
+                            {% else %}
+                            <span class="badge-custom advanced-badge"><i class="ti ti-flame"></i> {{ tutorial.get_difficulty_display }}</span>
+                            {% endif %}
+                        </div>
+                        <h3>{{ tutorial.title }}</h3>
+                        <p>{{ tutorial.description|truncatewords:15 }}</p>
+                        
+                        <div class="card-meta-info">
+                            <span class="meta-item"><i class="ti ti-tag"></i> {{ tutorial.category.name }}</span>
+                            <span class="meta-item"><i class="ti ti-eye"></i> {{ tutorial.views }} vistas</span>
+                        </div>
+                        
+                        <a href="{% url 'tutorial_detail' tutorial.id %}" class="action-link-btn secondary-action">
+                            <span>Ver Tutorial</span> <i class="ti ti-eye"></i>
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-state-glass">
+                    <i class="ti ti-alert-circle"></i>
+                    <p>No hay tutoriales recientes cargados.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Footer / Ver todos los tutoriales -->
+        <div class="tutorial-footer-section">
+            <a href="{% url 'tutorial_list' %}" class="btn-glow-explore">
+                <i class="ti ti-cards"></i>
+                <span>Ver Todos los Tutoriales</span>
+                <i class="ti ti-arrow-right"></i>
             </a>
         </div>
     </div>
 </div>
 
-<script>
-if (typeof lucide !== 'undefined') {
-    lucide.createIcons();
+<style>
+/* CSS Variables & Theme overrides */
+.tutorial-theme {
+    position: relative;
+    padding: 30px 10px;
+    z-index: 1;
 }
+
+/* Floating Glow Background Spheres */
+.glow-bg-sphere {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(100px);
+    opacity: 0.15;
+    pointer-events: none;
+    z-index: 0;
+    animation: float-slow 15s infinite alternate ease-in-out;
+}
+.sphere-1 {
+    width: 400px;
+    height: 400px;
+    background: var(--primary, #8b5cf6);
+    top: 10%;
+    left: -10%;
+}
+.sphere-2 {
+    width: 500px;
+    height: 500px;
+    background: var(--secondary, #06b6d4);
+    bottom: 10%;
+    right: -10%;
+    animation-delay: -5s;
+}
+.sphere-3 {
+    width: 300px;
+    height: 300px;
+    background: var(--accent, #f472b6);
+    top: 50%;
+    left: 45%;
+    animation-delay: -10s;
+}
+
+@keyframes float-slow {
+    0% { transform: translateY(0) scale(1) rotate(0deg); }
+    100% { transform: translateY(-50px) scale(1.1) rotate(180deg); }
+}
+
+/* Header Premium */
+.tutorial-header-premium {
+    position: relative;
+    text-align: center;
+    padding: 60px 40px;
+    background: rgba(18, 18, 26, 0.55);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 30px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4), inset 0 0 40px rgba(139, 92, 246, 0.05);
+    overflow: hidden;
+    margin-bottom: 50px;
+    animation: slideUpFade 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.header-glow-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at center, rgba(139, 92, 246, 0.12) 0%, transparent 70%);
+    pointer-events: none;
+}
+
+/* Particles styling */
+.header-particles .particle {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    animation: particleUp 8s infinite linear;
+    pointer-events: none;
+}
+.header-particles .particle:nth-child(1) { left: 10%; bottom: -10px; animation-duration: 6s; }
+.header-particles .particle:nth-child(2) { left: 30%; bottom: -10px; animation-duration: 9s; animation-delay: 2s; }
+.header-particles .particle:nth-child(3) { left: 50%; bottom: -10px; animation-duration: 7s; animation-delay: 4s; }
+.header-particles .particle:nth-child(4) { left: 70%; bottom: -10px; animation-duration: 10s; animation-delay: 1s; }
+.header-particles .particle:nth-child(5) { left: 90%; bottom: -10px; animation-duration: 8s; animation-delay: 3s; }
+
+@keyframes particleUp {
+    0% { transform: translateY(0) scale(1); opacity: 0; }
+    10% { opacity: 0.8; }
+    90% { opacity: 0.8; }
+    100% { transform: translateY(-150px) scale(0.2); opacity: 0; }
+}
+
+.header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(139, 92, 246, 0.15);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    color: #c084fc;
+    padding: 6px 16px;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.header-title {
+    font-family: var(--font-title, 'Syne', sans-serif);
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 15px;
+    letter-spacing: -1px;
+}
+.header-title span {
+    background: var(--accent-gradient, linear-gradient(135deg, #8b5cf6, #06b6d4));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    position: relative;
+    text-shadow: 0 0 40px rgba(139, 92, 246, 0.35);
+}
+
+.header-subtitle {
+    font-size: 1.15rem;
+    color: var(--text-muted, #94a3b8);
+    max-width: 650px;
+    margin: 0 auto 35px auto;
+    line-height: 1.6;
+}
+
+/* Buscador de Tutoriales */
+.search-container {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.search-form-premium {
+    width: 100%;
+}
+
+.search-input-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    padding: 6px 6px 6px 20px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    backdrop-filter: blur(10px);
+}
+
+.search-icon-animated {
+    font-size: 1.3rem;
+    color: var(--text-muted);
+    transition: all 0.3s;
+    margin-right: 12px;
+}
+
+.search-input-wrapper input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: #fff;
+    font-size: 1rem;
+    font-family: var(--font-ui);
+    padding: 10px 0;
+}
+.search-input-wrapper input::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+}
+
+.search-btn-shine {
+    position: relative;
+    overflow: hidden;
+    background: var(--accent-gradient, linear-gradient(135deg, #8b5cf6, #06b6d4));
+    border: none;
+    padding: 12px 28px;
+    border-radius: 14px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+
+.search-btn-shine::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -60%;
+    width: 30%;
+    height: 200%;
+    background: rgba(255, 255, 255, 0.25);
+    transform: rotate(25deg);
+    transition: all 0.5s ease;
+}
+
+.search-input-wrapper:focus-within {
+    border-color: rgba(139, 92, 246, 0.5);
+    box-shadow: 0 0 25px rgba(139, 92, 246, 0.25), inset 0 0 8px rgba(139, 92, 246, 0.05);
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.search-input-wrapper:focus-within .search-icon-animated {
+    color: #06b6d4;
+    transform: scale(1.1) rotate(15deg);
+}
+
+.search-input-wrapper:focus-within .search-btn-shine::after {
+    left: 120%;
+}
+
+.search-btn-shine:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);
+}
+
+/* Secciones de Tutoriales */
+.tutorial-section {
+    margin-bottom: 60px;
+    animation: slideUpFade 1s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.section-title-wrapper {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 28px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.title-left {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.title-icon-box {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: #fff;
+    position: relative;
+}
+
+.purple-glow {
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.4);
+}
+.gold-glow {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    box-shadow: 0 0 15px rgba(245, 158, 11, 0.4);
+}
+.cyan-glow {
+    background: linear-gradient(135deg, #06b6d4, #0891b2);
+    box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+}
+
+.section-title-wrapper h2 {
+    font-family: var(--font-title, 'Syne', sans-serif);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+}
+
+.section-subtitle-badge {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+.section-subtitle-badge.gold {
+    background: rgba(245, 158, 11, 0.1);
+    border-color: rgba(245, 158, 11, 0.3);
+    color: #fbbf24;
+}
+.section-subtitle-badge.cyan {
+    background: rgba(6, 182, 212, 0.1);
+    border-color: rgba(6, 182, 212, 0.3);
+    color: #22d3ee;
+}
+
+/* Grid Layouts */
+.grid-4 {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 24px;
+}
+
+.grid-3 {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 24px;
+}
+
+/* Tarjetas Estilo Glassmorphism Premium */
+.card-glass {
+    position: relative;
+    background: rgba(25, 25, 35, 0.45);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 22px;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+}
+
+.card-glow-effect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.08) 0%, transparent 60%);
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+}
+
+.card-body {
+    padding: 28px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    z-index: 2;
+}
+
+/* Iconos de Categoría */
+.card-icon-container {
+    margin-bottom: 22px;
+}
+
+.icon-circle {
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    color: #fff;
+    transition: all 0.4s ease;
+}
+
+/* Color definitions for category icons mapping to standard styles */
+.icon-circle.home, .icon-circle.dashboard { background: linear-gradient(135deg, #a78bfa, #7c3aed); box-shadow: 0 8px 20px rgba(124, 58, 237, 0.25); }
+.icon-circle.chat, .icon-circle.message, .icon-circle.message-square { background: linear-gradient(135deg, #22d3ee, #0284c7); box-shadow: 0 8px 20px rgba(6, 182, 212, 0.25); }
+.icon-circle.music, .icon-circle.player { background: linear-gradient(135deg, #f472b6, #db2777); box-shadow: 0 8px 20px rgba(236, 72, 153, 0.25); }
+.icon-circle.games, .icon-circle.gamepad { background: linear-gradient(135deg, #34d399, #059669); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.25); }
+.icon-circle.study, .icon-circle.book-open { background: linear-gradient(135deg, #fbbf24, #d97706); box-shadow: 0 8px 20px rgba(245, 158, 11, 0.25); }
+.icon-circle.events, .icon-circle.calendar { background: linear-gradient(135deg, #f87171, #dc2626); box-shadow: 0 8px 20px rgba(239, 68, 68, 0.25); }
+.icon-circle.weather, .icon-circle.cloud { background: linear-gradient(135deg, #67e8f9, #0891b2); box-shadow: 0 8px 20px rgba(6, 182, 212, 0.25); }
+.icon-circle.translator, .icon-circle.languages { background: linear-gradient(135deg, #2dd4bf, #0d9488); box-shadow: 0 8px 20px rgba(20, 184, 166, 0.25); }
+.icon-circle.entertainment, .icon-circle.film { background: linear-gradient(135deg, #c084fc, #7c3aed); box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25); }
+.icon-circle.profile, .icon-circle.user { background: linear-gradient(135deg, #a78bfa, #8b5cf6); box-shadow: 0 8px 20px rgba(139, 92, 246, 0.25); }
+.icon-circle.folder { background: linear-gradient(135deg, #94a3b8, #475569); box-shadow: 0 8px 20px rgba(71, 85, 105, 0.25); }
+
+/* Typography */
+.card-glass h3 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 10px 0;
+    letter-spacing: -0.3px;
+    transition: color 0.3s;
+}
+
+.card-glass p {
+    font-size: 0.95rem;
+    color: var(--text-muted);
+    line-height: 1.55;
+    margin-bottom: 22px;
+    flex: 1;
+}
+
+/* Action Links */
+.action-link-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--secondary, #06b6d4);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    align-self: flex-start;
+}
+.action-link-btn i {
+    font-size: 1rem;
+    transition: transform 0.3s ease;
+}
+
+/* Hover effects */
+.tutorial-card-premium:hover {
+    transform: translateY(-8px) scale(1.02);
+    background: rgba(25, 25, 35, 0.65);
+    border-color: rgba(139, 92, 246, 0.3);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 25px rgba(139, 92, 246, 0.1);
+}
+
+.tutorial-card-premium:hover .card-glow-effect {
+    background: radial-gradient(circle at 50% 0%, rgba(139, 92, 246, 0.15) 0%, transparent 60%);
+}
+
+.tutorial-card-premium:hover .icon-circle {
+    transform: scale(1.1) rotate(5deg);
+    filter: brightness(1.15);
+}
+
+.tutorial-card-premium:hover h3 {
+    color: #fff;
+}
+
+.tutorial-card-premium:hover .action-link-btn {
+    color: #fff;
+}
+.tutorial-card-premium:hover .action-link-btn i {
+    transform: translateX(5px);
+}
+
+/* Tarjetas Destacadas */
+.featured-card {
+    border: 1px solid rgba(245, 158, 11, 0.15);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2), inset 0 0 20px rgba(245, 158, 11, 0.02);
+}
+
+/* Gold animated border */
+.animated-border-glow {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, #f59e0b, #fbbf24, #fb7185, #f59e0b);
+    background-size: 200% auto;
+    animation: gradientShift 4s linear infinite;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+.featured-card:hover {
+    border-color: rgba(245, 158, 11, 0.4);
+    box-shadow: 0 25px 45px rgba(0, 0, 0, 0.5), 0 0 25px rgba(245, 158, 11, 0.15);
+}
+
+/* Badges Wrapper */
+.card-badges-wrapper {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.badge-custom {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 30px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.gold-badge { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24; }
+.beginner-badge { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; }
+.intermediate-badge { background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #fbbf24; }
+.advanced-badge { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; }
+
+/* Metadata */
+.card-meta-info {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 22px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 15px;
+}
+
+.meta-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+.meta-item i {
+    font-size: 0.95rem;
+}
+
+/* Buttons in featured and recent */
+.primary-action {
+    background: var(--accent-gradient, linear-gradient(135deg, #8b5cf6, #06b6d4));
+    color: white !important;
+    padding: 12px 24px;
+    border-radius: 12px;
+    width: 100%;
+    justify-content: center;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+.primary-action:hover {
+    background: var(--accent-gradient, linear-gradient(135deg, #8b5cf6, #06b6d4));
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);
+}
+
+.secondary-action {
+    border: 1px solid rgba(6, 182, 212, 0.4);
+    background: rgba(6, 182, 212, 0.04);
+    color: #22d3ee;
+    padding: 12px 24px;
+    border-radius: 12px;
+    width: 100%;
+    justify-content: center;
+}
+.secondary-action:hover {
+    background: #06b6d4;
+    color: #fff !important;
+    border-color: #06b6d4;
+    box-shadow: 0 6px 20px rgba(6, 182, 212, 0.4);
+}
+
+/* Footer Section */
+.tutorial-footer-section {
+    text-align: center;
+    margin: 50px 0 20px 0;
+    animation: slideUpFade 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-glow-explore {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 38px;
+    background: rgba(18, 18, 26, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(139, 92, 246, 0.4);
+    border-radius: 50px;
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: all 0.4s ease;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(139, 92, 246, 0.1);
+}
+
+.btn-glow-explore i {
+    font-size: 1.25rem;
+    transition: transform 0.3s;
+}
+
+.btn-glow-explore:hover {
+    border-color: #06b6d4;
+    transform: translateY(-4px);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 30px rgba(6, 182, 212, 0.25);
+    background: rgba(18, 18, 26, 0.8);
+}
+.btn-glow-explore:hover i:last-child {
+    transform: translateX(6px);
+}
+
+/* Empty States */
+.empty-state-glass {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 50px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    color: var(--text-muted);
+}
+.empty-state-glass i {
+    font-size: 2.5rem;
+    margin-bottom: 12px;
+}
+
+/* Entry Animations */
+@keyframes slideUpFade {
+    0% { transform: translateY(30px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.6s ease-out forwards;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+    .header-title {
+        font-size: 3rem;
+    }
+    .grid-3 {
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .tutorial-header-premium {
+        padding: 40px 20px;
+        margin-bottom: 30px;
+    }
+    .header-title {
+        font-size: 2.4rem;
+    }
+    .header-subtitle {
+        font-size: 1rem;
+        margin-bottom: 25px;
+    }
+    .grid-4, .grid-3 {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    .section-title-wrapper {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    .section-subtitle-badge {
+        align-self: flex-start;
+    }
+    .btn-glow-explore {
+        padding: 15px 30px;
+        font-size: 1rem;
+        width: 100%;
+        justify-content: center;
+    }
+}
+</style>
+
+<!-- Frontend Live Filtering Script -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('tutorial-search');
+    
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const query = e.target.value.toLowerCase().trim();
+            
+            // Get all cards in sections
+            const cards = document.querySelectorAll('.tutorial-card-premium');
+            
+            cards.forEach(card => {
+                const title = card.getAttribute('data-title') ? card.getAttribute('data-title').toLowerCase() : '';
+                const desc = card.getAttribute('data-desc') ? card.getAttribute('data-desc').toLowerCase() : '';
+                
+                if (title.includes(query) || desc.includes(query)) {
+                    card.style.display = 'flex';
+                    // Optional fade in effect when shown
+                    card.style.opacity = '1';
+                    card.style.transform = 'scale(1)';
+                } else {
+                    card.style.opacity = '0';
+                    card.style.transform = 'scale(0.95)';
+                    setTimeout(() => {
+                        if (searchInput.value.toLowerCase().trim() === query) {
+                            card.style.display = 'none';
+                        }
+                    }, 300);
+                }
+            });
+        });
+    }
+});
 </script>
 {% endblock %}

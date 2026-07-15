@@ -1,0 +1,146 @@
+"""
+Chat views.
+"""
+
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
+
+from apps.app.services import ChatService
+from apps.app.selectors import ChatSelector
+from apps.app.api import OpenAIAPI
+from apps.app.constants import CHAT_CONFIG, ERROR_MESSAGES, SUCCESS_MESSAGES
+from apps.app.utils import JsonResponseHelper, RequestParser, LogHelper
+from apps.app.validators import ChatValidator
+
+
+@login_required
+def chat_view(request):
+    """Render chat page."""
+    conversaciones = ChatSelector.get_all_by_user(request.user)
+    
+    # Get or create active conversation
+    active_conv = conversaciones.first()
+    if not active_conv:
+        active_conv = ChatSelector.get_or_create_main(request.user)
+        conversaciones = [active_conv]
+    
+    mensajes = ChatSelector.get_all_messages(active_conv)
+    active_id = active_conv.id
+    
+    return render(request, 'chat.html', {
+        'conversaciones': conversaciones,
+        'active_conv': active_conv,
+        'mensajes': mensajes,
+        'active_id': active_id
+    })
+
+
+@require_http_methods(["POST"])
+@csrf_exempt
+def chat_api(request):
+    """Chat API endpoint."""
+    try:
+        # Parse request
+        content_type = request.content_type
+        
+        if 'multipart/form-data' in content_type:
+            message = request.POST.get('message', '')
+            conv_id = request.POST.get('conversation_id')
+            imagen = request.FILES.get('imagen')
+        else:
+            data = RequestParser.parse_json_body(request)
+            if not data:
+                return JsonResponseHelper.error_response(ERROR_MESSAGES['invalid_json'])
+            
+            message = data.get('message', '')
+            conv_id = data.get('conversation_id')
+            imagen = None
+        
+        # Validate
+        try:
+            ChatValidator.validate_message(message, imagen)
+        except Exception as e:
+            return JsonResponseHelper.error_response(str(e))
+        
+        # Get or create conversation
+        if request.user.is_authenticated:
+            conversation, error = ChatService.get_or_create_conversation(request.user, conv_id)
+            if error:
+                return JsonResponseHelper.not_found_response(error)
+            
+            # Save image if exists
+            imagen_url = None
+            if imagen:
+                imagen_url = ChatService.save_image(imagen)
+            
+            # Save user message
+            ChatSelector.create_message(conversation, True, message, imagen)
+            LogHelper.log_info(logger, SUCCESS_MESSAGES['message_saved'])
+            
+            conversation.save()
+            
+            # Get conversation history
+            mensajes = ChatSelector.get_recent_chronological(conversation, CHAT_CONFIG['max_history_messages'])
+            
+            # Get events context
+            eventos_contexto = ChatService.get_events_context(request.user)
+            
+            # Build messages for AI
+            from ..constants.prompts import CHAT_SYSTEM_PROMPT
+            from ..utils import DateTimeService
+            
+            fecha_actual = DateTimeService.get_current_datetime_formatted()
+            system_message = CHAT_SYSTEM_PROMPT.format(
+                fecha_actual=fecha_actual,
+                eventos_contexto=eventos_contexto
+            )
+            
+            messages = [{"role": "system", "content": system_message}]
+            
+            for msg in mensajes:
+                role = "user" if msg.es_usuario else "assistant"
+                messages.append({"role": role, "content": msg.texto})
+        else:
+            # Non-authenticated users
+            from ..constants.prompts import CHAT_SYSTEM_PROMPT
+            from ..utils import DateTimeService
+            
+            fecha_actual = DateTimeService.get_current_datetime_formatted()
+            system_message = CHAT_SYSTEM_PROMPT.format(fecha_actual=fecha_actual)
+            
+            messages = [
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": message}
+            ]
+        
+        # Convert image to base64 if exists
+        image_base64 = None
+        if imagen:
+            image_base64 = ChatService.convert_image_to_base64(imagen)
+        
+        # Generate AI response
+        bot_response = ChatService.generate_ai_response(
+            messages=messages,
+            settings_obj=settings,
+            imagen=bool(imagen),
+            max_tokens=CHAT_CONFIG['max_tokens'],
+            image_base64=image_base64,
+            message=message,
+        )
+        
+        # Save bot response for authenticated users
+        if request.user.is_authenticated:
+            ChatSelector.create_message(conversation, False, bot_response)
+            conversation.save()
+            
+            # Create notification
+            ChatService.create_chat_notification(request.user, bot_response)
+        
+        return JsonResponseHelper.success_response({'response': bot_response})
+        
+    except Exception as e:
+        LogHelper.log_error(logger, f"Error en chat_api: {str(e)}", exc_info=True)
+        return JsonResponseHelper.server_error_response()

@@ -4,164 +4,639 @@
 {% block title %}Paso {{ step.order }}: {{ step.title }} - {{ tutorial.title }}{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-12">
-            <nav aria-label="breadcrumb">
-                <ol class="breadcrumb">
-                    <li class="breadcrumb-item"><a href="{% url 'tutorial_home' %}">Tutoriales</a></li>
-                    <li class="breadcrumb-item"><a href="{% url 'tutorial_detail' tutorial.id %}">{{ tutorial.title }}</a></li>
-                    <li class="breadcrumb-item active">Paso {{ step.order }}</li>
-                </ol>
-            </nav>
-        </div>
-    </div>
+<div class="glow-bg-sphere sphere-1"></div>
+<div class="glow-bg-sphere sphere-2"></div>
 
-    <!-- Progress Bar -->
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between mb-2">
-                        <span><strong>Progreso:</strong> {{ progress.progress_percentage }}%</span>
-                        <span>Paso {{ step.order }} de {{ tutorial.total_steps }}</span>
+<div class="page-content tutorial-theme">
+    <div class="container animate-fade-in">
+        
+        <!-- Breadcrumbs en Glassmorphism -->
+        <nav aria-label="breadcrumb" class="premium-breadcrumb">
+            <ol class="breadcrumb-list">
+                <li class="breadcrumb-item-custom"><a href="{% url 'tutorial_home' %}"><i class="ti ti-home"></i> Tutoriales</a></li>
+                <li class="breadcrumb-item-custom"><a href="{% url 'tutorial_detail' tutorial.id %}"><i class="ti ti-bookmark"></i> {{ tutorial.title }}</a></li>
+                <li class="breadcrumb-item-custom active-item"><i class="ti ti-chevron-right"></i> Paso {{ step.order }}</li>
+            </ol>
+        </nav>
+
+        <!-- Progress Section -->
+        <div class="card-glass step-progress-card">
+            <div class="card-body">
+                <div class="progress-info-row">
+                    <span class="progress-lbl"><strong>Tu Progreso:</strong> {{ progress.progress_percentage }}% Completado</span>
+                    <span class="progress-steps-count">Paso <strong>{{ step.order }}</strong> de <strong>{{ tutorial.total_steps }}</strong></span>
+                </div>
+                <div class="progress-bar-container-premium">
+                    <div class="progress-bar-fill" style="width: {{ progress.progress_percentage }}%"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="tutorial-grid-layout">
+            
+            <!-- Main Content Area (Left side) -->
+            <div class="tutorial-main-area">
+                
+                <!-- Card de contenido del paso -->
+                <div class="card-glass step-content-card">
+                    <div class="card-glow-effect"></div>
+                    <div class="card-body">
+                        <div class="step-header">
+                            <h2 class="step-title-text"><i class="ti ti-circle-number-{{ step.order }}"></i> {{ step.title }}</h2>
+                            {% if step.is_optional %}
+                            <span class="badge-custom optional-badge">Opcional</span>
+                            {% endif %}
+                        </div>
+
+                        {% if step.image %}
+                        <div class="step-main-image">
+                            <img src="{{ step.image.url }}" alt="{{ step.title }}">
+                        </div>
+                        {% endif %}
+                        
+                        <div class="step-html-content">
+                            {{ step.content|linebreaks }}
+                        </div>
+
+                        {% if step.code_example %}
+                        <div class="step-code-example">
+                            <h5 class="code-title"><i class="ti ti-code"></i> Código de Ejemplo</h5>
+                            <div class="code-block-wrapper">
+                                <pre><code>{{ step.code_example }}</code></pre>
+                            </div>
+                            {% if step.code_language %}
+                            <span class="code-lang-label">Lenguaje: <strong>{{ step.code_language }}</strong></span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
                     </div>
-                    <div class="progress" style="height: 25px;">
-                        <div class="progress-bar" role="progressbar" style="width: {{ progress.progress_percentage }}%">
-                            {{ progress.progress_percentage }}%
+                </div>
+
+                <!-- Botones de Navegación -->
+                <div class="card-glass step-navigation-card">
+                    <div class="card-body">
+                        <div class="navigation-buttons-row">
+                            {% if prev_step %}
+                            <a href="{% url 'tutorial_step' tutorial.id prev_step.order %}" class="nav-btn prev-btn">
+                                <i class="ti ti-arrow-narrow-left"></i> <span>Paso Anterior</span>
+                            </a>
+                            {% else %}
+                            <div></div>
+                            {% endif %}
+
+                            <button onclick="completeStep()" class="nav-btn complete-btn" id="completeBtn">
+                                <i class="ti ti-circle-check"></i> <span>Completar Paso</span>
+                            </button>
+
+                            {% if next_step %}
+                            <a href="{% url 'tutorial_step' tutorial.id next_step.order %}" class="nav-btn next-btn">
+                                <span>Siguiente Paso</span> <i class="ti ti-arrow-narrow-right"></i>
+                            </a>
+                            {% else %}
+                            <a href="{% url 'tutorial_detail' tutorial.id %}" class="nav-btn finish-btn">
+                                <span>Finalizar Tutorial</span> <i class="ti ti-confetti"></i>
+                            </a>
+                            {% endif %}
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
 
-    <div class="row">
-        <div class="col-lg-8">
-            <!-- Step Content -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h2><i data-lucide="list-ordered"></i> Paso {{ step.order }}: {{ step.title }}</h2>
-                    {% if step.is_optional %}
-                    <span class="badge bg-secondary">Opcional</span>
-                    {% endif %}
-                </div>
-                <div class="card-body">
-                    {% if step.image %}
-                    <img src="{{ step.image.url }}" class="img-fluid mb-3" alt="{{ step.title }}">
-                    {% endif %}
-                    
-                    <div class="step-content">
-                        {{ step.content|linebreaks }}
-                    </div>
-
-                    {% if step.code_example %}
-                    <div class="mt-4">
-                        <h5><i data-lucide="code"></i> Código de Ejemplo</h5>
-                        <pre class="bg-dark text-light p-3 rounded"><code>{{ step.code_example }}</code></pre>
-                        {% if step.code_language %}
-                        <small class="text-muted">Lenguaje: {{ step.code_language }}</small>
-                        {% endif %}
-                    </div>
-                    {% endif %}
-                </div>
             </div>
 
-            <!-- Navigation Buttons -->
-            <div class="card mb-4">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between">
-                        {% if prev_step %}
-                        <a href="{% url 'tutorial_step' tutorial.id prev_step.order %}" class="btn btn-secondary">
-                            <i data-lucide="arrow-left"></i> Paso Anterior
-                        </a>
-                        {% else %}
-                        <div></div>
-                        {% endif %}
-
-                        <button onclick="completeStep()" class="btn btn-success" id="completeBtn">
-                            <i data-lucide="check"></i> Completar Paso
-                        </button>
-
-                        {% if next_step %}
-                        <a href="{% url 'tutorial_step' tutorial.id next_step.order %}" class="btn btn-primary">
-                            Siguiente Paso <i data-lucide="arrow-right"></i>
-                        </a>
-                        {% else %}
-                        <a href="{% url 'tutorial_detail' tutorial.id %}" class="btn btn-primary">
-                            Finalizar Tutorial <i data-lucide="check-circle"></i>
-                        </a>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-lg-4">
-            <!-- Tutorial Info -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h4><i data-lucide="info"></i> Información</h4>
-                </div>
-                <div class="card-body">
-                    <p><strong>Tutorial:</strong> {{ tutorial.title }}</p>
-                    <p><strong>Categoría:</strong> {{ tutorial.category.name }}</p>
-                    <p><strong>Dificultad:</strong> {{ tutorial.get_difficulty_display }}</p>
-                    <p><strong>Tiempo estimado:</strong> {{ tutorial.estimated_time }} min</p>
-                </div>
-            </div>
-
-            <!-- Steps List -->
-            <div class="card mb-4">
-                <div class="card-header">
-                    <h4><i data-lucide="list"></i> Pasos</h4>
-                </div>
-                <div class="card-body">
-                    <div class="list-group">
-                        {% for s in tutorial.steps.all %}
-                        <a href="{% url 'tutorial_step' tutorial.id s.order %}" 
-                           class="list-group-item list-group-item-action 
-                           {% if s.order == step.order %}active{% endif %}
-                           {% if s.order < step.order %}list-group-item-success{% endif %}">
-                            <div class="d-flex w-100 justify-content-between">
-                                <h6 class="mb-1">Paso {{ s.order }}</h6>
-                                {% if s.order < step.order %}
-                                <i data-lucide="check"></i>
-                                {% endif %}
+            <!-- Sidebar (Right side) -->
+            <div class="tutorial-sidebar-area">
+                
+                <!-- Card de Información -->
+                <div class="card-glass info-card">
+                    <div class="card-body">
+                        <h4 class="sidebar-card-title"><i class="ti ti-info-circle"></i> Info del Tutorial</h4>
+                        <div class="info-list">
+                            <div class="info-list-item">
+                                <span class="info-label">Nombre:</span>
+                                <span class="info-value">{{ tutorial.title }}</span>
                             </div>
-                            <small class="mb-1">{{ s.title }}</small>
-                        </a>
-                        {% endfor %}
+                            <div class="info-list-item">
+                                <span class="info-label">Categoría:</span>
+                                <span class="info-value">{{ tutorial.category.name }}</span>
+                            </div>
+                            <div class="info-list-item">
+                                <span class="info-label">Dificultad:</span>
+                                <span class="info-value">{{ tutorial.get_difficulty_display }}</span>
+                            </div>
+                            <div class="info-list-item">
+                                <span class="info-label">Tiempo estimado:</span>
+                                <span class="info-value">{{ tutorial.estimated_time }} min</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Lista de Pasos del Sidebar -->
+                <div class="card-glass sidebar-steps-card">
+                    <div class="card-body">
+                        <h4 class="sidebar-card-title"><i class="ti ti-list"></i> Pasos a seguir</h4>
+                        <div class="sidebar-steps-list">
+                            {% for s in tutorial.steps.all %}
+                            <a href="{% url 'tutorial_step' tutorial.id s.order %}" 
+                               class="sidebar-step-item {% if s.order == step.order %}active-step{% endif %} {% if s.order < step.order %}completed-step{% endif %}">
+                                <div class="step-num-icon">
+                                    {% if s.order < step.order %}
+                                    <i class="ti ti-circle-check"></i>
+                                    {% else %}
+                                    <span>{{ s.order }}</span>
+                                    {% endif %}
+                                </div>
+                                <div class="step-item-meta">
+                                    <span class="step-item-title-lbl">{{ s.title }}</span>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario de Notas de Sidebar -->
+                <div class="card-glass notes-card">
+                    <div class="card-body">
+                        <h4 class="sidebar-card-title"><i class="ti ti-note"></i> Bloc de Notas</h4>
+                        <form method="POST" action="{% url 'save_notes' tutorial.id %}" class="notes-form-premium">
+                            {% csrf_token %}
+                            <textarea class="premium-textarea" name="notes" rows="6" placeholder="Escribe tus notas rápidas sobre este paso..." required>{{ progress.notes|default:'' }}</textarea>
+                            <button type="submit" class="sidebar-btn-submit">Guardar Notas</button>
+                        </form>
+                    </div>
+                </div>
+
             </div>
 
-            <!-- Notes -->
-            <div class="card">
-                <div class="card-header">
-                    <h4><i data-lucide="sticky-note"></i> Notas</h4>
-                </div>
-                <div class="card-body">
-                    <form method="POST" action="{% url 'save_notes' tutorial.id %}" class="notes-form">
-                        {% csrf_token %}
-                        <textarea class="form-control mb-3" name="notes" rows="5" placeholder="Escribe tus notas aquí...">{{ progress.notes }}</textarea>
-                        <button type="submit" class="btn btn-primary w-100">Guardar Notas</button>
-                    </form>
-                </div>
-            </div>
         </div>
+
     </div>
 </div>
 
-<script>
-if (typeof lucide !== 'undefined') {
-    lucide.createIcons();
+<style>
+/* Base themes */
+.tutorial-theme {
+    position: relative;
+    padding: 30px 10px;
+    z-index: 1;
 }
 
+/* Background Glowing spheres */
+.glow-bg-sphere {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(120px);
+    opacity: 0.15;
+    pointer-events: none;
+    z-index: 0;
+    animation: float-slow 15s infinite alternate ease-in-out;
+}
+.sphere-1 { width: 350px; height: 350px; background: #8b5cf6; top: 15%; left: -5%; }
+.sphere-2 { width: 450px; height: 450px; background: #06b6d4; bottom: 15%; right: -5%; animation-delay: -5s; }
+
+@keyframes float-slow {
+    0% { transform: translateY(0) scale(1); }
+    100% { transform: translateY(-40px) scale(1.05); }
+}
+
+/* Premium Breadcrumbs */
+.premium-breadcrumb {
+    margin-bottom: 25px;
+    animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.breadcrumb-list {
+    display: flex;
+    align-items: center;
+    list-style: none;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+}
+.breadcrumb-item-custom a {
+    color: var(--text-muted, #94a3b8);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.3s;
+}
+.breadcrumb-item-custom a:hover {
+    color: #fff;
+}
+.breadcrumb-item-custom {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+    color: var(--text-muted, #94a3b8);
+    gap: 8px;
+}
+.active-item {
+    color: #c084fc;
+    font-weight: 600;
+}
+
+/* Step progress card styling */
+.step-progress-card {
+    margin-bottom: 30px;
+}
+.progress-info-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.95rem;
+    margin-bottom: 12px;
+}
+.progress-lbl { color: var(--text-main); }
+.progress-steps-count { color: var(--text-muted); }
+.progress-steps-count strong { color: #fff; }
+
+.progress-bar-container-premium {
+    width: 100%;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    overflow: hidden;
+}
+.progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #8b5cf6, #34d399);
+    border-radius: 20px;
+    transition: width 0.4s ease;
+}
+
+/* Layout Grid */
+.tutorial-grid-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+    align-items: start;
+}
+
+.tutorial-main-area, .tutorial-sidebar-area {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* Glassmorphism Cards */
+.card-glass {
+    position: relative;
+    background: rgba(25, 25, 35, 0.45);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 24px;
+    overflow: hidden;
+}
+.card-glow-effect {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.05) 0%, transparent 60%);
+    pointer-events: none;
+}
+.card-body {
+    padding: 30px;
+}
+
+/* Step Header */
+.step-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 18px;
+    margin-bottom: 25px;
+}
+.step-title-text {
+    font-family: var(--font-title, 'Syne', sans-serif);
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.step-title-text i {
+    color: #8b5cf6;
+}
+
+/* Main Image */
+.step-main-image {
+    width: 100%;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 25px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.step-main-image img {
+    width: 100%;
+    height: auto;
+    max-height: 400px;
+    object-fit: cover;
+}
+
+/* Content block HTML styles */
+.step-html-content {
+    font-size: 1.05rem;
+    color: var(--text-main);
+    line-height: 1.7;
+}
+
+.step-html-content p {
+    margin-bottom: 20px;
+}
+
+/* Code Example Section */
+.step-code-example {
+    margin-top: 35px;
+    padding-top: 25px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.code-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.code-title i { color: #06b6d4; }
+
+.code-block-wrapper {
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    padding: 18px;
+    overflow-x: auto;
+    margin-bottom: 10px;
+}
+.code-block-wrapper pre {
+    margin: 0;
+}
+.code-block-wrapper code {
+    color: #e2e8f0;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 0.95rem;
+}
+.code-lang-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+.code-lang-label strong {
+    color: #06b6d4;
+}
+
+/* Navigation Cards & buttons */
+.navigation-buttons-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+}
+.nav-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 24px;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.3s;
+    border: none;
+}
+.prev-btn {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-main);
+}
+.prev-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+.complete-btn {
+    background: #10b981;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.25);
+}
+.complete-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+.next-btn {
+    background: #8b5cf6;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(124, 58, 237, 0.25);
+}
+.next-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4);
+}
+.finish-btn {
+    background: linear-gradient(135deg, #fbbf24, #f59e0b);
+    color: #000;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25);
+}
+.finish-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+}
+
+/* Sidebar Info Card */
+.sidebar-card-title {
+    font-family: var(--font-title, 'Syne', sans-serif);
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #fff;
+    margin: 0 0 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.sidebar-card-title i { color: #8b5cf6; }
+
+.info-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.info-list-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 10px;
+}
+.info-list-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+.info-label {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+.info-value {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #fff;
+}
+
+/* Sidebar Steps card */
+.sidebar-steps-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.sidebar-step-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    text-decoration: none;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    transition: all 0.3s;
+}
+.step-num-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+.step-item-meta {
+    flex: 1;
+}
+.step-item-title-lbl {
+    font-weight: 500;
+}
+
+.sidebar-step-item:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+}
+
+.active-step {
+    background: rgba(139, 92, 246, 0.1) !important;
+    border-color: rgba(139, 92, 246, 0.3) !important;
+    color: #c084fc !important;
+    font-weight: 600;
+}
+.active-step .step-num-icon {
+    background: #8b5cf6;
+    border-color: #8b5cf6;
+    color: #fff;
+}
+
+.completed-step {
+    background: rgba(16, 185, 129, 0.05);
+    border-color: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+}
+.completed-step .step-num-icon {
+    background: transparent;
+    border-color: transparent;
+    color: #34d399;
+    font-size: 1.25rem;
+}
+
+/* Sidebar Notes Card */
+.notes-form-premium {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+.premium-textarea {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 15px;
+    color: #fff;
+    font-family: var(--font-ui);
+    font-size: 0.95rem;
+    resize: none;
+    outline: none;
+    transition: border-color 0.3s;
+}
+.premium-textarea:focus {
+    border-color: #8b5cf6;
+}
+.sidebar-btn-submit {
+    width: 100%;
+    padding: 12px;
+    background: rgba(139, 92, 246, 0.1);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 10px;
+    color: #c084fc;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.sidebar-btn-submit:hover {
+    background: #8b5cf6;
+    color: #fff;
+    border-color: #8b5cf6;
+    box-shadow: 0 4px 15px rgba(139, 92, 246, 0.3);
+}
+
+.optional-badge {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    padding: 2px 8px;
+}
+
+/* Keyframes */
+@keyframes slideUpFade {
+    0% { transform: translateY(20px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+}
+
+@media (max-width: 1024px) {
+    .tutorial-grid-layout {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+});
+
+// Step Completion fetch API
 function completeStep() {
     const btn = document.getElementById('completeBtn');
     btn.disabled = true;
-    btn.innerHTML = '<i data-lucide="loader-2"></i> Completando...';
+    btn.innerHTML = '<i class="ti ti-loader"></i> <span>Completando...</span>';
     
     fetch("{% url 'complete_step' tutorial.id step.order %}", {
         method: 'POST',
@@ -173,27 +648,33 @@ function completeStep() {
     .then(data => {
         if (data.success) {
             if (data.tutorial_completed) {
-                alert('¡Felicidades! Has completado el tutorial.');
+                alert('¡Felicidades! Has completado el tutorial de forma exitosa.');
                 window.location.href = "{% url 'tutorial_detail' tutorial.id %}";
             } else if (data.next_step_id) {
                 window.location.href = "{% url 'tutorial_step' tutorial.id step.order|add:'1' %}";
             }
         } else {
             btn.disabled = false;
-            btn.innerHTML = '<i data-lucide="check"></i> Completar Paso';
+            btn.innerHTML = '<i class="ti ti-circle-check"></i> <span>Completar Paso</span>';
+            alert('No se pudo guardar el progreso. Inténtalo de nuevo.');
         }
     })
     .catch(error => {
         console.error('Error:', error);
         btn.disabled = false;
-        btn.innerHTML = '<i data-lucide="check"></i> Completar Paso';
+        btn.innerHTML = '<i class="ti ti-circle-check"></i> <span>Completar Paso</span>';
+        alert('Hubo un error de conexión.');
     });
 }
 
-// Notes form submission
-document.querySelector('.notes-form')?.addEventListener('submit', function(e) {
+// Notes form submission AJAX style
+document.querySelector('.notes-form-premium')?.addEventListener('submit', function(e) {
     e.preventDefault();
     const formData = new FormData(this);
+    const submitBtn = this.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Guardando...';
+    
     fetch(this.action, {
         method: 'POST',
         body: formData,
@@ -203,9 +684,17 @@ document.querySelector('.notes-form')?.addEventListener('submit', function(e) {
     })
     .then(response => response.json())
     .then(data => {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Guardar Notas';
         if (data.success) {
-            alert('Notas guardadas correctamente');
+            alert('¡Notas actualizadas con éxito!');
+        } else {
+            alert('Error al guardar tus notas.');
         }
+    })
+    .catch(() => {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Guardar Notas';
     });
 });
 </script>
