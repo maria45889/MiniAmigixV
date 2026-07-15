@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Mensaje de Soporte</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #0f172a; font-family: 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;">
+
+    <!-- Wrapper -->
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background-color: #0f172a; padding: 30px 15px;">
+        <tr>
+            <td align="center">
+
+                <!-- Main Card -->
+                <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width: 600px; width: 100%; background-color: #1e293b; border-radius: 20px; overflow: hidden; box-shadow: 0 25px 60px rgba(0,0,0,0.5);">
+
+                    <!-- Header con gradiente -->
+                    <tr>
+                        <td style="background: linear-gradient(135deg, #7c3aed 0%, #4f46e5 40%, #06b6d4 100%); padding: 40px 30px; text-align: center;">
+                            <!-- Logo / Icono -->
+                            <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 0 auto 16px;">
+                                <tr>
+                                    <td style="width: 56px; height: 56px; background: rgba(255,255,255,0.2); border-radius: 16px; text-align: center; vertical-align: middle; font-size: 28px;">
+                                        🛟
+                                    </td>
+                                </tr>
+                            </table>
+                            <h1 style="margin: 0 0 8px; font-size: 24px; font-weight: 800; color: #ffffff; letter-spacing: 0.5px;">
+                                Nuevo Mensaje de Soporte
+                            </h1>
+                            <p style="margin: 0; font-size: 14px; color: rgba(255,255,255,0.8);">
+                                Se ha recibido una nueva consulta desde el portal
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Badge de Categoría -->
+                    <tr>
+                        <td style="padding: 24px 30px 0; text-align: center;">
+                            <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 0 auto;">
+                                <tr>
+                                    <td style="background: {{ badge_bg }}; border: 1px solid {{ badge_border }}; padding: 8px 20px; border-radius: 50px; font-size: 13px; font-weight: 700; color: {{ badge_color }}; letter-spacing: 0.3px;">
+                                        {{ categoria_emoji }} {{ categoria }}
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+
+                    <!-- Contenido -->
+                    <tr>
+                        <td style="padding: 28px 30px;">
+
+                            <!-- Campo: Nombre -->
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
+                                <tr>
+                                    <td>
+                                        <p style="margin: 0 0 6px; font-size: 11px; font-weight: 700; color: #7c3aed; text-transform: uppercase; letter-spacing: 1px;">
+                                            👤 Nombre
+                                        </p>
+                                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                                            <tr>
+                                                <td style="background: #0f172a; border: 1px solid rgba(124,58,237,0.2); border-radius: 12px; padding: 14px 18px; color: #e2e8f0; font-size: 16px; font-weight: 600;">
+                                                    {{ nombre }}
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Campo: Email -->
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
+                                <tr>
+                                    <td>
+                                        <p style="margin: 0 0 6px; font-size: 11px; font-weight: 700; color: #06b6d4; text-transform: uppercase; letter-spacing: 1px;">
+                                            📧 Correo Electrónico
+                                        </p>
+                                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                                            <tr>
+                                                <td style="background: #0f172a; border: 1px solid rgba(6,182,212,0.2); border-radius: 12px; padding: 14px 18px;">
+                                                    <a href="mailto:{{ email }}" style="color: #38bdf8; font-size: 15px; text-decoration: none; font-weight: 500;">
+                                                        {{ email }}
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Campo: Categoría -->
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 20px;">
+                                <tr>
+                                    <td>
+                                        <p style="margin: 0 0 6px; font-size: 11px; font-weight: 700; color: #a78bfa; text-transform: uppercase; letter-spacing: 1px;">
+                                            🏷️ Categoría
+                                        </p>
+                                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                                            <tr>
+                                                <td style="background: #0f172a; border: 1px solid rgba(167,139,250,0.2); border-radius: 12px; padding: 14px 18px; color: #c4b5fd; font-size: 15px; font-weight: 500;">
+                                                    {{ categoria }}
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Separador -->
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 8px 0 24px;">
+                                <tr>
+                                    <td style="height: 1px; background: linear-gradient(90deg, transparent, rgba(124,58,237,0.3), rgba(6,182,212,0.3), transparent);"></td>
+                                </tr>
+                            </table>
+
+                            <!-- Campo: Mensaje -->
+                            <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                                <tr>
+                                    <td>
+                                        <p style="margin: 0 0 8px; font-size: 11px; font-weight: 700; color: #f472b6; text-transform: uppercase; letter-spacing: 1px;">
+                                            💬 Mensaje
+                                        </p>
+                                        <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
+                                            <tr>
+                                                <td style="background: #0f172a; border: 1px solid rgba(244,114,182,0.15); border-left: 4px solid #7c3aed; border-radius: 4px 12px 12px 4px; padding: 20px; color: #cbd5e1; font-size: 15px; line-height: 1.7; white-space: pre-wrap;">{{ mensaje }}</td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Botón Responder -->
+                            <table role="presentation" cellpadding="0" cellspacing="0" style="margin: 28px auto 0;">
+                                <tr>
+                                    <td align="center">
+                                        <a href="mailto:{{ email }}?subject=Re: {{ categoria }} - Soporte MiniAmigixV" style="display: inline-block; background: linear-gradient(135deg, #7c3aed, #06b6d4); color: #ffffff; text-decoration: none; padding: 13px 36px; border-radius: 12px; font-size: 14px; font-weight: 700; letter-spacing: 0.3px;">
+                                            ↩️ Responder al usuario
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td style="background: rgba(15,23,42,0.6); padding: 20px 30px; text-align: center; border-top: 1px solid rgba(255,255,255,0.05);">
+                            <p style="margin: 0 0 6px; font-size: 13px; color: #64748b;">
+                                📅 Recibido el <strong style="color: #94a3b8;">{{ fecha }}</strong>
+                            </p>
+                            <p style="margin: 0; font-size: 12px; color: #475569;">
+                                Sistema de Soporte Automático · <span style="color: #7c3aed; font-weight: 700;">MiniAmigixV</span>
+                            </p>
+                        </td>
+                    </tr>
+
+                </table>
+                <!-- Fin Main Card -->
+
+            </td>
+        </tr>
+    </table>
+
+</body>
+</html>

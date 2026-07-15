@@ -48,6 +48,7 @@ descarga.*
 
 # Archivos temporales y de desarrollo
 scratch/
+.agents/
 *.tmp
 *.temp
 scratch_out.txt
