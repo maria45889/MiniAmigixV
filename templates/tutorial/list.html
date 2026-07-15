@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Todos los Tutoriales - MiniAmigixV{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4"><i data-lucide="list"></i> Todos los Tutoriales</h1>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="GET" class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Categoría</label>
+                            <select name="category" class="form-select">
+                                <option value="">Todas</option>
+                                {% for category in categories %}
+                                <option value="{{ category.name }}" {% if selected_category == category.name %}selected{% endif %}>
+                                    {{ category.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Dificultad</label>
+                            <select name="difficulty" class="form-select">
+                                <option value="">Todas</option>
+                                <option value="beginner" {% if selected_difficulty == 'beginner' %}selected{% endif %}>Principiante</option>
+                                <option value="intermediate" {% if selected_difficulty == 'intermediate' %}selected{% endif %}>Intermedio</option>
+                                <option value="advanced" {% if selected_difficulty == 'advanced' %}selected{% endif %}>Avanzado</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Buscar</label>
+                            <input type="text" name="search" class="form-control" value="{{ search_query }}" placeholder="Buscar tutoriales...">
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i data-lucide="search"></i> Filtrar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Tutoriales -->
+    <div class="row">
+        {% for tutorial in page_obj %}
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                {% if tutorial.image %}
+                <img src="{{ tutorial.image.url }}" class="card-img-top" alt="{{ tutorial.title }}" style="height: 200px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-{{ tutorial.difficulty == 'beginner'|yesno:'success,warning,danger' }}">
+                            {{ tutorial.get_difficulty_display }}
+                        </span>
+                        {% if tutorial.featured %}
+                        <span class="badge bg-warning">Destacado</span>
+                        {% endif %}
+                    </div>
+                    <h5 class="card-title">{{ tutorial.title }}</h5>
+                    <p class="card-text">{{ tutorial.description|truncatewords:20 }}</p>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <small class="text-muted">
+                            <i data-lucide="folder"></i> {{ tutorial.category.name }}
+                        </small>
+                        <small class="text-muted">
+                            <i data-lucide="clock"></i> {{ tutorial.estimated_time }} min
+                        </small>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i data-lucide="eye"></i> {{ tutorial.views }} vistas
+                        </small>
+                        <small class="text-muted">
+                            <i data-lucide="list"></i> {{ tutorial.total_steps }} pasos
+                        </small>
+                    </div>
+                    <a href="{% url 'tutorial_detail' tutorial.id %}" class="btn btn-primary mt-2 w-100">
+                        <i data-lucide="play-circle"></i> Comenzar Tutorial
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i data-lucide="info"></i> No se encontraron tutoriales con los filtros actuales.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Paginación -->
+    {% if page_obj.has_other_pages %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav>
+                <ul class="pagination justify-content-center">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_difficulty %}&difficulty={{ selected_difficulty }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">Anterior</a>
+                    </li>
+                    {% endif %}
+                    
+                    {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ num }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_difficulty %}&difficulty={{ selected_difficulty }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">{{ num }}</a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+                    
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if selected_category %}&category={{ selected_category }}{% endif %}{% if selected_difficulty %}&difficulty={{ selected_difficulty }}{% endif %}{% if search_query %}&search={{ search_query }}{% endif %}">Siguiente</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+}
+</script>
+{% endblock %}

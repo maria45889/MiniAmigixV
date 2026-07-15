@@ -24,10 +24,13 @@ urlpatterns = [
     # path('mongodb/', include('mongodb.urls')),
     
     # Blog
-    path('blog/', include('apps.blog.urls')),
+    path('blog/', include('blog.urls')),
     
     # Clima
     path('clima/', include('apps.clima.urls')),
+    
+    # Tutorial
+    path('tutorial/', include('apps.tutorial.urls')),
     
     # Main Application
     path('', include('apps.app.urls')),

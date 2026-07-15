@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Paso {{ step.order }}: {{ step.title }} - {{ tutorial.title }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'tutorial_home' %}">Tutoriales</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'tutorial_detail' tutorial.id %}">{{ tutorial.title }}</a></li>
+                    <li class="breadcrumb-item active">Paso {{ step.order }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span><strong>Progreso:</strong> {{ progress.progress_percentage }}%</span>
+                        <span>Paso {{ step.order }} de {{ tutorial.total_steps }}</span>
+                    </div>
+                    <div class="progress" style="height: 25px;">
+                        <div class="progress-bar" role="progressbar" style="width: {{ progress.progress_percentage }}%">
+                            {{ progress.progress_percentage }}%
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Step Content -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h2><i data-lucide="list-ordered"></i> Paso {{ step.order }}: {{ step.title }}</h2>
+                    {% if step.is_optional %}
+                    <span class="badge bg-secondary">Opcional</span>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if step.image %}
+                    <img src="{{ step.image.url }}" class="img-fluid mb-3" alt="{{ step.title }}">
+                    {% endif %}
+                    
+                    <div class="step-content">
+                        {{ step.content|linebreaks }}
+                    </div>
+
+                    {% if step.code_example %}
+                    <div class="mt-4">
+                        <h5><i data-lucide="code"></i> Código de Ejemplo</h5>
+                        <pre class="bg-dark text-light p-3 rounded"><code>{{ step.code_example }}</code></pre>
+                        {% if step.code_language %}
+                        <small class="text-muted">Lenguaje: {{ step.code_language }}</small>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        {% if prev_step %}
+                        <a href="{% url 'tutorial_step' tutorial.id prev_step.order %}" class="btn btn-secondary">
+                            <i data-lucide="arrow-left"></i> Paso Anterior
+                        </a>
+                        {% else %}
+                        <div></div>
+                        {% endif %}
+
+                        <button onclick="completeStep()" class="btn btn-success" id="completeBtn">
+                            <i data-lucide="check"></i> Completar Paso
+                        </button>
+
+                        {% if next_step %}
+                        <a href="{% url 'tutorial_step' tutorial.id next_step.order %}" class="btn btn-primary">
+                            Siguiente Paso <i data-lucide="arrow-right"></i>
+                        </a>
+                        {% else %}
+                        <a href="{% url 'tutorial_detail' tutorial.id %}" class="btn btn-primary">
+                            Finalizar Tutorial <i data-lucide="check-circle"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Tutorial Info -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4><i data-lucide="info"></i> Información</h4>
+                </div>
+                <div class="card-body">
+                    <p><strong>Tutorial:</strong> {{ tutorial.title }}</p>
+                    <p><strong>Categoría:</strong> {{ tutorial.category.name }}</p>
+                    <p><strong>Dificultad:</strong> {{ tutorial.get_difficulty_display }}</p>
+                    <p><strong>Tiempo estimado:</strong> {{ tutorial.estimated_time }} min</p>
+                </div>
+            </div>
+
+            <!-- Steps List -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4><i data-lucide="list"></i> Pasos</h4>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for s in tutorial.steps.all %}
+                        <a href="{% url 'tutorial_step' tutorial.id s.order %}" 
+                           class="list-group-item list-group-item-action 
+                           {% if s.order == step.order %}active{% endif %}
+                           {% if s.order < step.order %}list-group-item-success{% endif %}">
+                            <div class="d-flex w-100 justify-content-between">
+                                <h6 class="mb-1">Paso {{ s.order }}</h6>
+                                {% if s.order < step.order %}
+                                <i data-lucide="check"></i>
+                                {% endif %}
+                            </div>
+                            <small class="mb-1">{{ s.title }}</small>
+                        </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            <div class="card">
+                <div class="card-header">
+                    <h4><i data-lucide="sticky-note"></i> Notas</h4>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'save_notes' tutorial.id %}" class="notes-form">
+                        {% csrf_token %}
+                        <textarea class="form-control mb-3" name="notes" rows="5" placeholder="Escribe tus notas aquí...">{{ progress.notes }}</textarea>
+                        <button type="submit" class="btn btn-primary w-100">Guardar Notas</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+}
+
+function completeStep() {
+    const btn = document.getElementById('completeBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<i data-lucide="loader-2"></i> Completando...';
+    
+    fetch("{% url 'complete_step' tutorial.id step.order %}", {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (data.tutorial_completed) {
+                alert('¡Felicidades! Has completado el tutorial.');
+                window.location.href = "{% url 'tutorial_detail' tutorial.id %}";
+            } else if (data.next_step_id) {
+                window.location.href = "{% url 'tutorial_step' tutorial.id step.order|add:'1' %}";
+            }
+        } else {
+            btn.disabled = false;
+            btn.innerHTML = '<i data-lucide="check"></i> Completar Paso';
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        btn.disabled = false;
+        btn.innerHTML = '<i data-lucide="check"></i> Completar Paso';
+    });
+}
+
+// Notes form submission
+document.querySelector('.notes-form')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    fetch(this.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Notas guardadas correctamente');
+        }
+    });
+});
+</script>
+{% endblock %}

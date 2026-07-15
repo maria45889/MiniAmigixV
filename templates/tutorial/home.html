@@ -1,0 +1,127 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Tutoriales - MiniAmigixV{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4"><i data-lucide="book-open"></i> Centro de Tutoriales</h1>
+            <p class="lead">Aprende a utilizar todas las funciones de MiniAmigixV con nuestros tutoriales interactivos.</p>
+        </div>
+    </div>
+
+    <!-- Categorías -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i data-lucide="folder"></i> Categorías</h2>
+        </div>
+    </div>
+    <div class="row mb-5">
+        {% for category in categories %}
+        <div class="col-md-3 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">
+                        {% if category.icon %}
+                        <i data-lucide="{{ category.icon }}"></i>
+                        {% endif %}
+                        {{ category.name }}
+                    </h5>
+                    <p class="card-text">{{ category.description }}</p>
+                    <a href="{% url 'category_tutorials' category.id %}" class="btn btn-primary">
+                        Ver Tutoriales
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p class="text-muted">No hay categorías disponibles.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Tutoriales Destacados -->
+    {% if featured_tutorials %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i data-lucide="star"></i> Tutoriales Destacados</h2>
+        </div>
+    </div>
+    <div class="row mb-5">
+        {% for tutorial in featured_tutorials %}
+        <div class="col-md-4 mb-3">
+            <div class="card h-100 border-warning">
+                <div class="card-body">
+                    <span class="badge bg-warning">Destacado</span>
+                    <h5 class="card-title mt-2">{{ tutorial.title }}</h5>
+                    <p class="card-text">{{ tutorial.description|truncatewords:20 }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i data-lucide="clock"></i> {{ tutorial.estimated_time }} min
+                        </small>
+                        <small class="badge bg-{{ tutorial.difficulty == 'beginner'|yesno:'success,warning,danger' }}">
+                            {{ tutorial.get_difficulty_display }}
+                        </small>
+                    </div>
+                    <a href="{% url 'tutorial_detail' tutorial.id %}" class="btn btn-primary mt-2">
+                        Comenzar Tutorial
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Tutoriales Recientes -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <h2><i data-lucide="clock"></i> Tutoriales Recientes</h2>
+        </div>
+    </div>
+    <div class="row mb-5">
+        {% for tutorial in recent_tutorials %}
+        <div class="col-md-4 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <h5 class="card-title">{{ tutorial.title }}</h5>
+                    <p class="card-text">{{ tutorial.description|truncatewords:15 }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <small class="text-muted">
+                            <i data-lucide="folder"></i> {{ tutorial.category.name }}
+                        </small>
+                        <small class="text-muted">
+                            <i data-lucide="eye"></i> {{ tutorial.views }}
+                        </small>
+                    </div>
+                    <a href="{% url 'tutorial_detail' tutorial.id %}" class="btn btn-outline-primary mt-2">
+                        Ver Tutorial
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <p class="text-muted">No hay tutoriales disponibles.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <a href="{% url 'tutorial_list' %}" class="btn btn-lg btn-primary">
+                <i data-lucide="list"></i> Ver Todos los Tutoriales
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+}
+</script>
+{% endblock %}

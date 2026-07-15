@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mis Tutoriales - MiniAmigixV{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4"><i data-lucide="book-open"></i> Mis Tutoriales</h1>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="btn-group" role="group">
+                <a href="?status=all" class="btn {% if selected_status != 'in_progress' and selected_status != 'completed' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    Todos
+                </a>
+                <a href="?status=in_progress" class="btn {% if selected_status == 'in_progress' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    En Progreso
+                </a>
+                <a href="?status=completed" class="btn {% if selected_status == 'completed' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    Completados
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de Progreso -->
+    <div class="row">
+        {% for progress in progress_list %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h5 class="card-title">{{ progress.tutorial.title }}</h5>
+                        {% if progress.completed %}
+                        <span class="badge bg-success">Completado</span>
+                        {% else %}
+                        <span class="badge bg-warning">En Progreso</span>
+                        {% endif %}
+                    </div>
+                    
+                    <p class="card-text">{{ progress.tutorial.description|truncatewords:15 }}</p>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-1">
+                            <small>Progreso</small>
+                            <small>{{ progress.progress_percentage }}%</small>
+                        </div>
+                        <div class="progress" style="height: 20px;">
+                            <div class="progress-bar" role="progressbar" style="width: {{ progress.progress_percentage }}%">
+                                {{ progress.progress_percentage }}%
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <small class="text-muted">
+                            <i data-lucide="folder"></i> {{ progress.tutorial.category.name }}
+                        </small>
+                        {% if progress.completed %}
+                        <small class="text-muted">
+                            <i data-lucide="calendar"></i> {{ progress.completed_at|date:"d M Y" }}
+                        </small>
+                        {% else %}
+                        <small class="text-muted">
+                            <i data-lucide="clock"></i> Último acceso: {{ progress.last_accessed|date:"d M Y" }}
+                        </small>
+                        {% endif %}
+                    </div>
+
+                    {% if progress.rating %}
+                    <div class="mb-3">
+                        <small class="text-muted">
+                            <i data-lucide="star"></i> Tu calificación: {{ progress.rating }}/5
+                        </small>
+                    </div>
+                    {% endif %}
+
+                    {% if progress.notes %}
+                    <div class="mb-3">
+                        <small class="text-muted">
+                            <i data-lucide="sticky-note"></i> {{ progress.notes|truncatewords:10 }}
+                        </small>
+                    </div>
+                    {% endif %}
+
+                    <div class="d-flex gap-2">
+                        {% if progress.completed %}
+                        <a href="{% url 'tutorial_detail' progress.tutorial.id %}" class="btn btn-outline-primary flex-grow-1">
+                            <i data-lucide="eye"></i> Ver Tutorial
+                        </a>
+                        {% else %}
+                        <a href="{% url 'tutorial_step' progress.tutorial.id progress.current_step.order %}" class="btn btn-primary flex-grow-1">
+                            <i data-lucide="play-circle"></i> Continuar
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i data-lucide="info"></i> 
+                {% if selected_status == 'completed' %}
+                No has completado ningún tutorial aún.
+                {% elif selected_status == 'in_progress' %}
+                No tienes tutoriales en progreso.
+                {% else %}
+                No has comenzado ningún tutorial. 
+                <a href="{% url 'tutorial_list' %}">Explora los tutoriales disponibles</a>.
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<script>
+if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+}
+</script>
+{% endblock %}

@@ -106,7 +106,7 @@ INSTALLED_APPS = [
     'estudio',
     'apps.clima',
     'traductor',
-    'apps.blog',
+    'blog',
     'rest_framework',
     'rest_framework_simplejwt',
     'apps.api',

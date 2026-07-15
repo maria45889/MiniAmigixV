@@ -44,5 +44,4 @@ urlpatterns = [
     path('perfil/', include('perfil.urls')),
     path('notificaciones/', include('notificaciones.urls')),
     path('sugerencias/', include('sugerencias.urls')),
-    path('tutorial/', include('tutorial.urls')),
 ]

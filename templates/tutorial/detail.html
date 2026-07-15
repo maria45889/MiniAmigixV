@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ tutorial.title }} - MiniAmigixV{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'tutorial_home' %}">Tutoriales</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'category_tutorials' tutorial.category.id %}">{{ tutorial.category.name }}</a></li>
+                    <li class="breadcrumb-item active">{{ tutorial.title }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Tutorial Header -->
+            <div class="card mb-4">
+                {% if tutorial.image %}
+                <img src="{{ tutorial.image.url }}" class="card-img-top" alt="{{ tutorial.title }}" style="height: 300px; object-fit: cover;">
+                {% endif %}
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h1 class="card-title">{{ tutorial.title }}</h1>
+                        {% if tutorial.featured %}
+                        <span class="badge bg-warning">Destacado</span>
+                        {% endif %}
+                    </div>
+                    <p class="card-text">{{ tutorial.description }}</p>
+                    <div class="d-flex flex-wrap gap-3 mb-3">
+                        <span class="badge bg-{{ tutorial.difficulty == 'beginner'|yesno:'success,warning,danger' }}">
+                            {{ tutorial.get_difficulty_display }}
+                        </span>
+                        <span class="badge bg-info">
+                            <i data-lucide="folder"></i> {{ tutorial.category.name }}
+                        </span>
+                        <span class="badge bg-secondary">
+                            <i data-lucide="clock"></i> {{ tutorial.estimated_time }} min
+                        </span>
+                        <span class="badge bg-secondary">
+                            <i data-lucide="list"></i> {{ tutorial.total_steps }} pasos
+                        </span>
+                        <span class="badge bg-secondary">
+                            <i data-lucide="eye"></i> {{ tutorial.views }} vistas
+                        </span>
+                    </div>
+                    {% if tutorial.video_url %}
+                    <div class="ratio ratio-16x9 mb-3">
+                        <iframe src="{{ tutorial.video_url }}" allowfullscreen></iframe>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Pasos del Tutorial -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3><i data-lucide="list-ordered"></i> Pasos del Tutorial</h3>
+                </div>
+                <div class="card-body">
+                    {% if user.is_authenticated %}
+                        {% if user_progress %}
+                        <div class="alert alert-info mb-3">
+                            <strong>Tu progreso:</strong> {{ user_progress.progress_percentage }}% completado
+                        </div>
+                        <div class="progress mb-3" style="height: 25px;">
+                            <div class="progress-bar" role="progressbar" style="width: {{ user_progress.progress_percentage }}%">
+                                {{ user_progress.progress_percentage }}%
+                            </div>
+                        </div>
+                        {% endif %}
+                        <a href="{% url 'tutorial_step' tutorial.id 1 %}" class="btn btn-primary btn-lg w-100">
+                            <i data-lucide="play-circle"></i> 
+                            {% if user_progress and user_progress.current_step %}
+                                Continuar Tutorial
+                            {% else %}
+                                Comenzar Tutorial
+                            {% endif %}
+                        </a>
+                    {% else %}
+                        <div class="alert alert-warning">
+                            <i data-lucide="alert-triangle"></i> 
+                            <a href="{% url 'account_login' %}">Inicia sesión</a> para seguir tu progreso en este tutorial.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Lista de Pasos -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h3><i data-lucide="list"></i> Contenido del Tutorial</h3>
+                </div>
+                <div class="card-body">
+                    <ol class="list-group list-group-numbered">
+                        {% for step in steps %}
+                        <li class="list-group-item d-flex justify-content-between align-items-start">
+                            <div class="ms-2 me-auto">
+                                <div class="fw-bold">{{ step.title }}</div>
+                                <small class="text-muted">{{ step.content|truncatewords:15 }}</small>
+                                {% if step.is_optional %}
+                                <span class="badge bg-secondary">Opcional</span>
+                                {% endif %}
+                            </div>
+                            {% if user.is_authenticated and user_progress %}
+                                {% if user_progress.current_step.order > step.order or user_progress.completed %}
+                                <span class="badge bg-success"><i data-lucide="check"></i> Completado</span>
+                                {% elif user_progress.current_step.order == step.order %}
+                                <span class="badge bg-primary">Actual</span>
+                                {% endif %}
+                            {% endif %}
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item">No hay pasos disponibles para este tutorial.</li>
+                        {% endfor %}
+                    </ol>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <!-- Calificación -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4><i data-lucide="star"></i> Calificación</h4>
+                </div>
+                <div class="card-body">
+                    <p class="mb-2">Promedio: <strong>{{ tutorial.average_rating|floatformat:1 }}/5</strong></p>
+                    {% if user.is_authenticated %}
+                        {% if user_progress and user_progress.rating %}
+                        <p class="alert alert-success">Tu calificación: {{ user_progress.rating }}/5</p>
+                        {% else %}
+                        <form method="POST" action="{% url 'rate_tutorial' tutorial.id %}" class="rating-form">
+                            {% csrf_token %}
+                            <div class="mb-3">
+                                <label class="form-label">Califica este tutorial:</label>
+                                <div class="btn-group w-100" role="group">
+                                    <input type="radio" class="btn-check" name="rating" value="1" id="star1">
+                                    <label class="btn btn-outline-warning" for="star1">1</label>
+                                    <input type="radio" class="btn-check" name="rating" value="2" id="star2">
+                                    <label class="btn btn-outline-warning" for="star2">2</label>
+                                    <input type="radio" class="btn-check" name="rating" value="3" id="star3">
+                                    <label class="btn btn-outline-warning" for="star3">3</label>
+                                    <input type="radio" class="btn-check" name="rating" value="4" id="star4">
+                                    <label class="btn btn-outline-warning" for="star4">4</label>
+                                    <input type="radio" class="btn-check" name="rating" value="5" id="star5">
+                                    <label class="btn btn-outline-warning" for="star5">5</label>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Enviar Calificación</button>
+                        </form>
+                        {% endif %}
+                    {% else %}
+                    <a href="{% url 'account_login' %}" class="btn btn-outline-primary w-100">Inicia sesión para calificar</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Notas Personales -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4><i data-lucide="sticky-note"></i> Notas Personales</h4>
+                </div>
+                <div class="card-body">
+                    {% if user.is_authenticated %}
+                        <form method="POST" action="{% url 'save_notes' tutorial.id %}" class="notes-form">
+                            {% csrf_token %}
+                            <textarea class="form-control mb-3" name="notes" rows="5" placeholder="Escribe tus notas aquí...">{% if user_progress %}{{ user_progress.notes }}{% endif %}</textarea>
+                            <button type="submit" class="btn btn-primary w-100">Guardar Notas</button>
+                        </form>
+                    {% else %}
+                    <a href="{% url 'account_login' %}" class="btn btn-outline-primary w-100">Inicia sesión para guardar notas</a>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Tutoriales Relacionados -->
+            <div class="card">
+                <div class="card-header">
+                    <h4><i data-lucide="book"></i> Más en {{ tutorial.category.name }}</h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-muted">Próximamente...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+if (typeof lucide !== 'undefined') {
+    lucide.createIcons();
+}
+
+// Rating form submission
+document.querySelector('.rating-form')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    fetch(this.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('¡Gracias por tu calificación!');
+            location.reload();
+        }
+    });
+});
+
+// Notes form submission
+document.querySelector('.notes-form')?.addEventListener('submit', function(e) {
+    e.preventDefault();
+    const formData = new FormData(this);
+    fetch(this.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Notas guardadas correctamente');
+        }
+    });
+});
+</script>
+{% endblock %}
