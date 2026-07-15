@@ -1,16 +1,74 @@
+# Entornos virtuales
 venv/
 .venv/
+env/
+
+# Python
 *.pyc
 __pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Django
 db.sqlite3
-.env
-.vscode/
+db.sqlite3-journal
 media/
 static_collected/
+staticfiles/
 *.log
+
+# Variables de entorno
+.env
+.env.local
+.env.*.local
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Archivos multimedia temporales
 *.mp3
 *.webm
 *.mp4
 *.avi
 *.mkv
+descarga.*
+
+# Claves SSH y archivos sensibles
+.ssh/
+*.pem
+*.key
+*.pub
+-----BEGIN*
+
+# Archivos temporales y de desarrollo
+scratch/
+*.tmp
+*.temp
+scratch_out.txt
+env_correcto.txt
+
+# Tests
+tests/
+test_*.py
+check_*.py
+verify_*.py
+
+# Documentación (mantener solo README.md en raíz)
+docs/
+DATABASES_SETUP.md
+MONGODB_SETUP.md
+REDIS_SETUP.md
+SEGURIDAD.md
+DEPLOY.md
+ESTADO_PROYECTO.md
 YTDLP_JAVASCRIPT_SETUP.md
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db

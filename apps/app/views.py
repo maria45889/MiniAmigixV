@@ -1388,6 +1388,7 @@ def panel_admin(request):
         return redirect('home')
     from sugerencias.models import Visitante, Sugerencia
     from soporte.models import TicketSoporte
+    from blog.models import Post, Category, Comment
     
     # Calcular estadísticas de soporte
     tickets_pendientes = TicketSoporte.objects.filter(estado='abierto').count()
@@ -1423,6 +1424,13 @@ def panel_admin(request):
     semana_pasada = hoy - datetime.timedelta(days=7)
     mes_pasado = hoy - datetime.timedelta(days=30)
     
+    # Calcular estadísticas del blog
+    total_publicaciones = Post.objects.count()
+    total_categorias = Category.objects.count()
+    total_comentarios = Comment.objects.count()
+    publicaciones_hoy = Post.objects.filter(fecha_publicacion__date=hoy).count()
+    ultimas_publicaciones = Post.objects.order_by('-fecha_publicacion')[:5]
+    
     visitantes_hoy = Visitante.objects.filter(fecha_ultima_interaccion__date=hoy).count()
     visitantes_semana = Visitante.objects.filter(fecha_ultima_interaccion__date__gte=semana_pasada).count()
     visitantes_mes = Visitante.objects.filter(fecha_ultima_interaccion__date__gte=mes_pasado).count()
@@ -1435,7 +1443,7 @@ def panel_admin(request):
         'total_usuarios': User.objects.count(),
         'total_chats': ConversacionChat.objects.count(),
         'total_canciones': Cancion.objects.count(),
-        'total_publicaciones': 0,
+        'total_publicaciones': total_publicaciones,
         'total_eventos': Evento.objects.count(),
         'ultimos_usuarios': User.objects.order_by('-date_joined')[:10],
         'ultimas_notificaciones': Notificacion.objects.order_by('-fecha_creacion')[:5],
@@ -1455,6 +1463,11 @@ def panel_admin(request):
         'visitantes_mes': visitantes_mes,
         'sesiones_activas': sesiones_activas,
         'intentos_fallidos': 0,  # Se puede implementar con un modelo de logs de seguridad
+        # Estadísticas del blog
+        'total_categorias': total_categorias,
+        'total_comentarios': total_comentarios,
+        'publicaciones_hoy': publicaciones_hoy,
+        'ultimas_publicaciones': ultimas_publicaciones,
     }
     return render(request, 'panel_admin.html', context)
 

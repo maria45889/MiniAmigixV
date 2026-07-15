@@ -34,18 +34,17 @@ Crear un ecosistema digital donde usuarios puedan gestionar su productividad, en
 - Soporte para imágenes y análisis visual
 - Respuestas empáticas y sentimentales
 
-### 🎵 Música
+### 🎵 Música (En desarrollo)
 - Reproductor musical interactivo con YouTube
-- Sistema de playlists personalizadas
-- Favoritos y gestión de biblioteca
-- Búsqueda de letras y sincronización
-- Estadísticas de reproducción
+- ⚠️ Canciones individuales (playlists y favoritos en desarrollo)
+- Búsqueda de contenido multimedia
+- Estadísticas de reproducción básicas
 
-### 🎮 Juegos
+### 🎮 Juegos (En desarrollo)
 - Módulo de entretenimiento con minijuegos educativos
-- Sistema de puntuaciones y logros
-- Interfaz dinámica y visual
-- Desafíos diarios y rankings
+- ⚠️ Templates HTML (lógica de juegos en desarrollo)
+- Sistema de puntuaciones (en desarrollo)
+- Interfaz visual básica
 
 ### 🌦️ Clima
 - Consulta del clima en tiempo real
@@ -71,7 +70,7 @@ Crear un ecosistema digital donde usuarios puedan gestionar su productividad, en
 - Noticias oficiales creadas por administradores
 - Sistema de anuncios globales
 - Publicaciones fijadas y destacadas
-- Categorías y comentarios
+- ⚠️ Categorías básicas (comentarios en desarrollo)
 
 ### 📅 Eventos
 - Gestión y visualización de eventos
@@ -129,6 +128,7 @@ Crear un ecosistema digital donde usuarios puedan gestionar su productividad, en
 ![Python](https://img.shields.io/badge/Python-3.14-blue.svg)
 ![Django](https://img.shields.io/badge/Django-6.0.6-green.svg)
 ![SQLite](https://img.shields.io/badge/SQLite-3-lightblue.svg)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-15-blue.svg)
 ![MongoDB](https://img.shields.io/badge/MongoDB-6.0-green.svg)
 ![Redis](https://img.shields.io/badge/Redis-7.0-red.svg)
 
@@ -136,9 +136,10 @@ Crear un ecosistema digital donde usuarios puedan gestionar su productividad, en
 
 - **Python 3.14** - Lenguaje principal
 - **Django 6.0.6** - Framework web
-- **SQLite** - Usuarios, Auth, Sesiones
-- **MongoDB** - Chats, Notificaciones, Analítica
-- **Redis** - Caché, Sesiones, Colas
+- **SQLite** - Base de datos por defecto (desarrollo)
+- **PostgreSQL** - Base de datos para producción
+- **MongoDB** - Analítica avanzada, logs, notificaciones (opcional)
+- **Redis** - Caché, sesiones, colas (opcional)
 
 ### Frontend
 <div align="center">
@@ -160,14 +161,14 @@ Crear un ecosistema digital donde usuarios puedan gestionar su productividad, en
 
 ![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o-black.svg)
 ![Groq](https://img.shields.io/badge/Groq-Llama--3-orange.svg)
-![OpenWeather](https://img.shields.io/badge/OpenWeather-API-blue.svg)
+![OpenMeteo](https://img.shields.io/badge/OpenMeteo-API-blue.svg)
 ![DeepTranslator](https://img.shields.io/badge/DeepTranslator-API-green.svg)
 
 </div>
 
 - **OpenAI API** - GPT-4o para Chat IA
 - **Groq API** - Llama 3.3 para respuestas rápidas
-- **Open-Meteo API** - Datos del clima
+- **Open-Meteo API** - Datos del clima (gratuito)
 - **Deep Translator** - Traducción multilenguaje
 
 ---
@@ -177,72 +178,109 @@ Crear un ecosistema digital donde usuarios puedan gestionar su productividad, en
 ```bash
 MiniAmigixV/
 │
-├── apps/
-│   ├── api/              # API REST con Django REST Framework
-│   ├── app/              # Aplicación principal (Chat, Música, Juegos)
-│   ├── blog/             # Blog y noticias globales
-│   ├── clima/            # Clima en tiempo real
-│   ├── configuracion/    # Configuración de usuario
-│   ├── estudio/          # Recursos de estudio y Pomodoro
-│   ├── eventos/          # Gestión de eventos y agenda
-│   ├── mongodb/          # Modelos y servicios MongoDB
-│   ├── notificaciones/    # Sistema de notificaciones avanzado
-│   ├── perfil/           # Perfil de usuario
-│   ├── soporte/          # Sistema de soporte técnico
-│   ├── sugerencias/      # Sistema de sugerencias
-│   ├── traductor/        # Traductor multilenguaje
-│   └── tutorial/         # Tutorial y guía interactiva
+├── apps/                    # Aplicaciones Django
+│   ├── api/                 # API REST con Django REST Framework
+│   ├── app/                 # Aplicación principal (Chat, Música, Juegos)
+│   ├── blog/                # Blog y noticias globales
+│   ├── clima/               # Clima en tiempo real
+│   ├── configuracion/       # Configuración de usuario
+│   ├── estudio/             # Recursos de estudio y Pomodoro
+│   ├── eventos/             # Gestión de eventos y agenda
+│   ├── mongodb/             # Modelos y servicios MongoDB
+│   ├── notificaciones/      # Sistema de notificaciones avanzado
+│   ├── perfil/              # Perfil de usuario
+│   ├── soporte/             # Sistema de soporte técnico
+│   ├── sugerencias/         # Sistema de sugerencias
+│   ├── traductor/           # Traductor multilenguaje
+│   └── tutorial/            # Tutorial y guía interactiva
 │
-├── static/
-│   ├── css/
-│   │   ├── core/         # Estilos base y variables
-│   │   ├── modules/      # Estilos por módulo
-│   │   └── pages/        # Estilos por página
-│   ├── js/
-│   │   ├── core/         # JavaScript base
-│   │   ├── modules/      # JavaScript por módulo
-│   │   └── pages/        # JavaScript por página
-│   ├── imagenes/         # Imágenes y logos
-│   └── fonts/            # Fuentes personalizadas
-│
-├── templates/
-│   ├── account/         # Plantillas de cuenta (login, registro)
-│   ├── blog/            # Plantillas del blog
-│   ├── clima/           # Plantillas del clima
-│   ├── configuracion/   # Plantillas de configuración
-│   ├── estudio/         # Plantillas de estudio
-│   ├── eventos/         # Plantillas de eventos
-│   ├── includes/        # Componentes reutilizables
-│   ├── notificaciones/  # Plantillas de notificaciones
-│   ├── perfil/          # Plantillas de perfil
-│   ├── soporte/         # Plantillas de soporte
-│   └── traductor/       # Plantillas del traductor
-│
-├── config/               # Configuración de Django
+├── config/                  # Configuración de Django
 │   ├── settings.py
 │   ├── urls.py
 │   └── wsgi.py
 │
-├── media/               # Archivos multimedia subidos
-├── scripts/             # Scripts utilitarios
-├── scratch/             # Archivos temporales de desarrollo
-├── .github/             # Configuración de GitHub
-├── .venv/               # Entorno virtual
-├── venv/                # Entorno virtual alternativo
-├── db.sqlite3           # Base de datos SQLite
-├── manage.py            # Script de gestión Django
-├── requirements.txt     # Dependencias Python
-└── README.md           # Documentación del proyecto
+├── static/                  # Archivos estáticos
+│   ├── css/
+│   │   ├── core/            # Estilos base y variables
+│   │   ├── modules/         # Estilos por módulo
+│   │   └── pages/           # Estilos por página
+│   ├── js/
+│   │   ├── core/            # JavaScript base
+│   │   ├── modules/         # JavaScript por módulo
+│   │   └── pages/           # JavaScript por página
+│   ├── imagenes/            # Imágenes y logos
+│   └── fonts/               # Fuentes personalizadas
+│
+├── templates/               # Plantillas Django
+│   ├── account/            # Plantillas de cuenta (login, registro)
+│   ├── blog/               # Plantillas del blog
+│   ├── clima/              # Plantillas del clima
+│   ├── configuracion/      # Plantillas de configuración
+│   ├── estudio/            # Plantillas de estudio
+│   ├── eventos/            # Plantillas de eventos
+│   ├── includes/           # Componentes reutilizables
+│   ├── notificaciones/     # Plantillas de notificaciones
+│   ├── perfil/             # Plantillas de perfil
+│   ├── soporte/            # Plantillas de soporte
+│   └── traductor/          # Plantillas del traductor
+│
+├── docs/                    # Documentación del proyecto
+│   ├── DATABASES_SETUP.md   # Configuración de bases de datos
+│   ├── MONGODB_SETUP.md     # Configuración de MongoDB
+│   ├── REDIS_SETUP.md       # Configuración de Redis
+│   ├── SEGURIDAD.md         # Guía de seguridad
+│   ├── DEPLOY.md            # Guía de despliegue
+│   ├── ESTADO_PROYECTO.md   # Estado del proyecto
+│   └── YTDLP_JAVASCRIPT_SETUP.md
+│
+├── scripts/                 # Scripts utilitarios
+│   ├── list_social_accounts.py
+│   ├── list_users.py
+│   └── [otros scripts de mantenimiento]
+│
+├── tests/                   # Archivos de prueba
+│   ├── test_api.py
+│   ├── test_email_config.py
+│   ├── test_ytdl.py
+│   ├── check_debug.py
+│   ├── check_duplicate_games.py
+│   └── verify_ai_fallback.py
+│
+├── scratch/                 # Archivos temporales de desarrollo
+│   ├── test_ai_direct.py
+│   ├── test_ai_providers.py
+│   └── [archivos temporales]
+│
+├── frontend/                # Frontend React (en desarrollo)
+│   ├── src/
+│   ├── public/
+│   └── [configuración React]
+│
+├── media/                   # Archivos multimedia subidos
+├── .github/                 # Configuración de GitHub
+├── .ssh/                    # Claves SSH (no versionado)
+├── .venv/                   # Entorno virtual
+├── venv/                    # Entorno virtual alternativo
+├── db.sqlite3               # Base de datos SQLite
+├── manage.py                # Script de gestión Django
+├── requirements.txt         # Dependencias Python
+├── docker-compose.yml       # Configuración Docker
+├── Dockerfile               # Imagen Docker
+├── .gitignore               # Archivos ignorados por Git
+└── README.md                # Documentación principal
 ```
 
 ---
 
-## ⚙ Instalación
+## ⚙ Instalación Local
 
 ### Requisitos Previos
 - Python 3.14 o superior
 - pip (gestor de paquetes de Python)
 - Git
+- PostgreSQL 15+ (opcional, para producción)
+- MongoDB 6.0+ (opcional, para analítica avanzada)
+- Redis 7.0+ (opcional, para caché)
 
 ### Paso 1: Clonar el Repositorio
 
@@ -280,26 +318,46 @@ pip install -r requirements.txt
 Crea un archivo `.env` en la raíz del proyecto:
 
 ```env
-SECRET_KEY=tu_clave_secreta_de_django
+# Django
+DJANGO_SECRET_KEY=tu_clave_secreta_de_django
 DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
+SITE_URL=http://127.0.0.1:8000
 
-# MongoDB
-MONGODB_URI=mongodb://localhost:27017/miniamigixv_db
+# Bases de Datos (Opcional - usa SQLite por defecto)
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+POSTGRES_DB=miniamigixv_db
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=tu_contraseña
 
-# Redis
-REDIS_URL=redis://localhost:6379/0
+# MongoDB (Opcional - para analítica avanzada)
+MONGODB_URI=mongodb://localhost:27017/
+MONGODB_NAME=miniamigixv_db
+
+# Redis (Opcional - para caché)
+REDIS_HOST=localhost
+REDIS_PORT=6379
+REDIS_DB=0
+REDIS_PASSWORD=
 
 # APIs de IA
 OPENAI_API_KEY=tu_api_key_de_openai
 GROQ_API_KEY=tu_api_key_de_groq
+GEMINI_API_KEY=tu_api_key_de_gemini
 
-# Correo (opcional)
+# Clima
+OPENWEATHER_API_KEY=tu_api_key_openweather
+
+# YouTube (Opcional - para música)
+YOUTUBE_API_KEY=tu_api_key_youtube
+
+# Correo (Opcional)
 EMAIL_HOST=smtp.gmail.com
 EMAIL_PORT=587
 EMAIL_USE_TLS=True
 EMAIL_HOST_USER=tu_correo@gmail.com
-EMAIL_HOST_PASSWORD=tu_contraseña
+EMAIL_HOST_PASSWORD=tu_app_password
 ```
 
 ### Paso 6: Aplicar Migraciones
@@ -327,6 +385,33 @@ Abre tu navegador y navega a:
 - **Aplicación:** http://127.0.0.1:8000/
 - **Panel Admin:** http://127.0.0.1:8000/admin/
 - **Panel de Administración:** http://127.0.0.1:8000/panel-admin/
+
+---
+
+## 🚀 Despliegue en Producción
+
+Para desplegar MiniAmigixV en producción, consulta la guía completa de despliegue:
+
+### 📖 [Guía de Despliegue Completa](DEPLOY.md)
+
+**Opciones de despliegue disponibles:**
+- **Docker** (Recomendado) - Escalable y fácil de mantener
+- **VPS Tradicional** - Más control, requiere configuración manual
+- **Plataformas Managed** - Railway, Render, Heroku, DigitalOcean App Platform
+
+**Requisitos mínimos de producción:**
+- 2GB RAM
+- 20GB disco
+- Dominio (opcional, para SSL)
+
+**Características de producción:**
+- ✅ PostgreSQL para base de datos principal
+- ✅ MongoDB para analítica avanzada
+- ✅ Redis para caché y sesiones
+- ✅ Nginx como servidor web
+- ✅ SSL/TLS con Let's Encrypt
+- ✅ Backups automáticos
+- ✅ Monitoreo y logs
 
 ---
 
@@ -463,22 +548,77 @@ MiniAmigixV utiliza una interfaz visual moderna basada en:
 
 ---
 
+## � Estado Actual del Proyecto
+
+**Progreso total: ~35%**
+
+### ✅ Funcionalidades Completas
+- **Chat IA** - Integración con OpenAI/Groq API
+- **Clima** - Consulta en tiempo real con Open-Meteo
+- **Traductor** - Traducción multilenguaje con deep_translator
+- **Eventos/Agenda** - Calendario con notificaciones automáticas
+- **Notificaciones** - Sistema completo con filtros y prioridades
+- **Perfil** - Gestión de perfil de usuario
+- **MongoDB** - Sistema dual completo con analítica
+- **Autenticación Social** - Google OAuth
+
+### ⚠️ Funcionalidades Básicas (En desarrollo)
+- **Música** - Canciones individuales (playlists y favoritos pendientes)
+- **Blog** - Posts básicos (comentarios y categorías dinámicas pendientes)
+- **Soporte** - Tickets básicos (panel admin completo pendiente)
+- **Sugerencias** - Sistema básico (panel admin completo pendiente)
+- **Juegos** - Templates HTML (lógica backend pendiente)
+
+### ❌ Funcionalidades Pendientes
+- **GitHub/Microsoft OAuth** - Solo Google implementado
+- **Reloj Inteligente** - No implementado
+- **Recursos de Estudio Avanzados** - Solo notas y resúmenes básicos
+- **Frontend React** - Usa templates Django
+- **App Móvil Android** - No implementado
+
+Para más detalles, consulta [ESTADO_PROYECTO.md](ESTADO_PROYECTO.md)
+
+---
+
 ## 🚀 Futuras Mejoras
 
-### 📋 Roadmap
+### 📋 Roadmap Prioritario
 
-- [ ] **Notificaciones Push** - Sistema de alertas en tiempo real
-- [ ] **Modo Oscuro Avanzado** - Toggle completo con persistencia
-- [ ] **Dashboard Analítico** - Estadísticas detalladas para usuarios
-- [ ] **Más Minijuegos** - Ampliar catálogo de juegos educativos
-- [ ] **IA Más Avanzada** - Integración con más modelos y features
-- [ ] **Sistema de Recomendaciones** - Personalización basada en uso
-- [ ] **App Móvil Android** - Versión nativa para Android
-- [ ] **Integración con Calendarios** - Google Calendar, Outlook
-- [ ] **Sistema de Gamificación** - Puntos, niveles y recompensas
-- [ ] **Chat de Grupos** - Conversaciones colaborativas
-- [ ] **Videoconferencias** - Integración con plataformas de video
-- [ ] **Almacenamiento en la Nube** - Google Drive, Dropbox
+**Fase 1: Completar Fundamentos**
+- [ ] GitHub OAuth
+- [ ] Microsoft OAuth
+- [ ] Recuperación de contraseña completa
+
+**Fase 2: Productividad**
+- [ ] Reloj inteligente
+- [ ] Integración con calendarios externos
+
+**Fase 3: Entretenimiento**
+- [ ] Playlists de música
+- [ ] Sistema de favoritos
+- [ ] Comentarios en blog
+- [ ] Categorías dinámicas
+- [ ] Juegos educativos con lógica backend
+- [ ] Sistema de puntuaciones y logros
+
+**Fase 4: Estudio y Soporte**
+- [ ] Recursos de estudio avanzados
+- [ ] Panel admin para soporte
+- [ ] Panel admin para sugerencias
+
+**Fase 5: Frontend**
+- [ ] Decidir: React vs templates Django
+- [ ] Modo oscuro avanzado con persistencia
+- [ ] Dashboard analítico para usuarios
+
+**Fase 6: Móvil**
+- [ ] App móvil Android
+- [ ] Notificaciones push
+
+**Fase 7: Integraciones**
+- [ ] Videoconferencias
+- [ ] Almacenamiento en la nube
+- [ ] Sistema de gamificación
 
 ---
 
