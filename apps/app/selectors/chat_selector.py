@@ -28,7 +28,7 @@ class ChatSelector:
     @staticmethod
     def get_all_by_user(user):
         """Get all conversations for user ordered by update date."""
-        return ConversacionChat.objects.filter(usuario=user).order_by('-fecha_actualizacion')
+        return ConversacionChat.objects.filter(usuario=user).select_related('usuario').order_by('-fecha_actualizacion')
     
     @staticmethod
     def get_or_create_main(user):
@@ -68,4 +68,4 @@ class ChatSelector:
     @staticmethod
     def get_all_messages(conversation):
         """Get all messages for a conversation."""
-        return conversation.mensajes.all().order_by('fecha_creacion')
+        return conversation.mensajes.all().select_related('conversacion').order_by('fecha_creacion')

@@ -232,10 +232,10 @@
 
 {% block content %}
 <div class="chat-page">
+    {% csrf_token %}
     <div class="chat-orb chat-orb-1"></div>
     <div class="chat-orb chat-orb-2"></div>
     <div class="chat-hero">
-        <span style="font-size:3rem;">💬</span>
         <h1>Chat IA</h1>
         <p>Conversa con MiniAmigixV y resuelve tus dudas al instante.</p>
     </div>
@@ -307,7 +307,6 @@
                     <i class="ti ti-robot"></i>
                     <span>MiniAmigixV AI</span>
                 </div>
-                <button class="icon-btn" onclick="toggleTheme()"><i class="ti ti-sun"></i></button>
             </div>
         </div>
 
@@ -783,7 +782,8 @@
 
             if (!response.ok) { // Si la respuesta HTTP no es 2xx
                 const errorData = await response.json();
-                appendMessage(`Error del servidor: ${errorData.error || response.statusText} 😕`, false);
+                const errorMsg = errorData.message || errorData.error || response.statusText;
+                appendMessage(`Error del servidor: ${errorMsg} 😕`, false);
                 return;
             }
             

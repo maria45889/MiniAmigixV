@@ -239,26 +239,6 @@ def download_media_api(request):
 
 @require_http_methods(["POST"])
 @csrf_exempt
-def delete_chat_api(request, chat_id):
-    """Delete a chat conversation."""
-    if not request.user.is_authenticated:
-        return JsonResponse({'error': 'No autenticado'}, status=401)
-    
-    try:
-        from apps.app.services import ChatService
-        success, error = ChatService.delete_conversation(chat_id, request.user)
-        
-        if not success:
-            return JsonResponse({'error': error}, status=400)
-        
-        return JsonResponse({'success': True})
-    except Exception as e:
-        LogHelper.log_error(logger, f"Error al eliminar chat: {str(e)}", exc_info=True)
-        return JsonResponse({'error': str(e)}, status=500)
-
-
-@require_http_methods(["POST"])
-@csrf_exempt
 def delete_song_api(request, song_id):
     """Delete a song from the library."""
     if not request.user.is_authenticated:

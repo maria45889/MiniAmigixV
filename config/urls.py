@@ -32,6 +32,9 @@ urlpatterns = [
     # Tutorial
     path('tutorial/', include('tutorial.urls')),
     
+    # Estudio
+    path('estudio/', include('estudio.urls')),
+    
     # Main Application
     path('', include('apps.app.urls')),
 ]

@@ -1,8 +1,8 @@
-const CACHE_NAME = 'miniamigixv-v2';
+const CACHE_NAME = 'miniamigixv-v3';
 const urlsToCache = [
     '/',
-    '/static/css/style.css',
-    '/static/css/sidebar-neon.css',
+    '/static/css/core/style.css',
+    '/static/css/core/sidebar-neon.css',
     '/static/imagenes/logo.png',
     '/static/favicon.ico'
 ];

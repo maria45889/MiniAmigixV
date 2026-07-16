@@ -282,7 +282,7 @@
                 <button class="color-btn color-pink" data-color="#fbcfe8" onclick="selectNoteColor('#fbcfe8')"></button>
                 <button class="color-btn color-purple" data-color="#ddd6fe" onclick="selectNoteColor('#ddd6fe')"></button>
             </div>
-            <textarea id="notaInput" rows="3" placeholder="Escribe una nota rápida..." style="resize: vertical; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word;"></textarea>
+            <textarea id="notaInput" rows="3" placeholder="Escribe una nota rápida..." style="resize: vertical; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; max-width: 100%;"></textarea>
             <div style="display: flex; gap: 10px; margin-top: 10px;">
                 <button class="btn-primary" onclick="guardarNota()">💾 Guardar</button>
                 <button class="btn-secondary" onclick="togglePin()" id="btn-pin">📌 Fijar</button>
@@ -327,7 +327,7 @@
         <div class="nota-card" data-id="calendario">
             <h3>📅 Mini Calendario</h3>
             <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 10px;">
-                Haz clic en cualquier día para agregar un evento local (guardado en tu navegador)
+                <strong>Nota:</strong> Este calendario guarda eventos localmente en tu navegador. Para gestionar eventos en la nube, usa la sección <a href="/eventos/" style="color: var(--amber-light);">Eventos</a>.
             </p>
             <div id="mini-calendario" class="mini-calendario">
                 <div class="calendar-header">

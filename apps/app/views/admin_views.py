@@ -16,7 +16,7 @@ logger = logging.getLogger(__name__)
 @staff_member_required
 def panel_admin(request):
     """Render admin panel dashboard."""
-    return render(request, 'admin_panel.html')
+    return render(request, 'panel_admin.html')
 
 
 @staff_member_required

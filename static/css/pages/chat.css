@@ -52,18 +52,19 @@
     justify-content: center;
 }
 
-/* Privacy Banner - Dismissible */
+/* Privacy Banner - Dismissible and Subtle */
 .privacy-banner {
-    background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(239, 68, 68, 0.1));
-    border: 1px solid rgba(245, 158, 11, 0.3);
-    border-radius: 12px;
-    padding: 12px 16px;
-    margin-bottom: 16px;
+    background: rgba(245, 158, 11, 0.08);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
+    gap: 10px;
     animation: slideDown 0.3s ease;
+    font-size: 12px;
 }
 
 @keyframes slideDown {
@@ -91,8 +92,8 @@
 
 .privacy-banner-content span {
     color: #fbbf24;
-    font-size: 13px;
-    font-weight: 500;
+    font-size: 12px;
+    font-weight: 400;
 }
 
 .privacy-banner-actions {

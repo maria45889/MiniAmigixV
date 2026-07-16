@@ -53,8 +53,8 @@
 .suggestion-body textarea {
     width: 100%;
     height: 110px;
-    background: rgba(30, 41, 59, 0.8);
-    border: 2px solid rgba(139, 92, 246, 0.4);
+    background: rgba(30, 41, 59, 0.95);
+    border: 2px solid rgba(139, 92, 246, 0.5);
     border-radius: 12px;
     color: white;
     padding: 12px;
@@ -122,7 +122,7 @@
     animation: musicFloatSpin 3s linear infinite;
 }
 
-.music-float-btn.spinning span {
+.music-float-btn.playing span {
     display: inline-block;
     animation: musicFloatSpin 3s linear infinite;
 }
@@ -133,6 +133,17 @@
 }
 
 /* Responsive positioning for floating elements */
+@media (max-width: 1100px) {
+    .music-float-btn {
+        right: 25px;
+        bottom: 90px; /* Move above suggestion box */
+    }
+    .suggestion-float {
+        bottom: 25px;
+        right: 25px;
+    }
+}
+
 @media (max-width: 900px) {
     .music-float-btn {
         right: 25px;

@@ -60,9 +60,12 @@ def register_view(request):
                 login(request, user)
                 return redirect('home')
             else:
+                # Preserve form data on error
                 return render(request, 'register.html', {
                     'form': form,
-                    'error': error
+                    'error': error,
+                    'username': request.POST.get('username', ''),
+                    'email': request.POST.get('email', '')
                 })
     else:
         form = RegisterForm()

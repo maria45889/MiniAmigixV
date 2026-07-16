@@ -2,7 +2,7 @@
 <nav class="navbar">
     <div class="nav-left">
         <h2 class="navbar-logo-text" style="font-family: var(--font-title); font-weight: 800; background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 0 10px rgba(124, 58, 237, 0.4); margin: 0;">MiniAmigixV</h2>
-        <span style="font-weight: 600; color: var(--text-muted);">/ <span data-i18n="home">{% block nav_title %}{% block title %}Inicio{% endblock %}{% endblock %}</span></span>
+        <span style="font-weight: 600; color: var(--text-muted);">/ <span data-i18n="home">{% block nav_title %}Inicio{% endblock %}</span></span>
     </div>
 
     <div class="nav-center">
@@ -13,12 +13,12 @@
         </div>
         
         <!-- Reloj Digital sutil (solo horas:minutos) -->
-        <div id="digital-clock" class="digital-clock">--:--</div>
+        <div id="digital-clock" class="digital-clock" style="display: none;">--:--</div>
     </div>
 
     <div class="nav-right">
         <!-- Notificaciones -->
-        <a href="{% url 'lista_notificaciones' %}" class="notification-btn" title="Notificaciones">
+        <a href="{% url 'lista_notificaciones' %}" class="notification-btn" aria-label="Ver notificaciones" title="Notificaciones">
             <i class="ti ti-bell"></i>
             {% if user.is_authenticated and notificaciones_sin_leer > 0 %}
             <span class="notification-badge">{{ notificaciones_sin_leer }}</span>
@@ -26,11 +26,11 @@
         </a>
 
         <!-- Tema -->
-        <button class="theme-btn" onclick="toggleTheme()" title="Cambiar tema"><i class="ti ti-moon"></i></button>
+        <button class="theme-btn" onclick="toggleTheme()" aria-label="Cambiar tema claro/oscuro" title="Cambiar tema"><i class="ti ti-moon"></i></button>
 
         <!-- Profile -->
         {% if user.is_authenticated %}
-        <a href="{% url 'perfil' %}" class="profile-btn" title="Perfil">
+        <a href="{% url 'perfil' %}" class="profile-btn" aria-label="Ver perfil de usuario" title="Perfil">
             <div class="profile-avatar">
                 {{ user.username|first|upper }}
                 <div class="profile-online"></div>

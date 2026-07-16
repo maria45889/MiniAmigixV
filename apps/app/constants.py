@@ -1,6 +1,6 @@
 # Constantes y datos estáticos de la aplicación
 
-RECOMENDACIONES_ENTRETENIMIENTO = {
+ENTERTAINMENT_RECOMMENDATIONS = {
 
         'peliculas': [
             {'titulo': 'Interstellar', 'descripcion': 'Un grupo de exploradores viaja a través de un agujero de gusano en el espacio en un intento por asegurar la supervivencia de la humanidad.', 'genero': 'Ciencia Ficción', 'director': 'Christopher Nolan', 'anio': '2014', 'duracion': '2h 49min', 'calificacion': '8.6', 'imagen': 'https://image.tmdb.org/t/p/w500/gEU2QniE6E77NI6lCU6MxlNBvIx.jpg', 'url': '#'},

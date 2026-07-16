@@ -89,7 +89,7 @@ class ChatService:
     def create_chat_notification(user, response: str):
         """Create notification for chat response."""
         try:
-            NotificationSelectors.create_for_user(
+            NotificationSelector.create_for_user(
                 user=user,
                 title=CHAT_CONFIG['notification_title'],
                 message=f'{CHAT_CONFIG["notification_message_prefix"]}{response[:100]}{CHAT_CONFIG["notification_message_suffix"]}',

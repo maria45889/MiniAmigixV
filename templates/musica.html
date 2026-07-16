@@ -137,7 +137,6 @@
     <div class="musica-orb musica-orb-1"></div>
     <div class="musica-orb musica-orb-2"></div>
     <div class="musica-hero">
-        <span style="font-size:3rem;">🎵</span>
         <h1>Música</h1>
         <p>Tu banda sonora perfecta para cada momento.</p>
     </div>
@@ -165,7 +164,7 @@
                     </div>
                 </div>
                 <div class="now-playing-info">
-                    <div class="now-playing-label">🎵 REPRODUCIENDO AHORA</div>
+                    <div class="now-playing-label">REPRODUCIENDO AHORA</div>
                     <h2 id="current-song-title">Selecciona una pista</h2>
                     <p id="current-song-artist" class="song-artist-name">Artista Desconocido</p>
                     
@@ -246,23 +245,23 @@
             <!-- Añadir Pista -->
             <div class="music-section add-track-section">
                 <h3 class="neon-title">AÑADIR PISTA</h3>
-                <div class="add-song-form" style="display: flex; flex-direction: column; gap: 15px;">
+                <div class="add-song-form" style="display: flex; flex-direction: column; gap: 15px; max-width: 400px; margin: 0 auto;">
                     <input type="text" id="song-name" placeholder="Nombre de la canción" class="music-input">
                     <input type="text" id="song-artist" placeholder="Artista (opcional)" class="music-input">
                     <input type="url" id="song-url" placeholder="YouTube Link (opcional)" class="music-input">
-                    <button class="btn-gradient" onclick="addSong()">VINCULAR A LA MATRIZ</button>
+                    <button class="btn-gradient" onclick="addSong()">AÑADIR CANCIÓN</button>
                 </div>
             </div>
             
             <!-- Tu Matriz Sonora -->
             <div class="music-section playlist-section">
                 <div class="playlist-header-neon">
-                    <h3 class="neon-title">🎶 TU BIBLIOTECA</h3>
+                    <h3 class="neon-title">TU BIBLIOTECA</h3>
                     <span class="playlist-count">{{ canciones|length }}</span>
                 </div>
                 <!-- Barra de búsqueda -->
                 <div class="search-bar">
-                    <input type="text" id="song-search" placeholder="🔍 Buscar canción..." class="music-input" oninput="filterSongs()">
+                    <input type="text" id="song-search" placeholder="Buscar canción..." class="music-input" oninput="filterSongs()">
                 </div>
                 <div class="playlist-items custom-scrollbar" id="playlist-items">
                     {% if request.user.is_authenticated %}
@@ -301,13 +300,12 @@
             <!-- Favoritas -->
             <div class="music-section favorites-section">
                 <div class="playlist-header-neon">
-                    <h3 class="neon-title">❤️ FAVORITAS</h3>
+                    <h3 class="neon-title">FAVORITAS</h3>
                     <span class="playlist-count" id="favorites-count">0</span>
                 </div>
                 <div class="playlist-items custom-scrollbar" id="favorites-items">
                     <div class="empty-favorites">
                         <p style="color: var(--text-muted); text-align: center; padding: 20px;">
-                            <span style="font-size: 32px; display: block; margin-bottom: 10px;">💜</span>
                             Añade canciones a tus favoritas
                         </p>
                     </div>
@@ -316,7 +314,7 @@
             
             <!-- Estadísticas -->
             <div class="music-section stats-section">
-                <h3 class="neon-title">📊 TUS ESTADÍSTICAS</h3>
+                <h3 class="neon-title">TUS ESTADÍSTICAS</h3>
                 <div class="stats-grid">
                     <div class="stat-item">
                         <div class="stat-icon">🎵</div>
@@ -343,7 +341,7 @@
             
             <!-- Recomendaciones -->
             <div class="music-section recommendations-section">
-                <h3 class="neon-title">🎧 RECOMENDACIONES</h3>
+                <h3 class="neon-title">RECOMENDACIONES</h3>
                 <div class="recommendation-tags">
                     <span class="rec-tag">Pop</span>
                     <span class="rec-tag">Rock</span>

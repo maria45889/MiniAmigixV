@@ -56,21 +56,21 @@
         </main>
     </div>
 
-    <!-- Caja de Sugerencias Flotante -->
-    <div id="quick-suggestion" class="suggestion-float">
-        <div class="suggestion-header" id="suggestion-header">
-            <span>💡 Sugerencias</span>
-            <span id="suggestion-icon"><i class="ti ti-chevron-up"></i></span>
-        </div>
-        <div class="suggestion-body" id="suggestion-body">
-            <textarea id="suggestion-content-text" placeholder="¿Cómo podemos mejorar MiniAmigixV?"></textarea>
-            <button class="suggestion-btn" onclick="sendQuickSuggestion()">Enviar al Admin</button>
-        </div>
-    </div>
-
     <!-- Global Mini Player Flotante -->
     <div id="music-float-btn" class="music-float-btn" style="display: none;" title="Abrir Reproductor">
         <span style="font-size: 20px;">🎵</span>
+    </div>
+
+    <!-- Quick Suggestion Floating Widget -->
+    <div id="quick-suggestion" style="display: none; position: fixed; bottom: 24px; right: 24px; width: 340px; z-index: 9999; background: var(--card-bg, #1e1e2e); border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08); font-family: inherit;">
+        <div class="suggestion-header" onclick="toggleSuggestion()" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.06); user-select: none;">
+            <span style="font-weight: 600; font-size: 15px; color: var(--text-primary, #e0e0e0);">💡 Sugerencia rápida</span>
+            <span id="suggestion-icon" style="color: var(--text-secondary, #aaa); font-size: 18px;"><i class="ti ti-chevron-up"></i></span>
+        </div>
+        <div id="suggestion-body" style="display: none; padding: 16px 18px;">
+            <textarea id="suggestion-content-text" rows="4" placeholder="Escribe tu sugerencia o idea aquí..." style="width: 100%; border: 1px solid rgba(255,255,255,0.1); background: var(--input-bg, #2a2a3a); color: var(--text-primary, #e0e0e0); border-radius: 10px; padding: 12px; font-size: 14px; resize: vertical; font-family: inherit; box-sizing: border-box;"></textarea>
+            <button onclick="sendQuickSuggestion()" style="margin-top: 10px; width: 100%; padding: 10px; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.2s;">Enviar Sugerencia</button>
+        </div>
     </div>
 
     <div id="mini-player" class="floating-mini-player" style="display: none;">
@@ -296,6 +296,17 @@
             .catch(error => {
                 console.error('Error:', error);
             });
+        }
+
+        function openSuggestionModal() {
+            const suggestBox = document.getElementById('quick-suggestion');
+            if (suggestBox) {
+                suggestBox.style.display = 'block';
+                const body = document.getElementById('suggestion-body');
+                const icon = document.getElementById('suggestion-icon');
+                if (body) body.style.display = 'block';
+                if (icon) icon.innerHTML = '<i class="ti ti-x"></i>';
+            }
         }
 
         function toggleTheme() {

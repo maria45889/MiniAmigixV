@@ -53,7 +53,7 @@
                 <label for="fecha">Fecha y Hora</label>
                 <div class="input-with-icon">
                     <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M3 12a9 9 0 1 0 18 0a9 9 0 0 0 -18 0"></path><path d="M12 7v5l3 3"></path></svg>
-                    <input type="datetime-local" id="fecha" name="fecha" class="form-control" required value="{{ evento.fecha|date:'Y-m-d\TH:i' }}">
+                    <input type="datetime-local" id="fecha" name="fecha" class="form-control" required value="{{ evento.fecha|date:'Y-m-d\TH:i' }}" min="">
                 </div>
                 <small style="color: var(--text-muted); margin-top: 5px; display: block;">Solo se permiten fechas presentes o futuras</small>
             </div>
@@ -105,6 +105,18 @@
 
 {% block extra_js %}
 <script>
+// Set minimum date to current date/time
+document.addEventListener('DOMContentLoaded', function() {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const hours = String(now.getHours()).padStart(2, '0');
+    const minutes = String(now.getMinutes()).padStart(2, '0');
+    const minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+    document.getElementById('fecha').setAttribute('min', minDateTime);
+});
+
 document.querySelector('.evento-form').addEventListener('submit', function() {
     const btn = this.querySelector('button[type="submit"]');
     btn.disabled = true;

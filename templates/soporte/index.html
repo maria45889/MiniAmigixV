@@ -751,8 +751,8 @@
                     suggestion.addEventListener('click', () => {
                         searchInput.value = match.text;
                         suggestionsContainer.style.display = 'none';
-                        // Scroll to relevant FAQ or section
-                        scrollToRelevantSection(match.category);
+                        // Show inline guide instead of redirecting
+                        showInlineGuide(match.category);
                     });
                     suggestionsContainer.appendChild(suggestion);
                 });
@@ -794,6 +794,43 @@
                 // Add highlight effect
                 element.classList.add('highlight');
                 setTimeout(() => element.classList.remove('highlight'), 2000);
+            }
+        }
+    }
+
+    function showInlineGuide(category) {
+        const guideMap = {
+            'Chat IA': 'chat-guide',
+            'Eventos': 'eventos-guide',
+            'Traductor': 'traductor-guide',
+            'Música': 'musica-guide',
+            'Cuenta': 'perfil-guide',
+        };
+
+        const guideId = guideMap[category];
+        if (guideId) {
+            // Close all panels first
+            document.querySelectorAll('.guide-content-panel').forEach(panel => {
+                panel.style.display = 'none';
+            });
+            // Reset all chevrons
+            document.querySelectorAll('.guide-chevron').forEach(chevron => {
+                chevron.style.transform = 'rotate(0deg)';
+            });
+            // Open the specific guide
+            const guidePanel = document.getElementById(guideId);
+            if (guidePanel) {
+                guidePanel.style.display = 'block';
+                // Rotate the chevron
+                const guideCard = document.querySelector(`.guide-card[onclick="toggleGuide('${guideId}')"]`);
+                if (guideCard) {
+                    const chevron = guideCard.querySelector('.guide-chevron');
+                    if (chevron) {
+                        chevron.style.transform = 'rotate(180deg)';
+                    }
+                }
+                // Scroll to the guide
+                guidePanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
         }
     }

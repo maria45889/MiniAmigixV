@@ -52,6 +52,7 @@ class OpenAIAPI:
                     model=model,
                     messages=current_messages,
                     max_tokens=max_tokens,
+                    timeout=30.0,
                 )
                 return response.choices[0].message.content
             except Exception as exc:

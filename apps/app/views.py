@@ -110,6 +110,9 @@ def generate_ai_response(messages, settings_obj, imagen=False, max_tokens=500, i
 
 # Create your views here.
 
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
 @require_http_methods(["POST"])
 def chat_api(request):
     # Verificar si es FormData (con imagen) o JSON

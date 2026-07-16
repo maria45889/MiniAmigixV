@@ -2,6 +2,9 @@
 Chat views.
 """
 
+import logging
+import threading
+from django.conf import settings
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -14,6 +17,8 @@ from apps.app.api import OpenAIAPI
 from apps.app.constants import CHAT_CONFIG, ERROR_MESSAGES, SUCCESS_MESSAGES
 from apps.app.utils import JsonResponseHelper, RequestParser, LogHelper
 from apps.app.validators import ChatValidator
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -89,11 +94,11 @@ def chat_api(request):
             eventos_contexto = ChatService.get_events_context(request.user)
             
             # Build messages for AI
-            from ..constants.prompts import CHAT_SYSTEM_PROMPT
+            from ..constants.prompts import SYSTEM_PROMPT_AUTHENTICATED
             from ..utils import DateTimeService
             
             fecha_actual = DateTimeService.get_current_datetime_formatted()
-            system_message = CHAT_SYSTEM_PROMPT.format(
+            system_message = SYSTEM_PROMPT_AUTHENTICATED.format(
                 fecha_actual=fecha_actual,
                 eventos_contexto=eventos_contexto
             )
@@ -105,11 +110,11 @@ def chat_api(request):
                 messages.append({"role": role, "content": msg.texto})
         else:
             # Non-authenticated users
-            from ..constants.prompts import CHAT_SYSTEM_PROMPT
+            from ..constants.prompts import SYSTEM_PROMPT_UNAUTHENTICATED
             from ..utils import DateTimeService
             
             fecha_actual = DateTimeService.get_current_datetime_formatted()
-            system_message = CHAT_SYSTEM_PROMPT.format(fecha_actual=fecha_actual)
+            system_message = SYSTEM_PROMPT_UNAUTHENTICATED.format(fecha_actual=fecha_actual)
             
             messages = [
                 {"role": "system", "content": system_message},
@@ -135,12 +140,36 @@ def chat_api(request):
         if request.user.is_authenticated:
             ChatSelector.create_message(conversation, False, bot_response)
             conversation.save()
-            
-            # Create notification
-            ChatService.create_chat_notification(request.user, bot_response)
-        
+
+            # Create notification asynchronously to avoid blocking
+            notification_thread = threading.Thread(
+                target=ChatService.create_chat_notification,
+                args=(request.user, bot_response)
+            )
+            notification_thread.daemon = True
+            notification_thread.start()
+
         return JsonResponseHelper.success_response({'response': bot_response})
-        
+
     except Exception as e:
         LogHelper.log_error(logger, f"Error en chat_api: {str(e)}", exc_info=True)
-        return JsonResponseHelper.server_error_response()
+        return JsonResponseHelper.error_response(message=f"Ocurrió un error con la IA: {str(e)}", status=500)
+
+
+@require_http_methods(["DELETE", "POST"])
+@csrf_exempt
+def delete_chat_api(request, chat_id):
+    """Delete a chat conversation."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'No autenticado'}, status=401)
+
+    try:
+        from apps.app.models import ConversacionChat
+        chat_obj = ConversacionChat.objects.filter(id=chat_id, usuario=request.user).first()
+        if not chat_obj:
+            return JsonResponse({'status': 'error', 'error': 'Chat no encontrado'}, status=404)
+        chat_obj.delete()
+        return JsonResponse({'status': 'success', 'message': 'Chat eliminado correctamente'})
+    except Exception as e:
+        LogHelper.log_error(logger, f"Error al eliminar chat: {str(e)}", exc_info=True)
+        return JsonResponse({'status': 'error', 'error': str(e)}, status=500)

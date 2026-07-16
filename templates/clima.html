@@ -15,8 +15,8 @@
         <h1 class="cyber-title">CLIMA</h1>
         
         <form method="GET" action="{% url 'clima' %}" class="search-container">
-            <input type="text" name="ciudad" placeholder="ESCANEAR CIUDAD" class="search-input" value="{{ ciudad_actual|default:'' }}" required autocomplete="off">
-            <button type="submit" class="search-btn">BUSCAR</button>
+            <input type="text" name="ciudad" placeholder="Buscar ciudad..." class="search-input" value="{{ ciudad_actual|default:'' }}" required autocomplete="off">
+            <button type="submit" class="search-btn">Buscar</button>
         </form>
     </div>
 
@@ -137,7 +137,7 @@
                     FUENTE DE DATOS
                 </div>
                 <div class="status-msg">
-                    <b>Open-Meteo API:</b> Datos meteorológicos en tiempo real. La precisión puede variar según la ubicación.
+                    <b>Open-Meteo API:</b> Datos meteorológicos en tiempo real. La precisión puede variar según la ubicación. Los valores de humedad y viento son aproximados.
                 </div>
             </div>
             
