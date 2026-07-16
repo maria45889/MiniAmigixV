@@ -19,7 +19,7 @@ class MessageRole(Enum):
     SYSTEM = "system"
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Message(BaseEntity):
     """
     Message domain entity.

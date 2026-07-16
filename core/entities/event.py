@@ -28,7 +28,7 @@ class EventPriority(Enum):
     URGENT = "urgent"
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Event(BaseEntity):
     """
     Event domain entity for calendar/agenda.

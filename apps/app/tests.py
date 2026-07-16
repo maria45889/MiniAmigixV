@@ -4,8 +4,6 @@ import unittest
 from types import SimpleNamespace
 from unittest.mock import patch
 
-import openai
-
 fake_models = types.ModuleType("apps.app.models")
 fake_models.ConversacionChat = type("ConversacionChat", (), {})
 fake_models.MensajeChat = type("MensajeChat", (), {})
@@ -20,7 +18,7 @@ fake_models.EstadoAnimo = type("EstadoAnimo", (), {})
 fake_models.RecomendacionEntretenimiento = type("RecomendacionEntretenimiento", (), {})
 sys.modules.setdefault("apps.app.models", fake_models)
 
-from apps.app import views
+from apps.app.api.openai_api import OpenAIAPI
 
 
 class AiProviderFallbackTests(unittest.TestCase):
@@ -39,7 +37,7 @@ class AiProviderFallbackTests(unittest.TestCase):
 
             def create(self, **kwargs):
                 if self.kwargs.get("base_url") == "https://api.groq.com/openai/v1":
-                    raise openai.AuthenticationError("invalid groq key")
+                    raise RuntimeError("invalid groq key")
                 return SimpleNamespace(
                     choices=[SimpleNamespace(message=SimpleNamespace(content="respuesta desde openai"))]
                 )
@@ -51,8 +49,8 @@ class AiProviderFallbackTests(unittest.TestCase):
             OLLAMA_MODEL="llama3.3",
         )
 
-        with patch.object(views.openai, "OpenAI", side_effect=lambda **kwargs: FakeOpenAIClient(**kwargs)):
-            response = views.generate_ai_response(
+        with patch("apps.app.api.openai_api.openai.OpenAI", side_effect=lambda **kwargs: FakeOpenAIClient(**kwargs)):
+            response = OpenAIAPI.generate_response(
                 messages=[{"role": "user", "content": "hola"}],
                 settings_obj=settings_obj,
                 imagen=False,

@@ -28,7 +28,7 @@ class NotificationPriority(Enum):
     HIGH = "high"
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Notification(BaseEntity):
     """
     Notification domain entity.

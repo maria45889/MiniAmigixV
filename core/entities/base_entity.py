@@ -12,7 +12,7 @@ from typing import Any
 from uuid import uuid4
 
 
-@dataclass
+@dataclass(kw_only=True)
 class BaseEntity(ABC):
     """
     Base class for all domain entities.

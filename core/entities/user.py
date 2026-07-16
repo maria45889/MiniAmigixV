@@ -27,7 +27,7 @@ class Theme(Enum):
     AUTO = "auto"
 
 
-@dataclass
+@dataclass(kw_only=True)
 class User(BaseEntity):
     """
     User domain entity.

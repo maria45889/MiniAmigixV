@@ -7,8 +7,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 
 from apps.app.services import UserService
-from apps.app.selectors import ChatSelector, CalendarSelector, MusicSelector
-from apps.app.selectors.calendar_selector import CalendarSelector
+from apps.app.selectors import CalendarSelector
 
 FRASES = [
     ("La imaginación es más importante que el conocimiento.", "Albert Einstein"),

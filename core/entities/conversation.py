@@ -12,7 +12,7 @@ from .base_entity import BaseEntity
 from .message import Message
 
 
-@dataclass
+@dataclass(kw_only=True)
 class Conversation(BaseEntity):
     """
     Conversation domain entity for AI chat.
