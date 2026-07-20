@@ -268,12 +268,13 @@
             <input type="text" id="chat-search-input" placeholder="Buscar conversación..." onkeyup="filterChats()">
         </div>
         <div id="chat-list-items">
-            {% for conv in conversaciones %}
+            {% for item in conversaciones_data %}
+            {% with conv=item.conversation last_msg=item.last_message %}
             <div class="chat-item {% if conv.id == active_id %}active{% endif %}" onclick="location.href='?id={{ conv.id }}'" data-title="{{ conv.titulo|lower }}">
                 <div class="chat-item-info">
                     <div class="chat-item-name">{{ conv.titulo }}</div>
-                    <div class="chat-item-preview">Último mensaje...</div>
-                    <div class="chat-item-time">Hace 2 min</div>
+                    <div class="chat-item-preview">{% if last_msg %}{{ last_msg.texto|truncatewords:5 }}{% else %}Sin mensajes{% endif %}</div>
+                    <div class="chat-item-time">{% if last_msg %}{{ last_msg.fecha_creacion|timesince }}{% else %}Nuevo{% endif %}</div>
                 </div>
                 <div class="chat-item-actions">
                     <button class="chat-action-btn" onclick="event.stopPropagation(); renameChat({{ conv.id }})" title="Renombrar"><i class="ti ti-pencil"></i></button>
@@ -281,6 +282,7 @@
                     <button class="delete-chat-btn" onclick="deleteChat(event, {{ conv.id }})" title="Eliminar Chat"><i class="ti ti-trash"></i></button>
                 </div>
             </div>
+            {% endwith %}
             {% endfor %}
         </div>
     </div>
@@ -789,12 +791,22 @@
             
             const data = await response.json(); // Parsear la respuesta JSON
             elements.typing.style.display = 'none';
-            
-            if (data.response) {
-                appendMessage(data.response, false);
-                speak(data.response);
+
+            console.log('Respuesta del servidor:', data);
+
+            // La respuesta está en data.data.response por la estructura de JsonResponseHelper
+            const botResponse = data.data?.response || data.response;
+
+            if (botResponse) {
+                console.log('Mostrando respuesta:', botResponse);
+                appendMessage(botResponse, false);
+                speak(botResponse);
             } else if (data.error) { // Si la API devuelve un error en el JSON (ej. 200 OK pero con error lógico)
+                console.log('Error en respuesta:', data.error);
                 appendMessage(`Error de la IA: ${data.error} 😕`, false);
+            } else {
+                console.log('Respuesta sin response ni error:', data);
+                appendMessage('Respuesta vacía del servidor 😕', false);
             }
         } catch (error) {
             elements.typing.style.display = 'none';

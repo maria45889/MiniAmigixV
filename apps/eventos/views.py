@@ -109,7 +109,7 @@ def crear_evento(request):
             evento = Evento.objects.create(
                 titulo=titulo,
                 descripcion=descripcion,
-                fecha=fecha,
+                fecha=fecha_evento,
                 categoria=categoria,
                 ubicacion=ubicacion,
                 recordatorio_activo=recordatorio_activo,
@@ -199,7 +199,7 @@ def editar_evento(request, evento_id):
             # Actualizar evento
             evento.titulo = titulo
             evento.descripcion = descripcion
-            evento.fecha = fecha
+            evento.fecha = fecha_evento
             evento.categoria = categoria
             evento.ubicacion = ubicacion
             evento.recordatorio_activo = recordatorio_activo

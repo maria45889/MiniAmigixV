@@ -247,15 +247,27 @@ class ValidationHelper:
 
 class DateTimeHelper:
     """Helper for date/time operations."""
-    
+
+    @staticmethod
+    def get_current_datetime_formatted() -> str:
+        """
+        Get current datetime formatted for AI context.
+
+        Returns:
+            Formatted datetime string
+        """
+        from django.utils import timezone
+        now = timezone.now()
+        return now.strftime("%d/%m/%Y %H:%M")
+
     @staticmethod
     def format_duration(seconds: int) -> str:
         """
         Format duration in seconds to human-readable string.
-        
+
         Args:
             seconds: Duration in seconds
-            
+
         Returns:
             Formatted duration string
         """
@@ -268,27 +280,27 @@ class DateTimeHelper:
             hours = seconds // 3600
             minutes = (seconds % 3600) // 60
             return f"{hours}h {minutes}m"
-    
+
     @staticmethod
     def get_time_ago(datetime_obj) -> str:
         """
         Get human-readable time ago string.
-        
+
         Args:
             datetime_obj: DateTime object
-            
+
         Returns:
             Time ago string
         """
         from django.utils import timezone
         from datetime import timedelta
-        
+
         if not datetime_obj:
             return "Never"
-        
+
         now = timezone.now()
         diff = now - datetime_obj
-        
+
         if diff < timedelta(minutes=1):
             return "Just now"
         elif diff < timedelta(hours=1):

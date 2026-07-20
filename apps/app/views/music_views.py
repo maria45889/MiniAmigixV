@@ -105,12 +105,27 @@ def add_song_api(request):
     
     try:
         import json
-        data = json.loads(request.body)
-        youtube_id = data.get('youtube_id')
-        titulo = data.get('titulo')
-        artista = data.get('artista')
+        from django.core.files.uploadedfile import InMemoryUploadedFile
         
-        song, error = MusicService.add_song(request.user, youtube_id, titulo, artista)
+        # Handle both JSON and FormData
+        content_type = request.content_type
+        
+        if 'multipart/form-data' in content_type:
+            # FormData with file upload
+            titulo = request.POST.get('titulo')
+            artista = request.POST.get('artista')
+            youtube_id = request.POST.get('youtube_id')
+            audio_file = request.FILES.get('audio_file')
+            
+            song, error = MusicService.add_song(request.user, youtube_id, titulo, artista, audio_file)
+        else:
+            # JSON data
+            data = json.loads(request.body)
+            youtube_id = data.get('youtube_id')
+            titulo = data.get('titulo')
+            artista = data.get('artista')
+            
+            song, error = MusicService.add_song(request.user, youtube_id, titulo, artista)
         
         if error:
             return JsonResponse({'error': error}, status=400)
@@ -124,8 +139,86 @@ def add_song_api(request):
 @require_http_methods(["GET"])
 def stream_audio_api(request, youtube_id):
     """Stream audio from YouTube."""
-    # Placeholder for streaming functionality
-    return JsonResponse({'error': 'Función no implementada'}, status=501)
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'No autenticado'}, status=401)
+    
+    try:
+        import yt_dlp
+        import tempfile
+        import os
+        from django.http import FileResponse, HttpResponse
+        
+        logger.info(f"Extrayendo audio para YouTube ID: {youtube_id}")
+        
+        # Configure yt-dlp to extract audio
+        ydl_opts = {
+            'format': 'bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio',
+            'outtmpl': os.path.join(tempfile.gettempdir(), f'{youtube_id}.%(ext)s'),
+            'quiet': True,
+            'no_warnings': True,
+            'noplaylist': True,
+            'nocheckformats': True,
+            'timeout': 60,
+            # Add options to avoid 403 errors
+            'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'referer': 'https://www.youtube.com/',
+            'nocheckcertificate': True,
+            'extract_flat': False,
+        }
+        
+        # Extract audio using yt-dlp
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            url = f'https://www.youtube.com/watch?v={youtube_id}'
+            info = ydl.extract_info(url, download=True)
+            filename = ydl.prepare_filename(info)
+            
+            # Verify file exists
+            if not os.path.exists(filename):
+                logger.error(f"Archivo no encontrado después de extracción: {filename}")
+                return JsonResponse({'error': 'Error: archivo no encontrado después de extracción'}, status=500)
+            
+            # Get the actual file extension
+            actual_ext = os.path.splitext(filename)[1][1:]  # Remove the dot
+            
+            # Determine content type based on actual extension
+            if actual_ext in ['m4a', 'aac']:
+                content_type = 'audio/mp4'
+            elif actual_ext == 'webm':
+                content_type = 'audio/webm'
+            elif actual_ext == 'mp3':
+                content_type = 'audio/mpeg'
+            else:
+                content_type = 'application/octet-stream'
+            
+            logger.info(f"Enviando audio: {filename}, tipo: {content_type}")
+            
+            # Read file content and return as response
+            with open(filename, 'rb') as f:
+                audio_content = f.read()
+            
+            # Schedule file deletion after response is sent
+            import threading
+            def delete_file():
+                try:
+                    import time
+                    time.sleep(5)  # Wait longer for streaming
+                    if os.path.exists(filename):
+                        os.remove(filename)
+                        logger.info(f"Archivo temporal eliminado: {filename}")
+                except Exception as e:
+                    logger.warning(f"No se pudo eliminar archivo temporal: {str(e)}")
+            
+            thread = threading.Thread(target=delete_file)
+            thread.start()
+            
+            # Return audio content as response
+            response = HttpResponse(audio_content, content_type=content_type)
+            response['Content-Disposition'] = f'inline; filename="{youtube_id}.{actual_ext}"'
+            return response
+                
+    except Exception as e:
+        logger.error(f"Error al extraer audio: {str(e)}", exc_info=True)
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 @require_http_methods(["POST"])
@@ -229,12 +322,167 @@ def netease_lyrics_api(request):
     return JsonResponse({'error': 'Función no implementada'}, status=501)
 
 
-@require_http_methods(["POST"])
+@require_http_methods(["GET", "POST"])
 @csrf_exempt
 def download_media_api(request):
-    """Download media."""
-    # Placeholder for download functionality
-    return JsonResponse({'error': 'Función no implementada'}, status=501)
+    """Download media from YouTube."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'No autenticado'}, status=401)
+    
+    try:
+        # Get URL and format from request
+        if request.method == 'GET':
+            url = request.GET.get('url')
+            format_type = request.GET.get('format', 'mp3')
+        else:
+            import json
+            data = json.loads(request.body)
+            url = data.get('url')
+            format_type = data.get('format', 'mp3')
+        
+        if not url:
+            return JsonResponse({'error': 'URL es requerida'}, status=400)
+        
+        logger.info(f"Iniciando descarga: URL={url}, formato={format_type}")
+        
+        # Import yt-dlp
+        import yt_dlp
+        import tempfile
+        import os
+        from django.http import FileResponse
+        import re
+        
+        # Clean URL to remove playlist parameters and extract single video
+        # Extract video ID from URL
+        video_id_match = re.search(r'(?:v=|youtu\.be/)([a-zA-Z0-9_-]{11})', url)
+        if not video_id_match:
+            return JsonResponse({'error': 'No se pudo extraer el ID del video de la URL'}, status=400)
+        
+        video_id = video_id_match.group(1)
+        clean_url = f'https://www.youtube.com/watch?v={video_id}'
+        
+        logger.info(f"URL limpia: {clean_url}")
+        
+        # Configure yt-dlp to download without FFmpeg
+        # Use a format that doesn't require conversion
+        if format_type == 'mp3':
+            # Download audio-only format that doesn't need conversion
+            ydl_opts = {
+                'format': 'bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio',
+                'outtmpl': os.path.join(tempfile.gettempdir(), '%(title)s.%(ext)s'),
+                'quiet': True,
+                'no_warnings': True,
+                'noplaylist': True,
+                'nocheckformats': True,  # Skip format checks that might require FFmpeg
+                'timeout': 60,  # Add timeout to prevent hanging
+                # Add options to avoid 403 errors
+                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'referer': 'https://www.youtube.com/',
+                'nocheckcertificate': True,
+                'extract_flat': False,
+            }
+        else:  # mp4
+            ydl_opts = {
+                'format': 'best[ext=mp4]/best',
+                'outtmpl': os.path.join(tempfile.gettempdir(), '%(title)s.%(ext)s'),
+                'quiet': True,
+                'no_warnings': True,
+                'noplaylist': True,
+                'nocheckformats': True,
+                'timeout': 60,  # Add timeout to prevent hanging
+                # Add options to avoid 403 errors
+                'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+                'referer': 'https://www.youtube.com/',
+                'nocheckcertificate': True,
+                'extract_flat': False,
+            }
+        
+        logger.info("Configuración yt-dlp lista, iniciando descarga...")
+        
+        # Download using yt-dlp
+        try:
+            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                info = ydl.extract_info(clean_url, download=True)
+                logger.info(f"Descarga completada: {info.get('title', 'unknown')}")
+                
+                filename = ydl.prepare_filename(info)
+                
+                # Verify file exists
+                if not os.path.exists(filename):
+                    logger.error(f"Archivo no encontrado después de descarga: {filename}")
+                    return JsonResponse({'error': 'Error: archivo no encontrado después de descarga'}, status=500)
+                
+                # Get the actual file extension
+                actual_ext = os.path.splitext(filename)[1][1:]  # Remove the dot
+                
+                # Get the title for the filename
+                title = info.get('title', 'descarga')
+                # Sanitize the title
+                title = ''.join(c for c in title if c.isalnum() or c in (' ', '-', '_')).strip()
+                if not title:
+                    title = 'descarga'
+                
+                # Create a clean filename with actual extension
+                clean_filename = f"{title}.{actual_ext}"
+                
+                # Determine content type based on actual extension
+                if actual_ext in ['m4a', 'aac']:
+                    content_type = 'audio/mp4'
+                elif actual_ext == 'webm':
+                    content_type = 'audio/webm' if format_type == 'mp3' else 'video/webm'
+                elif actual_ext == 'mp3':
+                    content_type = 'audio/mpeg'
+                elif actual_ext == 'mp4':
+                    content_type = 'video/mp4'
+                else:
+                    content_type = 'application/octet-stream'
+                
+                logger.info(f"Enviando archivo: {clean_filename}, tipo: {content_type}")
+                
+                # Open file without context manager to let Django handle closing
+                f = open(filename, 'rb')
+                response = FileResponse(f, content_type=content_type)
+                response['Content-Disposition'] = f'attachment; filename="{clean_filename}"'
+                
+                # Schedule file deletion after response is sent
+                import threading
+                def delete_file():
+                    try:
+                        # Wait a bit to ensure response is sent
+                        import time
+                        time.sleep(2)
+                        if os.path.exists(filename):
+                            os.remove(filename)
+                            logger.info(f"Archivo temporal eliminado: {filename}")
+                    except Exception as e:
+                        logger.warning(f"No se pudo eliminar archivo temporal: {str(e)}")
+                
+                thread = threading.Thread(target=delete_file)
+                thread.start()
+                
+                return response
+                
+        except Exception as download_error:
+            error_msg = str(download_error)
+            logger.error(f"Error en yt-dlp: {error_msg}")
+            
+            # Check for specific YouTube errors
+            if '403' in error_msg or 'Forbidden' in error_msg:
+                return JsonResponse({
+                    'error': 'YouTube está bloqueando la descarga de este video. Intenta con otro video o usa el reproductor integrado.'
+                }, status=403)
+            elif 'video not found' in error_msg.lower() or 'not available' in error_msg.lower():
+                return JsonResponse({
+                    'error': 'Video no encontrado o no disponible en tu región.'
+                }, status=404)
+            else:
+                return JsonResponse({
+                    'error': f'Error al descargar: {error_msg}'
+                }, status=500)
+                
+    except Exception as e:
+        LogHelper.log_error(logger, f"Error al descargar media: {str(e)}", exc_info=True)
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 @require_http_methods(["POST"])

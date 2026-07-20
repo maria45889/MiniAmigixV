@@ -249,6 +249,8 @@
                     <input type="text" id="song-name" placeholder="Nombre de la canción" class="music-input">
                     <input type="text" id="song-artist" placeholder="Artista (opcional)" class="music-input">
                     <input type="url" id="song-url" placeholder="YouTube Link (opcional)" class="music-input">
+                    <div style="text-align: center; color: var(--text-muted); font-size: 12px; margin: 5px 0;">— O —</div>
+                    <input type="file" id="song-file" accept="audio/*" class="music-input" style="padding: 8px;">
                     <button class="btn-gradient" onclick="addSong()">AÑADIR CANCIÓN</button>
                 </div>
             </div>
@@ -268,8 +270,18 @@
                         {% for cancion in canciones %}
                         <div class="playlist-item" data-id="{{ cancion.id }}" data-youtube-id="{{ cancion.youtube_id }}" data-audio-url="{% if cancion.audio_file %}{{ cancion.audio_file.url }}{% else %}{% endif %}" data-name="{{ cancion.nombre }}" data-artist="{{ cancion.artista|default:"" }}">
                             <div class="song-thumbnail">
-                                <img src="https://img.youtube.com/vi/{{ cancion.youtube_id }}/mqdefault.jpg" alt="{{ cancion.nombre }}" class="thumbnail-img" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%231a1a2e%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2250%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%2364748b%22 font-size=%2240%22>🎵</text></svg>'">
-                                <button class="play-overlay" onclick="playSongFromItem({{ cancion.id }})">▶</button>
+                                {% if cancion.audio_file or cancion.youtube_id %}
+                                    {% if cancion.youtube_id %}
+                                    <img src="https://img.youtube.com/vi/{{ cancion.youtube_id }}/mqdefault.jpg" alt="{{ cancion.nombre }}" class="thumbnail-img" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%231a1a2e%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2250%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%2364748b%22 font-size=%2240%22>🎵</text></svg>'">
+                                    {% else %}
+                                    <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%231a1a2e' width='100' height='100'/><text x='50' y='50' text-anchor='middle' dy='.3em' fill='%2364748b' font-size='40'>🎵</text></svg>" alt="{{ cancion.nombre }}" class="thumbnail-img">
+                                    {% endif %}
+                                    <button class="play-overlay" onclick="playSongFromItem({{ cancion.id }})">▶</button>
+                                {% else %}
+                                    <div style="width: 60px; height: 60px; background: #1a1a2e; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+                                        <span style="font-size: 24px; color: #64748b;">🚫</span>
+                                    </div>
+                                {% endif %}
                             </div>
                             <div class="song-info" onclick="playSongFromItem({{ cancion.id }})">
                                 <div class="song-details">
@@ -428,150 +440,14 @@ function onPlayerError(event) {
     playerReady = false;
 
     if (event.data === 150 || event.data === 153) {
-        // Video no se puede incrustar - intentar reproducir solo el audio
+        // Video no se puede incrustar - mostrar mensaje con opción de abrir en YouTube
         const youtubeId = currentPlayingId ?
             document.querySelector(`.playlist-item[data-id="${currentPlayingId}"]`)?.dataset.youtubeId : null;
 
-        if (isAuthenticated && youtubeId) {
-            // Mostrar mensaje de carga mientras se extrae audio
-            iframeContainer.innerHTML = `
-                <div style="text-align: center; padding: 30px;">
-                    <p style="color: #06b6d4; margin-bottom: 15px; font-size: 16px;">🔄 Video bloqueado - Extrayendo audio...</p>
-                    <p style="color: #94a3b8; margin-bottom: 20px; font-size: 14px;">Reproduciendo solo el audio</p>
-                </div>
-            `;
-
-            fetch(`/api/stream-audio/${youtubeId}/`)
-                .then(response => {
-                    console.log('Respuesta del servidor:', response.status);
-                    if (response.status === 401) {
-                        console.log('Usuario no autenticado');
-                        showYouTubeError(youtubeId);
-                        resetPlayButton();
-                        return null;
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Datos recibidos:', data);
-                    console.log('data.success:', data.success);
-                    console.log('data.url:', data.url);
-                    if (data && data.success && data.url) {
-                        // Limpiar audio anterior si existe
-                        if (currentAudio) {
-                            currentAudio.pause();
-                            currentAudio = null;
-                        }
-
-                        // Mostrar mensaje de modo audio pero SIN reproductor HTML5 visible
-                        // El audio será controlado por los controles principales
-                        iframeContainer.innerHTML = `
-                            <div style="text-align: center; padding: 40px 20px; background: linear-gradient(145deg, #1e293b, #0f172a); border-radius: 12px; height: 100%; min-height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center; box-shadow: inset 0 0 20px rgba(0,0,0,0.5);">
-                                <div style="font-size: 48px; margin-bottom: 15px; text-shadow: 0 0 15px rgba(6, 182, 212, 0.5);">🎵</div>
-                                <p style="color: #06b6d4; margin-bottom: 25px; font-weight: 600; font-size: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">Modo Audio Activado</p>
-                                <p style="color: #64748b; font-size: 13px;">El video no permite incrustación, reproduciendo solo el audio.</p>
-                                <p style="color: #94a3b8; font-size: 11px; margin-top: 10px;">Usa los controles principales para reproducir/pausar</p>
-                            </div>
-                            <audio id="local-audio-player" style="display: none;">
-                                <source src="${data.url}" type="audio/mp4">
-                            </audio>
-                        `;
-
-                        // Configurar el audio local para sincronización con controles principales
-                        requestAnimationFrame(() => {
-                            const audioPlayer = document.getElementById('local-audio-player');
-                            if (audioPlayer) {
-                                currentAudio = audioPlayer;
-                                const vinyl = document.getElementById('vinyl-record');
-                                const pauseBtn = document.getElementById('main-play-pause-btn');
-
-                                console.log('Botón encontrado:', pauseBtn);
-                                console.log('Estado inicial del botón:', pauseBtn ? pauseBtn.textContent : 'null');
-
-                                // Forzar estado inicial del botón a pausa
-                                if (pauseBtn) {
-                                    pauseBtn.textContent = '⏸';
-                                    console.log('Botón forzado a ⏸, nuevo valor:', pauseBtn.textContent);
-                                }
-                                if (vinyl) {
-                                    vinyl.style.animationPlayState = 'running';
-                                    vinyl.classList.add('spinning');
-                                }
-
-                                audioPlayer.addEventListener('play', () => {
-                                    console.log('Evento play disparado');
-                                    isAudioPlaying = true;
-                                    if (vinyl) {
-                                        vinyl.style.animationPlayState = 'running';
-                                        vinyl.classList.add('spinning');
-                                    }
-                                    if (pauseBtn) {
-                                        pauseBtn.textContent = '⏸';
-                                        console.log('Botón actualizado a ⏸ en evento play');
-                                    }
-                                    activateEqualizer(true);
-                                    startProgressUpdate();
-                                });
-
-                                audioPlayer.addEventListener('pause', () => {
-                                    console.log('Evento pause disparado');
-                                    isAudioPlaying = false;
-                                    if (vinyl) vinyl.style.animationPlayState = 'paused';
-                                    if (pauseBtn) {
-                                        pauseBtn.textContent = '▶️';
-                                        console.log('Botón actualizado a ▶️ en evento pause');
-                                    }
-                                    activateEqualizer(false);
-                                    stopProgressUpdate();
-                                });
-
-                                audioPlayer.addEventListener('ended', () => {
-                                    console.log('Evento ended disparado');
-                                    isAudioPlaying = false;
-                                    if (vinyl) vinyl.style.animationPlayState = 'paused';
-                                    if (pauseBtn) pauseBtn.textContent = '▶️';
-                                    activateEqualizer(false);
-                                    stopProgressUpdate();
-                                    playNext();
-                                });
-
-                                audioPlayer.addEventListener('timeupdate', () => {
-                                    if (audioPlayer.duration > 0) {
-                                        updateProgressBar(audioPlayer.currentTime, audioPlayer.duration);
-                                    }
-                                });
-
-                                audioPlayer.addEventListener('error', (e) => {
-                                    console.error('Error en reproductor de audio:', e);
-                                    resetPlayButton();
-                                });
-
-                                // Iniciar reproducción manualmente después de configurar eventos
-                                audioPlayer.play().then(() => {
-                                    console.log('Audio iniciado correctamente');
-                                }).catch(e => {
-                                    console.log('Autoplay bloqueado por el navegador, esperando interacción del usuario');
-                                    // Si autoplay falla, actualizar botón a play
-                                    if (pauseBtn) pauseBtn.textContent = '▶️';
-                                    if (vinyl) vinyl.style.animationPlayState = 'paused';
-                                });
-                            }
-                        });
-                    } else {
-                        // No se pudo extraer audio, mostrar error normal
-                        console.log('No se pudo extraer audio, condición falsa');
-                        showYouTubeError(youtubeId);
-                        resetPlayButton();
-                    }
-                })
-                .catch(error => {
-                    console.error("Error obteniendo audio:", error);
-                    showYouTubeError(youtubeId);
-                    resetPlayButton();
-                });
-        } else {
-            // Usuario no autenticado, mostrar error normal
+        if (youtubeId) {
             showYouTubeError(youtubeId);
+            resetPlayButton();
+        } else {
             resetPlayButton();
         }
     } else if (event.data === 2) {
@@ -929,12 +805,19 @@ async function downloadMusic() {
     
     try {
         const cleanUrl = `https://www.youtube.com/watch?v=${youtubeId}`;
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 180000); // 3 minute timeout
+        
         const response = await fetch(`/api/download-media/?url=${encodeURIComponent(cleanUrl)}&format=${format}`, {
             credentials: 'same-origin',
             headers: {
-                'X-Requested-With': 'XMLHttpRequest'
-            }
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/octet-stream, audio/*, video/*'
+            },
+            signal: controller.signal
         });
+        
+        clearTimeout(timeoutId);
 
         // If user is not authenticated, API returns JSON 401 instead of HTML login page.
         if (response.status === 401) {
@@ -951,7 +834,12 @@ async function downloadMusic() {
 
         if (!response.ok) {
             const errorText = await response.text();
-            throw new Error(errorText || 'Error desconocido al descargar');
+            try {
+                const errorJson = JSON.parse(errorText);
+                throw new Error(errorJson.error || 'Error desconocido al descargar');
+            } catch (e) {
+                throw new Error(errorText || 'Error desconocido al descargar');
+            }
         }
         
         // Obtener el nombre del archivo de los headers si es posible
@@ -976,11 +864,19 @@ async function downloadMusic() {
         
         statusDiv.innerHTML = `
             <p style="color: #22c55e;">✓ ¡Descarga completada con éxito!</p>
-            <p style="font-size: 12px; color: var(--text-muted);">Formato: ${format.toUpperCase()} | Archivo: ${filename}</p>
+            <p style="font-size: 12px; color: var(--text-muted);">Archivo: ${filename}</p>
+            <p style="font-size: 11px; color: var(--text-muted);">Nota: Sin FFmpeg, el audio se descarga en formato nativo (M4A/WebM)</p>
         `;
     } catch (error) {
         console.error("Error en descarga:", error);
-        statusDiv.innerHTML = `<p style="color: #ef4444;">❌ Fallo en la descarga: ${error.message}</p>`;
+        
+        if (error.name === 'AbortError') {
+            statusDiv.innerHTML = '<p style="color: #ef4444;">❌ Tiempo de espera agotado. La descarga está tardando demasiado. Intenta con un video más corto.</p>';
+        } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
+            statusDiv.innerHTML = '<p style="color: #ef4444;">❌ Error de conexión. Verifica tu internet e inténtalo de nuevo.</p>';
+        } else {
+            statusDiv.innerHTML = `<p style="color: #ef4444;">❌ Fallo en la descarga: ${error.message}</p>`;
+        }
     }
 }
 
@@ -1305,14 +1201,16 @@ function addSong() {
     const name = document.getElementById('song-name').value;
     const artist = document.getElementById('song-artist').value;
     const url = document.getElementById('song-url').value;
+    const fileInput = document.getElementById('song-file');
+    const file = fileInput.files[0];
     
     if (!name) {
         alert('Por favor ingresa el nombre de la canción');
         return;
     }
     
-    if (!url) {
-        alert('Por favor ingresa un enlace de YouTube');
+    if (!url && !file) {
+        alert('Por favor ingresa un enlace de YouTube o sube un archivo de audio');
         return;
     }
     
@@ -1325,32 +1223,62 @@ function addSong() {
         }
     }
     
-    // Usar FormData para enviar los datos
-    const formData = new FormData();
-    formData.append('nombre', name);
-    formData.append('artista', artist);
-    formData.append('youtube_url', url);
-    formData.append('youtube_id', youtubeId);
-    
-    fetch('/api/add-song/', {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert('Error al añadir la canción: ' + data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al añadir la canción');
-    });
+    // Si hay archivo, usar FormData
+    if (file) {
+        const formData = new FormData();
+        formData.append('titulo', name);
+        formData.append('artista', artist);
+        formData.append('youtube_id', youtubeId || '');
+        formData.append('audio_file', file);
+        
+        fetch('/api/add-song/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error al añadir la canción: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al añadir la canción');
+        });
+    } else {
+        // Si no hay archivo, usar JSON
+        const data = {
+            titulo: name,
+            artista: artist,
+            youtube_id: youtubeId
+        };
+        
+        fetch('/api/add-song/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Error al añadir la canción: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al añadir la canción');
+        });
+    }
 }
 
 function deleteSong(songId) {
