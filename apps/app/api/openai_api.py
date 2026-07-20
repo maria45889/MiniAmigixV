@@ -48,12 +48,14 @@ class OpenAIAPI:
             
             try:
                 client = openai.OpenAI(**client_kwargs)
+                logger.info(f'Llamando a proveedor {provider_name} con modelo {model}')
                 response = client.chat.completions.create(
                     model=model,
                     messages=current_messages,
                     max_tokens=max_tokens,
                     timeout=30.0,
                 )
+                logger.info(f'Respuesta recibida de {provider_name}')
                 return response.choices[0].message.content
             except Exception as exc:
                 last_error = exc
@@ -69,15 +71,8 @@ class OpenAIAPI:
     def _get_provider_configs(settings_obj, imagen: bool) -> List[tuple]:
         """Get available provider configurations."""
         configs = []
-        
-        if imagen and getattr(settings_obj, 'OPENAI_API_KEY', None):
-            configs.append((
-                'openai-vision',
-                {'api_key': settings_obj.OPENAI_API_KEY},
-                'gpt-4o',
-                True,
-            ))
-        
+
+        # Priorizar Groq (más rápido)
         if getattr(settings_obj, 'GROQ_API_KEY', None):
             configs.append((
                 'groq',
@@ -85,7 +80,7 @@ class OpenAIAPI:
                 'llama-3.3-70b-versatile',
                 False,
             ))
-        
+
         if getattr(settings_obj, 'OPENAI_API_KEY', None):
             configs.append((
                 'openai',
@@ -93,7 +88,15 @@ class OpenAIAPI:
                 'gpt-4o-mini',
                 False,
             ))
-        
+
+        if imagen and getattr(settings_obj, 'OPENAI_API_KEY', None):
+            configs.append((
+                'openai-vision',
+                {'api_key': settings_obj.OPENAI_API_KEY},
+                'gpt-4o',
+                True,
+            ))
+
         if getattr(settings_obj, 'OLLAMA_API_URL', None):
             configs.append((
                 'ollama',
@@ -101,7 +104,7 @@ class OpenAIAPI:
                 getattr(settings_obj, 'OLLAMA_MODEL', 'llama3.3'),
                 False,
             ))
-        
+
         return configs
     
     @staticmethod

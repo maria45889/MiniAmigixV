@@ -24,18 +24,21 @@ logger = logging.getLogger(__name__)
 @login_required
 def chat_view(request):
     """Render chat page."""
-    conversaciones = ChatSelector.get_all_by_user(request.user)
-    
+    conversaciones_data = ChatSelector.get_all_by_user_with_last_message(request.user)
+    conversaciones = [item['conversation'] for item in conversaciones_data]
+
     # Get or create active conversation
-    active_conv = conversaciones.first()
+    active_conv = conversaciones[0] if conversaciones else None
     if not active_conv:
         active_conv = ChatSelector.get_or_create_main(request.user)
         conversaciones = [active_conv]
-    
+        conversaciones_data = [{'conversation': active_conv, 'last_message': None}]
+
     mensajes = ChatSelector.get_all_messages(active_conv)
     active_id = active_conv.id
-    
+
     return render(request, 'chat.html', {
+        'conversaciones_data': conversaciones_data,
         'conversaciones': conversaciones,
         'active_conv': active_conv,
         'mensajes': mensajes,
@@ -48,21 +51,10 @@ def chat_view(request):
 def chat_api(request):
     """Chat API endpoint."""
     try:
-        # Parse request
-        content_type = request.content_type
-        
-        if 'multipart/form-data' in content_type:
-            message = request.POST.get('message', '')
-            conv_id = request.POST.get('conversation_id')
-            imagen = request.FILES.get('imagen')
-        else:
-            data = RequestParser.parse_json_body(request)
-            if not data:
-                return JsonResponseHelper.error_response(ERROR_MESSAGES['invalid_json'])
-            
-            message = data.get('message', '')
-            conv_id = data.get('conversation_id')
-            imagen = None
+        # Parse request - siempre usar POST para FormData
+        message = request.POST.get('message', '')
+        conv_id = request.POST.get('conversation_id')
+        imagen = request.FILES.get('imagen')
         
         # Validate
         try:
@@ -95,9 +87,9 @@ def chat_api(request):
             
             # Build messages for AI
             from ..constants.prompts import SYSTEM_PROMPT_AUTHENTICATED
-            from ..utils import DateTimeService
-            
-            fecha_actual = DateTimeService.get_current_datetime_formatted()
+            from ..utils import DateTimeHelper
+
+            fecha_actual = DateTimeHelper.get_current_datetime_formatted()
             system_message = SYSTEM_PROMPT_AUTHENTICATED.format(
                 fecha_actual=fecha_actual,
                 eventos_contexto=eventos_contexto
@@ -111,9 +103,9 @@ def chat_api(request):
         else:
             # Non-authenticated users
             from ..constants.prompts import SYSTEM_PROMPT_UNAUTHENTICATED
-            from ..utils import DateTimeService
-            
-            fecha_actual = DateTimeService.get_current_datetime_formatted()
+            from ..utils import DateTimeHelper
+
+            fecha_actual = DateTimeHelper.get_current_datetime_formatted()
             system_message = SYSTEM_PROMPT_UNAUTHENTICATED.format(fecha_actual=fecha_actual)
             
             messages = [

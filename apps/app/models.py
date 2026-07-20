@@ -5,6 +5,7 @@ class ConversacionChat(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     titulo = models.CharField(max_length=200, default='Nueva conversación')
     emocion_dominante = models.CharField(max_length=50, blank=True, null=True)
+    favorito = models.BooleanField(default=False)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_actualizacion = models.DateTimeField(auto_now=True)
 

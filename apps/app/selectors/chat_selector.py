@@ -29,6 +29,20 @@ class ChatSelector:
     def get_all_by_user(user):
         """Get all conversations for user ordered by update date."""
         return ConversacionChat.objects.filter(usuario=user).select_related('usuario').order_by('-fecha_actualizacion')
+
+    @staticmethod
+    def get_all_by_user_with_last_message(user):
+        """Get all conversations with their last message."""
+        from django.db.models import Prefetch
+        conversaciones = ConversacionChat.objects.filter(usuario=user).select_related('usuario').order_by('-fecha_actualizacion')
+        result = []
+        for conv in conversaciones:
+            last_msg = conv.mensajes.order_by('-fecha_creacion').first()
+            result.append({
+                'conversation': conv,
+                'last_message': last_msg
+            })
+        return result
     
     @staticmethod
     def get_or_create_main(user):

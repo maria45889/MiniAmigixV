@@ -3,8 +3,8 @@ Chat constants.
 """
 
 CHAT_CONFIG = {
-    'max_history_messages': 10,
-    'max_tokens': 500,
+    'max_history_messages': 5,
+    'max_tokens': 300,
     'default_conversation_title': 'Chat Principal',
     'image_upload_path': 'chat_images/',
     'notification_title': '💬 Nueva respuesta del Chat IA',
