@@ -24,6 +24,8 @@ urlpatterns = [
 
     path('api/get-audio-stream/', views.get_audio_stream_api, name='get_audio_stream_api'),
 
+    path('api/search-and-play-audio/', views.search_and_play_audio_api, name='search_and_play_audio_api'),
+
     path('api/update-theme/', views.update_theme_api, name='update_theme_api'),
 
     path('api/update-language/', views.update_language_api, name='update_language_api'),

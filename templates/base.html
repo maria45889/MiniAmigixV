@@ -519,6 +519,26 @@
                     'onError': function(event) {
                         console.error('Error en mini player YouTube:', event.data);
                         const videoContainer = document.getElementById('mini-player-video-container');
+
+                        if (event.data === 150 || event.data === 153) {
+                            // Video no se puede incrustar - ocultar video y usar solo audio
+                            console.log('Mini player: Video con restricción de incrustación, ocultando video');
+                            if (videoContainer) {
+                                videoContainer.style.display = 'none';
+                            }
+                            // Destruir el player para evitar errores
+                            if (globalPlayer) {
+                                try {
+                                    globalPlayer.destroy();
+                                } catch (e) {
+                                    console.error('Error destruyendo mini player:', e);
+                                }
+                                globalPlayer = null;
+                            }
+                            // El audio del reproductor principal seguirá funcionando
+                            return;
+                        }
+
                         const errorMessages = {
                             2: 'Parámetro inválido',
                             5: 'Error del reproductor HTML5',

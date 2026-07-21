@@ -228,6 +228,7 @@ def get_audio_stream_api(request):
         return JsonResponse({'error': 'No autenticado'}, status=401)
     
     try:
+        import yt_dlp
         youtube_id = request.GET.get('youtube_id')
         if not youtube_id:
             return JsonResponse({'error': 'youtube_id es requerido'}, status=400)
@@ -270,6 +271,73 @@ def get_audio_stream_api(request):
                 
     except Exception as e:
         logger.error(f"Error al obtener stream de audio: {str(e)}", exc_info=True)
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@require_http_methods(["GET"])
+def search_and_play_audio_api(request):
+    """Search for audio by song name and artist using yt-dlp."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'No autenticado'}, status=401)
+    
+    try:
+        import yt_dlp
+        query = request.GET.get('query')
+        if not query:
+            return JsonResponse({'error': 'query es requerido'}, status=400)
+        
+        logger.info(f"Buscando audio para: {query}")
+        
+        # Configure yt-dlp to search and get audio stream
+        ydl_opts = {
+            'format': 'bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio',
+            'quiet': True,
+            'no_warnings': True,
+            'noplaylist': True,
+            'extract_flat': False,
+            'default_search': 'ytsearch',
+        }
+        
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            # Search for the song
+            search_url = f'ytsearch1:{query}'
+            info = ydl.extract_info(search_url, download=False)
+            
+            if 'entries' in info and len(info['entries']) > 0:
+                video_info = info['entries'][0]
+                video_id = video_info.get('id')
+                
+                if video_id:
+                    # Get the audio stream URL for this video
+                    logger.info(f"Video encontrado: {video_id}, obteniendo stream de audio...")
+                    
+                    # Get audio stream URL
+                    audio_url = None
+                    for format in video_info.get('formats', []):
+                        if format.get('acodec') != 'none' and format.get('vcodec') == 'none':
+                            audio_url = format.get('url')
+                            break
+                    
+                    if not audio_url:
+                        # Fallback to first audio format
+                        for format in video_info.get('formats', []):
+                            if format.get('acodec') != 'none':
+                                audio_url = format.get('url')
+                                break
+                    
+                    if audio_url:
+                        logger.info(f"Audio encontrado: {audio_url[:100]}...")
+                        return JsonResponse({
+                            'audio_url': audio_url,
+                            'youtube_id': video_id,
+                            'title': video_info.get('title')
+                        })
+            
+            logger.error("No se encontraron resultados para la búsqueda")
+            return JsonResponse({'error': 'No se encontraron resultados'}, status=404)
+                
+    except Exception as e:
+        logger.error(f"Error al buscar audio: {str(e)}", exc_info=True)
         return JsonResponse({'error': str(e)}, status=500)
 
 
@@ -333,8 +401,18 @@ def search_lyrics_api(request):
         data = json.loads(request.body)
         query = data.get('query')
         
-        # Placeholder for lyrics search
-        return JsonResponse({'error': 'Función no implementada'}, status=501)
+        # Search lyrics using LRCLIB API
+        import requests
+        response = requests.get(f'https://lrclib.net/api/search?q={query}', timeout=10)
+        
+        if response.status_code == 200:
+            results = response.json()
+            if results and len(results) > 0:
+                return JsonResponse({'success': True, 'results': results})
+            else:
+                return JsonResponse({'success': False, 'error': 'No se encontraron letras'})
+        else:
+            return JsonResponse({'error': 'Error al buscar letras'}, status=500)
     except Exception as e:
         LogHelper.log_error(logger, f"Error al buscar letras: {str(e)}", exc_info=True)
         return JsonResponse({'error': str(e)}, status=500)
@@ -343,8 +421,23 @@ def search_lyrics_api(request):
 @require_http_methods(["GET"])
 def get_lyrics_api(request, song_id):
     """Get lyrics for a specific song."""
-    # Placeholder for getting lyrics
-    return JsonResponse({'error': 'Función no implementada'}, status=501)
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'No autenticado'}, status=401)
+    
+    try:
+        from apps.app.models import Cancion
+        cancion = Cancion.objects.get(id=song_id, usuario=request.user)
+        
+        return JsonResponse({
+            'success': True,
+            'letra': cancion.letra,
+            'letra_sincronizada': cancion.letra_sincronizada
+        })
+    except Cancion.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Canción no encontrada'}, status=404)
+    except Exception as e:
+        LogHelper.log_error(logger, f"Error al obtener letras: {str(e)}", exc_info=True)
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 @require_http_methods(["POST"])
@@ -357,10 +450,22 @@ def save_lyrics_api(request, song_id):
     try:
         import json
         data = json.loads(request.body)
-        lyrics = data.get('lyrics')
+        lyrics = data.get('letra')
+        synced_lyrics = data.get('letra_sincronizada')
         
-        # Placeholder for saving lyrics
-        return JsonResponse({'error': 'Función no implementada'}, status=501)
+        from apps.app.models import Cancion
+        cancion = Cancion.objects.get(id=song_id, usuario=request.user)
+        
+        if lyrics:
+            cancion.letra = lyrics
+        if synced_lyrics:
+            cancion.letra_sincronizada = synced_lyrics
+        
+        cancion.save()
+        
+        return JsonResponse({'success': True})
+    except Cancion.DoesNotExist:
+        return JsonResponse({'error': 'Canción no encontrada'}, status=404)
     except Exception as e:
         LogHelper.log_error(logger, f"Error al guardar letras: {str(e)}", exc_info=True)
         return JsonResponse({'error': str(e)}, status=500)
@@ -370,8 +475,45 @@ def save_lyrics_api(request, song_id):
 @csrf_exempt
 def netease_lyrics_api(request):
     """Get lyrics from Netease API."""
-    # Placeholder for Netease lyrics
-    return JsonResponse({'error': 'Función no implementada'}, status=501)
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'No autenticado'}, status=401)
+    
+    try:
+        import json
+        data = json.loads(request.body) if request.content_type == 'application/json' else {}
+        song = request.GET.get('song', data.get('song', ''))
+        artist = request.GET.get('artist', data.get('artist', ''))
+        
+        if not song or not artist:
+            return JsonResponse({'error': 'song y artist son requeridos'}, status=400)
+        
+        # Search for lyrics using LRCLIB as fallback
+        import requests
+        query = f'{artist} {song}'
+        response = requests.get(f'https://lrclib.net/api/search?q={query}', timeout=10)
+        
+        if response.status_code == 200:
+            results = response.json()
+            if results and len(results) > 0:
+                # Prioritize synced lyrics
+                synced_match = next((r for r in results if r.get('syncedLyrics')), None)
+                if synced_match:
+                    return JsonResponse({
+                        'success': True,
+                        'syncedLyrics': synced_match.get('syncedLyrics'),
+                        'plainLyrics': synced_match.get('plainLyrics')
+                    })
+                else:
+                    return JsonResponse({
+                        'success': True,
+                        'syncedLyrics': None,
+                        'plainLyrics': results[0].get('plainLyrics')
+                    })
+        
+        return JsonResponse({'success': False, 'error': 'No se encontraron letras'})
+    except Exception as e:
+        LogHelper.log_error(logger, f"Error al obtener letras de Netease: {str(e)}", exc_info=True)
+        return JsonResponse({'error': str(e)}, status=500)
 
 
 @require_http_methods(["GET", "POST"])

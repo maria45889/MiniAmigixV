@@ -443,10 +443,20 @@ function onPlayerError(event) {
             document.querySelector(`.playlist-item[data-id="${currentPlayingId}"]`)?.dataset.youtubeId : null;
 
         if (youtubeId) {
+            console.log('Error 150/153: Video con restricción de incrustación, usando audio fallback');
             // Ocultar el contenedor de video
             const iframeContainer = document.getElementById('player-wrapper');
             if (iframeContainer) {
                 iframeContainer.style.display = 'none';
+            }
+            // Destruir el player de YouTube para evitar conflictos
+            if (player) {
+                try {
+                    player.destroy();
+                } catch (e) {
+                    console.error('Error destruyendo player:', e);
+                }
+                player = null;
             }
             // Intentar reproducir audio usando yt_dlp stream
             playAudioOnly(youtubeId);
@@ -693,7 +703,14 @@ function togglePause() {
                 syncMiniPlayerVideoState(false);
             }
         } catch (e) {
-            console.error("Error al pausar/reproducir YouTube", e);
+            console.error("Error al pausar/reproducir YouTube (player fue destruido):", e);
+            // Si el player fue destruido, intentar usar audio
+            if (currentPlayingId) {
+                const item = document.querySelector(`.playlist-item[data-id="${currentPlayingId}"]`);
+                if (item && item.dataset.youtubeId) {
+                    playAudioOnly(item.dataset.youtubeId);
+                }
+            }
         }
         return;
     }
@@ -948,7 +965,7 @@ function fetchFromLRCLIB(songName, artist, songId, container) {
         searchSong = parts.slice(1).join("-").trim();
     }
 
-    // Limpiar el nombre de la canción para mejorar la búsqueda en LRCLIB
+    // Limpiar el nombre de la canción para mejorar la búsqueda
     searchSong = searchSong.replace(/\(feat\..*?\)/gi, '');
     searchSong = searchSong.replace(/\(ft\..*?\)/gi, '');
     searchSong = searchSong.replace(/\/sub\..*$/gi, '');
@@ -960,19 +977,17 @@ function fetchFromLRCLIB(songName, artist, songId, container) {
 
     const query = `${searchArtist} ${searchSong}`.trim();
 
-    fetch(`https://lrclib.net/api/search?q=${encodeURIComponent(query)}`)
+    // Usar la API del backend para evitar CORS
+    fetch(`/api/netease-lyrics/?song=${encodeURIComponent(searchSong)}&artist=${encodeURIComponent(searchArtist)}`)
         .then(response => response.json())
         .then(data => {
-            if (data && data.length > 0) {
-                // Priorizar letras sincronizadas
-                let syncedMatch = data.find(item => item.syncedLyrics);
-
-                if (syncedMatch) {
-                    renderSyncedLyrics(syncedMatch.syncedLyrics, container);
-                    saveLyricsToDB(songId, syncedMatch.plainLyrics, syncedMatch.syncedLyrics);
-                } else if (data[0].plainLyrics) {
-                    // Si no hay sincronizadas en LRCLIB, intentar con otra fuente
-                    fetchFromNetEase(songName, artist, songId, container, data[0].plainLyrics);
+            if (data && data.success) {
+                if (data.syncedLyrics) {
+                    renderSyncedLyrics(data.syncedLyrics, container);
+                    saveLyricsToDB(songId, data.plainLyrics, data.syncedLyrics);
+                } else if (data.plainLyrics) {
+                    renderPlainLyrics(data.plainLyrics, container);
+                    saveLyricsToDB(songId, data.plainLyrics, null);
                 } else {
                     showLyricsNotFound(songName, artist);
                 }
@@ -1377,8 +1392,10 @@ function playSongFromItem(songId) {
         console.log('Deteniendo audio anterior');
         currentAudio.pause();
         currentAudio.currentTime = 0;
-        currentAudio.remove();
+        // Clonar el nodo para eliminar todos los event listeners
+        const oldAudio = currentAudio;
         currentAudio = null;
+        oldAudio.remove();
     }
     isAudioPlaying = false;
 
@@ -1464,6 +1481,11 @@ function playSongFromItem(songId) {
     else if (audioUrl) {
         console.log('Cargando audio local:', audioUrl);
         playAudioUrl(audioUrl, vinyl);
+    }
+    // Si no hay video ni audio local, intentar buscar audio por nombre
+    else if (songName && artist) {
+        console.log('No hay video ni audio local, buscando audio por nombre...');
+        searchAndPlayAudio(songName, artist, vinyl);
     }
     else {
         console.error('Esta canción no tiene audio disponible');
@@ -1576,6 +1598,11 @@ function loadYouTubeVideo(youtubeId, vinyl) {
 
                     requestAnimationFrame(() => {
                         try {
+                            // Verificar que el player aún existe antes de acceder a sus métodos
+                            if (!player) {
+                                console.log('Player fue destruido, omitiendo verificación de estado');
+                                return;
+                            }
                             const state = player.getPlayerState();
                             console.log('Estado inicial del player:', state);
                             const pauseBtn = document.getElementById('main-play-pause-btn');
@@ -1642,6 +1669,35 @@ function loadYouTubeVideo(youtubeId, vinyl) {
                                 console.error('Error al intentar reproducir en onReady (interval):', e);
                                 resetPlayButton();
                             }
+
+                    requestAnimationFrame(() => {
+                        try {
+                            // Verificar que el player aún existe antes de acceder a sus métodos
+                            if (!player) {
+                                console.log('Player fue destruido, omitiendo verificación de estado');
+                                return;
+                            }
+                            const state = player.getPlayerState();
+                            console.log('Estado inicial del player:', state);
+                            const pauseBtn = document.getElementById('main-play-pause-btn');
+
+                            if (state === YT.PlayerState.PLAYING) {
+                                console.log('Player está reproduciendo, actualizando botón a ⏸');
+                                if (pauseBtn) pauseBtn.textContent = '⏸';
+                                if (vinyl) {
+                                    vinyl.style.animationPlayState = 'running';
+                                    vinyl.classList.add('spinning');
+                                }
+                                startProgressUpdate();
+                            } else {
+                                console.log('Player no está reproduciendo, actualizando botón a ▶️');
+                                if (pauseBtn) pauseBtn.textContent = '▶️';
+                            }
+                        } catch (e) {
+                            console.error('Error verificando estado inicial:', e);
+                            resetPlayButton();
+                        }
+                    });
                         },
                         'onError': onPlayerError,
                         'onStateChange': onPlayerStateChange
@@ -1654,7 +1710,11 @@ function loadYouTubeVideo(youtubeId, vinyl) {
 
 function playAudioUrl(url, vinyl) {
     console.log('=== playAudioUrl llamado con url:', url, '===');
+    
+    // Crear un ID único para este audio
+    const audioId = Date.now();
     currentAudio = new Audio(url);
+    currentAudio.dataset.audioId = audioId;
     currentAudio.autoplay = true;
     currentAudio.style.display = 'none';
     document.body.appendChild(currentAudio);
@@ -1669,45 +1729,58 @@ function playAudioUrl(url, vinyl) {
     }
 
     currentAudio.addEventListener('play', () => {
-        console.log('Evento play disparado');
-        isAudioPlaying = true;
-        if (vinyl) {
-            vinyl.style.animationPlayState = 'running';
-            vinyl.classList.add('spinning');
+        // Verificar que este audio sea el actual
+        if (currentAudio && currentAudio.dataset.audioId == audioId) {
+            console.log('Evento play disparado');
+            isAudioPlaying = true;
+            if (vinyl) {
+                vinyl.style.animationPlayState = 'running';
+                vinyl.classList.add('spinning');
+            }
+            if (pauseBtn) pauseBtn.textContent = '⏸';
+            activateEqualizer(true);
+            startProgressUpdate();
         }
-        if (pauseBtn) pauseBtn.textContent = '⏸';
-        activateEqualizer(true);
-        startProgressUpdate();
     });
 
     currentAudio.addEventListener('pause', () => {
-        console.log('Evento pause disparado');
-        isAudioPlaying = false;
-        if (vinyl) vinyl.style.animationPlayState = 'paused';
-        if (pauseBtn) pauseBtn.textContent = '▶️';
-        activateEqualizer(false);
-        stopProgressUpdate();
+        // Verificar que este audio sea el actual
+        if (currentAudio && currentAudio.dataset.audioId == audioId) {
+            console.log('Evento pause disparado');
+            isAudioPlaying = false;
+            if (vinyl) vinyl.style.animationPlayState = 'paused';
+            if (pauseBtn) pauseBtn.textContent = '▶️';
+            activateEqualizer(false);
+            stopProgressUpdate();
+        }
     });
 
     currentAudio.addEventListener('ended', () => {
-        console.log('Evento ended disparado');
-        isAudioPlaying = false;
-        if (vinyl) vinyl.style.animationPlayState = 'paused';
-        if (pauseBtn) pauseBtn.textContent = '▶️';
-        activateEqualizer(false);
-        stopProgressUpdate();
-        playNext();
+        // Verificar que este audio sea el actual
+        if (currentAudio && currentAudio.dataset.audioId == audioId) {
+            console.log('Evento ended disparado');
+            isAudioPlaying = false;
+            if (vinyl) vinyl.style.animationPlayState = 'paused';
+            if (pauseBtn) pauseBtn.textContent = '▶️';
+            activateEqualizer(false);
+            stopProgressUpdate();
+            playNext();
+        }
     });
 
     currentAudio.addEventListener('timeupdate', () => {
-        if (currentAudio.duration > 0) {
+        // Verificar que este audio sea el actual antes de procesar
+        if (currentAudio && currentAudio.dataset.audioId == audioId && currentAudio.duration > 0) {
             updateProgressBar(currentAudio.currentTime, currentAudio.duration);
         }
     });
 
     currentAudio.addEventListener('error', (e) => {
-        console.error('Error en reproductor de audio:', e);
-        resetPlayButton();
+        // Verificar que este audio sea el actual
+        if (currentAudio && currentAudio.dataset.audioId == audioId) {
+            console.error('Error en reproductor de audio:', e);
+            resetPlayButton();
+        }
     });
 
     requestAnimationFrame(() => {
@@ -1749,6 +1822,40 @@ function playAudioOnly(youtubeId) {
     .catch(error => {
         console.error('Error obteniendo stream de audio:', error);
         showYouTubeError(youtubeId);
+    });
+}
+
+function searchAndPlayAudio(songName, artist, vinyl) {
+    console.log('Buscando audio para:', songName, artist);
+    
+    const query = `${artist} ${songName}`;
+    
+    // Usar la API para buscar y obtener audio
+    fetch(`/api/search-and-play-audio/?query=${encodeURIComponent(query)}`, {
+        credentials: 'same-origin',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.audio_url) {
+            console.log('Audio encontrado:', data.audio_url);
+            playAudioUrl(data.audio_url, vinyl);
+            
+            // Actualizar botón de reproducción
+            const pauseBtn = document.getElementById('main-play-pause-btn');
+            if (pauseBtn) pauseBtn.textContent = '⏸';
+        } else {
+            console.error('No se pudo encontrar audio');
+            alert('No se pudo encontrar audio para esta canción');
+            resetPlayButton();
+        }
+    })
+    .catch(error => {
+        console.error('Error buscando audio:', error);
+        alert('Error al buscar audio');
+        resetPlayButton();
     });
 }
 
@@ -1951,7 +2058,7 @@ function updateVideoThumbnail(youtubeId) {
     const placeholder = document.querySelector('.thumbnail-placeholder');
 
     if (!thumbnailImg) {
-        console.warn('thumbnail-img no encontrado en el DOM');
+        // Silenciosamente retornar si no existe el elemento
         return;
     }
 
