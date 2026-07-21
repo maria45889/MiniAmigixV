@@ -14,6 +14,7 @@ class AmigisMascot {
         this.position = { x: 20, y: 20 };
         this.blinkInterval = null;
         this.randomExpressionInterval = null;
+        this.lastDetectedPath = window.location.pathname;
         
         this.greetings = [
             '¡Hola! Soy Amigis, tu patito programador 🦆',
@@ -166,8 +167,17 @@ class AmigisMascot {
             attributeFilter: ['class']
         });
         
-        // Detectar cambios de sección
+        // Detectar cambios de sección (popstate y carga inicial)
         window.addEventListener('popstate', () => this.detectCurrentSection());
+        
+        // Detectar cambios de sección al navegar (para SPA o cambios de URL)
+        setInterval(() => {
+            const currentPath = window.location.pathname;
+            if (currentPath !== this.lastDetectedPath) {
+                this.lastDetectedPath = currentPath;
+                this.detectCurrentSection();
+            }
+        }, 500);
         
         // Adaptar al redimensionar ventana
         window.addEventListener('resize', () => this.constrainPosition());
@@ -177,6 +187,8 @@ class AmigisMascot {
 
     startDrag(e) {
         this.isDragging = true;
+        this.dragPointerId = e.pointerId;
+        this.wrapper.setPointerCapture(e.pointerId);
         const rect = this.container.getBoundingClientRect();
         this.dragOffset.x = e.clientX - rect.left;
         this.dragOffset.y = e.clientY - rect.top;
@@ -281,6 +293,7 @@ class AmigisMascot {
         const imagePath = isLight ? '/static/amigis/amigis-light.svg' : '/static/amigis/amigis-dark.svg';
         
         if (this.image) {
+            // Solo cambiar el src de la imagen existente, no recrear la mascota
             this.image.src = imagePath;
         }
     }

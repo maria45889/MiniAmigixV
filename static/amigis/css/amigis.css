@@ -15,11 +15,12 @@
 
 .amigis-wrapper {
     position: relative;
-    width: 120px;
-    height: 120px;
+    width: 180px;
+    height: 180px;
     cursor: grab;
     transition: transform 0.3s ease;
     animation: breathe 4s ease-in-out infinite;
+    touch-action: none;
 }
 
 .amigis-wrapper:active {
