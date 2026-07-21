@@ -654,7 +654,7 @@ body.light .history-title {
 
                             <option value="de">🇩🇪 Alemán</option>
 
-                            <option value="pt">�� Portugués</option>
+                            <option value="pt">🇧🇷 Portugués</option>
 
                             <option value="it">🇮🇹 Italiano</option>
 
@@ -706,7 +706,7 @@ body.light .history-title {
 
                             <option value="de">🇩🇪 Alemán</option>
 
-                            <option value="pt">�� Portugués</option>
+                            <option value="pt">🇧🇷 Portugués</option>
 
                             <option value="it">🇮🇹 Italiano</option>
 
@@ -972,7 +972,7 @@ const langFlags = {
 
     es: '🇪🇸', en: '🇺🇸', fr: '🇫🇷', de: '🇩🇪',
 
-    pt: '��', it: '🇮🇹', ja: '🇯🇵', ko: '🇰🇷',
+    pt: '🇧🇷', it: '🇮🇹', ja: '🇯🇵', ko: '🇰🇷',
 
     zh: '🇨🇳', ru: '🇷🇺', ar: '🇸🇦'
 
@@ -1724,13 +1724,12 @@ async function traducir() {
 
             document.getElementById('detectedName').textContent = langNames[detectedLang] || detectedLang;
 
-            document.getElementById('detectedConfidence').textContent = '95% de confianza';
+            // Hide confidence field - not useful for regular users
+            document.getElementById('detectedConfidence').style.display = 'none';
 
             
 
-            // Show AI explanation (placeholder)
-
-            document.getElementById('aiExplanationCard').style.display = 'block';
+            // AI explanation card removed - was decorative placeholder with no real functionality
 
             
 

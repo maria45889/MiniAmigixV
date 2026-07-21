@@ -13,10 +13,15 @@
         </div>
         
         <!-- Reloj Digital sutil (solo horas:minutos) -->
-        <div id="digital-clock" class="digital-clock" style="display: none;">--:--</div>
+        <div id="digital-clock" class="digital-clock">--:--</div>
     </div>
 
     <div class="nav-right">
+        <!-- Estudio (Área Personal) - Moved from sidebar to follow web standards -->
+        <a href="{% url 'estudio' %}" class="nav-icon-btn" aria-label="Ir a Estudio" title="Estudio">
+            <i class="ti ti-user-circle"></i>
+        </a>
+
         <!-- Notificaciones -->
         <a href="{% url 'lista_notificaciones' %}" class="notification-btn" aria-label="Ver notificaciones" title="Notificaciones">
             <i class="ti ti-bell"></i>

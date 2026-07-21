@@ -60,7 +60,7 @@ def register_view(request):
                 login(request, user)
                 return redirect('home')
             else:
-                # Preserve form data on error
+                # Preserve form data on error (only clear password fields)
                 return render(request, 'register.html', {
                     'form': form,
                     'error': error,

@@ -245,13 +245,13 @@
             <!-- Añadir Pista -->
             <div class="music-section add-track-section">
                 <h3 class="neon-title">AÑADIR PISTA</h3>
-                <div class="add-song-form" style="display: flex; flex-direction: column; gap: 15px; max-width: 400px; margin: 0 auto;">
-                    <input type="text" id="song-name" placeholder="Nombre de la canción" class="music-input">
-                    <input type="text" id="song-artist" placeholder="Artista (opcional)" class="music-input">
-                    <input type="url" id="song-url" placeholder="YouTube Link (opcional)" class="music-input">
+                <div class="add-song-form" style="display: flex; flex-direction: column; gap: 15px; max-width: 100%; margin: 0 auto; align-items: center;">
+                    <input type="text" id="song-name" placeholder="Nombre de la canción" class="music-input" style="width: 100%; max-width: 350px;">
+                    <input type="text" id="song-artist" placeholder="Artista (opcional)" class="music-input" style="width: 100%; max-width: 350px;">
+                    <input type="url" id="song-url" placeholder="YouTube Link (opcional)" class="music-input" style="width: 100%; max-width: 350px;">
                     <div style="text-align: center; color: var(--text-muted); font-size: 12px; margin: 5px 0;">— O —</div>
-                    <input type="file" id="song-file" accept="audio/*" class="music-input" style="padding: 8px;">
-                    <button class="btn-gradient" onclick="addSong()">AÑADIR CANCIÓN</button>
+                    <input type="file" id="song-file" accept="audio/*" class="music-input" style="padding: 8px; width: 100%; max-width: 350px;">
+                    <button class="btn-gradient" onclick="addSong()" style="width: 100%; max-width: 350px;">AÑADIR CANCIÓN</button>
                 </div>
             </div>
             
@@ -701,7 +701,7 @@ function togglePause() {
     if (firstItem) {
         playSongFromItem(firstItem.dataset.id);
     } else {
-        alert('Añade una canción a tu Matriz Sonora para empezar a escuchar.');
+        alert('Añade una canción a tu Biblioteca para empezar a escuchar.');
     }
 }
 
@@ -853,6 +853,17 @@ async function downloadMusic() {
         }
         
         const blob = await response.blob();
+        
+        // Verificar que el blob tenga contenido válido
+        if (blob.size === 0) {
+            throw new Error('El archivo descargado está vacío');
+        }
+        
+        // Verificar tamaño mínimo razonable (al menos 1KB para audio/video)
+        if (blob.size < 1024) {
+            throw new Error('El archivo descargado es demasiado pequeño, puede estar corrupto');
+        }
+        
         const downloadUrl = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.style.display = 'none';
@@ -860,11 +871,17 @@ async function downloadMusic() {
         a.download = filename;
         document.body.appendChild(a);
         a.click();
-        window.URL.revokeObjectURL(downloadUrl);
+        
+        // Esperar un momento antes de revocar la URL
+        setTimeout(() => {
+            window.URL.revokeObjectURL(downloadUrl);
+            document.body.removeChild(a);
+        }, 100);
         
         statusDiv.innerHTML = `
             <p style="color: #22c55e;">✓ ¡Descarga completada con éxito!</p>
             <p style="font-size: 12px; color: var(--text-muted);">Archivo: ${filename}</p>
+            <p style="font-size: 11px; color: var(--text-muted);">Tamaño: ${(blob.size / 1024 / 1024).toFixed(2)} MB</p>
             <p style="font-size: 11px; color: var(--text-muted);">Nota: Sin FFmpeg, el audio se descarga en formato nativo (M4A/WebM)</p>
         `;
     } catch (error) {

@@ -2,7 +2,6 @@
 <aside class="sidebar">
     <div class="sidebar-header">
         <img src="{% static 'imagenes/logo.png' %}" alt="MiniAmigixV Logo" class="logo">
-        <h1 class="logo-text">MiniAmigixV</h1>
     </div>
 
 
@@ -13,11 +12,11 @@
         <a href="{% url 'juegos' %}" class="nav-item {% if request.resolver_match.url_name == 'juegos' %}active{% endif %}"><i data-lucide="gamepad-2"></i> <span data-i18n="games">Juegos</span></a>
         <a href="{% url 'lista_eventos' %}" class="nav-item {% if request.resolver_match.url_name == 'lista_eventos' %}active{% endif %}"><i data-lucide="calendar"></i> <span data-i18n="events">Eventos</span></a>
         <a href="{% url 'clima' %}" class="nav-item {% if request.resolver_match.url_name == 'clima' %}active{% endif %}"><i data-lucide="cloud-sun"></i> <span data-i18n="weather">Clima</span></a>
+        <a href="{% url 'lista_sugerencias' %}" class="nav-item {% if request.resolver_match.url_name == 'lista_sugerencias' %}active{% endif %}"><i data-lucide="lightbulb"></i> <span>Sugerencias</span></a>
         <a href="{% url 'traductor' %}" class="nav-item {% if request.resolver_match.url_name == 'traductor' %}active{% endif %}"><i data-lucide="languages"></i> <span data-i18n="translator">Traductor</span></a>
         <a href="{% url 'entretenimiento' %}" class="nav-item {% if request.resolver_match.url_name == 'entretenimiento' %}active{% endif %}"><i data-lucide="sparkles"></i> <span data-i18n="entertainment">Entretenimiento</span></a>
         <a href="{% url 'blog' %}" class="nav-item {% if request.resolver_match.url_name == 'blog' %}active{% endif %}"><i data-lucide="file-text"></i> <span data-i18n="blog">Blog</span></a>
         <a href="{% url 'soporte' %}" class="nav-item {% if request.resolver_match.url_name == 'soporte' %}active{% endif %}"><i data-lucide="life-buoy"></i> <span data-i18n="support">Soporte</span></a>
-        <a href="#" onclick="openSuggestionModal()" class="nav-item"><i data-lucide="message-circle"></i> <span>Enviar Sugerencia</span></a>
         {% if is_admin_user %}
         <a href="{% url 'panel_admin' %}" class="nav-item" style="color: #c084fc; border-left-color: #c084fc;"><i data-lucide="shield-alert"></i> <span data-i18n="admin">Centro de Administración General</span></a>
         {% endif %}

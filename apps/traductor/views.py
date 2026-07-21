@@ -18,7 +18,7 @@ def traductor_view(request):
 
 @csrf_exempt
 def traducir_texto(request):
-    """API para traducir texto (usado internamente para resultados de imagen/documento)"""
+    """API para traducir texto usando MyMemory API"""
     texto = request.POST.get('texto', '')
     idioma_destino = request.POST.get('idioma_destino', 'en')
     idioma_origen = request.POST.get('idioma_origen', 'auto')
@@ -28,17 +28,6 @@ def traducir_texto(request):
             'success': False,
             'error': 'No se proporcionó texto para traducir'
         }, status=400)
-    
-    # Si idioma_origen es 'auto', intentar detectar
-    idioma_detectado = None
-    if idioma_origen == 'auto':
-        try:
-            translator = GoogleTranslator(source='auto', target='en')
-            idioma_detectado = translator.detect(texto).lower()
-            idioma_origen = idioma_detectado
-        except Exception as e:
-            logger.error(f"Error detectando idioma: {str(e)}")
-            idioma_origen = 'auto'
     
     # Verificar si hay caché válido
     cache = TranslationCache.objects.filter(
@@ -60,10 +49,22 @@ def traducir_texto(request):
             }
         })
     
-    # Si no hay caché o está expirado, traducir
+    # Si no hay caché o está expirado, traducir usando MyMemory
     try:
-        translator = GoogleTranslator(source=idioma_origen if idioma_origen != 'auto' else 'auto', target=idioma_destino)
-        texto_traducido = translator.translate(texto)
+        lang_pair = f"{idioma_origen}|{idioma_destino}"
+        url = f"https://api.mymemory.translated.net/get?q={texto}&langpair={lang_pair}"
+        
+        response = requests.get(url, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        
+        if data['responseStatus'] == 200:
+            texto_traducido = data['responseData']['translatedText']
+            idioma_detectado = data.get('responseData', {}).get('detectedLanguage', idioma_origen)
+        else:
+            # Si hay error en la respuesta, devolver el texto original
+            texto_traducido = texto
+            idioma_detectado = idioma_origen
         
         # Guardar en caché
         translation_cache = TranslationCache.objects.create(
@@ -92,7 +93,7 @@ def traducir_texto(request):
         logger.error(f"Error traduciendo texto: {str(e)}")
         return JsonResponse({
             'success': False,
-            'error': 'Error al traducir el texto'
+            'error': 'Error al traducir el texto. Por favor intenta de nuevo.'
         }, status=500)
 
 @csrf_exempt

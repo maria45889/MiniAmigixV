@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MiniAmigixV - {% block title %}Bienvenido{% endblock %}</title>
+    <title id="page-title">MiniAmigixV - {% block title %}Bienvenido{% endblock %}</title>
     <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#7c3aed">
     <meta name="mobile-web-app-capable" content="yes">
@@ -61,17 +61,6 @@
         <span style="font-size: 20px;">🎵</span>
     </div>
 
-    <!-- Quick Suggestion Floating Widget -->
-    <div id="quick-suggestion" style="display: none; position: fixed; bottom: 24px; right: 24px; width: 340px; z-index: 9999; background: var(--card-bg, #1e1e2e); border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.08); font-family: inherit;">
-        <div class="suggestion-header" onclick="toggleSuggestion()" style="display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.06); user-select: none;">
-            <span style="font-weight: 600; font-size: 15px; color: var(--text-primary, #e0e0e0);">💡 Sugerencia rápida</span>
-            <span id="suggestion-icon" style="color: var(--text-secondary, #aaa); font-size: 18px;"><i class="ti ti-chevron-up"></i></span>
-        </div>
-        <div id="suggestion-body" style="display: none; padding: 16px 18px;">
-            <textarea id="suggestion-content-text" rows="4" placeholder="Escribe tu sugerencia o idea aquí..." style="width: 100%; border: 1px solid rgba(255,255,255,0.1); background: var(--input-bg, #2a2a3a); color: var(--text-primary, #e0e0e0); border-radius: 10px; padding: 12px; font-size: 14px; resize: vertical; font-family: inherit; box-sizing: border-box;"></textarea>
-            <button onclick="sendQuickSuggestion()" style="margin-top: 10px; width: 100%; padding: 10px; background: linear-gradient(135deg, #8b5cf6, #6d28d9); color: #fff; border: none; border-radius: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: opacity 0.2s;">Enviar Sugerencia</button>
-        </div>
-    </div>
 
     <div id="mini-player" class="floating-mini-player" style="display: none;">
         <div class="mini-player-header" id="mini-player-header" title="Arrástrame para mover el reproductor">
@@ -179,19 +168,6 @@
         // ==================== SUGGESTION BOX ====================
         let hasMoved = false;
 
-        function toggleSuggestion() {
-            if (hasMoved) return;
-
-            const body = document.getElementById('suggestion-body');
-            const icon = document.getElementById('suggestion-icon');
-            if (body.style.display === 'none' || body.style.display === '') {
-                body.style.display = 'block';
-                icon.innerHTML = '<i class="ti ti-x"></i>';
-            } else {
-                body.style.display = 'none';
-                icon.innerHTML = '<i class="ti ti-chevron-up"></i>';
-            }
-        }
 
         function makeDraggable(elmnt) {
             let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
@@ -253,61 +229,13 @@
                 document.ontouchmove = null;
                 
                 if (!hasMoved) {
-                    if (elmnt.id === 'quick-suggestion' && typeof toggleSuggestion === 'function') {
-                        toggleSuggestion();
-                    } else if (elmnt.id === 'music-float-btn' && typeof toggleMiniPlayer === 'function') {
+                    if (elmnt.id === 'music-float-btn' && typeof toggleMiniPlayer === 'function') {
                         toggleMiniPlayer();
                     }
                 }
             }
         }
 
-        function sendQuickSuggestion() {
-            const text = document.getElementById('suggestion-content-text').value;
-            if (!text.trim()) {
-                alert("Por favor escribe algo antes de enviar.");
-                return;
-            }
-
-            fetch('/api/sugerencia-rapida/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': '{{ csrf_token }}'
-                },
-                body: JSON.stringify({ contenido: text })
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    let msg = "¡Gracias! Tu sugerencia ha sido guardada.";
-                    if (data.guardada_en === 'bd_y_email') {
-                        msg = "¡Gracias! Tu sugerencia ha sido enviada al administrador por email." + (data.email_error ? " (con respaldo en BD)" : "");
-                    } else if (data.email_error) {
-                        msg += " El email al administrador falló: " + data.email_error;
-                    }
-                    alert(msg);
-                    document.getElementById('suggestion-content-text').value = '';
-                    toggleSuggestion();
-                } else {
-                    alert("❌ Error al enviar el mensaje. " + data.error);
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-            });
-        }
-
-        function openSuggestionModal() {
-            const suggestBox = document.getElementById('quick-suggestion');
-            if (suggestBox) {
-                suggestBox.style.display = 'block';
-                const body = document.getElementById('suggestion-body');
-                const icon = document.getElementById('suggestion-icon');
-                if (body) body.style.display = 'block';
-                if (icon) icon.innerHTML = '<i class="ti ti-x"></i>';
-            }
-        }
 
         function toggleTheme() {
             document.body.classList.toggle("light");
@@ -446,12 +374,6 @@
         {% endif %}
         applyLanguage(savedLang);
 
-
-        // Inicializar drag para la caja de sugerencias (sin forzar posición estática inicial)
-        const suggestBox = document.getElementById("quick-suggestion");
-        if (suggestBox) {
-            makeDraggable(suggestBox);
-        }
 
         // Inicializar drag para el botón flotante de música
         const musicFloatBtnDrag = document.getElementById("music-float-btn");
@@ -827,8 +749,48 @@
             }
         }
 
+        // Actualizar título de la pestaña dinámicamente
+        function updatePageTitle() {
+            const path = window.location.pathname;
+            const titleElement = document.getElementById('page-title');
+            if (!titleElement) return;
+
+            const pathToTitle = {
+                '/': 'Inicio',
+                '/chat/': 'Chat IA',
+                '/musica/': 'Música',
+                '/juegos/': 'Juegos',
+                '/estudio/': 'Estudio',
+                '/eventos/': 'Eventos',
+                '/clima/': 'Clima',
+                '/traductor/': 'Traductor',
+                '/entretenimiento/': 'Entretenimiento',
+                '/blog/': 'Blog',
+                '/soporte/': 'Soporte',
+                '/perfil/': 'Perfil',
+                '/configuracion/': 'Configuración',
+                '/admin/': 'Panel de Administración'
+            };
+
+            let pageTitle = pathToTitle[path];
+            if (!pageTitle) {
+                // Check for partial matches
+                for (const [key, value] of Object.entries(pathToTitle)) {
+                    if (path.startsWith(key)) {
+                        pageTitle = value;
+                        break;
+                    }
+                }
+            }
+
+            if (pageTitle) {
+                titleElement.textContent = `MiniAmigixV - ${pageTitle}`;
+            }
+        }
+
         // Inicializar mini player
         document.addEventListener('DOMContentLoaded', function() {
+            updatePageTitle();
             initMiniPlayerDrag();
 
             // Restaurar información de la canción si existe
