@@ -53,8 +53,8 @@
 .suggestion-body textarea {
     width: 100%;
     height: 110px;
-    background: rgba(30, 41, 59, 0.95);
-    border: 2px solid rgba(139, 92, 246, 0.5);
+    background: rgba(30, 41, 59, 0.98);
+    border: 2px solid rgba(139, 92, 246, 0.6);
     border-radius: 12px;
     color: white;
     padding: 12px;
@@ -67,8 +67,8 @@
 .suggestion-body textarea:focus {
     outline: none;
     border-color: #8b5cf6;
-    background: rgba(30, 41, 59, 0.95);
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+    background: rgba(30, 41, 59, 1);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.3);
 }
 
 .suggestion-btn {
@@ -96,7 +96,7 @@
 .music-float-btn {
     position: fixed;
     bottom: 25px;
-    right: calc(25px + 320px); /* A la izquierda de la caja de sugerencias (300px width + 20px gap) */
+    right: 25px;
     width: 50px;
     height: 50px;
     border-radius: 50%;
@@ -108,12 +108,12 @@
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
     cursor: pointer;
     z-index: 999;
-    transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease, right 0.3s ease, bottom 0.3s ease;
     border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .music-float-btn:hover {
-    transform: scale(1.1) rotate(10deg);
+    transform: scale(1.1);
     box-shadow: 0 6px 20px rgba(6, 182, 212, 0.6);
 }
 
@@ -133,21 +133,10 @@
 }
 
 /* Responsive positioning for floating elements */
-@media (max-width: 1100px) {
+@media (max-width: 1200px) {
     .music-float-btn {
         right: 25px;
-        bottom: 90px; /* Move above suggestion box */
-    }
-    .suggestion-float {
-        bottom: 25px;
-        right: 25px;
-    }
-}
-
-@media (max-width: 900px) {
-    .music-float-btn {
-        right: 25px;
-        bottom: 90px; /* Move above suggestion box */
+        bottom: calc(25px + 80px); /* Move above suggestion box */
     }
     .suggestion-float {
         bottom: 25px;
@@ -158,7 +147,7 @@
 @media (max-width: 768px) {
     .music-float-btn {
         right: 20px;
-        bottom: 90px;
+        bottom: calc(20px + 80px);
     }
     .suggestion-float {
         bottom: 20px;
@@ -184,14 +173,15 @@ body.light .suggestion-body {
 }
 
 body.light .suggestion-body textarea {
-    background: rgba(255, 255, 255, 0.9);
-    border-color: rgba(124, 58, 237, 0.3);
+    background: rgba(255, 255, 255, 0.98);
+    border-color: rgba(124, 58, 237, 0.5);
     color: #1e293b;
 }
 
 body.light .suggestion-body textarea:focus {
     background: #ffffff;
     border-color: #7c3aed;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.25);
 }
 
 body.light .music-float-btn {

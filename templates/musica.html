@@ -232,9 +232,7 @@
                         <button class="btn-lang">A ESPAÑOL 🔄</button>
                     </div>
                     <div id="lyrics-container" class="lyrics-content">
-                        <p style="color: var(--text-muted); font-size: 24px; margin-bottom: 10px;">✍️</p>
-                        <p style="color: var(--text-muted); margin-bottom: 20px;">No encontré esta letra en la base de datos.</p>
-                        <button class="btn-search-google" onclick="searchLyricsManually()">BUSCAR EN GOOGLE 🔍</button>
+                        <p style="color: rgba(255,255,255,0.3); font-size: 16px; text-align: center; padding: 20px;">Reproduce una canción para ver la letra</p>
                     </div>
                 </div>
             </div>
@@ -440,13 +438,18 @@ function onPlayerError(event) {
     playerReady = false;
 
     if (event.data === 150 || event.data === 153) {
-        // Video no se puede incrustar - mostrar mensaje con opción de abrir en YouTube
+        // Video no se puede incrustar - ocultar video y reproducir solo audio
         const youtubeId = currentPlayingId ?
             document.querySelector(`.playlist-item[data-id="${currentPlayingId}"]`)?.dataset.youtubeId : null;
 
         if (youtubeId) {
-            showYouTubeError(youtubeId);
-            resetPlayButton();
+            // Ocultar el contenedor de video
+            const iframeContainer = document.getElementById('player-wrapper');
+            if (iframeContainer) {
+                iframeContainer.style.display = 'none';
+            }
+            // Intentar reproducir audio usando yt_dlp stream
+            playAudioOnly(youtubeId);
         } else {
             resetPlayButton();
         }
@@ -1144,17 +1147,7 @@ function showLyricsNotFound(songName, artist) {
     const container = document.getElementById('lyrics-container');
     container.innerHTML = `
         <div style="text-align: center; padding: 40px 20px;">
-            <p style="font-size: 48px; margin-bottom: 15px;">🎤</p>
-            <p style="color: #94a3b8; font-size: 16px; margin-bottom: 10px;">No encontramos la letra</p>
-            <p style="color: rgba(255,255,255,0.3); font-size: 14px; margin-bottom: 25px;">Intenta buscarla manualmente</p>
-            <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
-                <button class="btn-search-google" onclick="searchLyricsManually('${escapeHtml(songName)}', '${escapeHtml(artist)}')">
-                    🔎 Buscar en Google
-                </button>
-                <button class="btn-translate" onclick="requestTranslation('${escapeHtml(songName)}', '${escapeHtml(artist)}')">
-                    📄 Mostrar traducción automática
-                </button>
-            </div>
+            <p style="color: rgba(255,255,255,0.3); font-size: 16px;">Letra no disponible</p>
         </div>
     `;
 }
@@ -1725,6 +1718,37 @@ function playAudioUrl(url, vinyl) {
             if (pauseBtn) pauseBtn.textContent = '▶️';
             if (vinyl) vinyl.style.animationPlayState = 'paused';
         });
+    });
+}
+
+function playAudioOnly(youtubeId) {
+    console.log('Intentando reproducir solo audio para:', youtubeId);
+    
+    // Usar la API de yt_dlp para obtener el stream de audio
+    fetch(`/api/get-audio-stream/?youtube_id=${youtubeId}`, {
+        credentials: 'same-origin',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.audio_url) {
+            console.log('Stream de audio obtenido:', data.audio_url);
+            const vinyl = document.querySelector('.vinyl-record');
+            playAudioUrl(data.audio_url, vinyl);
+            
+            // Actualizar botón de reproducción
+            const pauseBtn = document.getElementById('main-play-pause-btn');
+            if (pauseBtn) pauseBtn.textContent = '⏸';
+        } else {
+            console.error('No se pudo obtener el stream de audio');
+            showYouTubeError(youtubeId);
+        }
+    })
+    .catch(error => {
+        console.error('Error obteniendo stream de audio:', error);
+        showYouTubeError(youtubeId);
     });
 }
 

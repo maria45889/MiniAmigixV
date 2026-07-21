@@ -13,6 +13,7 @@ class ConversacionChat(models.Model):
         return f"{self.titulo} - {self.usuario.username}"
 
     class Meta:
+        app_label = 'app'
         ordering = ['-fecha_actualizacion']
 
 class MensajeChat(models.Model):
@@ -27,6 +28,7 @@ class MensajeChat(models.Model):
         return f"{'Usuario' if self.es_usuario else 'IA'}: {self.texto[:50]}"
 
     class Meta:
+        app_label = 'app'
         ordering = ['fecha_creacion']
 
 class EstadoAnimo(models.Model):
@@ -49,6 +51,7 @@ class EstadoAnimo(models.Model):
         return f"{self.usuario.username} - {self.emocion} ({self.intensidad}/10)"
 
     class Meta:
+        app_label = 'app'
         ordering = ['-fecha_registro']
 
 class RecomendacionEntretenimiento(models.Model):
@@ -65,6 +68,7 @@ class RecomendacionEntretenimiento(models.Model):
         return f"Recomendaciones {self.categoria} - {self.fecha_actualizacion.strftime('%d/%m/%Y %H:%M')}"
 
     class Meta:
+        app_label = 'app'
         verbose_name = "Recomendación de Entretenimiento"
         verbose_name_plural = "Recomendaciones de Entretenimiento"
 
@@ -83,6 +87,7 @@ class Cancion(models.Model):
         return f"{self.nombre} - {self.artista or 'Desconocido'}"
 
     class Meta:
+        app_label = 'app'
         ordering = ['-fecha_agregada']
 
 class Playlist(models.Model):
@@ -98,6 +103,7 @@ class Playlist(models.Model):
         return f"{self.nombre} - {self.usuario.username}"
 
     class Meta:
+        app_label = 'app'
         ordering = ['-fecha_actualizacion']
 
 class Favorite(models.Model):
@@ -109,6 +115,7 @@ class Favorite(models.Model):
         return f"{self.usuario.username} - {self.cancion.nombre}"
 
     class Meta:
+        app_label = 'app'
         ordering = ['-fecha_agregada']
         unique_together = ['usuario', 'cancion']
 
@@ -141,6 +148,7 @@ class Game(models.Model):
         return f"{self.nombre} ({self.get_tipo_display()})"
 
     class Meta:
+        app_label = 'app'
         ordering = ['nombre']
         verbose_name = 'Juego'
         verbose_name_plural = 'Juegos'
@@ -155,6 +163,7 @@ class Score(models.Model):
         return f"{self.usuario.username} - {self.juego.nombre}: {self.puntuacion}"
 
     class Meta:
+        app_label = 'app'
         ordering = ['-puntuacion']
         verbose_name = 'Puntuación'
         verbose_name_plural = 'Puntuaciones'
@@ -170,6 +179,7 @@ class Achievement(models.Model):
         return f"{self.icono} {self.nombre}"
 
     class Meta:
+        app_label = 'app'
         ordering = ['nombre']
         verbose_name = 'Logro'
         verbose_name_plural = 'Logros'
@@ -183,6 +193,7 @@ class UserAchievement(models.Model):
         return f"{self.usuario.username} - {self.logro.nombre}"
 
     class Meta:
+        app_label = 'app'
         ordering = ['-fecha_desbloqueado']
         verbose_name = 'Logro de Usuario'
         verbose_name_plural = 'Logros de Usuarios'

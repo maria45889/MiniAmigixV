@@ -44,7 +44,7 @@
 
 .hero-eyebrow {
     display: inline-flex; align-items: center; gap: 8px;
-    background: rgba(34,197,94,0.12); border: 1px solid rgba(34,197,94,0.3);
+    background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.2);
     color: #4ade80; padding: 5px 14px; border-radius: 30px;
     font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
     margin-bottom: 20px;
@@ -111,7 +111,7 @@
     border-radius: 14px; font-weight: 600; font-size: 1rem;
     transition: all 0.3s;
 }
-.btn-ghost-hero:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.btn-ghost-hero:hover { background: rgba(255,255,255,0.08); color: #fff; }
 
 /* Robot Card */
 .hero-robot-card {
@@ -125,7 +125,7 @@
 }
 .robot-glow {
     position: absolute; inset: 0;
-    background: radial-gradient(circle at 50% 30%, rgba(139,92,246,0.25), transparent 70%);
+    background: radial-gradient(circle at 50% 30%, rgba(139,92,246,0.15), transparent 70%);
 }
 .robot-emoji { font-size: 4rem; animation: robot-float 3s ease-in-out infinite; display: block; margin-bottom: 8px; }
 @keyframes robot-float {
@@ -151,7 +151,7 @@
     text-align: center;
     transition: all 0.3s;
 }
-.mini-stat:hover { background: rgba(255,255,255,0.08); transform: scale(1.04); }
+.mini-stat:hover { background: rgba(255,255,255,0.06); transform: scale(1.02); }
 .mini-stat-icon { display: block; font-size: 1.4rem; margin-bottom: 4px; }
 .mini-stat-val { display: block; font-size: 1.3rem; font-weight: 800; color: #fff; margin-bottom: 2px; }
 .mini-stat-lbl { font-size: 0.7rem; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -187,8 +187,8 @@
 }
 
 .bento-cell:hover {
-    transform: translateY(-3px) scale(1.01);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.3);
     z-index: 5;
 }
 
@@ -227,7 +227,7 @@
 .quote-shimmer {
     position: absolute; top: 0; right: 0;
     width: 160px; height: 160px;
-    background: radial-gradient(circle, rgba(139,92,246,0.2), transparent 70%);
+    background: radial-gradient(circle, rgba(139,92,246,0.12), transparent 70%);
     border-radius: 50%;
 }
 
@@ -326,7 +326,7 @@
     border-radius: 14px;
     transition: all 0.3s;
 }
-.activity-row:hover { background: rgba(255,255,255,0.07); transform: translateX(5px); }
+.activity-row:hover { background: rgba(255,255,255,0.05); transform: translateX(3px); }
 .activity-chip-icon {
     width: 36px; height: 36px; border-radius: 10px;
     display: flex; align-items: center; justify-content: center;
@@ -393,7 +393,7 @@
 .tutorial-cta-cell:hover .cta-btn {
     background: #7c3aed;
     border-color: #7c3aed;
-    box-shadow: 0 8px 20px rgba(124,58,237,0.4);
+    box-shadow: 0 6px 15px rgba(124,58,237,0.3);
 }
 
 /* ---- Shared elements for module cells ---- */

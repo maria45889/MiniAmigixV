@@ -1014,8 +1014,10 @@ function searchTrailer() {
 
 function searchTrailerFromFeatured(titulo) {
     if (titulo) {
-        const searchQuery = encodeURIComponent(titulo + ' tráiler');
+        const searchQuery = encodeURIComponent(titulo + ' tráiler oficial');
         window.open(`https://www.youtube.com/results?search_query=${searchQuery}`, '_blank');
+    } else {
+        alert('No se pudo obtener el título de la película');
     }
 }
 

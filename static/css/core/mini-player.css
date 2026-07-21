@@ -1,0 +1,153 @@
+/* Mini Player Styles */
+
+/* Global Mini Player Flotante */
+.music-float-btn {
+    display: none;
+}
+
+.music-float-btn span {
+    font-size: 20px;
+}
+
+.mini-player-info-text {
+    min-width: 0;
+    flex: 1;
+}
+
+/* Floating Mini Player */
+.floating-mini-player {
+    display: none;
+}
+
+.mini-player-header {
+    cursor: move;
+}
+
+.mini-player-song-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+    flex: 1;
+}
+
+.mini-player-vinyl {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1e1e2e, #2d2d3d);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.mini-player-vinyl.spinning {
+    animation: spin 3s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.mini-player-title {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-main);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mini-player-artist {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.mini-player-header-btns {
+    display: flex;
+    gap: 8px;
+}
+
+.btn-mini {
+    padding: 6px 10px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    color: var(--text-main);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+}
+
+.btn-mini:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.05);
+}
+
+.mini-player-body {
+    padding: 12px;
+}
+
+.mini-player-video-container {
+    display: none;
+    width: 100%;
+    height: 180px;
+    background: #000;
+    margin-bottom: 10px;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    z-index: 0;
+}
+
+.mini-player-progress {
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+.mini-player-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #7c3aed, #06b6d4);
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.1s linear;
+}
+
+.mini-player-controls {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.mini-player-controls .btn-mini {
+    padding: 8px 12px;
+    font-size: 1.1rem;
+}
+
+.mini-player-controls .btn-mini.play {
+    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+    border-color: transparent;
+}
+
+/* Light mode adaptations */
+body.light .mini-player-vinyl {
+    background: linear-gradient(135deg, #e0e0e0, #f0f0f0);
+}
+
+body.light .btn-mini {
+    background: rgba(0, 0, 0, 0.05);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light .btn-mini:hover {
+    background: rgba(0, 0, 0, 0.08);
+}

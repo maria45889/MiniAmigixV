@@ -221,6 +221,58 @@ def stream_audio_api(request, youtube_id):
         return JsonResponse({'error': str(e)}, status=500)
 
 
+@require_http_methods(["GET"])
+def get_audio_stream_api(request):
+    """Get audio stream URL for YouTube video (returns JSON)."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'No autenticado'}, status=401)
+    
+    try:
+        youtube_id = request.GET.get('youtube_id')
+        if not youtube_id:
+            return JsonResponse({'error': 'youtube_id es requerido'}, status=400)
+        
+        logger.info(f"Obteniendo stream de audio para YouTube ID: {youtube_id}")
+        
+        # Configure yt-dlp to get audio stream URL without downloading
+        ydl_opts = {
+            'format': 'bestaudio[ext=m4a]/bestaudio[ext=webm]/bestaudio',
+            'quiet': True,
+            'no_warnings': True,
+            'noplaylist': True,
+            'extract_flat': False,
+        }
+        
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            url = f'https://www.youtube.com/watch?v={youtube_id}'
+            info = ydl.extract_info(url, download=False)
+            
+            # Find the best audio format
+            audio_url = None
+            for format in info.get('formats', []):
+                if format.get('acodec') != 'none' and format.get('vcodec') == 'none':
+                    audio_url = format.get('url')
+                    break
+            
+            if not audio_url:
+                # Fallback to first audio format
+                for format in info.get('formats', []):
+                    if format.get('acodec') != 'none':
+                        audio_url = format.get('url')
+                        break
+            
+            if audio_url:
+                logger.info(f"Stream de audio obtenido: {audio_url[:100]}...")
+                return JsonResponse({'audio_url': audio_url})
+            else:
+                logger.error("No se pudo encontrar stream de audio")
+                return JsonResponse({'error': 'No se pudo encontrar stream de audio'}, status=404)
+                
+    except Exception as e:
+        logger.error(f"Error al obtener stream de audio: {str(e)}", exc_info=True)
+        return JsonResponse({'error': str(e)}, status=500)
+
+
 @require_http_methods(["POST"])
 @csrf_exempt
 def update_theme_api(request):

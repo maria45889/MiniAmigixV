@@ -22,12 +22,8 @@ load_dotenv(os.path.join(Path(__file__).resolve().parent.parent, '.env'), overri
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Add directories to Python path for clean architecture
+# Add apps directory to Python path
 sys.path.insert(0, str(BASE_DIR / 'apps'))
-sys.path.insert(0, str(BASE_DIR / 'core'))
-sys.path.insert(0, str(BASE_DIR / 'application'))
-sys.path.insert(0, str(BASE_DIR / 'infrastructure'))
-sys.path.insert(0, str(BASE_DIR / 'presentation'))
 
 # Add apps/app/ subdirectories to Python path for folder-based structure
 sys.path.insert(0, str(BASE_DIR / 'apps' / 'app' / 'services'))

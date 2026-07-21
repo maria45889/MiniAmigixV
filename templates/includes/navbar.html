@@ -11,17 +11,9 @@
             <i class="ti ti-search search-icon"></i>
             <input type="text" class="search-input" placeholder="Buscar...">
         </div>
-        
-        <!-- Reloj Digital sutil (solo horas:minutos) -->
-        <div id="digital-clock" class="digital-clock">--:--</div>
     </div>
 
     <div class="nav-right">
-        <!-- Estudio (Área Personal) - Moved from sidebar to follow web standards -->
-        <a href="{% url 'estudio' %}" class="nav-icon-btn" aria-label="Ir a Estudio" title="Estudio">
-            <i class="ti ti-user-circle"></i>
-        </a>
-
         <!-- Notificaciones -->
         <a href="{% url 'lista_notificaciones' %}" class="notification-btn" aria-label="Ver notificaciones" title="Notificaciones">
             <i class="ti ti-bell"></i>
@@ -46,20 +38,4 @@
     </div>
 </nav>
 
-<script>
-// Reloj Digital en Tiempo Real (solo horas:minutos, menos distractor)
-function updateClock() {
-    const now = new Date();
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const clockElement = document.getElementById('digital-clock');
-    if (clockElement) {
-        clockElement.textContent = `${hours}:${minutes}`;
-    }
-}
-
-// Actualizar el reloj cada minuto (menos distractor que cada segundo)
-setInterval(updateClock, 60000);
-updateClock(); // Inicializar inmediatamente
-</script>
 
