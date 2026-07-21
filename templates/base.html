@@ -33,6 +33,8 @@
     <link rel="stylesheet" href="{% static 'css/core/floating-elements.css' %}?v=1">
     <!-- CSS Mini Player -->
     <link rel="stylesheet" href="{% static 'css/core/mini-player.css' %}?v=1">
+    <!-- CSS Amigis Mascot (Versión Simple) -->
+    <link rel="stylesheet" href="{% static 'amigis/css/amigis.css' %}?v=1">
     <style>
         i[data-lucide], .ti {
             display: inline-flex;
@@ -979,6 +981,15 @@
         }
     })();
     </script>
+    <!-- JS Amigis Mascot (Versión Simple) -->
+    <script>
+        // Configuración de Amigis con datos del usuario
+        window.amigisConfig = {
+            userName: "{% if user.is_authenticated %}{{ user.first_name|default:user.username }}{% endif %}",
+            isAuthenticated: {% if user.is_authenticated %}true{% else %}false{% endif %}
+        };
+    </script>
+    <script src="{% static 'amigis/js/amigis.js' %}?v=1"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

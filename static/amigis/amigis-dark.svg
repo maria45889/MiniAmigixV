@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <defs>
+    <clipPath id="body-clip">
+      <ellipse cx="60" cy="70" rx="35" ry="28" />
+    </clipPath>
+    <filter id="neon-blue" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="neon-pink" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+      <feMerge>
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Cola -->
+  <ellipse cx="30" cy="75" rx="10" ry="15" fill="#FFC107" transform="rotate(-30 30 75)" />
+
+  <!-- Cuerpo del patito - Amarillo más intenso -->
+  <ellipse cx="60" cy="70" rx="35" ry="28" fill="#FFD700" />
+
+  <!-- Sudadera morada con detalles neón -->
+  <ellipse cx="60" cy="75" rx="32" ry="22" fill="#9B59B6" clip-path="url(#body-clip)" />
+  <!-- Detalle azul neón en sudadera -->
+  <ellipse cx="60" cy="75" rx="28" ry="18" fill="none" stroke="#00FFFF" stroke-width="1.5" filter="url(#neon-blue)" clip-path="url(#body-clip)" />
+  <!-- Detalle rosa neón en sudadera -->
+  <ellipse cx="60" cy="75" rx="24" ry="14" fill="none" stroke="#FF1493" stroke-width="1" filter="url(#neon-pink)" clip-path="url(#body-clip)" />
+
+  <!-- Camiseta con texto "Amigis" -->
+  <rect x="35" y="60" width="50" height="25" rx="5" fill="#1A1A1A" />
+  <text x="60" y="77" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#00FFFF" text-anchor="middle">Amigis</text>
+
+  <!-- Cabeza del patito -->
+  <circle cx="60" cy="38" r="25" fill="#FFD700" />
+
+  <!-- Ojos -->
+  <g id="eyes">
+    <circle cx="50" cy="33" r="7" fill="white" />
+    <circle cx="70" cy="33" r="7" fill="white" />
+    <circle cx="50" cy="33" r="3.5" fill="#333" />
+    <circle cx="70" cy="33" r="3.5" fill="#333" />
+    <!-- Brillos en ojos -->
+    <circle cx="51" cy="31" r="1.5" fill="white" />
+    <circle cx="71" cy="31" r="1.5" fill="white" />
+  </g>
+
+  <!-- Pico -->
+  <ellipse cx="60" cy="45" rx="9" ry="6" fill="#FF6B35" />
+  <ellipse cx="60" cy="43" rx="4" ry="2" fill="#FF8C5A" />
+
+  <!-- Mejillas sonrojadas -->
+  <circle cx="42" cy="42" r="5" fill="rgba(255,150,150,0.6)" />
+  <circle cx="78" cy="42" r="5" fill="rgba(255,150,150,0.6)" />
+
+  <!-- Alas -->
+  <ellipse cx="28" cy="65" rx="12" ry="18" fill="#FFC107" transform="rotate(-20 28 65)" />
+  <ellipse cx="92" cy="65" rx="12" ry="18" fill="#FFC107" transform="rotate(20 92 65)" />
+
+  <!-- Patitas -->
+  <ellipse cx="48" cy="95" rx="9" ry="5" fill="#FF6B35" />
+  <ellipse cx="72" cy="95" rx="9" ry="5" fill="#FF6B35" />
+
+  <!-- Laptop negra -->
+  <g id="laptop">
+    <!-- Pantalla -->
+    <rect x="75" y="55" width="25" height="18" rx="2" fill="#1A1A1A" stroke="#333" stroke-width="1" />
+    <!-- Logo MiniAmigixV en pantalla con neón -->
+    <text x="87.5" y="66" font-family="Arial, sans-serif" font-size="6" fill="#00FFFF" text-anchor="middle" filter="url(#neon-blue)">MV</text>
+    <!-- Base del teclado -->
+    <rect x="72" y="73" width="31" height="3" rx="1" fill="#2A2A2A" />
+  </g>
+</svg>

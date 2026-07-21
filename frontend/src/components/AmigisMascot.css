@@ -1,0 +1,534 @@
+/* ==================== AMIGIS - La Mascota Patito Programador (React) ==================== */
+
+.amigis-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.amigis-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    cursor: pointer;
+    transition: transform 0.3s ease;
+}
+
+.amigis-wrapper:hover {
+    transform: scale(1.1);
+}
+
+/* ==================== CUERPO DEL PATITO ==================== */
+.amigis-body {
+    position: absolute;
+    width: 80px;
+    height: 70px;
+    background: var(--amigis-primary, #FFD700);
+    border-radius: 50% 50% 45% 45%;
+    top: 30px;
+    left: 20px;
+    transition: background-color 0.5s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Cabeza */
+.amigis-head {
+    position: absolute;
+    width: 60px;
+    height: 55px;
+    background: var(--amigis-primary, #FFD700);
+    border-radius: 50%;
+    top: 0;
+    left: 30px;
+    transition: background-color 0.5s ease;
+    z-index: 2;
+}
+
+.amigis-head.curious {
+    animation: curious 2s ease-in-out infinite;
+    transform-origin: bottom center;
+}
+
+/* Pico */
+.amigis-beak {
+    position: absolute;
+    width: 20px;
+    height: 15px;
+    background: var(--amigis-beak, #FF6B35);
+    border-radius: 50%;
+    top: 25px;
+    left: 50px;
+    z-index: 3;
+    transition: background-color 0.5s ease;
+}
+
+.amigis-beak::before {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 4px;
+    background: #E85D2E;
+    border-radius: 50%;
+    bottom: -2px;
+    left: 6px;
+}
+
+/* Ojos */
+.amigis-eye {
+    position: absolute;
+    width: 12px;
+    height: 14px;
+    background: white;
+    border-radius: 50%;
+    top: 12px;
+    z-index: 4;
+    transition: all 0.3s ease;
+    animation: blink 4s ease-in-out infinite;
+}
+
+.amigis-eye.left {
+    left: 38px;
+}
+
+.amigis-eye.right {
+    left: 52px;
+    animation-delay: 0.1s;
+}
+
+.amigis-pupil {
+    position: absolute;
+    width: 6px;
+    height: 7px;
+    background: #333;
+    border-radius: 50%;
+    top: 4px;
+    left: 3px;
+    transition: all 0.2s ease;
+}
+
+/* Pestañas */
+.amigis-eyelash {
+    position: absolute;
+    width: 2px;
+    height: 6px;
+    background: #333;
+    top: -4px;
+    border-radius: 2px;
+}
+
+.amigis-eyelash.left {
+    left: 4px;
+    transform: rotate(-20deg);
+}
+
+.amigis-eyelash.right {
+    right: 4px;
+    transform: rotate(20deg);
+}
+
+/* Mejillas sonrojadas */
+.amigis-cheek {
+    position: absolute;
+    width: 12px;
+    height: 8px;
+    background: rgba(255, 150, 150, 0.5);
+    border-radius: 50%;
+    top: 28px;
+    z-index: 3;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.amigis-cheek.left {
+    left: 34px;
+}
+
+.amigis-cheek.right {
+    left: 56px;
+}
+
+.amigis-cheek.show {
+    opacity: 1;
+}
+
+/* Alas */
+.amigis-wing {
+    position: absolute;
+    width: 25px;
+    height: 35px;
+    background: var(--amigis-secondary, #FFC107);
+    border-radius: 50% 50% 50% 30%;
+    top: 45px;
+    z-index: 1;
+    transition: background-color 0.5s ease, transform 0.3s ease;
+}
+
+.amigis-wing.left {
+    left: 15px;
+    transform: rotate(-10deg);
+}
+
+.amigis-wing.right {
+    left: 80px;
+    transform: rotate(10deg) scaleX(-1);
+}
+
+.amigis-wing.right.waving {
+    animation: wave 0.5s ease-in-out 3;
+}
+
+/* Patitas */
+.amigis-foot {
+    position: absolute;
+    width: 20px;
+    height: 10px;
+    background: var(--amigis-beak, #FF6B35);
+    border-radius: 50%;
+    bottom: -5px;
+    z-index: 1;
+    transition: background-color 0.5s ease;
+}
+
+.amigis-foot.left {
+    left: 30px;
+}
+
+.amigis-foot.right {
+    left: 70px;
+}
+
+/* Cola */
+.amigis-tail {
+    position: absolute;
+    width: 15px;
+    height: 20px;
+    background: var(--amigis-secondary, #FFC107);
+    border-radius: 50% 50% 0 50%;
+    top: 55px;
+    left: 5px;
+    transform: rotate(-30deg);
+    z-index: 0;
+    transition: background-color 0.5s ease;
+}
+
+/* ==================== LAPTOP ==================== */
+.amigis-laptop {
+    position: absolute;
+    width: 50px;
+    height: 35px;
+    background: var(--amigis-laptop, #4A5568);
+    border-radius: 3px;
+    top: 50px;
+    left: 35px;
+    z-index: 5;
+    transition: background-color 0.5s ease;
+    display: none;
+}
+
+.amigis-laptop.show {
+    display: block;
+}
+
+.amigis-laptop::before {
+    content: '';
+    position: absolute;
+    width: 54px;
+    height: 4px;
+    background: var(--amigis-laptop-dark, #2D3748);
+    border-radius: 0 0 3px 3px;
+    bottom: -4px;
+    left: -2px;
+}
+
+.amigis-laptop-screen {
+    position: absolute;
+    width: 44px;
+    height: 28px;
+    background: var(--amigis-screen, #1A202C);
+    border-radius: 2px;
+    top: 3px;
+    left: 3px;
+    overflow: hidden;
+    transition: background-color 0.5s ease;
+}
+
+.amigis-laptop-code {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2px;
+    padding: 4px;
+}
+
+.amigis-code-line {
+    width: 80%;
+    height: 3px;
+    background: var(--amigis-code, #48BB78);
+    border-radius: 1px;
+    animation: typing 0.5s ease-in-out infinite;
+}
+
+.amigis-code-line:nth-child(2) {
+    width: 60%;
+    animation-delay: 0.1s;
+    background: var(--amigis-code-2, #4299E1);
+}
+
+.amigis-code-line:nth-child(3) {
+    width: 70%;
+    animation-delay: 0.2s;
+    background: var(--amigis-code-3, #ED8936);
+}
+
+/* ==================== GORRA DE PROGRAMADOR ==================== */
+.amigis-cap {
+    position: absolute;
+    width: 55px;
+    height: 20px;
+    background: var(--amigis-cap, #7C3AED);
+    border-radius: 50% 50% 0 0;
+    top: -8px;
+    left: 32px;
+    z-index: 5;
+    transition: background-color 0.5s ease;
+}
+
+.amigis-cap::before {
+    content: '';
+    position: absolute;
+    width: 25px;
+    height: 8px;
+    background: var(--amigis-cap, #7C3AED);
+    border-radius: 0 50% 50% 0;
+    top: 15px;
+    right: -20px;
+    transition: background-color 0.5s ease;
+}
+
+.amigis-cap::after {
+    content: '</>';
+    position: absolute;
+    font-size: 8px;
+    color: white;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: monospace;
+    font-weight: bold;
+}
+
+/* ==================== BURBUJA DE DIÁLOGO ==================== */
+.amigis-bubble {
+    position: absolute;
+    background: white;
+    border-radius: 15px;
+    padding: 12px 16px;
+    min-width: 150px;
+    max-width: 250px;
+    bottom: 130px;
+    right: 0;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    transform: scale(0.8) translateY(10px);
+    transition: all 0.3s ease;
+    z-index: 1001;
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    color: #333;
+    line-height: 1.4;
+}
+
+.amigis-bubble.show {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+}
+
+.amigis-bubble::before {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent;
+    border-top: 12px solid white;
+    bottom: -10px;
+    right: 30px;
+}
+
+/* ==================== ANIMACIONES ==================== */
+
+/* Animación de parpadeo */
+@keyframes blink {
+    0%, 90%, 100% {
+        transform: scaleY(1);
+    }
+    95% {
+        transform: scaleY(0.1);
+    }
+}
+
+/* Animación de flotar */
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.amigis-wrapper {
+    animation: float 3s ease-in-out infinite;
+}
+
+/* Animación de escribir */
+@keyframes typing {
+    0%, 100% {
+        opacity: 0.3;
+        transform: scaleX(0.8);
+    }
+    50% {
+        opacity: 1;
+        transform: scaleX(1);
+    }
+}
+
+/* Animación de saludo */
+@keyframes wave {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: rotate(-20deg);
+    }
+    75% {
+        transform: rotate(20deg);
+    }
+}
+
+/* Animación de curiosidad (cabeza inclinada) */
+@keyframes curious {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    50% {
+        transform: rotate(10deg);
+    }
+}
+
+/* Animación de feliz (saltito) */
+@keyframes happy {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        transform: translateY(-15px) scale(1.05);
+    }
+}
+
+.amigis-wrapper.happy {
+    animation: happy 0.6s ease-in-out;
+}
+
+/* ==================== ESTADOS ==================== */
+
+/* Estado: escribiendo */
+.amigis-wrapper.typing .amigis-laptop {
+    display: block;
+}
+
+.amigis-wrapper.typing .amigis-wing {
+    transform: rotate(-30deg);
+}
+
+/* ==================== MODO CLARO/OSCURO ==================== */
+
+.amigis-container.light-mode {
+    --amigis-primary: #FFD93D;
+    --amigis-secondary: #FFC107;
+    --amigis-beak: #FF6B35;
+    --amigis-laptop: #718096;
+    --amigis-laptop-dark: #4A5568;
+    --amigis-screen: #E2E8F0;
+    --amigis-code: #38A169;
+    --amigis-code-2: #3182CE;
+    --amigis-code-3: #DD6B20;
+    --amigis-cap: #805AD5;
+}
+
+.amigis-container.dark-mode {
+    --amigis-primary: #FFD700;
+    --amigis-secondary: #FFC107;
+    --amigis-beak: #FF6B35;
+    --amigis-laptop: #4A5568;
+    --amigis-laptop-dark: #2D3748;
+    --amigis-screen: #1A202C;
+    --amigis-code: #48BB78;
+    --amigis-code-2: #4299E1;
+    --amigis-code-3: #ED8936;
+    --amigis-cap: #7C3AED;
+}
+
+/* ==================== RESPONSIVE ==================== */
+@media (max-width: 768px) {
+    .amigis-container {
+        bottom: 80px;
+        right: 10px;
+    }
+
+    .amigis-wrapper {
+        width: 100px;
+        height: 100px;
+    }
+
+    .amigis-body {
+        width: 65px;
+        height: 55px;
+        top: 25px;
+        left: 17px;
+    }
+
+    .amigis-head {
+        width: 50px;
+        height: 45px;
+        top: 0;
+        left: 25px;
+    }
+
+    .amigis-beak {
+        width: 16px;
+        height: 12px;
+        top: 20px;
+        left: 42px;
+    }
+
+    .amigis-eye {
+        width: 10px;
+        height: 12px;
+        top: 10px;
+    }
+
+    .amigis-eye.left {
+        left: 32px;
+    }
+
+    .amigis-eye.right {
+        left: 44px;
+    }
+
+    .amigis-bubble {
+        right: -20px;
+        min-width: 120px;
+        max-width: 200px;
+        font-size: 12px;
+    }
+}

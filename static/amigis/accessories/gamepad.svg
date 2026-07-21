@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <!-- Control de juegos -->
+  <g id="gamepad">
+    <!-- Cuerpo del control -->
+    <rect x="70" y="50" width="35" height="25" rx="5" fill="#333" />
+    
+    <!-- Botones direccionales -->
+    <circle cx="78" cy="62" r="3" fill="#555" />
+    <circle cx="78" cy="55" r="3" fill="#555" />
+    <circle cx="78" cy="69" r="3" fill="#555" />
+    <circle cx="85" cy="62" r="3" fill="#555" />
+    
+    <!-- Botones de acción -->
+    <circle cx="95" cy="55" r="3" fill="#FF6B6B" />
+    <circle cx="100" cy="62" r="3" fill="#4ECDC4" />
+    <circle cx="95" cy="69" r="3" fill="#FFE66D" />
+    <circle cx="90" cy="62" r="3" fill="#95E1D3" />
+  </g>
+</svg>
