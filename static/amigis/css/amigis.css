@@ -1,5 +1,5 @@
 /* ==================== AMIGIS - Mascota Patito Programador ==================== */
-/* Versión escalable y completa */
+/* Versión escalable y completa con animaciones de partes */
 
 .amigis-container {
     position: fixed;
@@ -19,7 +19,7 @@
     height: 180px;
     cursor: grab;
     transition: transform 0.3s ease;
-    animation: breathe 4s ease-in-out infinite;
+    animation: float 3s ease-in-out infinite;
     touch-action: none;
 }
 
@@ -59,17 +59,131 @@
     opacity: 1;
 }
 
-/* ==================== ANIMACIONES BÁSICAS ==================== */
+/* ==================== ANIMACIONES DE PARTES DEL PATITO ==================== */
 
-/* Animación de respirar suave */
-@keyframes breathe {
+/* Animación de ojos - parpadeo natural */
+#left-eye, #right-eye {
+    animation: eyeBlink 4s ease-in-out infinite;
+    transform-origin: center;
+}
+
+@keyframes eyeBlink {
+    0%, 45%, 55%, 100% {
+        transform: scaleY(1);
+    }
+    50% {
+        transform: scaleY(0.1);
+    }
+}
+
+/* Animación de cabeza - movimiento sutil */
+#head {
+    animation: headBob 5s ease-in-out infinite;
+    transform-origin: center bottom;
+}
+
+@keyframes headBob {
     0%, 100% {
+        transform: rotate(0deg);
+    }
+    25% {
+        transform: rotate(2deg);
+    }
+    75% {
+        transform: rotate(-2deg);
+    }
+}
+
+/* Animación de alas - aleteo suave */
+#left-wing {
+    animation: leftWingFlap 3s ease-in-out infinite;
+    transform-origin: right center;
+}
+
+#right-wing {
+    animation: rightWingFlap 3s ease-in-out infinite;
+    transform-origin: left center;
+}
+
+@keyframes leftWingFlap {
+    0%, 100% {
+        transform: rotate(-20deg);
+    }
+    50% {
+        transform: rotate(-25deg);
+    }
+}
+
+@keyframes rightWingFlap {
+    0%, 100% {
+        transform: rotate(20deg);
+    }
+    50% {
+        transform: rotate(25deg);
+    }
+}
+
+/* Animación de cola - movimiento suave */
+#tail {
+    animation: tailWag 2s ease-in-out infinite;
+    transform-origin: right center;
+}
+
+@keyframes tailWag {
+    0%, 100% {
+        transform: rotate(-30deg);
+    }
+    50% {
+        transform: rotate(-25deg);
+    }
+}
+
+/* Animación de pico - movimiento al hablar */
+#beak {
+    animation: beakMove 6s ease-in-out infinite;
+    transform-origin: center;
+}
+
+@keyframes beakMove {
+    0%, 90%, 100% {
+        transform: scaleY(1);
+    }
+    95% {
+        transform: scaleY(0.8);
+    }
+}
+
+/* Animación de mejillas - pulso suave */
+#left-cheek, #right-cheek {
+    animation: cheekPulse 3s ease-in-out infinite;
+}
+
+@keyframes cheekPulse {
+    0%, 100% {
+        opacity: 0.6;
         transform: scale(1);
     }
     50% {
-        transform: scale(1.02);
+        opacity: 0.8;
+        transform: scale(1.1);
     }
 }
+
+/* Animación de laptop - brillo de pantalla */
+#laptop {
+    animation: laptopGlow 4s ease-in-out infinite;
+}
+
+@keyframes laptopGlow {
+    0%, 100% {
+        filter: brightness(1);
+    }
+    50% {
+        filter: brightness(1.1);
+    }
+}
+
+/* ==================== ANIMACIONES BÁSICAS ==================== */
 
 /* Animación de flotar suave */
 @keyframes float {
@@ -79,20 +193,6 @@
     50% {
         transform: translateY(-10px);
     }
-}
-
-/* Animación de parpadear */
-@keyframes blink {
-    0%, 45%, 55%, 100% {
-        transform: scaleY(1);
-    }
-    50% {
-        transform: scaleY(0.1);
-    }
-}
-
-.amigis-wrapper.blinking .amigis-image {
-    animation: blink 0.3s ease-in-out;
 }
 
 /* Animación de saludar (levantar ala) */
