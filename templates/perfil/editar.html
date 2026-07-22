@@ -345,6 +345,68 @@
             </div>
         </div>
         
+        <!-- Personalización del Patito -->
+        <div class="form-card">
+            <div class="form-card-header">
+                <i data-lucide="palette" style="color: #f59e0b;"></i>
+                <h3>Personalizar Patito 🦆</h3>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="patito_ropa"><i data-lucide="shirt"></i> Ropa</label>
+                    <select id="patito_ropa" name="patito_ropa">
+                        <option value="hoodie" {% if perfil.patito_ropa == 'hoodie' %}selected{% endif %}>🧥 Sudadera</option>
+                        <option value="shirt" {% if perfil.patito_ropa == 'shirt' %}selected{% endif %}>👕 Camiseta</option>
+                        <option value="none" {% if perfil.patito_ropa == 'none' %}selected{% endif %}>🚫 Sin ropa</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="patito_color_ropa"><i data-lucide="droplet"></i> Color de Ropa</label>
+                    <select id="patito_color_ropa" name="patito_color_ropa">
+                        <option value="purple" {% if perfil.patito_color_ropa == 'purple' %}selected{% endif %}>🟣 Morada</option>
+                        <option value="blue" {% if perfil.patito_color_ropa == 'blue' %}selected{% endif %}>🔵 Azul</option>
+                        <option value="green" {% if perfil.patito_color_ropa == 'green' %}selected{% endif %}>🟢 Verde</option>
+                        <option value="red" {% if perfil.patito_color_ropa == 'red' %}selected{% endif %}>🔴 Roja</option>
+                        <option value="black" {% if perfil.patito_color_ropa == 'black' %}selected{% endif %}>⚫ Negra</option>
+                        <option value="white" {% if perfil.patito_color_ropa == 'white' %}selected{% endif %}>⚪ Blanca</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="patito_accesorio"><i data-lucide="sparkles"></i> Accesorio</label>
+                    <select id="patito_accesorio" name="patito_accesorio">
+                        <option value="none" {% if perfil.patito_accesorio == 'none' %}selected{% endif %}>🚫 Ninguno</option>
+                        <option value="glasses" {% if perfil.patito_accesorio == 'glasses' %}selected{% endif %}>👓 Gafas</option>
+                        <option value="hat" {% if perfil.patito_accesorio == 'hat' %}selected{% endif %}>🧢 Gorra</option>
+                        <option value="bow" {% if perfil.patito_accesorio == 'bow' %}selected{% endif %}>🎀 Lazo</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="patito_color_cuerpo"><i data-lucide="circle"></i> Color del Cuerpo</label>
+                    <select id="patito_color_cuerpo" name="patito_color_cuerpo">
+                        <option value="yellow" {% if perfil.patito_color_cuerpo == 'yellow' %}selected{% endif %}>🟡 Amarillo</option>
+                        <option value="orange" {% if perfil.patito_color_cuerpo == 'orange' %}selected{% endif %}>🟠 Naranja</option>
+                        <option value="white" {% if perfil.patito_color_cuerpo == 'white' %}selected{% endif %}>⚪ Blanco</option>
+                        <option value="pink" {% if perfil.patito_color_cuerpo == 'pink' %}selected{% endif %}>🩷 Rosa</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="patito_estilo"><i data-lucide="zap"></i> Estilo Visual</label>
+                <select id="patito_estilo" name="patito_estilo">
+                    <option value="normal" {% if perfil.patito_estilo == 'normal' %}selected{% endif %}>✨ Normal</option>
+                    <option value="neon" {% if perfil.patito_estilo == 'neon' %}selected{% endif %}>💡 Neón</option>
+                    <option value="gradient" {% if perfil.patito_estilo == 'gradient' %}selected{% endif %}>🌈 Gradiente</option>
+                </select>
+            </div>
+        </div>
+        
         <!-- Preferencias -->
         <div class="form-card">
             <div class="form-card-header">

@@ -86,6 +86,13 @@ def editar_perfil(request):
             perfil.color_acento = request.POST.get('color_acento', 'purple') or 'purple'
             perfil.nombre_amigis = request.POST.get('nombre_amigis', 'Amigis').strip() or 'Amigis'
             
+            # Personalización del patito
+            perfil.patito_ropa = request.POST.get('patito_ropa', 'hoodie') or 'hoodie'
+            perfil.patito_color_ropa = request.POST.get('patito_color_ropa', 'purple') or 'purple'
+            perfil.patito_accesorio = request.POST.get('patito_accesorio', 'none') or 'none'
+            perfil.patito_color_cuerpo = request.POST.get('patito_color_cuerpo', 'yellow') or 'yellow'
+            perfil.patito_estilo = request.POST.get('patito_estilo', 'normal') or 'normal'
+            
             # Handle avatar deletion
             if request.POST.get('delete_avatar') == 'true':
                 perfil.avatar = None

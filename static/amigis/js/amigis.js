@@ -670,6 +670,113 @@
                 // Actualizar saludos con el nombre del usuario y el nombre de Amigis
                 this.updateGreetings();
             }
+            
+            // Aplicar personalización del patito
+            this.applyCustomization();
+        }
+
+        applyCustomization() {
+            if (!window.amigisConfig) return;
+            
+            const config = window.amigisConfig;
+            
+            // Aplicar ropa
+            this.setClothing(config.patitoRopa || 'hoodie');
+            
+            // Aplicar color de ropa
+            this.setClothingColor(config.patitoColorRopa || 'purple');
+            
+            // Aplicar accesorio
+            this.setAccessory(config.patitoAccesorio || 'none');
+            
+            // Aplicar color del cuerpo
+            this.setBodyColor(config.patitoColorCuerpo || 'yellow');
+            
+            // Aplicar estilo
+            this.setStyle(config.patitoEstilo || 'normal');
+        }
+
+        setClothing(type) {
+            // Ocultar toda la ropa
+            const clothingItems = document.querySelectorAll('.clothing-item');
+            clothingItems.forEach(item => item.style.display = 'none');
+            
+            // Mostrar la ropa seleccionada
+            if (type !== 'none') {
+                const selectedItem = document.getElementById(type);
+                if (selectedItem) {
+                    selectedItem.style.display = 'block';
+                }
+            }
+        }
+
+        setClothingColor(color) {
+            const colorMap = {
+                'purple': '#C8A2C8',
+                'blue': '#87CEEB',
+                'green': '#90EE90',
+                'red': '#FF6B6B',
+                'black': '#333333',
+                'white': '#FFFFFF'
+            };
+            
+            const hoodie = document.querySelector('#hoodie ellipse');
+            const shirt = document.querySelector('#shirt rect');
+            
+            if (hoodie) {
+                hoodie.setAttribute('fill', colorMap[color] || colorMap['purple']);
+            }
+            if (shirt) {
+                shirt.setAttribute('fill', colorMap[color] || colorMap['white']);
+            }
+        }
+
+        setAccessory(type) {
+            // Ocultar todos los accesorios
+            const accessories = document.querySelectorAll('.accessory-item');
+            accessories.forEach(item => item.style.display = 'none');
+            
+            // Mostrar el accesorio seleccionado
+            if (type !== 'none') {
+                const selectedItem = document.getElementById(`accessory-${type}`);
+                if (selectedItem) {
+                    selectedItem.style.display = 'block';
+                }
+            }
+        }
+
+        setBodyColor(color) {
+            const gradientMap = {
+                'yellow': 'url(#bodyGradient)',
+                'orange': 'url(#bodyGradientOrange)',
+                'white': 'url(#bodyGradientWhite)',
+                'pink': 'url(#bodyGradientPink)'
+            };
+            
+            const body = document.querySelector('#body ellipse');
+            const head = document.querySelector('#head circle');
+            
+            if (body) {
+                body.setAttribute('fill', gradientMap[color] || gradientMap['yellow']);
+            }
+            if (head) {
+                head.setAttribute('fill', gradientMap[color] || gradientMap['yellow']);
+            }
+        }
+
+        setStyle(style) {
+            const wrapper = document.getElementById('amigis-wrapper');
+            if (!wrapper) return;
+            
+            // Remover clases de estilo anteriores
+            wrapper.classList.remove('style-neon', 'style-gradient');
+            
+            // Aplicar nuevo estilo
+            if (style === 'neon') {
+                wrapper.classList.add('style-neon');
+            } else if (style === 'gradient') {
+                wrapper.classList.add('style-gradient');
+            }
         }
 
         detectLanguage() {

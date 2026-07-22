@@ -60,6 +60,38 @@ class Perfil(models.Model):
     aprender_habitos_ia = models.BooleanField(default=True)
     # Nombre personalizado para Amigis
     nombre_amigis = models.CharField(max_length=50, default='Amigis', blank=True, help_text='Nombre personalizado para tu mascota patito')
+    
+    # Personalización del patito
+    patito_ropa = models.CharField(max_length=20, choices=[
+        ('hoodie', 'Sudadera'),
+        ('shirt', 'Camiseta'),
+        ('none', 'Sin ropa'),
+    ], default='hoodie', help_text='Tipo de ropa del patito')
+    patito_color_ropa = models.CharField(max_length=20, choices=[
+        ('purple', 'Morada'),
+        ('blue', 'Azul'),
+        ('green', 'Verde'),
+        ('red', 'Roja'),
+        ('black', 'Negra'),
+        ('white', 'Blanca'),
+    ], default='purple', help_text='Color de la ropa')
+    patito_accesorio = models.CharField(max_length=20, choices=[
+        ('none', 'Ninguno'),
+        ('glasses', 'Gafas'),
+        ('hat', 'Gorra'),
+        ('bow', 'Lazo'),
+    ], default='none', help_text='Accesorio del patito')
+    patito_color_cuerpo = models.CharField(max_length=20, choices=[
+        ('yellow', 'Amarillo'),
+        ('orange', 'Naranja'),
+        ('white', 'Blanco'),
+        ('pink', 'Rosa'),
+    ], default='yellow', help_text='Color del cuerpo del patito')
+    patito_estilo = models.CharField(max_length=20, choices=[
+        ('normal', 'Normal'),
+        ('neon', 'Neón'),
+        ('gradient', 'Gradiente'),
+    ], default='normal', help_text='Estilo visual del patito')
 
     def __str__(self):
         return self.usuario.username

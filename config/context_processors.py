@@ -15,6 +15,12 @@ def user_theme(request):
     perfil_tema = 'dark'
     perfil_idioma = 'es'
     perfil_nombre_amigis = 'Amigis'
+    patito_ropa = 'hoodie'
+    patito_color_ropa = 'purple'
+    patito_accesorio = 'none'
+    patito_color_cuerpo = 'yellow'
+    patito_estilo = 'normal'
+    
     if request.user.is_authenticated:
         try:
             from perfil.models import Perfil
@@ -22,15 +28,30 @@ def user_theme(request):
             perfil_tema = perfil.tema or 'dark'
             perfil_idioma = perfil.idioma or 'es'
             perfil_nombre_amigis = perfil.nombre_amigis or 'Amigis'
+            patito_ropa = perfil.patito_ropa or 'hoodie'
+            patito_color_ropa = perfil.patito_color_ropa or 'purple'
+            patito_accesorio = perfil.patito_accesorio or 'none'
+            patito_color_cuerpo = perfil.patito_color_cuerpo or 'yellow'
+            patito_estilo = perfil.patito_estilo or 'normal'
         except:
             perfil_tema = 'dark'
             perfil_idioma = 'es'
             perfil_nombre_amigis = 'Amigis'
+            patito_ropa = 'hoodie'
+            patito_color_ropa = 'purple'
+            patito_accesorio = 'none'
+            patito_color_cuerpo = 'yellow'
+            patito_estilo = 'normal'
     
     return {
         'perfil_tema': perfil_tema,
         'perfil_idioma': perfil_idioma,
-        'perfil_nombre_amigis': perfil_nombre_amigis
+        'perfil_nombre_amigis': perfil_nombre_amigis,
+        'patito_ropa': patito_ropa,
+        'patito_color_ropa': patito_color_ropa,
+        'patito_accesorio': patito_accesorio,
+        'patito_color_cuerpo': patito_color_cuerpo,
+        'patito_estilo': patito_estilo
     }
 
 def is_admin_user(request):

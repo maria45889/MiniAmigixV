@@ -987,7 +987,12 @@
         window.amigisConfig = {
             userName: "{% if user.is_authenticated %}{{ user.first_name|default:user.username }}{% endif %}",
             isAuthenticated: {% if user.is_authenticated %}true{% else %}false{% endif %},
-            amigisName: "{{ perfil_nombre_amigis|default:'Amigis' }}"
+            amigisName: "{{ perfil_nombre_amigis|default:'Amigis' }}",
+            patitoRopa: "{{ patito_ropa|default:'hoodie' }}",
+            patitoColorRopa: "{{ patito_color_ropa|default:'purple' }}",
+            patitoAccesorio: "{{ patito_accesorio|default:'none' }}",
+            patitoColorCuerpo: "{{ patito_color_cuerpo|default:'yellow' }}",
+            patitoEstilo: "{{ patito_estilo|default:'normal' }}"
         };
     </script>
     <script src="{% static 'amigis/js/amigis.js' %}?v=1"></script>
