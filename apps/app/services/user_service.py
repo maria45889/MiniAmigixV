@@ -40,3 +40,17 @@ class UserService:
         except Exception as e:
             LogHelper.log_error(logger, f"Error al actualizar perfil: {str(e)}", exc_info=True)
             return False, str(e)
+    
+    @staticmethod
+    def update_theme(user, theme):
+        """Update user theme preference."""
+        try:
+            from perfil.models import Perfil
+            perfil, created = Perfil.objects.get_or_create(usuario=user)
+            perfil.tema = theme
+            perfil.save()
+            LogHelper.log_info(logger, f"Tema actualizado para {user.username}: {theme}")
+            return True, None
+        except Exception as e:
+            LogHelper.log_error(logger, f"Error al actualizar tema: {str(e)}", exc_info=True)
+            return False, str(e)

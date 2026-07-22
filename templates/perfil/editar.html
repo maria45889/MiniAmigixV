@@ -303,6 +303,11 @@
             </div>
             
             <div class="form-group">
+                <label for="nombre_amigis"><i data-lucide="heart"></i> Nombre del Patito 🦆</label>
+                <input type="text" id="nombre_amigis" name="nombre_amigis" value="{{ perfil.nombre_amigis|default:'Amigis' }}" placeholder="¿Cómo quieres llamar a tu patito?">
+            </div>
+            
+            <div class="form-group">
                 <label for="bio"><i data-lucide="align-left"></i> Biografía</label>
                 <textarea id="bio" name="bio" rows="4" placeholder="Escribe algo interesante sobre ti...">{{ perfil.bio }}</textarea>
             </div>

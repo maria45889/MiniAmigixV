@@ -14,19 +14,23 @@ def user_theme(request):
     """
     perfil_tema = 'dark'
     perfil_idioma = 'es'
+    perfil_nombre_amigis = 'Amigis'
     if request.user.is_authenticated:
         try:
             from perfil.models import Perfil
             perfil = Perfil.objects.get(usuario=request.user)
             perfil_tema = perfil.tema or 'dark'
             perfil_idioma = perfil.idioma or 'es'
+            perfil_nombre_amigis = perfil.nombre_amigis or 'Amigis'
         except:
             perfil_tema = 'dark'
             perfil_idioma = 'es'
+            perfil_nombre_amigis = 'Amigis'
     
     return {
         'perfil_tema': perfil_tema,
-        'perfil_idioma': perfil_idioma
+        'perfil_idioma': perfil_idioma,
+        'perfil_nombre_amigis': perfil_nombre_amigis
     }
 
 def is_admin_user(request):
