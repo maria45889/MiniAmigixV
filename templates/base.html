@@ -986,7 +986,8 @@
         // Configuración de Amigis con datos del usuario
         window.amigisConfig = {
             userName: "{% if user.is_authenticated %}{{ user.first_name|default:user.username }}{% endif %}",
-            isAuthenticated: {% if user.is_authenticated %}true{% else %}false{% endif %}
+            isAuthenticated: {% if user.is_authenticated %}true{% else %}false{% endif %},
+            amigisName: "{{ perfil_nombre_amigis|default:'Amigis' }}"
         };
     </script>
     <script src="{% static 'amigis/js/amigis.js' %}?v=1"></script>

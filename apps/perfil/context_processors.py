@@ -6,8 +6,10 @@ def perfil_settings(request):
         return {
             'perfil_tema': perfil.tema,
             'perfil_notificaciones_push': perfil.notificaciones_push,
+            'perfil_nombre_amigis': perfil.nombre_amigis or 'Amigis',
         }
     return {
         'perfil_tema': 'dark',
         'perfil_notificaciones_push': False,
+        'perfil_nombre_amigis': 'Amigis',
     }

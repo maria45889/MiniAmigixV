@@ -58,6 +58,8 @@ class Perfil(models.Model):
     recordar_preferencias_ia = models.BooleanField(default=True)
     sugerencias_ia = models.BooleanField(default=True)
     aprender_habitos_ia = models.BooleanField(default=True)
+    # Nombre personalizado para Amigis
+    nombre_amigis = models.CharField(max_length=50, default='Amigis', blank=True, help_text='Nombre personalizado para tu mascota patito')
 
     def __str__(self):
         return self.usuario.username

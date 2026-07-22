@@ -84,6 +84,7 @@ def editar_perfil(request):
             # Nuevos campos
             perfil.ubicacion = request.POST.get('ubicacion', '').strip()
             perfil.color_acento = request.POST.get('color_acento', 'purple') or 'purple'
+            perfil.nombre_amigis = request.POST.get('nombre_amigis', 'Amigis').strip() or 'Amigis'
             
             # Handle avatar deletion
             if request.POST.get('delete_avatar') == 'true':

@@ -277,13 +277,16 @@
                 this.userName = window.amigisConfig.userName;
                 this.isAuthenticated = window.amigisConfig.isAuthenticated;
                 
-                // Actualizar saludos con el nombre del usuario
+                // Obtener nombre personalizado de Amigis
+                this.amigisName = window.amigisConfig.amigisName || 'Amigis';
+                
+                // Actualizar saludos con el nombre del usuario y el nombre de Amigis
                 this.greetings = [
-                    `¡Hola ${this.userName}! Soy Amigis, tu compañero de MiniAmigixV 🦆`,
-                    `¡Qué gusto verte, ${this.userName}! ¿En qué puedo ayudarte?`,
-                    `¡Hola ${this.userName}! Estoy listo para ayudarte`,
-                    `¡Bienvenido ${this.userName}! Soy Amigis, tu asistente`,
-                    `¡Hey ${this.userName}! ¿Listo para comenzar?`
+                    `¡Hola ${this.userName}! Soy ${this.amigisName}, tu compañero de MiniAmigixV 🦆`,
+                    `¡Qué gusto verte, ${this.userName}! Soy ${this.amigisName}, ¿en qué puedo ayudarte?`,
+                    `¡Hola ${this.userName}! Soy ${this.amigisName}, tu asistente`,
+                    `¡Bienvenido ${this.userName}! Soy ${this.amigisName}, listo para ayudarte`,
+                    `¡Hey ${this.userName}! Soy ${this.amigisName}, ¿listo para comenzar?`
                 ];
             }
         }
