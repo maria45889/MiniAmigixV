@@ -20,6 +20,7 @@ def user_theme(request):
     patito_accesorio = 'none'
     patito_color_cuerpo = 'yellow'
     patito_estilo = 'normal'
+    perfil_avatar_url = None
     
     if request.user.is_authenticated:
         try:
@@ -33,6 +34,8 @@ def user_theme(request):
             patito_accesorio = perfil.patito_accesorio or 'none'
             patito_color_cuerpo = perfil.patito_color_cuerpo or 'yellow'
             patito_estilo = perfil.patito_estilo or 'normal'
+            if perfil.avatar:
+                perfil_avatar_url = perfil.avatar.url
         except:
             perfil_tema = 'dark'
             perfil_idioma = 'es'
@@ -51,7 +54,8 @@ def user_theme(request):
         'patito_color_ropa': patito_color_ropa,
         'patito_accesorio': patito_accesorio,
         'patito_color_cuerpo': patito_color_cuerpo,
-        'patito_estilo': patito_estilo
+        'patito_estilo': patito_estilo,
+        'perfil_avatar_url': perfil_avatar_url
     }
 
 def is_admin_user(request):

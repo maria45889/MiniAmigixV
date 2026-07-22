@@ -55,6 +55,15 @@
         <main class="main-content">
             {% include "includes/navbar.html" %}
             <div class="page-content">
+                {% if messages %}
+                <div class="messages-container">
+                    {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
                 {% block content %}{% endblock %}
             </div>
         </main>
@@ -992,7 +1001,8 @@
             patitoColorRopa: "{{ patito_color_ropa|default:'purple' }}",
             patitoAccesorio: "{{ patito_accesorio|default:'none' }}",
             patitoColorCuerpo: "{{ patito_color_cuerpo|default:'yellow' }}",
-            patitoEstilo: "{{ patito_estilo|default:'normal' }}"
+            patitoEstilo: "{{ patito_estilo|default:'normal' }}",
+            userAvatar: "{% if perfil_avatar_url %}{{ perfil_avatar_url }}{% endif %}"
         };
     </script>
     <script src="{% static 'amigis/js/amigis.js' %}?v=1"></script>

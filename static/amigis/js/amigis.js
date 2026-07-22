@@ -506,19 +506,27 @@
         }
 
         attachEvents() {
-            // Eventos de arrastrar
+            // Eventos de arrastrar mejorados
             this.wrapper.addEventListener('mousedown', (e) => this.startDrag(e));
             document.addEventListener('mousemove', (e) => this.drag(e));
             document.addEventListener('mouseup', () => this.stopDrag());
             
-            // Eventos táctiles para móviles
-            this.wrapper.addEventListener('touchstart', (e) => this.startDrag(e.touches[0]));
-            document.addEventListener('touchmove', (e) => this.drag(e.touches[0]));
+            // Eventos táctiles para móviles mejorados
+            this.wrapper.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                this.startDrag(e.touches[0]);
+            }, { passive: false });
+            document.addEventListener('touchmove', (e) => {
+                if (this.isDragging) {
+                    e.preventDefault();
+                    this.drag(e.touches[0]);
+                }
+            }, { passive: false });
             document.addEventListener('touchend', () => this.stopDrag());
             
             // Click en la mascota (si no está arrastrando)
             this.wrapper.addEventListener('click', (e) => {
-                if (!this.isDragging) {
+                if (!this.isDragging && !this.hasDragged) {
                     this.showRandomMessage();
                     this.setHappy();
                 }
@@ -574,16 +582,31 @@
 
         startDrag(e) {
             this.isDragging = true;
-            this.dragPointerId = e.pointerId;
-            this.wrapper.setPointerCapture(e.pointerId);
+            this.hasDragged = false;
+            this.dragStartTime = Date.now();
+            this.dragStartX = e.clientX;
+            this.dragStartY = e.clientY;
+            
             const rect = this.container.getBoundingClientRect();
             this.dragOffset.x = e.clientX - rect.left;
             this.dragOffset.y = e.clientY - rect.top;
+            
             this.wrapper.style.cursor = 'grabbing';
+            this.wrapper.style.transition = 'none';
+            this.container.style.transition = 'none';
         }
 
         drag(e) {
             if (!this.isDragging) return;
+            
+            // Detectar si realmente se movió
+            const moveDistance = Math.sqrt(
+                Math.pow(e.clientX - this.dragStartX, 2) + 
+                Math.pow(e.clientY - this.dragStartY, 2)
+            );
+            if (moveDistance > 5) {
+                this.hasDragged = true;
+            }
             
             const windowWidth = window.innerWidth;
             const windowHeight = window.innerHeight;
@@ -593,9 +616,10 @@
             let newX = e.clientX - this.dragOffset.x;
             let newY = windowHeight - e.clientY - this.dragOffset.y;
             
-            // Restringir a los bordes de la ventana
-            newX = Math.max(0, Math.min(newX, windowWidth - containerWidth));
-            newY = Math.max(0, Math.min(newY, windowHeight - containerHeight));
+            // Restringir a los bordes de la ventana con margen
+            const margin = 10;
+            newX = Math.max(margin, Math.min(newX, windowWidth - containerWidth - margin));
+            newY = Math.max(margin, Math.min(newY, windowHeight - containerHeight - margin));
             
             this.container.style.right = 'auto';
             this.container.style.left = newX + 'px';
@@ -609,7 +633,14 @@
             if (this.isDragging) {
                 this.isDragging = false;
                 this.wrapper.style.cursor = 'grab';
+                this.wrapper.style.transition = 'transform 0.3s ease';
+                this.container.style.transition = 'all 0.3s ease';
                 this.savePosition();
+                
+                // Reset hasDragged después de un breve delay
+                setTimeout(() => {
+                    this.hasDragged = false;
+                }, 100);
             }
         }
 
@@ -673,6 +704,21 @@
             
             // Aplicar personalización del patito
             this.applyCustomization();
+            
+            // Actualizar avatar del usuario en la UI si existe
+            this.updateUserAvatar();
+        }
+        
+        updateUserAvatar() {
+            if (window.amigisConfig && window.amigisConfig.userAvatar) {
+                // Actualizar avatares en la página
+                const avatarImages = document.querySelectorAll('.perfil-avatar-large, .user-avatar, .avatar-img');
+                avatarImages.forEach(img => {
+                    if (img.tagName === 'IMG') {
+                        img.src = window.amigisConfig.userAvatar;
+                    }
+                });
+            }
         }
 
         applyCustomization() {

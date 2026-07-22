@@ -59,6 +59,12 @@ def editar_perfil(request):
     perfil, created = Perfil.objects.get_or_create(usuario=request.user)
     
     if request.method == 'POST':
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f'POST request received. User: {request.user.username}')
+        logger.info(f'POST data: {dict(request.POST)}')
+        logger.info(f'FILES: {dict(request.FILES)}')
+        
         try:
             # Actualizar campos
             username = request.POST.get('username', '').strip()
@@ -67,6 +73,7 @@ def editar_perfil(request):
                 if not User.objects.filter(username=username).exists():
                     perfil.usuario.username = username
                     perfil.usuario.save()
+                    logger.info(f'Username updated to: {username}')
             
             # Fix bio: handle "None" string and empty values
             bio = request.POST.get('bio', '')
@@ -93,21 +100,30 @@ def editar_perfil(request):
             perfil.patito_color_cuerpo = request.POST.get('patito_color_cuerpo', 'yellow') or 'yellow'
             perfil.patito_estilo = request.POST.get('patito_estilo', 'normal') or 'normal'
             
+            # Preferencias adicionales
+            perfil.formato_reloj = request.POST.get('formato_reloj', '24h') or '24h'
+            perfil.zona_horaria = request.POST.get('zona_horaria', 'UTC') or 'UTC'
+            
             # Handle avatar deletion
             if request.POST.get('delete_avatar') == 'true':
                 perfil.avatar = None
+                logger.info('Avatar deleted')
             elif 'avatar' in request.FILES and request.FILES['avatar']:
                 perfil.avatar = request.FILES['avatar']
+                logger.info(f'Avatar uploaded: {request.FILES["avatar"].name}')
             
             perfil.save()
+            logger.info('Profile saved successfully')
             
             from django.contrib import messages
             messages.success(request, '¡Perfil actualizado correctamente!')
+            return redirect('perfil')
         except Exception as e:
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f'Error al guardar perfil: {str(e)}', exc_info=True)
             from django.contrib import messages
             messages.error(request, f'Error al guardar el perfil: {str(e)}')
-        
-        return redirect('perfil')
     
     # Fix: if bio is "None" string, clean it before showing
     if perfil.bio and perfil.bio.strip().lower() == 'none':
