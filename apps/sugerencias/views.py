@@ -8,9 +8,30 @@ from .models import Sugerencia
 from notificaciones.models import Notificacion
 import logging
 
+@login_required
 def lista_sugerencias(request):
-    sugerencias = Sugerencia.objects.all().order_by('-fecha_creacion')
-    return render(request, 'sugerencias/lista_sugerencias.html', {'sugerencias': sugerencias})
+    # Verificar si es administrador (email miniamigixv@gmail.com o is_staff)
+    es_admin = request.user.is_staff or request.user.email == 'miniamigixv@gmail.com'
+    
+    if es_admin:
+        # Administrador ve todas las sugerencias
+        sugerencias = Sugerencia.objects.all().order_by('-fecha_creacion')
+    else:
+        # Usuario normal solo ve sus propias sugerencias
+        sugerencias = Sugerencia.objects.filter(usuario=request.user).order_by('-fecha_creacion')
+    
+    # Calcular estadísticas para el frontend
+    total_sugerencias = sugerencias.count()
+    pendientes = sugerencias.filter(estado='pendiente').count()
+    aprobadas = sugerencias.filter(estado='aprobada').count()
+    
+    return render(request, 'sugerencias/lista_sugerencias.html', {
+        'sugerencias': sugerencias,
+        'total_sugerencias': total_sugerencias,
+        'pendientes': pendientes,
+        'aprobadas': aprobadas,
+        'es_admin': es_admin
+    })
 
 def crear_sugerencia(request):
     if request.method == 'POST':

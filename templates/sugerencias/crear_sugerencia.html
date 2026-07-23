@@ -4,40 +4,169 @@
 {% block title %}Crear Sugerencia{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/support/sugerencias.css' %}">
+<link rel="stylesheet" href="{% static 'css/support/sugerencias.css' %}?v=2">
 {% endblock %}
 
 {% block content %}
-<div class="sugerencias-container">
-    <h1>💡 Nueva Sugerencia</h1>
+<div class="sugerencias-wrapper">
     
-    <form method="POST" class="sugerencia-form">
-        {% csrf_token %}
-        
-        <div class="form-group">
-            <label for="titulo">Título</label>
-            <input type="text" id="titulo" name="titulo" required placeholder="Ej: Agregar modo oscuro">
+    <!-- Header Section -->
+    <div class="sugerencias-hero">
+        <div class="hero-content">
+            <div class="hero-icon">✨</div>
+            <h1 class="hero-title">Nueva Sugerencia</h1>
+            <p class="hero-subtitle">Comparte tu idea para mejorar MiniAmigixV</p>
         </div>
-        
-        <div class="form-group">
-            <label for="categoria">Categoría</label>
-            <select id="categoria" name="categoria">
-                <option value="mejora">Mejora</option>
-                <option value="bug">Error/bug</option>
-                <option value="nueva_funcionalidad">Nueva funcionalidad</option>
-                <option value="otro">Otro</option>
-            </select>
+        <div class="hero-actions">
+            <a href="{% url 'lista_sugerencias' %}" class="btn-secondary-hero">
+                <i class="ti ti-arrow-left"></i>
+                Volver
+            </a>
         </div>
-        
-        <div class="form-group">
-            <label for="descripcion">Descripción detallada</label>
-            <textarea id="descripcion" name="descripcion" rows="6" required placeholder="Describe tu sugerencia en detalle..."></textarea>
+    </div>
+
+    <!-- Form Container -->
+    <div class="crear-sugerencia-container">
+        <div class="form-card">
+            <div class="card-noise"></div>
+            
+            <form method="POST" class="sugerencia-form">
+                {% csrf_token %}
+                
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-icon">📝</div>
+                        <div>
+                            <h2 class="section-title">Información Básica</h2>
+                            <p class="section-subtitle">Cuéntanos sobre tu idea</p>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="titulo" class="form-label">
+                            <span class="label-text">Título</span>
+                            <span class="label-required">*</span>
+                        </label>
+                        <div class="input-wrapper">
+                            <i class="ti ti-heading input-icon"></i>
+                            <input type="text" id="titulo" name="titulo" required placeholder="Ej: Agregar modo oscuro" class="form-input">
+                        </div>
+                        <p class="form-hint">Un título breve y descriptivo para tu sugerencia</p>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="categoria" class="form-label">
+                            <span class="label-text">Categoría</span>
+                        </label>
+                        <div class="select-wrapper">
+                            <i class="ti ti-category input-icon"></i>
+                            <select id="categoria" name="categoria" class="form-select">
+                                <option value="mejora">🚀 Mejora</option>
+                                <option value="bug">🐛 Error/bug</option>
+                                <option value="nueva_funcionalidad">✨ Nueva funcionalidad</option>
+                                <option value="otro">💭 Otro</option>
+                            </select>
+                            <i class="ti ti-chevron-down select-arrow"></i>
+                        </div>
+                        <p class="form-hint">Selecciona la categoría que mejor describa tu sugerencia</p>
+                    </div>
+                </div>
+                
+                <div class="form-section">
+                    <div class="section-header">
+                        <div class="section-icon">💬</div>
+                        <div>
+                            <h2 class="section-title">Detalles</h2>
+                            <p class="section-subtitle">Describe tu idea en profundidad</p>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="descripcion" class="form-label">
+                            <span class="label-text">Descripción detallada</span>
+                            <span class="label-required">*</span>
+                        </label>
+                        <div class="textarea-wrapper">
+                            <textarea id="descripcion" name="descripcion" rows="8" required placeholder="Describe tu sugerencia en detalle..." class="form-textarea"></textarea>
+                            <div class="char-counter">
+                                <span id="charCount">0</span> caracteres
+                            </div>
+                        </div>
+                        <p class="form-hint">Cuanto más detallada sea tu descripción, mejor podremos entender tu idea</p>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <a href="{% url 'lista_sugerencias' %}" class="btn-cancel">
+                        <i class="ti ti-x"></i>
+                        Cancelar
+                    </a>
+                    <button type="submit" class="btn-submit">
+                        <i class="ti ti-send"></i>
+                        Enviar Sugerencia
+                    </button>
+                </div>
+            </form>
+            
+            <div class="card-glow"></div>
         </div>
-        
-        <div class="form-actions">
-            <a href="{% url 'lista_sugerencias' %}" class="btn-secondary">Cancelar</a>
-            <button type="submit" class="btn-primary">Enviar Sugerencia</button>
+    </div>
+    
+    <!-- Tips Section -->
+    <div class="tips-section">
+        <h3 class="tips-title">💡 Tips para una buena sugerencia</h3>
+        <div class="tips-grid">
+            <div class="tip-card">
+                <div class="tip-icon">🎯</div>
+                <h4 class="tip-title">Sé específico</h4>
+                <p class="tip-text">Describe claramente qué functionality quieres y por qué</p>
+            </div>
+            <div class="tip-card">
+                <div class="tip-icon">📊</div>
+                <h4 class="tip-title">Incluye contexto</h4>
+                <p class="tip-text">Explica el problema actual y cómo tu idea lo soluciona</p>
+            </div>
+            <div class="tip-card">
+                <div class="tip-icon">🎨</div>
+                <h4 class="tip-title">Sé creativo</h4>
+                <p class="tip-text">No tengas miedo de proponer ideas innovadoras</p>
+            </div>
         </div>
-    </form>
+    </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Character counter
+    const textarea = document.getElementById('descripcion');
+    const charCount = document.getElementById('charCount');
+    
+    textarea.addEventListener('input', () => {
+        charCount.textContent = textarea.value.length;
+    });
+    
+    // Form validation visual feedback
+    const form = document.querySelector('.sugerencia-form');
+    const inputs = form.querySelectorAll('input[required], textarea[required]');
+    
+    inputs.forEach(input => {
+        input.addEventListener('blur', () => {
+            if (input.value.trim()) {
+                input.classList.add('valid');
+                input.classList.remove('invalid');
+            } else {
+                input.classList.add('invalid');
+                input.classList.remove('valid');
+            }
+        });
+        
+        input.addEventListener('input', () => {
+            if (input.value.trim()) {
+                input.classList.add('valid');
+                input.classList.remove('invalid');
+            }
+        });
+    });
+});
+</script>
 {% endblock %}

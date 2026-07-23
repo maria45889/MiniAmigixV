@@ -71,3 +71,19 @@ button {
     transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
+
+/* Light Mode Overrides */
+body.light .auth-container {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light input {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.15);
+    color: #1e293b;
+}
+
+body.light button {
+    background: linear-gradient(135deg, #7c3aed, #06b6d4);
+}

@@ -4,38 +4,222 @@
 {% block title %}Sugerencias{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/support/sugerencias.css' %}">
+<link rel="stylesheet" href="{% static 'css/support/sugerencias.css' %}?v=3">
 {% endblock %}
 
 {% block content %}
-<div class="sugerencias-container">
-    <h1>💡 Sugerencias</h1>
+<div class="sugerencias-wrapper">
     
-    <div class="sugerencias-header">
-        <a href="{% url 'crear_sugerencia' %}" class="btn-primary">+ Nueva Sugerencia</a>
+    <!-- Header Section -->
+    <div class="sugerencias-hero">
+        <div class="hero-content">
+            <div class="hero-icon">💬</div>
+            <h1 class="hero-title">Sugerencias</h1>
+            <p class="hero-subtitle">
+                {% if es_admin %}
+                    Gestiona todas las sugerencias de MiniAmigixV
+                {% else %}
+                    Comparte tus ideas para mejorar MiniAmigixV
+                {% endif %}
+            </p>
+            <!-- DEBUG: es_admin={{ es_admin }}, user={{ user.username }}, is_staff={{ user.is_staff }}, email={{ user.email }} -->
+        </div>
+        <div class="hero-actions">
+            <a href="{% url 'crear_sugerencia' %}" class="btn-primary-hero">
+                <i class="ti ti-plus"></i>
+                Nueva Sugerencia
+            </a>
+            {% if es_admin %}
+            <a href="{% url 'admin_sugerencias' %}" class="btn-secondary-hero">
+                <i class="ti ti-settings"></i>
+                Panel Admin
+            </a>
+            {% endif %}
+        </div>
     </div>
-    
+
+    {% if not es_admin %}
+    <div class="info-banner">
+        <i class="ti ti-info-circle"></i>
+        <span>Solo puedes ver tus propias sugerencias. El administrador puede ver todas las sugerencias.</span>
+    </div>
+    {% endif %}
+
+    <!-- Stats Cards -->
+    <div class="sugerencias-stats">
+        <div class="stat-card stat-total">
+            <div class="stat-icon">📊</div>
+            <div class="stat-info">
+                <div class="stat-number">{{ total_sugerencias|default:0 }}</div>
+                <div class="stat-label">Total</div>
+            </div>
+        </div>
+        <div class="stat-card stat-pendientes">
+            <div class="stat-icon">⏳</div>
+            <div class="stat-info">
+                <div class="stat-number">{{ pendientes|default:0 }}</div>
+                <div class="stat-label">Pendientes</div>
+            </div>
+        </div>
+        <div class="stat-card stat-aprobadas">
+            <div class="stat-icon">✅</div>
+            <div class="stat-info">
+                <div class="stat-number">{{ aprobadas|default:0 }}</div>
+                <div class="stat-label">Aprobadas</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="sugerencias-filters">
+        <div class="filter-group">
+            <button class="filter-btn active" data-filter="all">Todas</button>
+            <button class="filter-btn" data-filter="pendiente">Pendientes</button>
+            <button class="filter-btn" data-filter="en_revision">En Revisión</button>
+            <button class="filter-btn" data-filter="aprobada">Aprobadas</button>
+            <button class="filter-btn" data-filter="rechazada">Rechazadas</button>
+        </div>
+        <div class="search-box">
+            <input type="text" placeholder="Buscar sugerencias..." class="search-input">
+            <i class="ti ti-search search-icon"></i>
+        </div>
+    </div>
+
+    <!-- Suggestions List -->
     <div class="sugerencias-list">
         {% for sugerencia in sugerencias %}
-        <div class="sugerencia-card" data-estado="{{ sugerencia.estado }}">
+        <div class="sugerencia-card" data-estado="{{ sugerencia.estado }}" data-categoria="{{ sugerencia.categoria }}">
+            <div class="card-noise"></div>
+            
             <div class="sugerencia-header">
-                <h3>{{ sugerencia.titulo }}</h3>
-                <span class="estado-badge estado-{{ sugerencia.estado }}">{{ sugerencia.get_estado_display }}</span>
+                <div class="header-left">
+                    <div class="category-icon category-{{ sugerencia.categoria }}">
+                        {% if sugerencia.categoria == 'mejora' %}🚀
+                        {% elif sugerencia.categoria == 'bug' %}🐛
+                        {% elif sugerencia.categoria == 'nueva_funcionalidad' %}✨
+                        {% else %}💭{% endif %}
+                    </div>
+                    <div>
+                        <h3 class="sugerencia-title">{{ sugerencia.titulo }}</h3>
+                        <div class="sugerencia-category">{{ sugerencia.get_categoria_display }}</div>
+                    </div>
+                </div>
+                <span class="estado-badge estado-{{ sugerencia.estado }}">
+                    <span class="badge-dot"></span>
+                    {{ sugerencia.get_estado_display }}
+                </span>
             </div>
-            <p>{{ sugerencia.descripcion }}</p>
-            <div class="sugerencia-meta">
-                <span class="categoria">{{ sugerencia.get_categoria_display }}</span>
-                <span class="fecha">{{ sugerencia.fecha_creacion|date:"d M Y" }}</span>
-                {% if sugerencia.usuario %}
-                <span class="usuario">@{{ sugerencia.usuario.username }}</span>
-                {% endif %}
+
+            <p class="sugerencia-description">{{ sugerencia.descripcion }}</p>
+
+            {% if sugerencia.respuesta_admin %}
+            <div class="admin-response">
+                <div class="response-header">
+                    <i class="ti ti-message"></i>
+                    <span>Respuesta del equipo</span>
+                </div>
+                <p class="response-text">{{ sugerencia.respuesta_admin }}</p>
+                <div class="response-meta">
+                    <span>Respondido por @{{ sugerencia.respondido_por.username }}</span>
+                    <span>{{ sugerencia.fecha_respuesta|date:"d M Y" }}</span>
+                </div>
             </div>
+            {% endif %}
+
+            <div class="sugerencia-footer">
+                <div class="user-info">
+                    {% if sugerencia.usuario %}
+                    <div class="user-avatar">
+                        <span class="avatar-initial">{{ sugerencia.usuario.username|first|upper }}</span>
+                    </div>
+                    <span class="user-name">@{{ sugerencia.usuario.username }}</span>
+                    {% else %}
+                    <div class="user-avatar visitor">
+                        <span class="avatar-initial">?</span>
+                    </div>
+                    <span class="user-name">Visitante</span>
+                    {% endif %}
+                </div>
+                <div class="sugerencia-date">
+                    <i class="ti ti-calendar"></i>
+                    {{ sugerencia.fecha_creacion|date:"d M Y" }}
+                </div>
+            </div>
+
+            <div class="card-glow"></div>
         </div>
         {% empty %}
         <div class="no-sugerencias">
-            <p>No hay sugerencias aún. ¡Sé el primero en compartir una idea!</p>
+            <div class="empty-icon">💬</div>
+            <h3>
+                {% if es_admin %}
+                    No hay sugerencias aún
+                {% else %}
+                    No tienes sugerencias creadas
+                {% endif %}
+            </h3>
+            <p>
+                {% if es_admin %}
+                    ¡Sé el primero en compartir una idea para mejorar MiniAmigixV!
+                {% else %}
+                    ¡Comparte tus ideas para mejorar MiniAmigixV! Como usuario normal, solo puedes ver tus propias sugerencias.
+                {% endif %}
+            </p>
+            <a href="{% url 'crear_sugerencia' %}" class="btn-empty">
+                <i class="ti ti-plus"></i>
+                {% if es_admin %}
+                    Crear primera sugerencia
+                {% else %}
+                    Crear mi primera sugerencia
+                {% endif %}
+            </a>
         </div>
         {% endfor %}
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // Filter functionality
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const cards = document.querySelectorAll('.sugerencia-card');
+
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            // Update active state
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            const filter = btn.dataset.filter;
+
+            // Filter cards
+            cards.forEach(card => {
+                if (filter === 'all' || card.dataset.estado === filter) {
+                    card.style.display = 'block';
+                    card.style.animation = 'fadeIn 0.3s ease';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    });
+
+    // Search functionality
+    const searchInput = document.querySelector('.search-input');
+    searchInput.addEventListener('input', (e) => {
+        const searchTerm = e.target.value.toLowerCase();
+        
+        cards.forEach(card => {
+            const title = card.querySelector('.sugerencia-title').textContent.toLowerCase();
+            const description = card.querySelector('.sugerencia-description').textContent.toLowerCase();
+            
+            if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    });
+});
+</script>
 {% endblock %}
