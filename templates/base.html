@@ -278,7 +278,7 @@
                         'Content-Type': 'application/json',
                         'X-CSRFToken': getCookie('csrftoken')
                     },
-                    body: JSON.stringify({ tema: isLight ? 'light' : 'dark' })
+                    body: JSON.stringify({ theme: isLight ? 'light' : 'dark' })
                 }).catch(err => console.error('Error al guardar tema:', err));
             }
         }
@@ -528,12 +528,12 @@
                         }
                     },
                     'onError': function(event) {
-                        console.error('Error en mini player YouTube:', event.data);
+                        // console.error('Error en mini player YouTube:', event.data);
                         const videoContainer = document.getElementById('mini-player-video-container');
 
                         if (event.data === 150 || event.data === 153) {
                             // Video no se puede incrustar - ocultar video y usar solo audio
-                            console.log('Mini player: Video con restricción de incrustación, ocultando video');
+                            // console.log('Mini player: Video con restricción de incrustación, ocultando video');
                             if (videoContainer) {
                                 videoContainer.style.display = 'none';
                             }

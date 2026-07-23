@@ -435,12 +435,19 @@
 }
 
 /* ==================== UPDATED GAME CARDS ==================== */
+.games-grid-header {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
 .game-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 30px;
-    margin-top: 20px;
+    margin: 20px auto 40px;
     padding-bottom: 40px;
+    width: 100%;
+    max-width: 1200px;
 }
 
 .game-card {
@@ -691,6 +698,26 @@
     transform: scale(0.95) translateY(20px);
     transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
     padding: 30px;
+}
+
+.game-arena-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    min-height: 400px;
+    width: 100%;
+}
+
+.game-arena-content canvas {
+    margin: 20px auto;
+    display: block;
+}
+
+.game-arena-content .game-btn {
+    margin: 10px auto;
+    display: inline-block;
 }
 
 .game-modal-overlay.active .game-arena {

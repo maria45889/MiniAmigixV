@@ -740,3 +740,110 @@
         font-size: 15px;
     }
 }
+
+/* Light Mode Overrides */
+body.light .admin-dashboard {
+    background: #f8fafc;
+}
+
+body.light .admin-header {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light .admin-header h1 {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+body.light .stat-card {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light .stat-value {
+    color: #1e293b;
+}
+
+body.light .stat-label {
+    color: #64748b;
+}
+
+body.light .admin-section {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light .admin-section h2 {
+    color: #1e293b;
+}
+
+body.light .admin-section h2 i {
+    color: #667eea;
+}
+
+body.light .admin-table th {
+    color: #1e293b;
+}
+
+body.light .admin-table td {
+    color: #475569;
+}
+
+body.light .admin-table tbody tr:hover td {
+    color: #1e293b;
+}
+
+body.light .user-avatar {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+body.light .user-name {
+    color: #1e293b;
+}
+
+body.light .user-email {
+    color: #64748b;
+}
+
+body.light .back-link {
+    color: #64748b;
+}
+
+body.light .back-link:hover {
+    color: #667eea;
+}
+
+body.light .modal-content {
+    background: rgba(255, 255, 255, 0.95);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light .modal-header h2 {
+    color: #1e293b;
+}
+
+body.light .modal-close {
+    color: #64748b;
+}
+
+body.light .modal-close:hover {
+    background: rgba(102, 126, 234, 0.1);
+    color: #667eea;
+}
+
+body.light .modal-body textarea,
+body.light .modal-body select {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.15);
+    color: #1e293b;
+}
+
+body.light .modal-body label {
+    color: #1e293b;
+}
+
+body.light .modal-body p {
+    color: #64748b;
+}

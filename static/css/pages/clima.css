@@ -371,3 +371,92 @@
     font-weight: 700;
     margin-bottom: 30px;
 }
+
+/* Light Mode Overrides */
+body.light .clima-wrapper {
+    background:
+        radial-gradient(circle at top right, rgba(79, 172, 254, 0.08), transparent 35%),
+        radial-gradient(circle at bottom left, rgba(161, 140, 209, 0.08), transparent 35%),
+        #f8fafc;
+}
+
+body.light .cyber-header {
+    background: rgba(255, 255, 255, 0.8);
+    border-color: rgba(0, 0, 0, 0.1);
+}
+
+body.light .search-input {
+    background: #ffffff;
+    border-color: rgba(0, 0, 0, 0.15);
+    color: #1e293b;
+}
+
+body.light .search-input:focus {
+    background: #ffffff;
+    border-color: #4facfe;
+}
+
+body.light .cyber-panel {
+    background: rgba(255, 255, 255, 0.9);
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+body.light .cyber-panel:hover {
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    border-color: rgba(0, 0, 0, 0.15);
+}
+
+body.light .panel-time {
+    background: rgba(0, 0, 0, 0.05);
+    color: #64748b;
+}
+
+body.light .lucide-main {
+    color: #1e293b;
+}
+
+body.light .main-temp {
+    background: linear-gradient(135deg, #1e293b 0%, #475569 100%);
+    -webkit-text-fill-color: transparent;
+}
+
+body.light .main-city {
+    color: #1e293b;
+}
+
+body.light .panel-title {
+    color: #64748b;
+}
+
+body.light .radar-anomalia {
+    color: #64748b;
+}
+
+body.light .stat-header {
+    color: #64748b;
+}
+
+body.light .stat-value {
+    color: #1e293b;
+}
+
+body.light .forecast-day {
+    color: #64748b;
+}
+
+body.light .forecast-icon {
+    color: #1e293b;
+}
+
+body.light .forecast-temp {
+    color: #1e293b;
+}
+
+body.light .status-msg {
+    color: #64748b;
+}
+
+body.light .loading p {
+    color: #0284c7;
+}
