@@ -23,6 +23,8 @@ def traducir_texto(request):
     idioma_destino = request.POST.get('idioma_destino', 'en')
     idioma_origen = request.POST.get('idioma_origen', 'auto')
     
+    logger.info(f"Traduciendo texto: '{texto[:50]}...' de {idioma_origen} a {idioma_destino}")
+    
     if not texto:
         return JsonResponse({
             'success': False,
@@ -30,67 +32,96 @@ def traducir_texto(request):
         }, status=400)
     
     # Verificar si hay caché válido
-    cache = TranslationCache.objects.filter(
-        texto_original=texto,
-        idioma_origen=idioma_origen,
-        idioma_destino=idioma_destino
-    ).first()
-    
-    if cache and not cache.esta_expirado():
-        return JsonResponse({
-            'success': True,
-            'data': {
-                'texto_original': cache.texto_original,
-                'texto_traducido': cache.texto_traducido,
-                'idioma_origen': cache.idioma_origen,
-                'idioma_destino': cache.idioma_destino,
-                'idioma_detectado': cache.idioma_detectado,
-                'from_cache': True
-            }
-        })
+    try:
+        cache = TranslationCache.objects.filter(
+            texto_original=texto,
+            idioma_origen=idioma_origen,
+            idioma_destino=idioma_destino
+        ).first()
+        
+        if cache and not cache.esta_expirado():
+            logger.info("Usando traducción desde caché")
+            return JsonResponse({
+                'success': True,
+                'data': {
+                    'texto_original': cache.texto_original,
+                    'texto_traducido': cache.texto_traducido,
+                    'idioma_origen': cache.idioma_origen,
+                    'idioma_destino': cache.idioma_destino,
+                    'idioma_detectado': cache.idioma_detectado,
+                    'from_cache': True
+                }
+            })
+    except Exception as e:
+        logger.error(f"Error buscando caché: {str(e)}")
     
     # Si no hay caché o está expirado, traducir usando MyMemory
     try:
+        import urllib.parse
         lang_pair = f"{idioma_origen}|{idioma_destino}"
-        url = f"https://api.mymemory.translated.net/get?q={texto}&langpair={lang_pair}"
+        texto_encoded = urllib.parse.quote(texto)
+        url = f"https://api.mymemory.translated.net/get?q={texto_encoded}&langpair={lang_pair}"
+        
+        logger.info(f"Llamando a MyMemory API: {url}")
+        logger.info(f"Parámetros - origen: {idioma_origen}, destino: {idioma_destino}, texto: '{texto[:50]}...'")
         
         response = requests.get(url, timeout=10)
         response.raise_for_status()
         data = response.json()
         
+        logger.info(f"Respuesta API: {data}")
+        
         if data['responseStatus'] == 200:
             texto_traducido = data['responseData']['translatedText']
             idioma_detectado = data.get('responseData', {}).get('detectedLanguage', idioma_origen)
+            logger.info(f"Traducción exitosa: '{texto[:30]}...' -> '{texto_traducido[:30]}...'")
         else:
             # Si hay error en la respuesta, devolver el texto original
             texto_traducido = texto
             idioma_detectado = idioma_origen
+            logger.warning(f"API respondió con status {data['responseStatus']}, usando texto original. Respuesta completa: {data}")
         
         # Guardar en caché
-        translation_cache = TranslationCache.objects.create(
-            usuario=request.user if request.user.is_authenticated else None,
-            texto_original=texto,
-            texto_traducido=texto_traducido,
-            idioma_origen=idioma_origen,
-            idioma_destino=idioma_destino,
-            idioma_detectado=idioma_detectado,
-            fecha_expiracion=timezone.now() + timedelta(days=7)
-        )
+        try:
+            translation_cache = TranslationCache.objects.create(
+                usuario=request.user if request.user.is_authenticated else None,
+                texto_original=texto,
+                texto_traducido=texto_traducido,
+                idioma_origen=idioma_origen,
+                idioma_destino=idioma_destino,
+                idioma_detectado=idioma_detectado,
+                fecha_expiracion=timezone.now() + timedelta(days=7)
+            )
+            logger.info("Traducción guardada en caché")
+        except Exception as cache_error:
+            logger.error(f"Error guardando en caché: {str(cache_error)}")
         
         return JsonResponse({
             'success': True,
             'data': {
-                'texto_original': translation_cache.texto_original,
-                'texto_traducido': translation_cache.texto_traducido,
-                'idioma_origen': translation_cache.idioma_origen,
-                'idioma_destino': translation_cache.idioma_destino,
-                'idioma_detectado': translation_cache.idioma_detectado,
+                'texto_original': texto,
+                'texto_traducido': texto_traducido,
+                'idioma_origen': idioma_origen,
+                'idioma_destino': idioma_destino,
+                'idioma_detectado': idioma_detectado,
                 'from_cache': False
             }
         })
         
+    except requests.exceptions.Timeout:
+        logger.error("Timeout al llamar a MyMemory API")
+        return JsonResponse({
+            'success': False,
+            'error': 'El servicio de traducción tardó demasiado en responder. Por favor intenta de nuevo.'
+        }, status=504)
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Error de red al llamar a MyMemory API: {str(e)}")
+        return JsonResponse({
+            'success': False,
+            'error': 'Error de conexión con el servicio de traducción. Por favor verifica tu conexión a internet.'
+        }, status=503)
     except Exception as e:
-        logger.error(f"Error traduciendo texto: {str(e)}")
+        logger.error(f"Error traduciendo texto: {str(e)}", exc_info=True)
         return JsonResponse({
             'success': False,
             'error': 'Error al traducir el texto. Por favor intenta de nuevo.'

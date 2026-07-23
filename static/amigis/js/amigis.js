@@ -188,7 +188,14 @@
         startDrag(e) {
             this.isDragging = true;
             this.dragPointerId = e.pointerId;
-            this.wrapper.setPointerCapture(e.pointerId);
+            try {
+                if (e.pointerId !== undefined && e.pointerId !== null) {
+                    this.wrapper.setPointerCapture(e.pointerId);
+                }
+            } catch (error) {
+                // Ignorar error si el pointer no está activo
+                console.warn('setPointerCapture error:', error);
+            }
             const rect = this.container.getBoundingClientRect();
             this.dragOffset.x = e.clientX - rect.left;
             this.dragOffset.y = e.clientY - rect.top;

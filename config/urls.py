@@ -4,6 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
 from . import views
+from pathlib import Path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,7 +25,7 @@ urlpatterns = [
     # path('mongodb/', include('mongodb.urls')),
     
     # Blog
-    path('blog/', include('blog.urls')),
+    path('blog/', include('apps.blog.urls')),
     
     # Clima
     path('clima/', include('apps.clima.urls')),
@@ -41,5 +42,5 @@ urlpatterns = [
 
 # Serve PWA files in development
 if settings.DEBUG:
-    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

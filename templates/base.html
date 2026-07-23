@@ -20,7 +20,7 @@
     <!-- Fuentes: Syne para títulos, Inter para UI -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syne:wght@700&display=swap" rel="stylesheet">
     <!-- Iconos: Lucide (Se recomienda descargar y servir localmente para evitar 'Tracking Prevention') -->
-    <script src="https://unpkg.com/lucide@0.400.0/dist/umd/lucide.min.js" id="lucide-cdn-script" defer onerror="loadLucideFallback()"></script>
+    <script src="https://unpkg.com/lucide@0.400.1/dist/umd/lucide.min.js" id="lucide-cdn-script" defer></script>
     <!-- Iconos: Tabler (Nuevo diseño) -->
     <link rel="stylesheet" href="{% static 'css/fonts/tabler-icons.min.css' %}">
     <!-- CSS Principal -->
@@ -107,13 +107,6 @@
 
     <!-- Inicializar Iconos -->
     <script>
-        function loadLucideFallback() {
-            const script = document.createElement('script');
-            script.src = '{% static "js/lucide.min.js" %}';
-            script.onload = initIcons;
-            document.head.appendChild(script);
-        }
-
         function initIcons() {
             if (typeof lucide !== 'undefined' && document.querySelectorAll('i[data-lucide]').length > 0) {
                 lucide.createIcons({
@@ -136,7 +129,8 @@
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('/static/js/service-worker.js')
                     .then(function(registration) {
-                        console.log('Service Worker registrado con éxito:', registration.scope);
+                        console.log('Service Worker registrado con éxito: /static/js/service-worker.js');
+                        console.log('Scope:', registration.scope);
                     })
                     .catch(function(error) {
                         console.log('Error al registrar Service Worker:', error);
