@@ -108,7 +108,7 @@ INSTALLED_APPS = [
     # Project Apps
     'app.apps.AppConfig',
     'configuracion',
-    'eventos',
+    'eventos.apps.EventosConfig',
     'notificaciones',
     'perfil',
     'sugerencias',

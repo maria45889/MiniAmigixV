@@ -49,14 +49,6 @@
     <ellipse cx="60" cy="70" rx="35" ry="28" fill="url(#bodyGradientDark)" />
   </g>
 
-  <!-- Sudadera (por defecto visible) -->
-  <g id="hoodie" class="clothing-item" data-type="hoodie">
-    <ellipse cx="60" cy="75" rx="32" ry="22" fill="#9B59B6" clip-path="url(#body-clip)" />
-    <!-- Detalle azul neón en sudadera -->
-    <ellipse cx="60" cy="75" rx="28" ry="18" fill="none" stroke="#00FFFF" stroke-width="1.5" filter="url(#neon-blue)" clip-path="url(#body-clip)" />
-    <!-- Detalle rosa neón en sudadera -->
-    <ellipse cx="60" cy="75" rx="24" ry="14" fill="none" stroke="#FF1493" stroke-width="1" filter="url(#neon-pink)" clip-path="url(#body-clip)" />
-  </g>
 
   <!-- Camiseta (oculta por defecto) -->
   <g id="shirt" class="clothing-item" data-type="shirt" style="display: none;">
@@ -109,8 +101,8 @@
     <line x1="80" y1="33" x2="90" y2="30" stroke="#00FFFF" stroke-width="2" filter="url(#neon-blue)" />
   </g>
 
-  <!-- Gorra (oculta por defecto) -->
-  <g id="accessory-hat" class="accessory-item" style="display: none;">
+  <!-- Gorra (visible por defecto) -->
+  <g id="accessory-hat" class="accessory-item">
     <ellipse cx="60" cy="20" rx="20" ry="8" fill="#1A1A1A" />
     <rect x="40" y="12" width="40" height="10" rx="3" fill="#1A1A1A" />
     <ellipse cx="60" cy="22" rx="25" ry="5" fill="#2A2A2A" />

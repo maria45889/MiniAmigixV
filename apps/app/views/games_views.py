@@ -15,7 +15,33 @@ logger = logging.getLogger(__name__)
 @login_required
 def juegos(request):
     """Render games page."""
-    return render(request, 'juegos.html')
+    from apps.app.models import Game
+    
+    juegos = Game.objects.filter(activo=True).distinct()
+    
+    # Calcular estadísticas
+    from django.db.models import Max
+    from apps.app.models import Score
+    
+    mejor_puntuacion = Score.objects.filter(usuario=request.user).aggregate(max_puntuacion=Max('puntuacion'))['max_puntuacion'] or 0
+    
+    from django.utils import timezone
+    from datetime import datetime, timedelta
+    hoy = timezone.now().date()
+    partidas_hoy = Score.objects.filter(usuario=request.user, fecha_juego__date=hoy).count()
+    
+    # Obtener último juego jugado
+    ultima_puntuacion = Score.objects.filter(usuario=request.user).order_by('-fecha_juego').first()
+    ultimo_juego = ultima_puntuacion.juego if ultima_puntuacion else None
+    
+    context = {
+        'juegos': juegos,
+        'mejor_puntuacion': mejor_puntuacion,
+        'partidas_hoy': partidas_hoy,
+        'ultimo_juego': ultimo_juego,
+    }
+    
+    return render(request, 'juegos.html', context)
 
 
 @require_http_methods(["POST"])

@@ -141,6 +141,15 @@ class Game(models.Model):
         ('medio', 'Medio'),
         ('dificil', 'Difícil'),
     ], default='medio')
+    categoria = models.CharField(max_length=50, choices=[
+        ('inteligencia', 'Inteligencia'),
+        ('velocidad', 'Velocidad'),
+        ('precision', 'Precisión'),
+        ('estrategia', 'Estrategia'),
+        ('relax', 'Relax'),
+    ], default='inteligencia')
+    icono = models.CharField(max_length=50, default='🎮')
+    tiempo_estimado = models.CharField(max_length=50, default='5 min')
     activo = models.BooleanField(default=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 

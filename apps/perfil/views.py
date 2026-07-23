@@ -59,75 +59,31 @@ def editar_perfil(request):
     perfil, created = Perfil.objects.get_or_create(usuario=request.user)
     
     if request.method == 'POST':
-        import logging
-        logger = logging.getLogger(__name__)
-        logger.info(f'POST request received. User: {request.user.username}')
-        logger.info(f'POST data: {dict(request.POST)}')
-        logger.info(f'FILES: {dict(request.FILES)}')
-        
         try:
-            # Actualizar campos
-            username = request.POST.get('username', '').strip()
-            if username and username != perfil.usuario.username:
-                # Verificar que el username no esté en uso
-                if not User.objects.filter(username=username).exists():
-                    perfil.usuario.username = username
-                    perfil.usuario.save()
-                    logger.info(f'Username updated to: {username}')
+            # Guardar todos los campos del POST
+            for field in ['bio', 'tema', 'idioma', 'ubicacion', 'color_acento', 'nombre_amigis',
+                         'patito_ropa', 'patito_color_ropa', 'patito_accesorio', 'patito_color_cuerpo', 'patito_estilo',
+                         'formato_reloj', 'zona_horaria']:
+                value = request.POST.get(field, '')
+                if value:
+                    setattr(perfil, field, value)
             
-            # Fix bio: handle "None" string and empty values
-            bio = request.POST.get('bio', '')
-            if bio is None or bio.strip().lower() == 'none':
-                bio = ''
-            perfil.bio = bio.strip()
-            
-            perfil.tema = request.POST.get('tema', 'dark') or 'dark'
-            perfil.idioma = request.POST.get('idioma', 'es') or 'es'
-            
+            # Fecha de nacimiento
             fecha_nacimiento = request.POST.get('fecha_nacimiento', '').strip()
             if fecha_nacimiento:
                 perfil.fecha_nacimiento = fecha_nacimiento
             
-            # Nuevos campos
-            perfil.ubicacion = request.POST.get('ubicacion', '').strip()
-            perfil.color_acento = request.POST.get('color_acento', 'purple') or 'purple'
-            perfil.nombre_amigis = request.POST.get('nombre_amigis', 'Amigis').strip() or 'Amigis'
-            
-            # Personalización del patito
-            perfil.patito_ropa = request.POST.get('patito_ropa', 'hoodie') or 'hoodie'
-            perfil.patito_color_ropa = request.POST.get('patito_color_ropa', 'purple') or 'purple'
-            perfil.patito_accesorio = request.POST.get('patito_accesorio', 'none') or 'none'
-            perfil.patito_color_cuerpo = request.POST.get('patito_color_cuerpo', 'yellow') or 'yellow'
-            perfil.patito_estilo = request.POST.get('patito_estilo', 'normal') or 'normal'
-            
-            # Preferencias adicionales
-            perfil.formato_reloj = request.POST.get('formato_reloj', '24h') or '24h'
-            perfil.zona_horaria = request.POST.get('zona_horaria', 'UTC') or 'UTC'
-            
-            # Handle avatar deletion
-            if request.POST.get('delete_avatar') == 'true':
-                perfil.avatar = None
-                logger.info('Avatar deleted')
-            elif 'avatar' in request.FILES and request.FILES['avatar']:
+            # Avatar
+            if 'avatar' in request.FILES and request.FILES['avatar']:
                 perfil.avatar = request.FILES['avatar']
-                logger.info(f'Avatar uploaded: {request.FILES["avatar"].name}')
             
             perfil.save()
-            logger.info('Profile saved successfully')
             
             from django.contrib import messages
             messages.success(request, '¡Perfil actualizado correctamente!')
             return redirect('perfil')
         except Exception as e:
-            import logging
-            logger = logging.getLogger(__name__)
-            logger.error(f'Error al guardar perfil: {str(e)}', exc_info=True)
             from django.contrib import messages
-            messages.error(request, f'Error al guardar el perfil: {str(e)}')
-    
-    # Fix: if bio is "None" string, clean it before showing
-    if perfil.bio and perfil.bio.strip().lower() == 'none':
-        perfil.bio = ''
-        perfil.save()
+            messages.error(request, f'Error: {str(e)}')
     
     return render(request, 'perfil/editar.html', {'perfil': perfil})

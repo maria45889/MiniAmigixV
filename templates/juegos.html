@@ -14,6 +14,14 @@
         #09090f;
     min-height: 100vh;
     padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.games-page-background .dashboard {
+    width: 100%;
+    max-width: 1400px;
 }
 
 body.light .games-page-background {
@@ -214,7 +222,7 @@ body.light .games-page-background {
         <p>Pon a prueba tu mente y diviértete con nuestros mini-juegos.</p>
     </div>
     <div class="games-page-background">
-    <div class="dashboard" style="max-width: 1400px; margin: 0 auto;">
+    <div class="dashboard">
         <!-- Hero Banner with Stats -->
         <div class="games-hero-banner">
             <div class="hero-content">
@@ -232,7 +240,7 @@ body.light .games-page-background {
                 <div class="hero-stats">
                     <div class="hero-stat">
                         <span class="hero-stat-icon">🎮</span>
-                        <span class="hero-stat-value">9</span>
+                        <span class="hero-stat-value">{{ juegos|length }}</span>
                         <span class="hero-stat-label">Juegos</span>
                     </div>
                     <div class="hero-stat">
@@ -265,7 +273,7 @@ body.light .games-page-background {
             <div class="stat-card">
                 <span class="stat-icon">🎮</span>
                 <span class="stat-label">Juegos</span>
-                <span class="stat-value">9</span>
+                <span class="stat-value">{{ juegos|length }}</span>
             </div>
             <div class="stat-card">
                 <span class="stat-icon">🏆</span>
@@ -401,7 +409,7 @@ body.light .games-page-background {
         </div>
         <div class="game-grid" id="games-grid">
             {% for juego in juegos %}
-            <div class="game-card" data-category="{{ juego.categoria|default:'todos' }}" data-name="{{ juego.nombre|lower }}" style="--game-color: {% if juego.tipo == 'quiz' %}#3b82f6{% elif juego.tipo == 'memoria' %}#ec4899{% elif juego.tipo == 'matematicas' %}#22c55e{% elif juego.tipo == 'palabras' %}#f59e0b{% elif juego.tipo == 'logica' %}#7c3aed{% else %}#06b6d4{% endif %};">
+            <div class="game-card" data-category="{{ juego.categoria|default:'todos' }}" data-name="{{ juego.nombre|lower }}" data-id="{{ juego.id }}" style="--game-color: {% if juego.tipo == 'quiz' %}#3b82f6{% elif juego.tipo == 'memoria' %}#ec4899{% elif juego.tipo == 'matematicas' %}#22c55e{% elif juego.tipo == 'palabras' %}#f59e0b{% elif juego.tipo == 'logica' %}#7c3aed{% else %}#06b6d4{% endif %};">
                 <button class="favorite-btn" onclick="toggleFavorite(this, event)" title="Agregar a favoritos">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
                         <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
@@ -410,13 +418,7 @@ body.light .games-page-background {
                     </svg>
                 </button>
                 <div class="game-icon-wrapper">
-                    {% if juego.tipo == 'quiz' %}❓
-                    {% elif juego.tipo == 'memoria' %}🎯
-                    {% elif juego.tipo == 'matematicas' %}🔢
-                    {% elif juego.tipo == 'palabras' %}📝
-                    {% elif juego.tipo == 'logica' %}🧩
-                    {% else %}🎮
-                    {% endif %}
+                    {{ juego.icono|default:'🎮' }}
                 </div>
                 <h3>{{ juego.nombre }}</h3>
                 <p>{{ juego.descripcion }}</p>
@@ -439,7 +441,6 @@ body.light .games-page-background {
             {% empty %}
             <p style="color: #94a3b8; text-align: center; grid-column: 1 / -1;">No hay juegos disponibles</p>
             {% endfor %}
-            
         </div>
 </div>
 </div>

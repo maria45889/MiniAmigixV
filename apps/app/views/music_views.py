@@ -471,7 +471,7 @@ def save_lyrics_api(request, song_id):
         return JsonResponse({'error': str(e)}, status=500)
 
 
-@require_http_methods(["POST"])
+@require_http_methods(["GET", "POST"])
 @csrf_exempt
 def netease_lyrics_api(request):
     """Get lyrics from Netease API."""
@@ -489,8 +489,15 @@ def netease_lyrics_api(request):
         
         # Search for lyrics using LRCLIB as fallback
         import requests
+        from requests.exceptions import Timeout, RequestException
         query = f'{artist} {song}'
-        response = requests.get(f'https://lrclib.net/api/search?q={query}', timeout=10)
+        
+        try:
+            response = requests.get(f'https://lrclib.net/api/search?q={query}', timeout=15)
+        except Timeout:
+            return JsonResponse({'success': False, 'error': 'Timeout al buscar letras. Intenta nuevamente.'})
+        except RequestException as e:
+            return JsonResponse({'success': False, 'error': f'Error de conexión: {str(e)}'})
         
         if response.status_code == 200:
             results = response.json()
@@ -513,7 +520,7 @@ def netease_lyrics_api(request):
         return JsonResponse({'success': False, 'error': 'No se encontraron letras'})
     except Exception as e:
         LogHelper.log_error(logger, f"Error al obtener letras de Netease: {str(e)}", exc_info=True)
-        return JsonResponse({'error': str(e)}, status=500)
+        return JsonResponse({'success': False, 'error': 'Error interno del servidor'})
 
 
 @require_http_methods(["GET", "POST"])
