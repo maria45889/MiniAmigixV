@@ -1,40 +1,97 @@
 {% load static %}
 <aside class="sidebar">
-    <div class="sidebar-header">
-        <img src="{% static 'imagenes/logo.png' %}" alt="MiniAmigixV Logo" class="logo">
+  <div class="sidebar-header">
+    <a href="/" style="display:flex; align-items:center; gap:10px; text-decoration:none;">
+      <img src="{% static 'imagenes/logo.png' %}" alt="MiniAmigixV Logo" class="logo" style="max-height:36px;">
+    </a>
+  </div>
+
+  <nav class="nav-group" style="padding: 10px 0; overflow-y: auto; max-height: calc(100vh - 120px);">
+    
+    <!-- 🏠 PRINCIPAL -->
+    <div class="nav-section-title" style="padding: 10px 20px 4px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: rgba(255,255,255,0.4);">
+      Principal
     </div>
 
+    <a href="/" class="nav-item {% if request.path == '/' %}active{% endif %}">
+      <i class="ti ti-home"></i> <span data-i18n="home">Inicio</span>
+    </a>
+    <a href="{% url 'chat' %}" class="nav-item {% if request.resolver_match.url_name == 'chat' %}active{% endif %}">
+      <i class="ti ti-message-circle"></i> <span data-i18n="chat">IA Chat</span>
+    </a>
+    <a href="{% url 'musica' %}" class="nav-item {% if request.resolver_match.url_name == 'musica' %}active{% endif %}">
+      <i class="ti ti-music"></i> <span data-i18n="music">Música</span>
+    </a>
+    <a href="{% url 'juegos' %}" class="nav-item {% if request.resolver_match.url_name == 'juegos' %}active{% endif %}">
+      <i class="ti ti-device-gamepad-2"></i> <span data-i18n="games">Juegos</span>
+    </a>
+    <a href="{% url 'estudio' %}" class="nav-item {% if request.resolver_match.url_name == 'estudio' %}active{% endif %}">
+      <i class="ti ti-notebook"></i> <span data-i18n="study">Estudio</span>
+    </a>
+    <a href="{% url 'clima' %}" class="nav-item {% if request.resolver_match.url_name == 'clima' %}active{% endif %}">
+      <i class="ti ti-sun"></i> <span data-i18n="weather">Clima</span>
+    </a>
+    <a href="{% url 'traductor' %}" class="nav-item {% if request.resolver_match.url_name == 'traductor' %}active{% endif %}">
+      <i class="ti ti-language"></i> <span data-i18n="translator">Traductor</span>
+    </a>
+    <a href="{% url 'blog' %}" class="nav-item {% if request.resolver_match.url_name == 'blog' %}active{% endif %}">
+      <i class="ti ti-file-text"></i> <span data-i18n="blog">Blog</span>
+    </a>
+    <a href="{% url 'lista_eventos' %}" class="nav-item {% if request.resolver_match.url_name == 'lista_eventos' %}active{% endif %}">
+      <i class="ti ti-calendar"></i> <span data-i18n="events">Eventos</span>
+    </a>
+    <a href="{% url 'tutorial_home' %}" class="nav-item {% if request.resolver_match.url_name == 'tutorial_home' %}active{% endif %}">
+      <i class="ti ti-school"></i> <span data-i18n="tutorials">Tutoriales</span>
+    </a>
+    <a href="{% url 'archivos' %}" class="nav-item {% if request.resolver_match.url_name == 'archivos' %}active{% endif %}">
+      <i class="ti ti-folder"></i> <span data-i18n="files">Mis Archivos</span>
+    </a>
 
-    <nav class="nav-group">
-        <a href="/" class="nav-item {% if request.path == '/' %}active{% endif %}"><i class="ti ti-home"></i> <span data-i18n="home">Inicio</span></a>
-        <a href="{% url 'chat' %}" class="nav-item {% if request.resolver_match.url_name == 'chat' %}active{% endif %}"><i class="ti ti-message-circle"></i> <span data-i18n="chat">Chat IA</span></a>
-        <a href="{% url 'musica' %}" class="nav-item {% if request.resolver_match.url_name == 'musica' %}active{% endif %}"><i class="ti ti-music"></i> <span data-i18n="music">Música</span></a>
-        <a href="{% url 'juegos' %}" class="nav-item {% if request.resolver_match.url_name == 'juegos' %}active{% endif %}"><i class="ti ti-device-gamepad-2"></i> <span data-i18n="games">Juegos</span></a>
-        <a href="{% url 'lista_eventos' %}" class="nav-item {% if request.resolver_match.url_name == 'lista_eventos' %}active{% endif %}"><i class="ti ti-calendar"></i> <span data-i18n="events">Eventos</span></a>
-        <a href="{% url 'clima' %}" class="nav-item {% if request.resolver_match.url_name == 'clima' %}active{% endif %}"><i class="ti ti-sun"></i> <span data-i18n="weather">Clima</span></a>
-        <a href="{% url 'traductor' %}" class="nav-item {% if request.resolver_match.url_name == 'traductor' %}active{% endif %}"><i class="ti ti-language"></i> <span data-i18n="translator">Traductor</span></a>
-        <a href="{% url 'entretenimiento' %}" class="nav-item {% if request.resolver_match.url_name == 'entretenimiento' %}active{% endif %}"><i class="ti ti-sparkles"></i> <span data-i18n="entertainment">Entretenimiento</span></a>
-        <a href="{% url 'blog' %}" class="nav-item {% if request.resolver_match.url_name == 'blog' %}active{% endif %}"><i class="ti ti-file-text"></i> <span data-i18n="blog">Blog</span></a>
-        <a href="{% url 'soporte' %}" class="nav-item {% if request.resolver_match.url_name == 'soporte' %}active{% endif %}"><i class="ti ti-lifebuoy"></i> <span data-i18n="support">Soporte</span></a>
-        {% if is_admin_user %}
-        <a href="{% url 'panel_admin' %}" class="nav-item" style="color: #c084fc; border-left-color: #c084fc;"><i class="ti ti-shield-alert"></i> <span data-i18n="admin">Centro de Administración General</span></a>
-        {% endif %}
-        {% if user.is_authenticated %}
-        <form method="POST" action="{% url 'logout' %}" style="margin:0; padding:0;">
-            {% csrf_token %}
-            <button type="submit" class="nav-item" style="color: #ef4444; background:none; border:none; width:100%; text-align:left; cursor:pointer; font-size:inherit; font-family:inherit; padding: 10px 20px; display:flex; align-items:center; gap:8px;">
-                <i class="ti ti-logout"></i> <span data-i18n="logout">Cerrar Sesión</span>
-            </button>
-        </form>
-        {% else %}
-        <a href="{% url 'login' %}" class="nav-item" style="color: #10b981;"><i class="ti ti-login"></i> <span data-i18n="login">Iniciar Sesión</span></a>
-        {% endif %}
-    </nav>
-    <div class="sidebar-footer">
-        <a href="{% url 'perfil' %}" class="nav-item" title="Perfil" aria-label="Ver perfil de usuario"><i class="ti ti-user"></i></a>
-        <a href="{% url 'tutorial_home' %}" class="nav-item" title="Tutorial" aria-label="Ver tutoriales de ayuda"><i class="ti ti-help-circle"></i></a>
-        <a href="{% url 'configuracion_view' %}" class="nav-item" title="Configuración" aria-label="Abrir configuración de la cuenta"><i class="ti ti-settings"></i></a>
+    <!-- 👤 USUARIO & SISTEMA -->
+    <div class="nav-section-title" style="padding: 16px 20px 4px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: rgba(255,255,255,0.4);">
+      Usuario & Gestión
     </div>
+
+    <a href="{% url 'perfil' %}" class="nav-item {% if request.resolver_match.url_name == 'perfil' %}active{% endif %}">
+      <i class="ti ti-user"></i> <span>Mi Perfil</span>
+    </a>
+    <a href="{% url 'notificaciones_lista' %}" class="nav-item {% if request.resolver_match.url_name == 'notificaciones_lista' %}active{% endif %}">
+      <i class="ti ti-bell"></i> <span>Notificaciones</span>
+    </a>
+    <a href="{% url 'soporte' %}" class="nav-item {% if request.resolver_match.url_name == 'soporte' %}active{% endif %}">
+      <i class="ti ti-lifebuoy"></i> <span data-i18n="support">Ayuda & Soporte</span>
+    </a>
+
+    <!-- 🛡 CENTRO DE ADMINISTRACIÓN (Solo Administradores) -->
+    {% if is_admin_user %}
+    <div class="nav-section-title" style="padding: 16px 20px 4px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: #c084fc;">
+      Administración
+    </div>
+    <a href="{% url 'panel_admin' %}" class="nav-item" style="color: #c084fc; border-left-color: #c084fc;">
+      <i class="ti ti-shield-alert"></i> <span>Centro Admin</span>
+    </a>
+    {% endif %}
+
+    <!-- 🚪 SESIÓN -->
+    {% if user.is_authenticated %}
+    <form method="POST" action="{% url 'logout' %}" style="margin-top:10px; padding:0;">
+      {% csrf_token %}
+      <button type="submit" class="nav-item" style="color: #ef4444; background:none; border:none; width:100%; text-align:left; cursor:pointer; font-size:inherit; font-family:inherit; padding: 10px 20px; display:flex; align-items:center; gap:8px;">
+        <i class="ti ti-logout"></i> <span>Cerrar Sesión</span>
+      </button>
+    </form>
+    {% else %}
+    <a href="{% url 'login' %}" class="nav-item" style="color: #10b981; margin-top:10px;">
+      <i class="ti ti-login"></i> <span>Iniciar Sesión</span>
+    </a>
+    {% endif %}
+
+  </nav>
+
+  <!-- Sidebar Footer -->
+  <div class="sidebar-footer" style="padding: 12px 20px; border-top: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-around;">
+    <a href="{% url 'perfil' %}" class="nav-item" title="Perfil"><i class="ti ti-user"></i></a>
+    <a href="{% url 'configuracion_view' %}" class="nav-item" title="Configuración"><i class="ti ti-settings"></i></a>
+    <a href="{% url 'soporte' %}" class="nav-item" title="Soporte"><i class="ti ti-help-circle"></i></a>
+  </div>
 </aside>
-
-

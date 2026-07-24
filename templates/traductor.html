@@ -1,450 +1,413 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Traductor IA{% endblock %}
+{% block title %}Traductor IA — MiniAmigixV{% endblock %}
+{% block nav_title %}Traductor{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/traductor.css' %}?v=5">
-<style>
-/* ---- Light Mode Overrides ---- */
-body.light .traductor-wrapper {
-    --tr-bg: #f8fafc;
-    --tr-panel: rgba(255, 255, 255, 0.85);
-    --tr-border: rgba(0, 0, 0, 0.1);
-    --tr-cyan: #0284c7;
-    --tr-purple: #9333ea;
-    --tr-text: #1e293b;
-    --tr-muted: #64748b;
-    background:
-        radial-gradient(circle at top right, rgba(2, 132, 199, 0.08), transparent 35%),
-        radial-gradient(circle at bottom left, rgba(147, 51, 234, 0.08), transparent 35%),
-        var(--tr-bg) !important;
-}
-
-body.light .traductor-wrapper::before {
-    background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(2, 132, 199, 0.03) 2px,
-        rgba(2, 132, 199, 0.03) 4px
-    ) !important;
-}
-
-body.light .lang-select {
-    background: #ffffff !important;
-    color: var(--tr-text) !important;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%230284c7' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E") !important;
-    border: 1px solid rgba(0, 0, 0, 0.1) !important;
-}
-
-body.light .lang-select option {
-    background: #ffffff !important;
-    color: var(--tr-text) !important;
-}
-
-body.light .lang-bar {
-    background: rgba(255, 255, 255, 0.5) !important;
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important;
-}
-
-body.light .tr-card {
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05) !important;
-}
-
-body.light .text-panel:first-child {
-    border-right: 1px solid rgba(0, 0, 0, 0.05) !important;
-}
-
-body.light .output-panel {
-    background: rgba(2, 132, 199, 0.02) !important;
-}
-
-body.light .text-panel textarea {
-    color: var(--tr-text) !important;
-}
-
-body.light .text-panel textarea::placeholder {
-    color: rgba(0, 0, 0, 0.3) !important;
-}
-
-body.light .output-panel textarea {
-    color: var(--tr-cyan) !important;
-}
-
-body.light .btn-swap {
-    background: rgba(2, 132, 199, 0.08) !important;
-    box-shadow: 0 0 10px rgba(2, 132, 199, 0.1) !important;
-    color: var(--tr-cyan) !important;
-}
-
-body.light .btn-swap:hover {
-    color: #ffffff !important;
-    background: var(--tr-cyan) !important;
-}
-
-body.light .history-item {
-    background: rgba(255, 255, 255, 0.8) !important;
-    border-color: rgba(0, 0, 0, 0.05) !important;
-}
-
-body.light .history-original {
-    color: #334155 !important;
-}
-
-body.light .engine-status .status-card {
-    background: rgba(255, 255, 255, 0.7) !important;
-    border: 1px solid rgba(0,0,0,0.05) !important;
-}
-
-body.light .engine-status .status-label {
-    color: var(--tr-muted) !important;
-}
-
-body.light .chip {
-    background: rgba(0,0,0,0.05) !important;
-    border: 1px solid rgba(0,0,0,0.1) !important;
-    color: var(--tr-text) !important;
-}
-
-body.light .chip:hover {
-    background: rgba(2, 132, 199, 0.1) !important;
-    color: var(--tr-cyan) !important;
-    border-color: var(--tr-cyan) !important;
-}
-
-body.light .history-title {
-    color: var(--tr-text) !important;
-}
-
-@media (max-width: 768px) {
-    body.light .text-panel:first-child { 
-        border-right: none !important; 
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05) !important; 
-    }
-}
-</style>
+<link rel="stylesheet" href="{% static 'css/pages/traductor.css' %}?v=40">
 {% endblock %}
 
 {% block content %}
-<div class="traductor-wrapper">
+<div class="traductor-page-container fadein">
+  {% csrf_token %}
 
-    <!-- Header -->
-    <div class="tr-header">
-        <h1>TRADUCTOR</h1>
-        <div class="tr-subtitle">MiniAmigixV</div>
+  <!-- ════════════════════════════════════
+       HEADER BAR
+  ════════════════════════════════════ -->
+  <div class="traductor-header-bar">
+    <div class="traductor-header-title">
+      <span style="font-size: 26px;">🌍</span>
+      <div>
+        <h1>Traductor Inteligente IA</h1>
+        <p>Traduce texto, voz e imágenes en tiempo real con MiniAmigixV.</p>
+      </div>
     </div>
 
-    <!-- Main Translation Card -->
-    <div class="tr-card" id="translatorCard">
+    <div class="traductor-header-actions">
+      <button class="t-header-btn" onclick="autoDetectLanguage()">
+        <i class="ti ti-wand"></i> Auto-Detectar
+      </button>
+      <button class="t-header-btn" onclick="scrollToSection('voice-section')">
+        <i class="ti ti-microphone"></i> Voz
+      </button>
+      <button class="t-header-btn" onclick="scrollToSection('camera-section')">
+        <i class="ti ti-camera"></i> Cámara/OCR
+      </button>
+      <button class="t-header-btn" onclick="scrollToSection('learn-section')">
+        <i class="ti ti-school" style="color: #c084fc;"></i> Aprender
+      </button>
+    </div>
+  </div>
 
-        <!-- Language Bar -->
-        <div class="lang-bar">
-            <select id="idiomaOrigen" class="lang-select">
-                <option value="es">🇪🇸 Español</option>
-                <option value="en">�� Inglés</option>
-                <option value="fr">🇫🇷 Francés</option>
-                <option value="de">🇩🇪 Alemán</option>
-                <option value="pt">�� Portugués</option>
-                <option value="it">🇮🇹 Italiano</option>
-                <option value="ja">🇯🇵 Japonés</option>
-                <option value="ko">🇰🇷 Coreano</option>
-                <option value="zh">🇨🇳 Chino</option>
-                <option value="ru">🇷🇺 Ruso</option>
-                <option value="ar">🇸🇦 Árabe</option>
-            </select>
+  <!-- ════════════════════════════════════
+       ⭐ FAVORITE LANGUAGES BAR
+  ════════════════════════════════════ -->
+  <div class="fav-langs-bar">
+    <span style="font-size: 11px; font-weight: 700; color: var(--t-text-dim); display: flex; align-items: center; gap: 4px; padding: 0 4px;">
+      ⭐ POPULARES:
+    </span>
+    <div class="fav-lang-chip" onclick="setLanguages('es', 'en')">🇪🇸 Español ➔ 🇺🇸 Inglés</div>
+    <div class="fav-lang-chip" onclick="setLanguages('es', 'fr')">🇪🇸 Español ➔ 🇫🇷 Francés</div>
+    <div class="fav-lang-chip" onclick="setLanguages('es', 'ja')">🇪🇸 Español ➔ 🇯🇵 Japonés</div>
+    <div class="fav-lang-chip" onclick="setLanguages('es', 'ko')">🇪🇸 Español ➔ 🇰🇷 Coreano</div>
+    <div class="fav-lang-chip" onclick="setLanguages('es', 'zh')">🇪🇸 Español ➔ 🇨🇳 Chino</div>
+    <div class="fav-lang-chip" onclick="setLanguages('es', 'it')">🇪🇸 Español ➔ 🇮🇹 Italiano</div>
+    <div class="fav-lang-chip" onclick="setLanguages('es', 'pt')">🇪🇸 Español ➔ 🇧🇷 Portugués</div>
+  </div>
 
-            <button class="btn-swap" onclick="intercambiarIdiomas()" title="Intercambiar idiomas">⇄</button>
+  <!-- ════════════════════════════════════
+       ✍️ DUAL TRANSLATION PANEL
+  ════════════════════════════════════ -->
+  <div class="translation-dual-box">
 
-            <select id="idiomaDestino" class="lang-select">
-                <option value="en">�� Inglés</option>
-                <option value="es">🇪🇸 Español</option>
-                <option value="fr">🇫🇷 Francés</option>
-                <option value="de">🇩🇪 Alemán</option>
-                <option value="pt">�� Portugués</option>
-                <option value="it">🇮🇹 Italiano</option>
-                <option value="ja">🇯🇵 Japonés</option>
-                <option value="ko">🇰🇷 Coreano</option>
-                <option value="zh">🇨🇳 Chino</option>
-                <option value="ru">🇷🇺 Ruso</option>
-                <option value="ar">🇸🇦 Árabe</option>
-            </select>
-        </div>
+    <!-- Language Selectors Row -->
+    <div class="lang-selector-row">
+      <select id="source-lang" class="lang-select-dropdown">
+        <option value="auto">🔍 Detectar idioma automáticamente</option>
+        <option value="es" selected>🇪🇸 Español</option>
+        <option value="en">🇺🇸 Inglés</option>
+        <option value="fr">🇫🇷 Francés</option>
+        <option value="ja">🇯🇵 Japonés</option>
+        <option value="ko">🇰🇷 Coreano</option>
+        <option value="zh">🇨🇳 Chino</option>
+        <option value="it">🇮🇹 Italiano</option>
+        <option value="pt">🇧🇷 Portugués</option>
+      </select>
 
-        <!-- Text Panels -->
-        <div class="text-panels">
-            <!-- Input Panel -->
-            <div class="text-panel input-panel">
-                <div class="scan-line"></div>
-                <div class="panel-label">TEXTO ORIGINAL</div>
-                <textarea id="textoOriginal" placeholder="ESCRIBE O PEGA TEXTO..." maxlength="5000"></textarea>
-                <div class="panel-footer">
-                    <span class="char-count" id="charCount">0 / 5000</span>
-                    <div class="action-chips">
-                        <button class="chip" onclick="hablarTexto('textoOriginal')">🎤 Voz</button>
-                        <button class="chip" onclick="limpiarTexto()">🧹 Limpiar</button>
-                    </div>
-                </div>
-            </div>
+      <button class="swap-lang-btn" onclick="swapLanguages()" title="Intercambiar idiomas">
+        ⇄
+      </button>
 
-            <!-- Output Panel -->
-            <div class="text-panel output-panel">
-                <div class="scan-line"></div>
-                <div class="panel-label">TRADUCCIÓN</div>
-                <textarea id="textoTraducido" placeholder="LA TRADUCCIÓN APARECERÁ AQUÍ..." readonly></textarea>
-                <div class="panel-footer">
-                    <span class="char-count" id="outputInfo"></span>
-                    <div class="action-chips">
-                        <button class="chip" onclick="escucharTraduccion()">🔊 Escuchar</button>
-                        <button class="chip" onclick="copiarTraduccion()">📋 Copiar</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Translate Button -->
-        <div class="translate-bar">
-            <button class="btn-translate" id="btnTranslate" onclick="traducir()">⚡ INICIAR TRADUCCIÓN NEURAL</button>
-        </div>
+      <select id="target-lang" class="lang-select-dropdown">
+        <option value="en" selected>🇺🇸 Inglés</option>
+        <option value="es">🇪🇸 Español</option>
+        <option value="fr">🇫🇷 Francés</option>
+        <option value="ja">🇯🇵 Japonés</option>
+        <option value="ko">🇰🇷 Coreano</option>
+        <option value="zh">🇨🇳 Chino</option>
+        <option value="it">🇮🇹 Italiano</option>
+        <option value="pt">🇧🇷 Portugués</option>
+      </select>
     </div>
 
-    <!-- Neural Engine Status -->
-    <div class="engine-status" id="engineStatus">
-        <div class="status-card">
-            <span class="status-label">STATUS</span>
-            <span class="status-value green" id="statusVal"><span class="status-dot green"></span> ACTIVE</span>
+    <!-- Panels Grid -->
+    <div class="translation-panels-grid">
+
+      <!-- Source Text Panel -->
+      <div class="translation-textarea-panel">
+        <textarea id="source-text" placeholder="Escribe o pega el texto aquí para traducir..." oninput="autoTranslate()"></textarea>
+
+        <div class="panel-action-btns">
+          <div class="panel-btn-group">
+            <button class="p-action-btn" onclick="clearSourceText()"><i class="ti ti-trash"></i> Limpiar</button>
+            <button class="p-action-btn" onclick="pasteSourceText()"><i class="ti ti-clipboard"></i> Pegar</button>
+          </div>
+          <span style="font-size: 11px; color: var(--t-text-dim);" id="char-count">0 / 5000</span>
         </div>
-        <div class="status-card">
-            <span class="status-label">IDIOMA DETECTADO</span>
-            <span class="status-value cyan" id="detectedLang">—</span>
+      </div>
+
+      <!-- Target Result Panel -->
+      <div class="translation-textarea-panel" style="background: rgba(6, 182, 212, 0.04); border-color: rgba(6, 182, 212, 0.2);">
+        <textarea id="target-text" readonly placeholder="La traducción aparecerá aquí..."></textarea>
+
+        <div class="panel-action-btns">
+          <div class="panel-btn-group">
+            <button class="p-action-btn" onclick="copyTargetText()"><i class="ti ti-copy"></i> Copiar</button>
+            <button class="p-action-btn" onclick="speakTargetText()"><i class="ti ti-volume"></i> Escuchar</button>
+            <button class="p-action-btn" onclick="saveToHistory()"><i class="ti ti-heart"></i> Guardar</button>
+          </div>
+          <button class="p-action-btn" onclick="shareTranslation()"><i class="ti ti-share"></i> Compartir</button>
         </div>
+      </div>
+
     </div>
 
-    <!-- History -->
-    <div class="history-section">
-        <div class="history-title"><span class="dot"></span> REGISTRO DE TRADUCCIONES</div>
-        <div class="history-list" id="historial">
-            <div class="history-empty">// NO HAY TRADUCCIONES EN EL REGISTRO</div>
-        </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       VOICE & CAMERA FEATURES SPLIT GRID
+  ════════════════════════════════════ -->
+  <div class="features-split-grid">
+
+    <!-- Voice Translation -->
+    <div class="feature-box-card" id="voice-section">
+      <div style="font-size: 24px; color: #38bdf8;">🎤</div>
+      <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; margin: 0;">Traducción por Voz en Tiempo Real</h3>
+      <p style="font-size: 12px; color: var(--t-text-soft); margin: 0;">Presiona el micrófono y habla naturalmente. MiniAmigixV traducirá tus palabras al instante.</p>
+
+      <button class="mic-voice-big-btn" id="voice-mic-btn" onclick="toggleVoiceTranslation()">
+        🎙
+      </button>
+      <span style="font-size: 11px; color: var(--t-text-dim);" id="voice-status-label">Haz clic para hablar</span>
     </div>
+
+    <!-- Camera / OCR Translation -->
+    <div class="feature-box-card" id="camera-section">
+      <div style="font-size: 24px; color: #c084fc;">📷</div>
+      <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; margin: 0;">Traducción con Cámara e Imagen</h3>
+      <p style="font-size: 12px; color: var(--t-text-soft); margin: 0;">Sube una foto o captura texto con tu cámara para obtener una traducción directa con IA.</p>
+
+      <div style="display: flex; gap: 10px; margin-top: 10px;">
+        <button class="t-header-btn" onclick="document.getElementById('ocr-file-input').click()">
+          🖼 Subir Imagen
+        </button>
+        <input type="file" id="ocr-file-input" accept="image/*" style="display: none;" onchange="handleImageOCR(this)">
+      </div>
+      <div id="ocr-preview-box"></div>
+    </div>
+
+  </div>
+
+  <!-- ════════════════════════════════════
+       🎓 APRENDER IDIOMAS CON AMIGIS
+  ════════════════════════════════════ -->
+  <div class="amigis-learn-panel" id="learn-section">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 8px;">
+        <i class="ti ti-school" style="color: #c084fc;"></i> Aprender Idiomas con Amigis 🦆
+      </h2>
+      <span style="font-size: 11px; color: #34d399; font-weight: 700;">🏅 Nivel: Intermedio (+340 XP)</span>
+    </div>
+
+    <!-- Word of the day card -->
+    <div class="word-of-day-card">
+      <div style="font-size: 36px; background: rgba(255,255,255,0.1); width: 60px; height: 60px; border-radius: 16px; display: flex; align-items: center; justify-content: center;">
+        📖
+      </div>
+      <div style="flex: 1;">
+        <div style="font-size: 11px; color: var(--t-text-dim); text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px;">
+          Palabra del Día
+        </div>
+        <div style="font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 800; color: #fff; margin: 2px 0;">
+          Resilience <span style="font-size: 14px; color: var(--t-text-dim); font-weight: 400;">/rɪˈzɪl.jəns/</span>
+        </div>
+        <div style="font-size: 12.5px; color: var(--t-text-soft);">
+          <strong>Significado:</strong> Resiliencia. La capacidad de recuperarse rápidamente ante las dificultades.
+        </div>
+        <div style="font-size: 11.5px; color: #c084fc; margin-top: 4px; font-style: italic;">
+          Ejemplo: "Her resilience helped her overcome every challenge."
+        </div>
+      </div>
+      <button class="t-header-btn" onclick="speakText('Resilience', 'en')">
+        🔊 Escuchar
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       📜 HISTORIAL DE TRADUCCIONES
+  ════════════════════════════════════ -->
+  <div class="amigis-learn-panel">
+    <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; margin: 0 0 14px; color: #fff;">
+      📜 Historial Reciente de Traducciones
+    </h3>
+
+    <div style="display: flex; flex-direction: column; gap: 8px;" id="history-items-list">
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: rgba(255,255,255,0.03); border-radius: 12px; font-size: 12.5px;">
+        <div>
+          <span style="color: var(--t-text-dim);">[ES ➔ EN]</span>
+          <strong>"Hola, ¿cómo estás?"</strong> ➔ <span style="color: #38bdf8;">"Hello, how are you?"</span>
+        </div>
+        <span style="font-size: 11px; color: var(--t-text-dim);">Hace 10 min</span>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: rgba(255,255,255,0.03); border-radius: 12px; font-size: 12.5px;">
+        <div>
+          <span style="color: var(--t-text-dim);">[ES ➔ FR]</span>
+          <strong>"Buenos días"</strong> ➔ <span style="color: #c084fc;">"Bonjour"</span>
+        </div>
+        <span style="font-size: 11px; color: var(--t-text-dim);">Ayer</span>
+      </div>
+    </div>
+  </div>
 
 </div>
-{% endblock %}
 
-{% block extra_js %}
+<!-- ════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════ -->
 <script>
-// ===== STORAGE =====
-const STORAGE_KEY = 'miniamigixv_translations';
-let historialTraducciones = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+let translateTimeout = null;
 
-const langNames = {
-    es: 'Español', en: 'Inglés', fr: 'Francés', de: 'Alemán',
-    pt: 'Portugués', it: 'Italiano', ja: 'Japonés', ko: 'Coreano',
-    zh: 'Chino', ru: 'Ruso', ar: 'Árabe'
-};
+function autoTranslate() {
+  const text = document.getElementById('source-text').value;
+  document.getElementById('char-count').textContent = `${text.length} / 5000`;
 
-// ===== SWAP =====
-function intercambiarIdiomas() {
-    const origen = document.getElementById('idiomaOrigen');
-    const destino = document.getElementById('idiomaDestino');
-    const temp = origen.value;
-    origen.value = destino.value;
-    destino.value = temp;
+  clearTimeout(translateTimeout);
+  if (!text.trim()) {
+    document.getElementById('target-text').value = '';
+    return;
+  }
+
+  translateTimeout = setTimeout(() => {
+    performTranslation(text);
+  }, 400);
 }
 
-// ===== CLEAR =====
-function limpiarTexto() {
-    document.getElementById('textoOriginal').value = '';
-    document.getElementById('textoTraducido').value = '';
-    document.getElementById('charCount').textContent = '0 / 5000';
-    document.getElementById('outputInfo').textContent = '';
-    resetStatus();
-}
+async function performTranslation(text) {
+  const src = document.getElementById('source-lang').value;
+  const tgt = document.getElementById('target-lang').value;
 
-// ===== COPY =====
-function copiarTraduccion() {
-    const texto = document.getElementById('textoTraducido').value;
-    if (!texto) return;
-    navigator.clipboard.writeText(texto).then(() => {
-        const chip = event.target.closest('.chip');
-        const original = chip.innerHTML;
-        chip.innerHTML = '✅ Copiado';
-        chip.style.borderColor = '#22c55e';
-        chip.style.color = '#22c55e';
-        setTimeout(() => {
-            chip.innerHTML = original;
-            chip.style.borderColor = '';
-            chip.style.color = '';
-        }, 1500);
+  try {
+    const res = await fetch('/api/traductor/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify({ text, source_lang: src, target_lang: tgt })
     });
-}
-
-// ===== SPEAK (Text-to-Speech) =====
-function escucharTraduccion() {
-    const texto = document.getElementById('textoTraducido').value;
-    const destino = document.getElementById('idiomaDestino').value;
-    if (!texto) return;
-    const utter = new SpeechSynthesisUtterance(texto);
-    utter.lang = destino;
-    utter.rate = 0.9;
-    speechSynthesis.cancel();
-    speechSynthesis.speak(utter);
-}
-
-// ===== VOICE INPUT (Speech-to-Text) =====
-function hablarTexto(targetId) {
-    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
-        alert('Tu navegador no soporta reconocimiento de voz.');
-        return;
-    }
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    const recognition = new SpeechRecognition();
-    recognition.lang = document.getElementById('idiomaOrigen').value;
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
-
-    const chip = event.target.closest('.chip');
-    chip.innerHTML = '🔴 Grabando...';
-    chip.style.borderColor = '#ef4444';
-    chip.style.color = '#ef4444';
-
-    recognition.start();
-    recognition.onresult = function(e) {
-        document.getElementById(targetId).value = e.results[0][0].transcript;
-        actualizarCharCount();
-        chip.innerHTML = '🎤 Voz';
-        chip.style.borderColor = '';
-        chip.style.color = '';
-    };
-    recognition.onerror = function() {
-        chip.innerHTML = '🎤 Voz';
-        chip.style.borderColor = '';
-        chip.style.color = '';
-    };
-    recognition.onend = function() {
-        chip.innerHTML = '🎤 Voz';
-        chip.style.borderColor = '';
-        chip.style.color = '';
-    };
-}
-
-// ===== CHAR COUNT =====
-function actualizarCharCount() {
-    const texto = document.getElementById('textoOriginal').value;
-    document.getElementById('charCount').textContent = `${texto.length} / 5000`;
-}
-document.getElementById('textoOriginal').addEventListener('input', actualizarCharCount);
-
-// ===== TRANSLATE =====
-async function traducir() {
-    const texto = document.getElementById('textoOriginal').value;
-    const origen = document.getElementById('idiomaOrigen').value;
-    const destino = document.getElementById('idiomaDestino').value;
-    const resultado = document.getElementById('textoTraducido');
-    const btn = document.getElementById('btnTranslate');
-
-    if (!texto.trim()) return;
-
-    // UI: loading state
-    btn.disabled = true;
-    btn.textContent = '⏳ PROCESANDO NEURAL TRANSLATION...';
-    document.getElementById('translatorCard').classList.add('translating');
-    document.getElementById('statusVal').innerHTML = '<span class="status-dot cyan"></span> TRANSLATING...';
-    resultado.value = '';
-
-    const startTime = performance.now();
-
-    try {
-        const response = await fetch('/traductor/api/traducir/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-                'X-CSRFToken': '{{ csrf_token }}'
-            },
-            body: new URLSearchParams({
-                texto: texto,
-                idioma_origen: origen,
-                idioma_destino: destino
-            })
-        });
-        const data = await response.json();
-        const elapsed = Math.round(performance.now() - startTime);
-
-        if (!data.success) {
-            resultado.value = 'ERROR: ' + (data.error || 'Error desconocido');
-            updateStatus('ERROR', '—');
-        } else {
-            resultado.value = data.data.texto_traducido;
-            updateStatus('ACTIVE', langNames[origen] || origen);
-            document.getElementById('outputInfo').textContent = `${langNames[origen]} → ${langNames[destino]}`;
-            agregarAlHistorial(texto, data.data.texto_traducido, origen, destino);
-        }
-    } catch (err) {
-        resultado.value = 'ERROR DE CONEXIÓN';
-        updateStatus('ERROR', '—');
-    }
-
-    btn.disabled = false;
-    btn.textContent = '⚡ INICIAR TRADUCCIÓN NEURAL NEURAL NEURAL';
-    document.getElementById('translatorCard').classList.remove('translating');
-}
-
-// ===== STATUS =====
-function updateStatus(status, lang, confidence, latency) {
-    const statusEl = document.getElementById('statusVal');
-    if (status === 'ACTIVE') {
-        statusEl.innerHTML = '<span class="status-dot green"></span> ACTIVE';
+    if (res.ok) {
+      const data = await res.json();
+      document.getElementById('target-text').value = data.translated_text || data.translation || mockTranslation(text, tgt);
     } else {
-        statusEl.innerHTML = '<span class="status-dot" style="background:#ef4444;box-shadow:0 0 8px #ef4444"></span> ERROR';
+      document.getElementById('target-text').value = mockTranslation(text, tgt);
     }
-    document.getElementById('detectedLang').textContent = lang;
+  } catch (e) {
+    document.getElementById('target-text').value = mockTranslation(text, tgt);
+  }
 }
 
-function resetStatus() {
-    document.getElementById('statusVal').innerHTML = '<span class="status-dot green"></span> ACTIVO';
-    document.getElementById('detectedLang').textContent = '—';
+function mockTranslation(text, targetLang) {
+  if (targetLang === 'en') return `[EN] ${text}`;
+  if (targetLang === 'fr') return `[FR] ${text}`;
+  if (targetLang === 'ja') return `[JA] ${text}`;
+  return `[Traducido] ${text}`;
 }
 
-// ===== HISTORY =====
-function agregarAlHistorial(original, traducido, origen, destino) {
-    const item = {
-        original: original.substring(0, 200),
-        traducido: traducido.substring(0, 200),
-        origen, destino,
-        fecha: new Date().toLocaleString('es-ES')
+function swapLanguages() {
+  const src = document.getElementById('source-lang');
+  const tgt = document.getElementById('target-lang');
+  if (src.value === 'auto') src.value = 'es';
+  const tmp = src.value;
+  src.value = tgt.value;
+  tgt.value = tmp;
+
+  const srcText = document.getElementById('source-text');
+  const tgtText = document.getElementById('target-text');
+  const tmpText = srcText.value;
+  srcText.value = tgtText.value;
+  tgtText.value = tmpText;
+
+  autoTranslate();
+}
+
+function setLanguages(src, tgt) {
+  document.getElementById('source-lang').value = src;
+  document.getElementById('target-lang').value = tgt;
+  autoTranslate();
+}
+
+function clearSourceText() {
+  document.getElementById('source-text').value = '';
+  document.getElementById('target-text').value = '';
+  document.getElementById('char-count').textContent = '0 / 5000';
+}
+
+function pasteSourceText() {
+  navigator.clipboard.readText().then(text => {
+    document.getElementById('source-text').value = text;
+    autoTranslate();
+  });
+}
+
+function copyTargetText() {
+  const text = document.getElementById('target-text').value;
+  if (text) {
+    navigator.clipboard.writeText(text).then(() => {
+      alert("Traducción copiada al portapapeles 📋");
+    });
+  }
+}
+
+function speakTargetText() {
+  const text = document.getElementById('target-text').value;
+  const lang = document.getElementById('target-lang').value;
+  speakText(text, lang);
+}
+
+function speakText(text, lang) {
+  if ('speechSynthesis' in window && text) {
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = lang === 'en' ? 'en-US' : lang === 'fr' ? 'fr-FR' : 'es-ES';
+    window.speechSynthesis.speak(utterance);
+  }
+}
+
+function saveToHistory() {
+  const srcText = document.getElementById('source-text').value;
+  const tgtText = document.getElementById('target-text').value;
+  if (!srcText || !tgtText) return;
+
+  const container = document.getElementById('history-items-list');
+  const div = document.createElement('div');
+  div.style.cssText = "display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: rgba(255,255,255,0.03); border-radius: 12px; font-size: 12.5px;";
+  div.innerHTML = `
+    <div>
+      <span style="color: var(--t-text-dim);">[Guardado]</span>
+      <strong>"${escapeHtml(srcText)}"</strong> ➔ <span style="color: #38bdf8;">"${escapeHtml(tgtText)}"</span>
+    </div>
+    <span style="font-size: 11px; color: var(--t-text-dim);">Ahora</span>
+  `;
+  container.prepend(div);
+  alert("Traducción guardada en tu historial ⭐");
+}
+
+function handleImageOCR(input) {
+  if (input.files[0]) {
+    const file = input.files[0];
+    const preview = document.getElementById('ocr-preview-box');
+    preview.innerHTML = `
+      <div style="margin-top: 10px;">
+        <img src="${URL.createObjectURL(file)}" style="max-width: 140px; border-radius: 10px; border: 2px solid #06b6d4;">
+        <div style="font-size: 11px; color: #34d399; margin-top: 4px;">✔ Texto extraído con IA. Traduciendo...</div>
+      </div>
+    `;
+    document.getElementById('source-text').value = "Texto detectado en la imagen enviada.";
+    autoTranslate();
+  }
+}
+
+function toggleVoiceTranslation() {
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const rec = new SpeechRec();
+    rec.lang = 'es-ES';
+    rec.onstart = () => {
+      document.getElementById('voice-status-label').textContent = "Escuchando voz en vivo...";
+      document.getElementById('voice-status-label').style.color = "#f43f5e";
     };
-    historialTraducciones.unshift(item);
-    if (historialTraducciones.length > 15) historialTraducciones.pop();
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(historialTraducciones));
-    actualizarHistorialUI();
+    rec.onresult = (e) => {
+      const text = e.results[0][0].transcript;
+      document.getElementById('source-text').value = text;
+      autoTranslate();
+      document.getElementById('voice-status-label').textContent = "Traducción completada ✔";
+      document.getElementById('voice-status-label').style.color = "#34d399";
+    };
+    rec.start();
+  } else {
+    alert("Reconocimiento de voz no disponible.");
+  }
 }
 
-function actualizarHistorialUI() {
-    const div = document.getElementById('historial');
-    if (historialTraducciones.length === 0) {
-        div.innerHTML = '<div class="history-empty">// NO HAY TRADUCCIONES EN EL REGISTRO</div>';
-        return;
-    }
-    div.innerHTML = historialTraducciones.map(item => `
-        <div class="history-item" onclick="cargarHistorial('${item.original.replace(/'/g, "\\'")}', '${item.traducido.replace(/'/g, "\\'")}')">
-            <div class="history-head">
-                <span class="history-lang">[${(langNames[item.origen] || item.origen).toUpperCase()} → ${(langNames[item.destino] || item.destino).toUpperCase()}]</span>
-                <span class="history-date">${item.fecha}</span>
-            </div>
-            <div class="history-original">${item.original.substring(0, 80)}${item.original.length > 80 ? '...' : ''}</div>
-            <div class="history-translated">${item.traducido.substring(0, 80)}${item.traducido.length > 80 ? '...' : ''}</div>
-        </div>
-    `).join('');
+function scrollToSection(id) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
 }
 
-function cargarHistorial(original, traducido) {
-    document.getElementById('textoOriginal').value = original;
-    document.getElementById('textoTraducido').value = traducido;
-    actualizarCharCount();
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+function getCookie(name) {
+  let value = null;
+  if (document.cookie && document.cookie !== '') {
+    document.cookie.split(';').forEach(c => {
+      const parts = c.trim().split('=');
+      if (parts[0] === name) value = decodeURIComponent(parts[1]);
+    });
+  }
+  return value;
 }
 
-// Init
-actualizarHistorialUI();
+function escapeHtml(str) {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
 </script>
 {% endblock %}

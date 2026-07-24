@@ -1,0 +1,291 @@
+/* =====================================================
+   MINIAMIGIXV — SMART FILE HUB v3.0
+   Glassmorphism · AI Document Tools · Cloud Storage
+   ===================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Sora:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --ar-cyan:     #06b6d4;
+  --ar-purple:   #7c3aed;
+  --ar-purple-l: #c084fc;
+  --ar-emerald:  #10b981;
+  --ar-amber:    #f59e0b;
+  --ar-rose:     #f43f5e;
+  --ar-glass:    rgba(255, 255, 255, 0.06);
+  --ar-glass-hov:rgba(255, 255, 255, 0.10);
+  --ar-border:   rgba(255, 255, 255, 0.14);
+  --ar-border-glow: rgba(6, 182, 212, 0.40);
+  --ar-text-bright: #f8fafc;
+  --ar-text-soft: rgba(255, 255, 255, 0.75);
+  --ar-text-dim: rgba(255, 255, 255, 0.45);
+  --ar-radius:   22px;
+}
+
+.archivos-page-container {
+  padding: 10px 0 40px;
+  font-family: 'Sora', system-ui, sans-serif;
+  color: var(--ar-text-bright);
+}
+
+/* ── Header ── */
+.archivos-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding: 16px 24px;
+  background: var(--ar-glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--ar-border);
+  border-radius: var(--ar-radius);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+.archivos-header-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.archivos-header-title h1 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 24px;
+  font-weight: 800;
+  margin: 0;
+  background: linear-gradient(90deg, #ffffff, #38bdf8, #c084fc);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.archivos-header-title p {
+  margin: 0;
+  font-size: 12px;
+  color: var(--ar-text-dim);
+}
+
+.archivos-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.a-header-btn {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--ar-text-soft);
+  padding: 8px 14px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+.a-header-btn:hover {
+  background: rgba(6, 182, 212, 0.25);
+  border-color: rgba(6, 182, 212, 0.4);
+  color: #fff;
+  transform: translateY(-2px);
+}
+.a-header-btn-primary {
+  background: linear-gradient(135deg, #06b6d4, #7c3aed);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(6,182,212,0.35);
+}
+.a-header-btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(6,182,212,0.50);
+}
+
+/* ── Amigis Smart Assistant Banner ── */
+.amigis-files-banner {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.20), rgba(124, 58, 237, 0.15));
+  border: 1px solid rgba(6, 182, 212, 0.35);
+  border-radius: var(--ar-radius);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.amigis-files-duck {
+  width: 50px;
+  height: 50px;
+  flex-shrink: 0;
+}
+.amigis-files-duck img {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 4px 10px rgba(6,182,212,0.4));
+}
+.amigis-files-text {
+  font-size: 13px;
+  color: #fff;
+}
+
+/* ── Drag and Drop Zone ── */
+.drop-upload-zone {
+  border: 2px dashed rgba(6, 182, 212, 0.4);
+  background: rgba(6, 182, 212, 0.04);
+  backdrop-filter: blur(16px);
+  border-radius: var(--ar-radius);
+  padding: 24px;
+  text-align: center;
+  margin-bottom: 24px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.drop-upload-zone:hover, .drop-upload-zone.dragover {
+  border-color: #38bdf8;
+  background: rgba(6, 182, 212, 0.12);
+  transform: scale(1.01);
+}
+
+/* ── Folders Grid ── */
+.folders-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.folder-card-item {
+  background: var(--ar-glass);
+  backdrop-filter: blur(16px);
+  border: 1px solid var(--ar-border);
+  border-radius: 18px;
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.folder-card-item:hover {
+  background: rgba(6, 182, 212, 0.25);
+  border-color: rgba(6, 182, 212, 0.5);
+  transform: translateY(-4px);
+}
+.folder-icon {
+  font-size: 32px;
+  margin-bottom: 6px;
+}
+.folder-name {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #fff;
+}
+.folder-count {
+  font-size: 10.5px;
+  color: var(--ar-text-dim);
+  margin-top: 2px;
+}
+
+/* ── Main Split Grid ── */
+.archivos-main-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 1024px) {
+  .archivos-main-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Recent Files Panel ── */
+.files-panel-box {
+  background: var(--ar-glass);
+  backdrop-filter: blur(20px);
+  border: 1px solid var(--ar-border);
+  border-radius: var(--ar-radius);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.file-row-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.05);
+  border-radius: 14px;
+  margin-bottom: 8px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.file-row-item:hover {
+  background: rgba(255,255,255,0.08);
+  border-color: var(--ar-border-glow);
+  transform: translateX(4px);
+}
+
+.file-info-flex {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.file-type-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(255,255,255,0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+.file-name-text {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+}
+.file-meta-text {
+  font-size: 11px;
+  color: var(--ar-text-dim);
+}
+
+/* Storage Card */
+.storage-card-box {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(124, 58, 237, 0.2));
+  border: 1px solid rgba(6, 182, 212, 0.3);
+  border-radius: var(--ar-radius);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.storage-progress-bar {
+  height: 8px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 10px 0;
+}
+.storage-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #38bdf8, #c084fc);
+  width: 56.6%;
+  border-radius: 8px;
+}
+
+/* AI Smart Tools Grid */
+.ai-tools-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+.ai-tool-card {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.ai-tool-card:hover {
+  background: rgba(6, 182, 212, 0.2);
+  border-color: rgba(6, 182, 212, 0.4);
+  transform: translateY(-2px);
+}

@@ -56,7 +56,10 @@ urlpatterns = [
 
     path('juegos/', views.juegos, name='juegos'),
 
+    path('archivos/', views.archivos, name='archivos'),
+
     path('api/guardar-puntuacion/', views.guardar_puntuacion, name='guardar_puntuacion'),
+
 
     path('traductor/', include('traductor.urls')),
 

@@ -1,111 +1,294 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Inicio - MiniAmigixV{% endblock %}
+{% block title %}Dashboard — MiniAmigixV{% endblock %}
+{% block nav_title %}Dashboard{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/bento-home.css' %}?v=5">
+<link rel="stylesheet" href="{% static 'css/pages/bento-home.css' %}?v=40">
 {% endblock %}
 
 {% block content %}
 <div class="home-dashboard-wrapper fadein">
+  {% csrf_token %}
 
-  <!-- HERO CARD -->
-  <div class="hero-card">
-    <h1>Hola, <u style="text-decoration-color:#5fe0ff;">@{{ user.username|default:"maria45889" }}</u></h1>
-    <p>Tu espacio personal con inteligencia artificial, música, eventos y mucho más.</p>
-    <div class="hero-actions">
-      <a href="{% url 'chat' %}" class="hero-btn primary">💬 Hablar con la IA</a>
-      <a href="{% url 'tutorial_home' %}" class="hero-btn ghost">Ver tutoriales →</a>
+  <!-- ════════════════════════════════════
+       HEADER BAR
+  ════════════════════════════════════ -->
+  <div class="db-header-bar">
+    <div class="db-header-title">
+      <span style="font-size: 26px;">📊</span>
+      <div>
+        <h1>Dashboard General</h1>
+        <p>Bienvenido de nuevo, {{ user.username|default:"María José" }}. Aquí está el resumen de tu actividad.</p>
+      </div>
     </div>
-    
-    <!-- 3D ROBOT MASCOT SVG -->
-    <svg class="hero-mascot-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="botGrad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="#c084fc"/>
-          <stop offset="50%" stop-color="#818cf8"/>
-          <stop offset="100%" stop-color="#38bdf8"/>
-        </linearGradient>
-        <linearGradient id="eyeGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#5fe0ff"/>
-          <stop offset="100%" stop-color="#0284c7"/>
-        </linearGradient>
-      </defs>
-      <!-- Antenna -->
-      <rect x="47" y="12" width="6" height="16" rx="3" fill="url(#botGrad)"/>
-      <circle cx="50" cy="10" r="5" fill="#ff5fd0"/>
-      <circle cx="50" cy="10" r="2.5" fill="#fff"/>
-      <!-- Head -->
-      <rect x="22" y="26" width="56" height="48" rx="16" fill="url(#botGrad)"/>
-      <!-- Ears -->
-      <rect x="14" y="38" width="8" height="24" rx="4" fill="#6d35e3"/>
-      <rect x="78" y="38" width="8" height="24" rx="4" fill="#6d35e3"/>
-      <!-- Face Screen -->
-      <rect x="28" y="34" width="44" height="32" rx="10" fill="#0c0915"/>
-      <!-- Eyes -->
-      <rect x="34" y="42" width="12" height="14" rx="4" fill="url(#eyeGrad)"/>
-      <rect x="54" y="42" width="12" height="14" rx="4" fill="url(#eyeGrad)"/>
-      <circle cx="38" cy="46" r="2" fill="#fff"/>
-      <circle cx="58" cy="46" r="2" fill="#fff"/>
-      <!-- Mouth -->
-      <rect x="42" y="58" width="16" height="3" rx="1.5" fill="#5fe0ff"/>
-    </svg>
+
+    <div class="db-header-actions">
+      <a href="{% url 'notificaciones_lista' %}" class="db-header-btn" title="Notificaciones">
+        🔔 Notificaciones
+      </a>
+      <a href="{% url 'perfil' %}" class="db-header-btn" title="Perfil">
+        👤 Perfil
+      </a>
+      <a href="{% url 'configuracion_view' %}" class="db-header-btn" title="Configuración">
+        ⚙️ Ajustes
+      </a>
+    </div>
   </div>
 
-  <!-- FEATURE GRID (2 COLUMNS × 3 ROWS) -->
-  <div class="feature-grid">
-    <!-- Row 1 -->
-    <a href="{% url 'chat' %}" class="feature-card card-chat">
-      <div class="f-icon">💬</div>
-      <div>
-        <h3>Chat IA</h3>
-        <p>Asistente virtual para resolver dudas y tareas</p>
+  <!-- ════════════════════════════════════
+       🦆 AMIGIS GREETING BANNER
+  ════════════════════════════════════ -->
+  <div class="amigis-dashboard-banner">
+    <div class="amigis-db-duck">
+      <img src="{% static 'amigis/amigis-dark.svg' %}" id="amigis-db-duck-img" alt="Amigis Dashboard">
+    </div>
+    <div style="flex: 1;">
+      <div style="font-size: 11px; font-weight: 700; color: #c084fc; text-transform: uppercase; letter-spacing: 0.5px;">
+        ASISTENTE INTELIGENTE AMIGIS 🦆
       </div>
+      <div style="font-size: 14px; font-weight: 700; color: #fff; margin-top: 2px;" id="amigis-speech-bubble">
+        "¡Bienvenida! Hoy tienes 2 eventos programados y 1 tutorial pendiente. ¿En qué trabajamos primero?"
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       📈 RESUMEN (8 METRIC CARDS)
+  ════════════════════════════════════ -->
+  <div class="db-metrics-grid">
+    <div class="db-metric-card">
+      <div class="db-mc-icon">💬</div>
+      <div class="db-mc-val">124</div>
+      <div class="db-mc-lbl">Chats IA</div>
+    </div>
+
+    <div class="db-metric-card">
+      <div class="db-mc-icon">📚</div>
+      <div class="db-mc-val">12</div>
+      <div class="db-mc-lbl">Cursos</div>
+    </div>
+
+    <div class="db-metric-card">
+      <div class="db-mc-icon">🎵</div>
+      <div class="db-mc-val">36h</div>
+      <div class="db-mc-lbl">Música</div>
+    </div>
+
+    <div class="db-metric-card">
+      <div class="db-mc-icon">🎮</div>
+      <div class="db-mc-val">45</div>
+      <div class="db-mc-lbl">Juegos</div>
+    </div>
+
+    <div class="db-metric-card">
+      <div class="db-mc-icon">🌎</div>
+      <div class="db-mc-val">89</div>
+      <div class="db-mc-lbl">Traducciones</div>
+    </div>
+
+    <div class="db-metric-card">
+      <div class="db-mc-icon">📁</div>
+      <div class="db-mc-val">14</div>
+      <div class="db-mc-lbl">Archivos</div>
+    </div>
+
+    <div class="db-metric-card">
+      <div class="db-mc-icon">🔥</div>
+      <div class="db-mc-val">18</div>
+      <div class="db-mc-lbl">Días Racha</div>
+    </div>
+
+    <div class="db-metric-card">
+      <div class="db-mc-icon">⭐</div>
+      <div class="db-mc-val">Nv. 35</div>
+      <div class="db-mc-lbl">Nivel Actual</div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       ⚡ ACCESOS RÁPIDOS (6 BUTTONS)
+  ════════════════════════════════════ -->
+  <div class="quick-actions-bar">
+    <a href="{% url 'chat' %}" class="quick-action-btn">
+      <span style="font-size: 20px;">💬</span>
+      <span>Nuevo Chat</span>
     </a>
 
-    <a href="{% url 'musica' %}" class="feature-card card-music">
-      <div class="f-icon">🎧</div>
-      <div>
-        <h3>Música</h3>
-        <p>Reproductor con tu biblioteca personal</p>
-      </div>
+    <a href="{% url 'estudio' %}" class="quick-action-btn">
+      <span style="font-size: 20px;">📚</span>
+      <span>Continuar Curso</span>
     </a>
 
-    <!-- Row 2 -->
-    <a href="{% url 'juegos' %}" class="feature-card card-games">
-      <div class="f-icon">🎮</div>
-      <div>
-        <h3>Juegos</h3>
-        <p>Entretenimiento educativo y desafíos</p>
-      </div>
+    <a href="{% url 'musica' %}" class="quick-action-btn">
+      <span style="font-size: 20px;">🎵</span>
+      <span>Reproducir Música</span>
     </a>
 
-    <a href="{% url 'eventos' %}" class="feature-card card-events">
-      <div class="f-icon">📅</div>
-      <div>
-        <h3>Eventos</h3>
-        <p>Organiza y visualiza tus compromisos</p>
-      </div>
+    <a href="{% url 'traductor' %}" class="quick-action-btn">
+      <span style="font-size: 20px;">🌎</span>
+      <span>Traducir</span>
     </a>
 
-    <!-- Row 3 -->
-    <a href="{% url 'clima' %}" class="feature-card card-weather">
-      <div class="f-icon">☀️</div>
-      <div>
-        <h3>Clima</h3>
-        <p>Pronóstico en tiempo real de tu ciudad</p>
-      </div>
+    <a href="{% url 'lista_eventos' %}" class="quick-action-btn">
+      <span style="font-size: 20px;">📅</span>
+      <span>Crear Evento</span>
     </a>
 
-    <a href="{% url 'traductor' %}" class="feature-card card-translate">
-      <div class="f-icon">🌐</div>
-      <div>
-        <h3>Traductor</h3>
-        <p>Traducción instantánea entre idiomas</p>
-      </div>
+    <a href="{% url 'archivos' %}" class="quick-action-btn">
+      <span style="font-size: 20px;">📁</span>
+      <span>Abrir Archivos</span>
     </a>
   </div>
 
+  <!-- ════════════════════════════════════
+       MAIN SPLIT GRID
+  ════════════════════════════════════ -->
+  <div class="db-main-grid">
+
+    <!-- ── LEFT COLUMN (Charts & Goals) ── -->
+    <div>
+
+      <!-- 📈 Actividad Semanal (Gráfica) -->
+      <div class="db-panel-box">
+        <h3 class="db-panel-title">
+          <i class="ti ti-chart-bar" style="color: #c084fc;"></i> Actividad Semanal de Uso
+        </h3>
+
+        <div class="chart-bar-container">
+          <div class="chart-column">
+            <div class="chart-bar-fill" style="height: 60%;"></div>
+            <span style="font-size: 11px; color: var(--db-text-dim);">Lun</span>
+          </div>
+
+          <div class="chart-column">
+            <div class="chart-bar-fill" style="height: 85%;"></div>
+            <span style="font-size: 11px; color: var(--db-text-dim);">Mar</span>
+          </div>
+
+          <div class="chart-column">
+            <div class="chart-bar-fill" style="height: 45%;"></div>
+            <span style="font-size: 11px; color: var(--db-text-dim);">Mié</span>
+          </div>
+
+          <div class="chart-column">
+            <div class="chart-bar-fill" style="height: 90%;"></div>
+            <span style="font-size: 11px; color: var(--db-text-dim);">Jue</span>
+          </div>
+
+          <div class="chart-column">
+            <div class="chart-bar-fill" style="height: 75%;"></div>
+            <span style="font-size: 11px; color: var(--db-text-dim);">Vie</span>
+          </div>
+
+          <div class="chart-column">
+            <div class="chart-bar-fill" style="height: 50%;"></div>
+            <span style="font-size: 11px; color: var(--db-text-dim);">Sáb</span>
+          </div>
+
+          <div class="chart-column">
+            <div class="chart-bar-fill" style="height: 65%;"></div>
+            <span style="font-size: 11px; color: var(--db-text-dim);">Dom</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 🎯 Objetivos (Meta Semanal) -->
+      <div class="db-panel-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <h3 class="db-panel-title" style="margin: 0;">
+            <i class="ti ti-target" style="color: #10b981;"></i> Objetivos & Meta Semanal
+          </h3>
+          <span style="font-size: 13px; font-weight: 800; color: #10b981;">80% Completado</span>
+        </div>
+
+        <div class="goal-progress-wrap">
+          <div class="goal-progress-fill"></div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: var(--db-text-soft); margin-top: 12px;">
+          <div style="display: flex; justify-content: space-between;">
+            <span>📚 Estudiar 5 horas</span>
+            <span style="color: #34d399; font-weight: 700;">4 / 5 hrs</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span>🎵 Escuchar 10 canciones</span>
+            <span style="color: #34d399; font-weight: 700;">10 / 10 ✔</span>
+          </div>
+          <div style="display: flex; justify-content: space-between;">
+            <span>💬 Conversar con Amigis IA</span>
+            <span style="color: #34d399; font-weight: 700;">Completado ✔</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── RIGHT COLUMN (Recent Activity Timeline) ── -->
+    <div>
+
+      <!-- 📅 Actividad Reciente -->
+      <div class="db-panel-box">
+        <h3 class="db-panel-title">
+          <i class="ti ti-history" style="color: #38bdf8;"></i> Actividad de Hoy
+        </h3>
+
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+
+          <div class="timeline-row">
+            <span class="tl-time">09:00</span>
+            <div>
+              <div style="font-weight: 700; color: #fff;">💬 Conversación con IA</div>
+              <div style="font-size: 11px; color: var(--db-text-dim);">Consulta sobre APIs en Django</div>
+            </div>
+          </div>
+
+          <div class="timeline-row">
+            <span class="tl-time">10:30</span>
+            <div>
+              <div style="font-weight: 700; color: #fff;">📚 Tutorial Terminado</div>
+              <div style="font-size: 11px; color: var(--db-text-dim);">HTML5 & CSS3 Moderno (+60 XP)</div>
+            </div>
+          </div>
+
+          <div class="timeline-row">
+            <span class="tl-time">11:20</span>
+            <div>
+              <div style="font-weight: 700; color: #fff;">🎵 Escuchaste Música</div>
+              <div style="font-size: 11px; color: var(--db-text-dim);">Playlist "Lo-Fi para Estudiar"</div>
+            </div>
+          </div>
+
+          <div class="timeline-row">
+            <span class="tl-time">13:00</span>
+            <div>
+              <div style="font-weight: 700; color: #fff;">🌎 Traductor Utilizado</div>
+              <div style="font-size: 11px; color: var(--db-text-dim);">Traducción Español ➔ Inglés</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
 </div>
+
+<!-- ════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════ -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  updateDuckTheme();
+});
+
+function updateDuckTheme() {
+  const isDark = document.body.classList.contains('dark') || !document.body.classList.contains('light');
+  const src = isDark ? "{% static 'amigis/amigis-dark.svg' %}" : "{% static 'amigis/amigis-light.svg' %}";
+  const duckImg = document.getElementById('amigis-db-duck-img');
+  if (duckImg) duckImg.src = src;
+}
+</script>
 {% endblock %}

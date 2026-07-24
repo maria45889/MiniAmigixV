@@ -1,1564 +1,480 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Juegos{% endblock %}
+{% block title %}Juegos — MiniAmigixV{% endblock %}
+{% block nav_title %}Juegos{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/juegos.css' %}?v=6">
-<style>
-/* Gradient Background */
-.games-page-background {
-    background: 
-        radial-gradient(circle at top, rgba(59, 130, 246, 0.13), transparent 35%),
-        radial-gradient(circle at bottom, rgba(147, 51, 234, 0.13), transparent 30%),
-        #09090f;
-    min-height: 100vh;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-}
-
-.games-page-background .dashboard {
-    width: 100%;
-    max-width: 1400px;
-}
-
-body.light .games-page-background {
-    background: 
-        radial-gradient(circle at top, rgba(59, 130, 246, 0.08), transparent 35%),
-        radial-gradient(circle at bottom, rgba(147, 51, 234, 0.08), transparent 30%),
-        #f8fafc;
-}
-.toast-container {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 10000;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.toast {
-    background: rgba(0, 0, 0, 0.85);
-    border: 1px solid rgba(168, 85, 247, 0.5);
-    border-radius: 8px;
-    padding: 16px 20px;
-    color: #fff;
-    font-size: 0.95rem;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(10px);
-    animation: slideIn 0.3s ease-out;
-    max-width: 350px;
-}
-
-.toast.success {
-    border-color: rgba(34, 197, 94, 0.5);
-    background: rgba(0, 0, 0, 0.85);
-}
-
-.toast.error {
-    border-color: rgba(239, 68, 68, 0.5);
-    background: rgba(0, 0, 0, 0.85);
-}
-
-.toast.info {
-    border-color: rgba(59, 130, 246, 0.5);
-    background: rgba(0, 0, 0, 0.85);
-}
-
-@keyframes slideIn {
-    from {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-
-@keyframes slideOut {
-    from {
-        transform: translateX(0);
-        opacity: 1;
-    }
-    to {
-        transform: translateX(100%);
-        opacity: 0;
-    }
-}
-</style>
+<link rel="stylesheet" href="{% static 'css/pages/juegos.css' %}?v=40">
 {% endblock %}
 
 {% block content %}
-<style>
-    :root {
-        --accent:         #ef4444;
-        --accent-light:   #f87171;
-        --accent-dark:    #b91c1c;
-        --bg:            #0a0a0f;
-        --surface:       rgba(255,255,255,0.04);
-        --surface-hov:   rgba(255,255,255,0.07);
-        --border:        rgba(255,255,255,0.1);
-        --border-hov:    #ef444450;
-        --text:          #f1f5f9;
-        --muted:         #94a3b8;
-        --radius:        24px;
-        --shadow-accent: 0 0 40px #ef444430;
-        --glow:          0 0 18px #ef444480;
-    }
+<div class="games-page-container fadein">
+  {% csrf_token %}
 
-    .juegos-page * { box-sizing: border-box; }
-    .juegos-page {
-        min-height: 100vh;
-        background: var(--bg);
-        color: var(--text);
-        font-family: 'Inter', system-ui, sans-serif;
-        padding-bottom: 40px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .juegos-orb {
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(80px);
-        pointer-events: none;
-        z-index: 0;
-    }
-    .juegos-orb-1 {
-        width: 400px; height: 400px;
-        background: radial-gradient(circle, #ef444433 0%, transparent 70%);
-        top: -100px; left: -100px;
-        animation: orbFloat1 10s ease-in-out infinite;
-    }
-    .juegos-orb-2 {
-        width: 350px; height: 350px;
-        background: radial-gradient(circle, #f8717126 0%, transparent 70%);
-        bottom: -50px; right: -50px;
-        animation: orbFloat2 12s ease-in-out infinite;
-    }
-
-    @keyframes orbFloat1 {
-        0%,100% { transform: translate(0,0) scale(1); }
-        50%      { transform: translate(40px,40px) scale(1.1); }
-    }
-    @keyframes orbFloat2 {
-        0%,100% { transform: translate(0,0) scale(1); }
-        50%      { transform: translate(-40px,-40px) scale(0.9); }
-    }
-    @keyframes fadeSlideUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .juegos-hero {
-        position: relative;
-        z-index: 1;
-        text-align: center;
-        padding: 40px 20px 20px;
-        animation: fadeSlideUp 0.5s ease both;
-    }
-    .juegos-hero h1 {
-        font-size: 2.5rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, #fff 30%, var(--accent-light) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin: 10px 0 5px;
-    }
-    .juegos-hero p { color: var(--muted); margin: 0; }
-
-    /* Glassmorphism Overrides */
-    .juegos-page > div:not(.juegos-hero):not(.juegos-orb) {
-        position: relative;
-        z-index: 1;
-        animation: fadeSlideUp 0.5s 0.2s ease both;
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 0 20px;
-    }
-    
-    .games-hero-banner, .translator-header, .movies-header, .stats-cards, .games-grid, .ticket-list, .translator-layout {
-        background: var(--surface) !important;
-        border: 1px solid var(--border) !important;
-        border-radius: var(--radius) !important;
-        backdrop-filter: blur(20px) !important;
-        box-shadow: var(--shadow-accent) !important;
-        margin-bottom: 24px;
-        transition: transform 0.3s, box-shadow 0.3s;
-    }
-    
-    .game-card, .movie-card, .series-card, .ticket-card, .translator-box {
-        background: rgba(0,0,0,0.2) !important;
-        border: 1px solid rgba(255,255,255,0.05) !important;
-        border-radius: 16px !important;
-        transition: all 0.3s;
-    }
-    
-    .game-card:hover, .movie-card:hover, .series-card:hover, .ticket-card:hover {
-        border-color: var(--accent) !important;
-        background: #ef44440D !important;
-        transform: translateY(-4px) !important;
-    }
-    
-    .hero-continue-btn, .btn-primary, .translate-btn {
-        background: linear-gradient(135deg, var(--accent), var(--accent-light)) !important;
-        color: #fff !important;
-        border: none !important;
-        box-shadow: var(--glow) !important;
-        border-radius: 12px !important;
-        font-weight: 700 !important;
-    }
-</style>
-<div class="juegos-page">
-    <div class="juegos-orb juegos-orb-1"></div>
-    <div class="juegos-orb juegos-orb-2"></div>
-    <div class="juegos-hero">
-        <span style="font-size:3rem;">🎮</span>
-        <h1>Juegos Arena</h1>
-        <p>Pon a prueba tu mente y diviértete con nuestros mini-juegos.</p>
-    </div>
-    <div class="games-page-background">
-    <div class="dashboard">
-        <!-- Hero Banner with Stats -->
-        <div class="games-hero-banner">
-            <div class="hero-content">
-                <h1 class="hero-title">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-device-gamepad-2" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 12px;">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M12 5h-3.5a5 5 0 0 0 -5 5v3a5 5 0 0 0 5 5h7a5 5 0 0 0 5 -5v-3a5 5 0 0 0 -5 -5h-3.5"></path>
-                        <path d="M14 15l4 -4"></path>
-                        <path d="M15 14l-4 -4"></path>
-                    </svg>
-                    Juegos Arena
-                </h1>
-                <p class="hero-subtitle">Pon a prueba tu mente, velocidad y memoria</p>
-                
-                <div class="hero-stats">
-                    <div class="hero-stat">
-                        <span class="hero-stat-icon">🎮</span>
-                        <span class="hero-stat-value">{{ juegos|length }}</span>
-                        <span class="hero-stat-label">Juegos</span>
-                    </div>
-                    <div class="hero-stat">
-                        <span class="hero-stat-icon">🏆</span>
-                        <span class="hero-stat-value">{{ mejor_puntuacion|default:0 }}</span>
-                        <span class="hero-stat-label">Mejor puntuación</span>
-                    </div>
-                    <div class="hero-stat">
-                        <span class="hero-stat-icon">🔥</span>
-                        <span class="hero-stat-value">{{ partidas_hoy|default:0 }}</span>
-                        <span class="hero-stat-label">Jugados hoy</span>
-                    </div>
-                </div>
-                
-                {% if ultimo_juego %}
-                <button class="hero-continue-btn" onclick="iniciarJuego('{{ ultimo_juego.tipo }}')">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 8px;">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M5 12l14 0"></path>
-                        <path d="M13 18l6 -6l-6 -6"></path>
-                    </svg>
-                    Continuar jugando
-                </button>
-                {% endif %}
-            </div>
-        </div>
-
-        <!-- Statistics Cards -->
-        <div class="stats-cards">
-            <div class="stat-card">
-                <span class="stat-icon">🎮</span>
-                <span class="stat-label">Juegos</span>
-                <span class="stat-value">{{ juegos|length }}</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-icon">🏆</span>
-                <span class="stat-label">Récord</span>
-                <span class="stat-value">{{ mejor_puntuacion|default:0 }}</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-icon">🔥</span>
-                <span class="stat-label">Hoy</span>
-                <span class="stat-value">{{ partidas_hoy|default:0 }} partidas</span>
-            </div>
-            <div class="stat-card">
-                <span class="stat-icon">⏱</span>
-                <span class="stat-label">Tiempo</span>
-                <span class="stat-value">{{ tiempo_total|default:"0 min" }}</span>
-            </div>
-        </div>
-
-        <!-- Search and Filters -->
-        <div class="search-filters-section">
-            <div class="search-container">
-                <svg xmlns="http://www.w3.org/2000/svg" class="search-icon" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path>
-                    <path d="M21 21l-6 -6"></path>
-                </svg>
-                <input type="text" class="search-input" id="game-search" placeholder="Buscar juego..." onkeyup="filterGames()">
-            </div>
-            
-            <div class="category-filters">
-                <button class="filter-btn active" data-category="all" onclick="filterByCategory('all')">
-                    Todos
-                </button>
-                <button class="filter-btn" data-category="inteligencia" onclick="filterByCategory('inteligencia')">
-                    🧠 Inteligencia
-                </button>
-                <button class="filter-btn" data-category="velocidad" onclick="filterByCategory('velocidad')">
-                    ⚡ Velocidad
-                </button>
-                <button class="filter-btn" data-category="precision" onclick="filterByCategory('precision')">
-                    🎯 Precisión
-                </button>
-                <button class="filter-btn" data-category="estrategia" onclick="filterByCategory('estrategia')">
-                    ♟ Estrategia
-                </button>
-                <button class="filter-btn" data-category="relax" onclick="filterByCategory('relax')">
-                    😌 Relax
-                </button>
-            </div>
-        </div>
-
-        <!-- Continue Where You Left Off -->
-        {% if ultimo_juego %}
-        <div class="continue-section">
-            <h3 class="section-title">Continúa donde quedaste</h3>
-            <div class="continue-card">
-                <div class="continue-icon">{{ ultimo_juego.icono|default:"🎮" }}</div>
-                <div class="continue-info">
-                    <h4>{{ ultimo_juego.nombre }}</h4>
-                    <p>Nivel {{ ultimo_juego.nivel|default:1 }}</p>
-                </div>
-                <button class="continue-btn" onclick="iniciarJuego('{{ ultimo_juego.tipo }}')">
-                    Continuar
-                </button>
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- Featured Games Carousel -->
-        <div class="featured-section">
-            <h3 class="section-title">🔥 Destacados</h3>
-            <div class="featured-carousel">
-                <div class="featured-card" data-category="retro">
-                    <div class="featured-badge">Nuevo</div>
-                    <div class="featured-icon">🐍</div>
-                    <h4>Snake Neo</h4>
-                    <p>El clásico juego de la serpiente</p>
-                    <button class="featured-play-btn" onclick="iniciarJuegoSnake()">▶ Jugar</button>
-                </div>
-                <div class="featured-card" data-category="cultura">
-                    <div class="featured-badge updated">Actualizado</div>
-                    <div class="featured-icon">❓</div>
-                    <h4>Quiz Master</h4>
-                    <p>¿Qué tanto sabes del mundo?</p>
-                    <button class="featured-play-btn" onclick="iniciarJuegoQuiz()">▶ Jugar</button>
-                </div>
-                <div class="featured-card" data-category="agilidad">
-                    <div class="featured-badge popular">Popular</div>
-                    <div class="featured-icon">🎯</div>
-                    <h4>Memoria</h4>
-                    <p>Encuentra los pares idénticos</p>
-                    <button class="featured-play-btn" onclick="iniciarJuegoMemoria()">▶ Jugar</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Achievements Card -->
-        {% if logros %}
-        <div class="achievements-section">
-            <h3 class="section-title">🏆 Logros</h3>
-            <div class="achievements-card">
-                {% for logro in logros %}
-                <div class="achievement-item {% if logro.desbloqueado %}unlocked{% else %}locked{% endif %}">
-                    <span class="achievement-icon">{{ logro.icono|default:"🏆" }}</span>
-                    <span class="achievement-name">{{ logro.nombre }}</span>
-                    <span class="achievement-status">{{ logro.desbloqueado|yesno:"✔,⬜" }}</span>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
-
-    <!-- ARENA MODAL PARA LOS JUEGOS -->
-    <div id="game-modal" class="game-modal-overlay">
-        <div class="game-arena">
-            <button class="game-close-btn" onclick="cerrarJuego()" title="Cerrar Juego">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                    <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                    <path d="M18 6l-12 12"></path>
-                    <path d="M6 6l12 12"></path>
-                </svg>
-            </button>
-            <div id="juego-container" class="game-arena-content"></div>
-        </div>
+  <!-- ════════════════════════════════════
+       HEADER BAR
+  ════════════════════════════════════ -->
+  <div class="games-header-bar">
+    <div class="games-header-title">
+      <span style="font-size: 26px;">🎮</span>
+      <div>
+        <h1>Juegos</h1>
+        <p>¡Hora de divertirse! Desafía tu mente y juega junto a Amigis.</p>
+      </div>
     </div>
 
-    <!-- Contenedor de Toasts -->
-    <div id="toast-container" class="toast-container"></div>
+    <div class="games-header-actions">
+      <button class="g-header-btn" onclick="filterGamesCategory('all')">
+        <i class="ti ti-grid-dots"></i> Todos
+      </button>
+      <button class="g-header-btn" onclick="filterGamesCategory('classic')">
+        <i class="ti ti-device-gamepad"></i> Clásicos
+      </button>
+      <button class="g-header-btn" onclick="filterGamesCategory('ai')">
+        <i class="ti ti-robot"></i> Juegos con IA
+      </button>
+      <button class="g-header-btn" onclick="openAchievementsModal()">
+        <i class="ti ti-trophy" style="color: #f59e0b;"></i> Logros
+      </button>
+    </div>
+  </div>
 
-        <!-- Games Grid -->
-        <div class="games-grid-header">
-            <h3 class="section-title">Todos los juegos</h3>
-        </div>
-        <div class="game-grid" id="games-grid">
-            {% for juego in juegos %}
-            <div class="game-card" data-category="{{ juego.categoria|default:'todos' }}" data-name="{{ juego.nombre|lower }}" data-id="{{ juego.id }}" style="--game-color: {% if juego.tipo == 'quiz' %}#3b82f6{% elif juego.tipo == 'memoria' %}#ec4899{% elif juego.tipo == 'matematicas' %}#22c55e{% elif juego.tipo == 'palabras' %}#f59e0b{% elif juego.tipo == 'logica' %}#7c3aed{% else %}#06b6d4{% endif %};">
-                <button class="favorite-btn" onclick="toggleFavorite(this, event)" title="Agregar a favoritos">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                        <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                        <path d="M19.5 13.5l-7.5 -7.5l-7.5 7.5"></path>
-                        <path d="M12 3v10"></path>
-                    </svg>
-                </button>
-                <div class="game-icon-wrapper">
-                    {{ juego.icono|default:'🎮' }}
-                </div>
-                <h3>{{ juego.nombre }}</h3>
-                <p>{{ juego.descripcion }}</p>
-                <div class="game-meta">
-                    <span class="difficulty-badge {% if juego.dificultad == 'facil' %}easy{% elif juego.dificultad == 'medio' %}medium{% else %}hard{% endif %}">
-                        {% if juego.dificultad == 'facil' %}🟢 Fácil
-                        {% elif juego.dificultad == 'medio' %}🟡 Medio
-                        {% else %}🔴 Difícil
-                        {% endif %}
-                    </span>
-                    <span class="time-badge">⏱ {{ juego.tiempo_estimado|default:"5 min" }}</span>
-                </div>
-                <div class="game-rating">
-                    ⭐⭐⭐⭐☆
-                </div>
-                <button class="game-play-btn" onclick="iniciarJuego({{ juego.id }}, '{{ juego.tipo }}')">
-                    ▶ Jugar
-                </button>
-            </div>
-            {% empty %}
-            <p style="color: #94a3b8; text-align: center; grid-column: 1 / -1;">No hay juegos disponibles</p>
-            {% endfor %}
-        </div>
-</div>
-</div>
-{% endblock %}
+  <!-- ════════════════════════════════════
+       SALA ARCADE — STATS & PROGRESS
+  ════════════════════════════════════ -->
+  <div class="arcade-stats-grid">
+    <div class="arcade-stat-card">
+      <div class="astat-icon" style="color: #c084fc;">🎮</div>
+      <div>
+        <div class="astat-val" id="stat-completed-games">14</div>
+        <div class="astat-lbl">Completados</div>
+      </div>
+    </div>
 
-{% block extra_js %}
+    <div class="arcade-stat-card">
+      <div class="astat-icon" style="color: #f59e0b;">⭐</div>
+      <div>
+        <div class="astat-val" id="stat-xp-points">1,450</div>
+        <div class="astat-lbl">Puntos XP</div>
+      </div>
+    </div>
+
+    <div class="arcade-stat-card">
+      <div class="astat-icon" style="color: #38bdf8;">🪙</div>
+      <div>
+        <div class="astat-val" id="stat-coins">320</div>
+        <div class="astat-lbl">Monedas Amigis</div>
+      </div>
+    </div>
+
+    <div class="arcade-stat-card">
+      <div class="astat-icon" style="color: #f43f5e;">🔥</div>
+      <div>
+        <div class="astat-val" id="stat-streak-days">5 días</div>
+        <div class="astat-lbl">Racha Diaria</div>
+      </div>
+    </div>
+
+    <div class="arcade-stat-card">
+      <div class="astat-icon" style="color: #10b981;">🏅</div>
+      <div>
+        <div class="astat-val" id="stat-badges">Nivel 4</div>
+        <div class="astat-lbl">Insignia Arcade</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SALA ARCADE DE AMIGIS — DESTACADOS Y CLÁSICOS
+  ════════════════════════════════════ -->
+  <h2 class="arcade-section-title">
+    <span>🕹️ Sala Arcade & Juegos Clásicos</span>
+  </h2>
+
+  <div class="games-grid">
+    <!-- Tres en Raya -->
+    <div class="game-card-item" data-cat="classic" onclick="openGame('ttt')">
+      <div class="gc-icon-wrapper" style="color: #c084fc;">❌⭕</div>
+      <div>
+        <h3>Tres en Raya</h3>
+        <p>Desafía a Amigis en el clásico Tic-Tac-Toe y demuestra tu estrategia.</p>
+      </div>
+      <button class="btn-play-game">
+        Jugar Ahora <i class="ti ti-player-play"></i>
+      </button>
+    </div>
+
+    <!-- Snake -->
+    <div class="game-card-item" data-cat="classic" onclick="openGame('snake')">
+      <div class="gc-icon-wrapper" style="color: #10b981;">🐍</div>
+      <div>
+        <h3>Snake Arcade</h3>
+        <p>Guía a la serpiente para comer las manzanas sin chocar con los bordes.</p>
+      </div>
+      <button class="btn-play-game">
+        Jugar Ahora <i class="ti ti-player-play"></i>
+      </button>
+    </div>
+
+    <!-- Memoria -->
+    <div class="game-card-item" data-cat="classic" onclick="openGame('memory')">
+      <div class="gc-icon-wrapper" style="color: #ec4899;">🧠</div>
+      <div>
+        <h3>Juego de Memoria</h3>
+        <p>Encuentra los pares de cartas idénticas en el menor tiempo posible.</p>
+      </div>
+      <button class="btn-play-game">
+        Jugar Ahora <i class="ti ti-player-play"></i>
+      </button>
+    </div>
+
+    <!-- Adivina el Número -->
+    <div class="game-card-item" data-cat="classic" onclick="openGame('guessnum')">
+      <div class="gc-icon-wrapper" style="color: #38bdf8;">🎯</div>
+      <div>
+        <h3>Adivina el Número</h3>
+        <p>Descubre el número secreto del 1 al 100 con pistas de Amigis.</p>
+      </div>
+      <button class="btn-play-game">
+        Jugar Ahora <i class="ti ti-player-play"></i>
+      </button>
+    </div>
+
+    <!-- Sudoku -->
+    <div class="game-card-item" data-cat="classic" onclick="openGame('sudoku')">
+      <div class="gc-icon-wrapper" style="color: #f59e0b;">🧮</div>
+      <div>
+        <h3>Sudoku Challenge</h3>
+        <p>Ejercita tu mente resolviendo tableros numéricos de lógica pura.</p>
+      </div>
+      <button class="btn-play-game">
+        Jugar Ahora <i class="ti ti-player-play"></i>
+      </button>
+    </div>
+
+    <!-- Rompecabezas -->
+    <div class="game-card-item" data-cat="classic" onclick="openGame('puzzle')">
+      <div class="gc-icon-wrapper" style="color: #f43f5e;">🧩</div>
+      <div>
+        <h3>Rompecabezas</h3>
+        <p>Arma la imagen deslizante de Amigis en pocas jugadas.</p>
+      </div>
+      <button class="btn-play-game">
+        Jugar Ahora <i class="ti ti-player-play"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       🤖 JUEGOS CON IA E INTERACTIVOS CON AMIGIS
+  ════════════════════════════════════ -->
+  <h2 class="arcade-section-title">
+    <span>🤖 Juegos con IA e Interactivos</span>
+  </h2>
+
+  <div class="games-grid">
+    <!-- Adivina el Animal -->
+    <div class="game-card-item" data-cat="ai" onclick="openGame('trivia_animal')">
+      <div class="gc-icon-wrapper" style="color: #38bdf8;">🦆</div>
+      <div>
+        <h3>Adivina el Animal</h3>
+        <p>Amigis te dará pistas sobre un animal del reino salvaje. ¿Podrás adivinarlo?</p>
+      </div>
+      <button class="btn-play-game">
+        Jugar Ahora <i class="ti ti-player-play"></i>
+      </button>
+    </div>
+
+    <!-- Trivia Educativa -->
+    <div class="game-card-item" data-cat="ai" onclick="openGame('trivia_gen')">
+      <div class="gc-icon-wrapper" style="color: #c084fc;">❓</div>
+      <div>
+        <h3>Trivia Educativa</h3>
+        <p>Preguntas y respuestas sobre ciencia, historia y cultura general.</p>
+      </div>
+      <button class="btn-play-game">
+        Jugar Ahora <i class="ti ti-player-play"></i>
+      </button>
+    </div>
+
+    <!-- Capitales del Mundo -->
+    <div class="game-card-item" data-cat="ai" onclick="openGame('trivia_geo')">
+      <div class="gc-icon-wrapper" style="color: #10b981;">🌍</div>
+      <div>
+        <h3>Capitales del Mundo</h3>
+        <p>Demuestra tus conocimientos de geografía adivinando las capitales globales.</p>
+      </div>
+      <button class="btn-play-game">
+        Jugar Ahora <i class="ti ti-player-play"></i>
+      </button>
+    </div>
+
+    <!-- Retos de Programación -->
+    <div class="game-card-item" data-cat="ai" onclick="openGame('trivia_code')">
+      <div class="gc-icon-wrapper" style="color: #ec4899;">💻</div>
+      <div>
+        <h3>Retos de Programación</h3>
+        <p>Desafíos rápidos de código en Python, JavaScript y algoritmos.</p>
+      </div>
+      <button class="btn-play-game">
+        Jugar Ahora <i class="ti ti-player-play"></i>
+      </button>
+    </div>
+
+    <!-- Adivina el Personaje -->
+    <div class="game-card-item" data-cat="ai" onclick="openGame('trivia_char')">
+      <div class="gc-icon-wrapper" style="color: #f59e0b;">🎭</div>
+      <div>
+        <h3>Adivina el Personaje</h3>
+        <p>Responde preguntas y deja que Amigis intente adivinar el personaje en tu mente.</p>
+      </div>
+      <button class="btn-play-game">
+        Jugar Ahora <i class="ti ti-player-play"></i>
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════════
+     INTERACTIVE GAME ARENA MODAL
+════════════════════════════════════ -->
+<div class="game-arena-modal" id="game-arena-modal">
+  <div class="arena-box">
+    <!-- Header -->
+    <div class="arena-header">
+      <h2 id="arena-title">Arena de Juego</h2>
+      <button class="arena-close-btn" onclick="closeGameArena()">✕</button>
+    </div>
+
+    <!-- Amigis Host Message -->
+    <div class="arena-amigis-host">
+      <div class="arena-amigis-duck">
+        <img src="{% static 'amigis/amigis-dark.svg' %}" id="arena-amigis-duck-img" alt="Amigis Host">
+      </div>
+      <div class="arena-amigis-speech" id="arena-amigis-speech">
+        ¡Hola! Soy Amigis 🦆. ¡Demuestra tu habilidad en este juego!
+      </div>
+    </div>
+
+    <!-- Game Content Injection View -->
+    <div id="arena-game-view" style="min-height: 240px; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+    </div>
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════ -->
 <script>
-// ==================== SISTEMA DE TOASTS ====================
-function showToast(message, type = 'info', duration = 3000) {
-    const container = document.getElementById('toast-container');
-    if (!container) return;
+let currentXp = 1450;
+let currentCoins = 320;
 
-    const toast = document.createElement('div');
-    toast.className = `toast ${type}`;
-    toast.textContent = message;
-
-    container.appendChild(toast);
-
-    setTimeout(() => {
-        toast.style.animation = 'slideOut 0.3s ease-out forwards';
-        setTimeout(() => {
-            if (container.contains(toast)) {
-                container.removeChild(toast);
-            }
-        }, 300);
-    }, duration);
-}
-
-// ==================== LÓGICA DE JUEGOS MODAL ====================
-
-function prepararJuego() {
-    const modal = document.getElementById('game-modal');
-    const container = document.getElementById('juego-container');
-    container.innerHTML = ''; // Limpiar
-    modal.classList.add('active'); // Mostrar Modal
-    return container;
-}
-
-function cerrarJuego() {
-    const modal = document.getElementById('game-modal');
-    const container = document.getElementById('juego-container');
-    modal.classList.remove('active');
-    setTimeout(() => { container.innerHTML = ''; }, 300); // Limpiar después de animación
-    
-    // Limpiar loops y animaciones
-    if (window.snakeLoop) clearInterval(window.snakeLoop);
-    if (window.snakeAnimation) cancelAnimationFrame(window.snakeAnimation);
-    if (window.fidgetAnimacion) cancelAnimationFrame(window.fidgetAnimacion);
-    if (window.breathInterval) clearInterval(window.breathInterval);
-    if (window.breathTimeout) clearTimeout(window.breathTimeout);
-}
-
-// Cerrar al dar clic fuera del modal
-document.getElementById('game-modal').addEventListener('click', function(e) {
-    if (e.target === this) cerrarJuego();
+document.addEventListener('DOMContentLoaded', () => {
+  updateDuckTheme();
 });
 
-// Adivinanzas
-function iniciarJuegoAdivinanza() {
-    const container = prepararJuego();
-    
-    const adivinanzas = [
-        { pregunta: "¿Qué es lo que cuanto más quitas más grande es?", respuesta: "agujero" },
-        { pregunta: "¿Qué tiene cuello pero no cabeza?", respuesta: "botella" },
-        { pregunta: "¿Qué tiene dientes pero no come?", respuesta: "peine" },
-        { pregunta: "¿Qué sube pero nunca baja?", respuesta: "edad" },
-        { pregunta: "¿Qué tiene llaves pero no abre puertas?", respuesta: "piano" },
-        { pregunta: "¿Qué tiene ojos pero no ve?", respuesta: "aguja" },
-        { pregunta: "¿Qué tiene patas pero no camina?", respuesta: "mesa" },
-        { pregunta: "¿Qué tiene cara pero no ojos?", respuesta: "reloj" }
-    ];
-    
-    const adivinanza = adivinanzas[Math.floor(Math.random() * adivinanzas.length)];
-    window.adivinanzaActual = adivinanza;
-    window.adivinanzasIntentos = 3;
-    
-    container.innerHTML = `
-        <div class="game-arena-title">🧩 Adivinanzas</div>
-        <div class="game-arena-subtitle">¡Pon a prueba tu lógica!</div>
-        
-        <div class="game-box">
-            <div class="game-question">${adivinanza.pregunta}</div>
-            <input type="text" id="adivinanza-respuesta" class="game-input" placeholder="Escribe tu respuesta aquí...">
-            <br>
-            <button onclick="verificarAdivinanza()" class="game-btn">Comprobar</button>
-        </div>
-        
-        <div class="game-score-board">
-            <div>Intentos restantes: <span id="adivinanza-intentos">${window.adivinanzasIntentos}</span></div>
-        </div>
-    `;
-    
-    document.getElementById('adivinanza-respuesta').addEventListener('keypress', function (e) {
-        if (e.key === 'Enter') verificarAdivinanza();
-    });
+function openGame(gameType) {
+  const modal = document.getElementById('game-arena-modal');
+  const title = document.getElementById('arena-title');
+  const speech = document.getElementById('arena-amigis-speech');
+  const view = document.getElementById('arena-game-view');
+
+  modal.classList.add('open');
+
+  if (gameType === 'ttt') {
+    title.textContent = "Tres en Raya ❌⭕";
+    speech.textContent = "¡Juegas como ❌! Haz clic en una casilla para ganarme.";
+    initTicTacToe(view);
+  } else if (gameType === 'snake') {
+    title.textContent = "Snake Arcade 🐍";
+    speech.textContent = "¡Usa las flechas del teclado para mover la serpiente!";
+    initSnakeGame(view);
+  } else if (gameType === 'memory') {
+    title.textContent = "Juego de Memoria 🧠";
+    speech.textContent = "¡Voltea las cartas e identifica todas las parejas!";
+    initMemoryGame(view);
+  } else if (gameType === 'guessnum') {
+    title.textContent = "Adivina el Número 🎯";
+    speech.textContent = "Pensé un número entre 1 y 100. ¿Cuál crees que es?";
+    initGuessNumGame(view);
+  } else {
+    title.textContent = "Trivia con IA 🤖";
+    speech.textContent = "¡Responde a las preguntas para ganar XP y Monedas!";
+    initTriviaGame(view, gameType);
+  }
 }
 
-function verificarAdivinanza() {
-    const respuesta = document.getElementById('adivinanza-respuesta').value.toLowerCase().trim();
-    
-    if (respuesta === window.adivinanzaActual.respuesta.toLowerCase()) {
-        showToast('¡Correcto! ¡Felicidades! 🎉', 'success');
-        iniciarJuegoAdivinanza();
-    } else {
-        window.adivinanzasIntentos--;
-        document.getElementById('adivinanza-intentos').textContent = window.adivinanzasIntentos;
-        
-        if (window.adivinanzasIntentos <= 0) {
-            showToast(`Se acabaron los intentos. La respuesta era: ${window.adivinanzaActual.respuesta}`, 'error');
-            iniciarJuegoAdivinanza();
-        } else {
-            showToast('Incorrecto. Intenta de nuevo.', 'error');
-            document.getElementById('adivinanza-respuesta').value = '';
-            document.getElementById('adivinanza-respuesta').focus();
+function closeGameArena() {
+  document.getElementById('game-arena-modal').classList.remove('open');
+}
+
+/* ── GAME 1: TIC TAC TOE ── */
+function initTicTacToe(container) {
+  let board = ['', '', '', '', '', '', '', '', ''];
+  container.innerHTML = `
+    <div class="ttt-grid">
+      ${board.map((cell, i) => `<div class="ttt-cell" onclick="makeMoveTTT(${i})"></div>`).join('')}
+    </div>
+    <button class="btn-play-game" style="margin-top: 16px;" onclick="initTicTacToe(document.getElementById('arena-game-view'))">Reiniciar Partido</button>
+  `;
+}
+
+function makeMoveTTT(idx) {
+  const cells = document.querySelectorAll('.ttt-cell');
+  if (cells[idx].textContent !== '') return;
+
+  cells[idx].textContent = '❌';
+  cells[idx].style.color = '#c084fc';
+
+  if (checkWinnerTTT('❌')) {
+    rewardPlayer("🎉 ¡Felicidades, le ganaste a Amigis!", 50);
+    return;
+  }
+
+  // AI moves
+  setTimeout(() => {
+    const emptyIndices = [];
+    cells.forEach((c, i) => { if (c.textContent === '') emptyIndices.push(i); });
+    if (emptyIndices.length > 0) {
+      const randIndex = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+      cells[randIndex].textContent = '⭕';
+      cells[randIndex].style.color = '#06b6d4';
+      if (checkWinnerTTT('⭕')) {
+        document.getElementById('arena-amigis-speech').textContent = "😅 ¡Esta vez gané yo! ¡Buen intento!";
+      }
+    }
+  }, 400);
+}
+
+function checkWinnerTTT(p) {
+  const cells = Array.from(document.querySelectorAll('.ttt-cell')).map(c => c.textContent);
+  const wins = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  return wins.some(w => w.every(idx => cells[idx] === p));
+}
+
+/* ── GAME 2: MEMORY ── */
+function initMemoryGame(container) {
+  const emojis = ['🦆', '🚀', '⭐', '🎵', '🦆', '🚀', '⭐', '🎵'];
+  const shuffled = emojis.sort(() => 0.5 - Math.random());
+  let flipped = [];
+  let matchedCount = 0;
+
+  container.innerHTML = `
+    <div class="memory-grid">
+      ${shuffled.map((e, i) => `<div class="memory-card-cell" data-emoji="${e}" onclick="flipMemCard(this)">❓</div>`).join('')}
+    </div>
+  `;
+
+  window.flipMemCard = function(cell) {
+    if (flipped.length >= 2 || cell.classList.contains('flipped')) return;
+    cell.classList.add('flipped');
+    cell.textContent = cell.dataset.emoji;
+    flipped.push(cell);
+
+    if (flipped.length === 2) {
+      if (flipped[0].dataset.emoji === flipped[1].dataset.emoji) {
+        matchedCount += 2;
+        flipped = [];
+        if (matchedCount === 8) {
+          rewardPlayer("🧠 ¡Memoria perfecta! Encontraste todos los pares.", 60);
         }
-    }
-}
-
-// Quiz Master
-function iniciarJuegoQuiz() {
-    const container = prepararJuego();
-    
-    const preguntas = [
-        { pregunta: "¿Cuál es el planeta más grande del sistema solar?", opciones: ["Tierra", "Júpiter", "Saturno", "Marte"], correcta: 1 },
-        { pregunta: "¿Cuántos continentes hay en el mundo?", opciones: ["5", "6", "7", "8"], correcta: 2 },
-        { pregunta: "¿Cuál es el océano más grande?", opciones: ["Atlántico", "Índico", "Pacífico", "Ártico"], correcta: 2 },
-        { pregunta: "¿En qué año llegó el hombre a la luna?", opciones: ["1965", "1969", "1972", "1975"], correcta: 1 },
-        { pregunta: "¿Cuál es el animal más rápido del mundo?", opciones: ["León", "Guepardo", "Caballo", "Águila"], correcta: 1 },
-        { pregunta: "¿Quién pintó la Mona Lisa?", opciones: ["Van Gogh", "Picasso", "Da Vinci", "Miguel Ángel"], correcta: 2 }
-    ];
-    
-    window.quizPreguntas = preguntas.sort(() => Math.random() - 0.5).slice(0, 5);
-    window.quizIndice = 0;
-    window.quizPuntuacion = 0;
-    
-    mostrarPreguntaQuiz();
-}
-
-function mostrarPreguntaQuiz() {
-    const container = document.getElementById('juego-container');
-    const pregunta = window.quizPreguntas[window.quizIndice];
-    
-    container.innerHTML = `
-        <div class="game-arena-title">❓ Quiz Master</div>
-        <div class="game-arena-subtitle">Pregunta ${window.quizIndice + 1} de ${window.quizPreguntas.length}</div>
-        
-        <div class="game-box">
-            <div class="game-question">${pregunta.pregunta}</div>
-            <div id="quiz-opciones" class="game-options-grid"></div>
-        </div>
-        
-        <div class="game-score-board">
-            <div>Puntuación: <span id="quiz-puntuacion">${window.quizPuntuacion}</span></div>
-        </div>
-    `;
-    
-    const opcionesContainer = document.getElementById('quiz-opciones');
-    pregunta.opciones.forEach((opcion, index) => {
-        const boton = document.createElement('button');
-        boton.textContent = opcion;
-        boton.className = 'game-option-btn';
-        boton.onclick = () => verificarRespuestaQuiz(index);
-        opcionesContainer.appendChild(boton);
-    });
-}
-
-function verificarRespuestaQuiz(indice) {
-    const pregunta = window.quizPreguntas[window.quizIndice];
-    
-    if (indice === pregunta.correcta) {
-        window.quizPuntuacion += 20;
-    } else {
-        showToast(`Incorrecto. La respuesta correcta era: ${pregunta.opciones[pregunta.correcta]}`, 'error');
-    }
-    
-    window.quizIndice++;
-    
-    if (window.quizIndice < window.quizPreguntas.length) {
-        mostrarPreguntaQuiz();
-    } else {
-        showToast(`¡Quiz completado! Tu puntuación final: ${window.quizPuntuacion} puntos 🏆`, 'success');
-        cerrarJuego();
-    }
-}
-
-// Memoria
-function iniciarJuegoMemoria() {
-    const container = prepararJuego();
-    container.innerHTML = `
-        <div class="game-arena-title">🎯 Memoria Neón</div>
-        <div class="game-arena-subtitle">Encuentra los pares de cartas idénticas.</div>
-        
-        <div id="memoria-grid" class="memory-grid"></div>
-        
-        <div class="game-score-board">
-            <div>Movimientos: <span id="memoria-movimientos">0</span></div>
-        </div>
-        <button onclick="iniciarJuegoMemoria()" class="game-btn-outline" style="margin-top: 20px;">Reiniciar Juego</button>
-    `;
-    
-    const emojis = ['👽', '🚀', '🌌', '👾', '⚡', '🎮', '💡', '🔥'];
-    const cartas = [...emojis, ...emojis].sort(() => Math.random() - 0.5);
-    
-    let movimientos = 0;
-    let primeraCarta = null;
-    let segundaCarta = null;
-    let bloqueado = false;
-    let encontradas = 0;
-    
-    const grid = document.getElementById('memoria-grid');
-    cartas.forEach((emoji, index) => {
-        const carta = document.createElement('div');
-        carta.className = 'memory-card';
-        carta.dataset.emoji = emoji;
-        carta.dataset.index = index;
-        
-        carta.innerHTML = `
-            <div class="memory-card-front"></div>
-            <div class="memory-card-back">${emoji}</div>
-        `;
-        
-        carta.onclick = () => voltearCarta(carta);
-        grid.appendChild(carta);
-    });
-    
-    function voltearCarta(carta) {
-        if (bloqueado || carta.classList.contains('flipped') || carta.classList.contains('matched')) return;
-        
-        carta.classList.add('flipped');
-        
-        if (!primeraCarta) {
-            primeraCarta = carta;
-        } else {
-            segundaCarta = carta;
-            movimientos++;
-            document.getElementById('memoria-movimientos').textContent = movimientos;
-            
-            if (primeraCarta.dataset.emoji === segundaCarta.dataset.emoji) {
-                primeraCarta.classList.add('matched');
-                segundaCarta.classList.add('matched');
-                primeraCarta = null;
-                segundaCarta = null;
-                encontradas += 2;
-                
-                if (encontradas === cartas.length) {
-                    setTimeout(() => showToast(`¡Increíble! Lo lograste en ${movimientos} movimientos. 🏆`, 'success'), 500);
-                }
-            } else {
-                bloqueado = true;
-                setTimeout(() => {
-                    primeraCarta.classList.remove('flipped');
-                    segundaCarta.classList.remove('flipped');
-                    primeraCarta = null;
-                    segundaCarta = null;
-                    bloqueado = false;
-                }, 1000);
-            }
-        }
-    }
-}
-
-// Matemáticas
-function iniciarJuegoMatematicas() {
-    const container = prepararJuego();
-    
-    container.innerHTML = `
-        <div class="game-arena-title">🔢 Mente Rápida</div>
-        <div class="game-arena-subtitle">Resuelve las operaciones lo antes posible.</div>
-        
-        <div class="game-box">
-            <div id="matematicas-pregunta" class="game-question" style="font-size: 2.5rem; letter-spacing: 2px;"></div>
-            <input type="number" id="matematicas-respuesta" class="game-input" placeholder="Tu respuesta">
-            <br>
-            <button onclick="verificarRespuestaMatematicas()" class="game-btn">Responder</button>
-        </div>
-        
-        <div class="game-score-board">
-            <div>Puntuación: <span id="matematicas-puntuacion">0</span></div>
-        </div>
-    `;
-    
-    window.matematicasPuntuacion = 0;
-    window.matematicasRespuestaCorrecta = 0;
-    generarPreguntaMatematica();
-    
-    const input = document.getElementById('matematicas-respuesta');
-    input.addEventListener('keypress', function(e){
-        if(e.key === 'Enter') verificarRespuestaMatematicas();
-    });
-    
-    input.addEventListener('input', function(e){
-        const value = e.target.value;
-        if (value && isNaN(value)) {
-            showToast('Solo se permiten números en esta sección', 'error');
-            e.target.value = value.replace(/[^0-9-]/g, '');
-        }
-    });
-}
-
-function generarPreguntaMatematica() {
-    const operaciones = ['+', '-', '*'];
-    const operacion = operaciones[Math.floor(Math.random() * operaciones.length)];
-    let num1, num2, respuesta;
-    
-    if (operacion === '+') {
-        num1 = Math.floor(Math.random() * 50) + 1;
-        num2 = Math.floor(Math.random() * 50) + 1;
-        respuesta = num1 + num2;
-    } else if (operacion === '-') {
-        num1 = Math.floor(Math.random() * 50) + 10;
-        num2 = Math.floor(Math.random() * num1);
-        respuesta = num1 - num2;
-    } else {
-        num1 = Math.floor(Math.random() * 10) + 1;
-        num2 = Math.floor(Math.random() * 10) + 1;
-        respuesta = num1 * num2;
-    }
-    
-    window.matematicasRespuestaCorrecta = respuesta;
-    document.getElementById('matematicas-pregunta').textContent = `${num1} ${operacion} ${num2}`;
-    document.getElementById('matematicas-respuesta').focus();
-}
-
-function verificarRespuestaMatematicas() {
-    const input = document.getElementById('matematicas-respuesta');
-    if (!input.value) return;
-    
-    const respuestaUsuario = parseInt(input.value);
-    
-    if (respuestaUsuario === window.matematicasRespuestaCorrecta) {
-        window.matematicasPuntuacion += 10;
-        document.getElementById('matematicas-puntuacion').textContent = window.matematicasPuntuacion;
-        input.value = '';
-        input.style.borderColor = '#22c55e';
-        setTimeout(()=> input.style.borderColor = '', 300);
-        generarPreguntaMatematica();
-    } else {
-        showToast(`Incorrecto. La respuesta era ${window.matematicasRespuestaCorrecta}`, 'error');
-        input.value = '';
-        generarPreguntaMatematica();
-    }
-}
-
-// Reflejos
-function iniciarJuegoReflejos() {
-    const container = prepararJuego();
-    
-    window.reflejosPuntuacion = 0;
-    window.reflejosIntentos = 0;
-    window.reflejosTiempoInicio = 0;
-    
-    container.innerHTML = `
-        <div class="game-arena-title">⚡ Reflejos</div>
-        <div class="game-arena-subtitle">Haz clic en la esfera luminosa en cuanto cambie de color.</div>
-        
-        <div class="game-box" style="height: 300px; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.5);">
-            <div id="reflejos-circulo" class="reflejos-circle"></div>
-        </div>
-        
-        <div class="game-score-board">
-            <div>Puntuación: <span id="reflejos-puntuacion">0</span></div>
-            <div>Intentos: <span id="reflejos-intentos">0</span>/5</div>
-        </div>
-    `;
-    
-    const circulo = document.getElementById('reflejos-circulo');
-    circulo.onclick = () => {
-        if (circulo.classList.contains('active')) {
-            const tiempo = Date.now() - window.reflejosTiempoInicio;
-            const puntos = Math.max(0, 100 - Math.floor(tiempo / 10));
-            window.reflejosPuntuacion += puntos;
-            document.getElementById('reflejos-puntuacion').textContent = window.reflejosPuntuacion;
-            circulo.classList.remove('active');
-            
-            if (window.reflejosIntentos >= 5) {
-                showToast(`¡Juego terminado! Puntuación final: ${window.reflejosPuntuacion}`, 'success');
-                cerrarJuego();
-            } else {
-                iniciarRondaReflejos();
-            }
-        }
-    };
-    
-    iniciarRondaReflejos();
-}
-
-function iniciarRondaReflejos() {
-    const circulo = document.getElementById('reflejos-circulo');
-    if(!circulo) return;
-    
-    const tiempoAleatorio = Math.random() * 2500 + 1000;
-    
-    setTimeout(() => {
-        if(!document.getElementById('reflejos-circulo')) return;
-        circulo.classList.add('active');
-        window.reflejosTiempoInicio = Date.now();
-        window.reflejosIntentos++;
-        document.getElementById('reflejos-intentos').textContent = window.reflejosIntentos;
-        
+      } else {
         setTimeout(() => {
-            const circ = document.getElementById('reflejos-circulo');
-            if (circ && circ.classList.contains('active')) {
-                circ.classList.remove('active');
-                if (window.reflejosIntentos >= 5) {
-                    showToast(`¡Muy lento! Fin del juego. Puntuación: ${window.reflejosPuntuacion}`, 'error');
-                    cerrarJuego();
-                } else {
-                    iniciarRondaReflejos();
-                }
-            }
-        }, 1500);
-    }, tiempoAleatorio);
+          flipped.forEach(c => { c.classList.remove('flipped'); c.textContent = '❓'; });
+          flipped = [];
+        }, 800);
+      }
+    }
+  };
 }
 
-// Fidget Spinner
-function iniciarJuegoFidget() {
-    const container = prepararJuego();
-    
-    window.fidgetVelocidad = 0;
-    window.fidgetRotacion = 0;
-    window.fidgetAnimacion = null;
-    
-    container.innerHTML = `
-        <div class="game-arena-title">🌀 Fidget Neón</div>
-        <div class="game-arena-subtitle">Arrastra para girar y relajar tu mente.</div>
-        
-        <div class="game-box" style="height: 350px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: transparent; border: none;">
-            <div id="fidget-spinner" class="fidget-spinner">
-                <div class="fidget-ring"></div>
-                <div class="fidget-center"></div>
-                <div class="fidget-arm purple top"></div>
-                <div class="fidget-arm purple bottom"></div>
-                <div class="fidget-arm cyan left"></div>
-                <div class="fidget-arm cyan right"></div>
-            </div>
-        </div>
-        
-        <div class="game-score-board">
-            <div>Velocidad: <span id="fidget-velocidad">0</span> RPM</div>
-        </div>
-    `;
-    
-    const spinner = document.getElementById('fidget-spinner');
-    
-    let isDragging = false;
-    let lastX = 0; let lastY = 0;
-    
-    const girarSpinner = () => {
-        if (window.fidgetVelocidad > 0.1) {
-            window.fidgetRotacion += window.fidgetVelocidad;
-            spinner.style.transform = `rotate(${window.fidgetRotacion}deg)`;
-            
-            // Only update DOM every few frames to reduce overhead
-            if (!window.fidgetFrameCount) window.fidgetFrameCount = 0;
-            window.fidgetFrameCount++;
-            if (window.fidgetFrameCount % 3 === 0) {
-                document.getElementById('fidget-velocidad').textContent = Math.floor(window.fidgetVelocidad * 10);
-            }
-            
-            window.fidgetVelocidad *= 0.985;
-            
-            const shouldSpin = window.fidgetVelocidad > 5;
-            const isSpinning = spinner.classList.contains('spinning');
-            if (shouldSpin !== isSpinning) {
-                spinner.classList.toggle('spinning', shouldSpin);
-            }
-            
-            window.fidgetAnimacion = requestAnimationFrame(girarSpinner);
-        } else {
-            window.fidgetVelocidad = 0;
-            spinner.classList.remove('spinning');
-            document.getElementById('fidget-velocidad').textContent = '0';
-        }
-    };
-    
-    spinner.addEventListener('mousedown', (e) => {
-        isDragging = true; lastX = e.clientX; lastY = e.clientY;
-        window.fidgetVelocidad += 5;
-        if (!window.fidgetAnimacion) window.fidgetAnimacion = requestAnimationFrame(girarSpinner);
-    });
-    
-    spinner.addEventListener('mousemove', (e) => {
-        if (isDragging) {
-            const dx = e.clientX - lastX; const dy = e.clientY - lastY;
-            const vel = Math.sqrt(dx*dx + dy*dy) / 10;
-            window.fidgetVelocidad = Math.min(window.fidgetVelocidad + vel, 60);
-            lastX = e.clientX; lastY = e.clientY;
-        }
-    });
-    
-    window.addEventListener('mouseup', () => { isDragging = false; });
+/* ── GAME 3: SNAKE ── */
+function initSnakeGame(container) {
+  container.innerHTML = `
+    <canvas id="snake-canvas" width="300" height="240"></canvas>
+    <p style="font-size: 11px; color: var(--g-text-dim); margin-top: 8px;">Usa las flechas de tu teclado para dirigir la serpiente</p>
+  `;
 }
 
-// Respiración
-function iniciarJuegoRespiracion() {
-    const container = prepararJuego();
-    container.innerHTML = `
-        <div class="game-arena-title">🌬️ Respiración Consciente</div>
-        <div class="game-arena-subtitle">Sigue el ritmo del círculo para relajarte.</div>
-        
-        <div class="game-box" style="height: 350px; display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; background: transparent; border: none;">
-            <div id="breathing-circle" class="breath-circle"></div>
-            <h2 id="breathing-text" style="margin-top: 50px; font-size: 2rem; color: #2dd4bf; letter-spacing: 2px;">Prepárate...</h2>
-        </div>
-    `;
-
-    const circle = document.getElementById('breathing-circle');
-    const text = document.getElementById('breathing-text');
-    let step = 0; 
-    let active = true;
-    let breathTimeout = null;
-
-    document.getElementById('game-modal').addEventListener('click', function(e) {
-        if (e.target === this) {
-            active = false;
-            if (breathTimeout) clearTimeout(breathTimeout);
-        }
-    });
-
-    const steps = [
-        { text: "INHALA", className: "breath-circle inhale", duration: 4000 },
-        { text: "MANTÉN", className: "breath-circle hold", duration: 3000 },
-        { text: "EXHALA", className: "breath-circle exhale", duration: 4000 }
-    ];
-
-    function runCycle() {
-        if (!active || !document.getElementById('breathing-circle')) {
-            if (breathTimeout) clearTimeout(breathTimeout);
-            return;
-        }
-
-        const currentStep = steps[step];
-        text.innerText = currentStep.text;
-        circle.className = currentStep.className;
-
-        step = (step + 1) % steps.length;
-        breathTimeout = setTimeout(runCycle, currentStep.duration);
-    }
-
-    breathTimeout = setTimeout(runCycle, 1000);
-    
-    // Store timeout for cleanup
-    window.breathTimeout = breathTimeout;
+/* ── GAME 4: GUESS NUMBER ── */
+function initGuessNumGame(container) {
+  const targetNum = Math.floor(Math.random() * 100) + 1;
+  container.innerHTML = `
+    <div style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
+      <input type="number" id="guess-input" placeholder="Ej. 42" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 10px; color: #fff; text-align: center; font-size: 18px; width: 120px; outline: none;">
+      <button class="btn-play-game" onclick="checkGuessNum(${targetNum})">Adivinar 🎯</button>
+    </div>
+  `;
 }
 
-// Snake
-function iniciarJuegoSnake() {
-    const container = prepararJuego();
-    container.innerHTML = `
-        <div class="game-arena-title">🐍 Snake Neo</div>
-        <div class="game-arena-subtitle">Usa las flechas del teclado para jugar.</div>
-        
-        <div class="snake-board">
-            <canvas id="snakeCanvas" width="300" height="300"></canvas>
-            <div id="snake-game-over" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); flex-direction: column; align-items: center; justify-content: center; border-radius: 8px;">
-                <h2 style="color: #ef4444; font-size: 2rem; margin-bottom: 20px; text-shadow: 0 0 10px #ef4444;">GAME OVER</h2>
-                <button onclick="iniciarJuegoSnake()" class="game-btn">Reintentar</button>
-            </div>
-        </div>
-        
-        <div class="game-score-board" style="margin-top: 25px;">
-            <div>Puntuación: <span id="snake-score">0</span></div>
-        </div>
-    `;
+function checkGuessNum(target) {
+  const val = parseInt(document.getElementById('guess-input').value);
+  const speech = document.getElementById('arena-amigis-speech');
+  if (!val) return;
 
-    const canvas = document.getElementById('snakeCanvas');
-    const ctx = canvas.getContext('2d');
-    const gridSize = 15;
-    const tileCount = canvas.width / gridSize;
-    let snake = [{x: 10, y: 10}];
-    let food = {x: 5, y: 5};
-    let dx = 0, dy = 0, nextDx = 0, nextDy = 0;
-    let score = 0;
-    let lastTime = 0;
-    const gameSpeed = 120; // ms between frames
-    
-    if (window.snakeLoop) clearInterval(window.snakeLoop);
-    if (window.snakeAnimation) cancelAnimationFrame(window.snakeAnimation);
-    
-    function drawGame(timestamp) {
-        if (!document.getElementById('snakeCanvas')) {
-            if (window.snakeAnimation) cancelAnimationFrame(window.snakeAnimation);
-            return;
-        }
-
-        if (!lastTime) lastTime = timestamp;
-        const deltaTime = timestamp - lastTime;
-        
-        if (deltaTime < gameSpeed) {
-            window.snakeAnimation = requestAnimationFrame(drawGame);
-            return;
-        }
-        
-        lastTime = timestamp;
-        
-        dx = nextDx; dy = nextDy;
-        const head = {x: snake[0].x + dx, y: snake[0].y + dy};
-        
-        if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount || 
-            (dx !== 0 && dy !== 0 && snake.some((s, i) => i !== 0 && s.x === head.x && s.y === head.y))) {
-            if (window.snakeAnimation) cancelAnimationFrame(window.snakeAnimation);
-            document.getElementById('snake-game-over').style.display = 'flex';
-            return;
-        }
-        
-        // Prevent moving immediately into self on start
-        if (dx === 0 && dy === 0) {
-             ctx.clearRect(0, 0, canvas.width, canvas.height);
-             ctx.fillStyle = '#ec4899'; ctx.beginPath(); ctx.arc(food.x * gridSize + 7.5, food.y * gridSize + 7.5, 5, 0, 2*Math.PI); ctx.fill();
-             snake.forEach((s, i) => { ctx.fillStyle = i === 0 ? '#a855f7' : '#8b5cf6'; ctx.fillRect(s.x * gridSize + 1, s.y * gridSize + 1, gridSize - 2, gridSize - 2); });
-             window.snakeAnimation = requestAnimationFrame(drawGame);
-             return;
-        }
-
-        snake.unshift(head);
-        if (head.x === food.x && head.y === food.y) {
-            food = {x: Math.floor(Math.random()*tileCount), y: Math.floor(Math.random()*tileCount)};
-            score += 10;
-            document.getElementById('snake-score').textContent = score;
-        } else {
-            snake.pop();
-        }
-        
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        
-        // Food
-        ctx.fillStyle = '#ec4899'; 
-        ctx.shadowBlur = 10; ctx.shadowColor = '#ec4899';
-        ctx.beginPath(); ctx.arc(food.x * gridSize + 7.5, food.y * gridSize + 7.5, 5, 0, 2*Math.PI); ctx.fill();
-        ctx.shadowBlur = 0;
-
-        // Snake
-        snake.forEach((s, i) => { 
-            ctx.fillStyle = i === 0 ? '#a855f7' : '#8b5cf6'; 
-            ctx.fillRect(s.x * gridSize + 1, s.y * gridSize + 1, gridSize - 2, gridSize - 2); 
-        });
-        
-        window.snakeAnimation = requestAnimationFrame(drawGame);
-    }
-
-    const keyHandler = e => {
-        if (!document.getElementById('snakeCanvas')) {
-            window.removeEventListener('keydown', keyHandler);
-            return;
-        }
-        if (e.key === 'ArrowUp' && dy === 0) { nextDx = 0; nextDy = -1; e.preventDefault(); }
-        if (e.key === 'ArrowDown' && dy === 0) { nextDx = 0; nextDy = 1; e.preventDefault(); }
-        if (e.key === 'ArrowLeft' && dx === 0) { nextDx = -1; nextDy = 0; e.preventDefault(); }
-        if (e.key === 'ArrowRight' && dx === 0) { nextDx = 1; nextDy = 0; e.preventDefault(); }
-    };
-    
-    window.addEventListener('keydown', keyHandler);
-    window.snakeAnimation = requestAnimationFrame(drawGame);
+  if (val === target) {
+    rewardPlayer(`🎯 ¡Correcto! El número era ${target}.`, 50);
+  } else if (val < target) {
+    speech.textContent = `💡 El número secreto es MAYOR que ${val}. ¡Inténtalo de nuevo!`;
+  } else {
+    speech.textContent = `💡 El número secreto es MENOR que ${val}. ¡Inténtalo de nuevo!`;
+  }
 }
 
-// ==================== FUNCIONES PARA JUEGOS DINÁMICOS ====================
+/* ── GAME 5: TRIVIA ── */
+function initTriviaGame(container, type) {
+  const triviaData = [
+    { q: "¿Cuál es la capital de Francia?", options: ["Madrid", "París", "Roma", "Berlín"], answer: 1 },
+    { q: "¿Qué estructura de datos funciona como LIFO (Last In First Out)?", options: ["Cola", "Pila (Stack)", "Lista", "Árbol"], answer: 1 },
+    { q: "¿Cuál es el animal más grande del planeta?", options: ["Elefante", "Ballena Azul", "Jirafa", "Tiburón Ballena"], answer: 1 }
+  ];
+  const q = triviaData[Math.floor(Math.random() * triviaData.length)];
 
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.startsWith(name + "=")) {
-                cookieValue = decodeURIComponent(cookie.split("=")[1]);
-                break;
-            }
-        }
-    }
-    return cookieValue;
+  container.innerHTML = `
+    <div style="text-align: center; max-width: 440px;">
+      <h3 style="font-size: 16px; margin-bottom: 16px;">${q.q}</h3>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        ${q.options.map((opt, i) => `<button class="g-header-btn" style="padding: 12px; justify-content: center;" onclick="answerTrivia(${i}, ${q.answer})">${opt}</button>`).join('')}
+      </div>
+    </div>
+  `;
 }
 
-function iniciarJuego(juegoId, tipo) {
-    // Cargar juego según el tipo
-    switch(tipo) {
-        case 'quiz':
-            iniciarJuegoQuiz();
-            break;
-        case 'memoria':
-            iniciarJuegoMemoria();
-            break;
-        case 'matematicas':
-            iniciarJuegoMatematicas();
-            break;
-        case 'logica':
-            iniciarJuegoAdivinanza();
-            break;
-        case 'reflejos':
-            iniciarJuegoReflejos();
-            break;
-        case 'fidget':
-            iniciarJuegoFidget();
-            break;
-        case 'respiracion':
-            iniciarJuegoRespiracion();
-            break;
-        case 'snake':
-            iniciarJuegoSnake();
-            break;
-        case 'tres_en_raya':
-            iniciarJuegoTresEnRaya();
-            break;
-        case 'ajedrez':
-            iniciarJuegoAjedrez();
-            break;
-        default:
-            showToast('Juego no disponible', 'error');
-    }
+function answerTrivia(selected, correct) {
+  if (selected === correct) {
+    rewardPlayer("🎉 ¡Respuesta Correcta! Ganaste +40 XP.", 40);
+  } else {
+    document.getElementById('arena-amigis-speech').textContent = "😅 ¡Cerca! La respuesta correcta era otra. ¡Sigue aprendiendo!";
+  }
 }
 
-function guardarPuntuacion(juegoId, puntuacion) {
-    fetch('/api/guardar-puntuacion/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({
-            juego_id: juegoId,
-            puntuacion: puntuacion
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            showToast(`Puntuación guardada: ${data.puntuacion}`, 'success');
-            
-            // Mostrar logros desbloqueados
-            if (data.logros_desbloqueados && data.logros_desbloqueados.length > 0) {
-                data.logros_desbloqueados.forEach(logro => {
-                    showToast(`🎉 Logro desbloqueado: ${logro.icono} ${logro.nombre}`, 'success');
-                });
-            }
-        } else {
-            showToast('Error al guardar puntuación', 'error');
-        }
-    })
-    .catch(error => {
-        showToast('Error al guardar puntuación', 'error');
-    });
+function rewardPlayer(msg, xpGain) {
+  document.getElementById('arena-amigis-speech').textContent = msg;
+  currentXp += xpGain;
+  currentCoins += 10;
+  document.getElementById('stat-xp-points').textContent = currentXp.toLocaleString();
+  document.getElementById('stat-coins').textContent = currentCoins;
 }
 
-// ==================== JUEGO DE 3 EN RAYA ====================
-function iniciarJuegoTresEnRaya() {
-    const container = prepararJuego();
-    
-    window.tablero = ['', '', '', '', '', '', '', '', ''];
-    window.jugadorActual = 'X';
-    window.juegoActivo = true;
-    window.movimientos = 0;
-    
-    container.innerHTML = `
-        <div class="game-arena-title">❌⭕ 3 en Raya</div>
-        <div class="game-arena-subtitle">Jugador (X) vs CPU (O)</div>
-        
-        <div class="game-box" style="height: 350px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: transparent; border: none;">
-            <div id="tres-en-raya-tablero" class="tres-en-raya-tablero">
-                ${window.tablero.map((cell, index) => `
-                    <div class="tres-en-raya-celda" data-index="${index}" onclick="hacerMovimiento(${index})"></div>
-                `).join('')}
-            </div>
-        </div>
-        
-        <div class="game-score-board">
-            <div id="tres-en-raya-estado">Tu turno (X)</div>
-            <button onclick="reiniciarTresEnRaya()" class="game-btn-outline" style="margin-top: 10px; background: rgba(239, 68, 68, 0.2); border-color: rgba(239, 68, 68, 0.5); color: #ef4444;">Reiniciar</button>
-        </div>
-    `;
-    
-    window.actualizarTableroTresEnRaya();
+function filterGamesCategory(cat) {
+  document.querySelectorAll('.game-card-item').forEach(card => {
+    const cardCat = card.getAttribute('data-cat');
+    if (cat === 'all' || cardCat === cat) card.style.display = 'flex';
+    else card.style.display = 'none';
+  });
 }
 
-window.hacerMovimiento = function(index) {
-    if (!window.juegoActivo || window.tablero[index] !== '' || window.jugadorActual !== 'X') return;
-    
-    window.tablero[index] = 'X';
-    window.movimientos++;
-    window.actualizarTableroTresEnRaya();
-    
-    if (window.verificarVictoria('X')) {
-        window.juegoActivo = false;
-        document.getElementById('tres-en-raya-estado').textContent = '¡Ganaste! 🎉';
-        showToast('¡Ganaste! 🎉', 'success');
-        return;
-    }
-    
-    if (window.movimientos === 9) {
-        window.juegoActivo = false;
-        document.getElementById('tres-en-raya-estado').textContent = '¡Empate!';
-        showToast('¡Empate!', 'info');
-        return;
-    }
-    
-    window.jugadorActual = 'O';
-    document.getElementById('tres-en-raya-estado').textContent = 'Turno de CPU (O)';
-    
-    setTimeout(() => {
-        window.movimientoCPU();
-    }, 500);
-};
-
-window.movimientoCPU = function() {
-    if (!window.juegoActivo) return;
-    
-    let mejorMovimiento = window.buscarMejorMovimiento();
-    
-    if (mejorMovimiento !== -1) {
-        window.tablero[mejorMovimiento] = 'O';
-        window.movimientos++;
-        window.actualizarTableroTresEnRaya();
-        
-        if (window.verificarVictoria('O')) {
-            window.juegoActivo = false;
-            document.getElementById('tres-en-raya-estado').textContent = 'CPU ganó 😢';
-            showToast('CPU ganó 😢', 'error');
-            return;
-        }
-        
-        if (window.movimientos === 9) {
-            window.juegoActivo = false;
-            document.getElementById('tres-en-raya-estado').textContent = '¡Empate!';
-            showToast('¡Empate!', 'info');
-            return;
-        }
-    }
-    
-    window.jugadorActual = 'X';
-    document.getElementById('tres-en-raya-estado').textContent = 'Tu turno (X)';
-};
-
-window.buscarMejorMovimiento = function() {
-    const combinacionesGanadoras = [
-        [0, 1, 2], [3, 4, 5], [6, 7, 8],
-        [0, 3, 6], [1, 4, 7], [2, 5, 8],
-        [0, 4, 8], [2, 4, 6]
-    ];
-    
-    for (let combo of combinacionesGanadoras) {
-        const [a, b, c] = combo;
-        if (window.tablero[a] === 'O' && window.tablero[b] === 'O' && window.tablero[c] === '') return c;
-        if (window.tablero[a] === 'O' && window.tablero[c] === 'O' && window.tablero[b] === '') return b;
-        if (window.tablero[b] === 'O' && window.tablero[c] === 'O' && window.tablero[a] === '') return a;
-    }
-    
-    for (let combo of combinacionesGanadoras) {
-        const [a, b, c] = combo;
-        if (window.tablero[a] === 'X' && window.tablero[b] === 'X' && window.tablero[c] === '') return c;
-        if (window.tablero[a] === 'X' && window.tablero[c] === 'X' && window.tablero[b] === '') return b;
-        if (window.tablero[b] === 'X' && window.tablero[c] === 'X' && window.tablero[a] === '') return a;
-    }
-    
-    if (window.tablero[4] === '') return 4;
-    
-    const esquinas = [0, 2, 6, 8];
-    for (let esquina of esquinas) {
-        if (window.tablero[esquina] === '') return esquina;
-    }
-    
-    for (let i = 0; i < 9; i++) {
-        if (window.tablero[i] === '') return i;
-    }
-    
-    return -1;
-};
-
-window.verificarVictoria = function(jugador) {
-    const combinacionesGanadoras = [
-        [0, 1, 2], [3, 4, 5], [6, 7, 8],
-        [0, 3, 6], [1, 4, 7], [2, 5, 8],
-        [0, 4, 8], [2, 4, 6]
-    ];
-    
-    for (let combo of combinacionesGanadoras) {
-        const [a, b, c] = combo;
-        if (window.tablero[a] === jugador && window.tablero[b] === jugador && window.tablero[c] === jugador) {
-            return true;
-        }
-    }
-    return false;
-};
-
-window.actualizarTableroTresEnRaya = function() {
-    const celdas = document.querySelectorAll('.tres-en-raya-celda');
-    celdas.forEach((celda, index) => {
-        celda.textContent = window.tablero[index];
-        celda.classList.remove('x-mark', 'o-mark', 'winner');
-        
-        if (window.tablero[index] === 'X') {
-            celda.classList.add('x-mark');
-        } else if (window.tablero[index] === 'O') {
-            celda.classList.add('o-mark');
-        }
-    });
-    
-    // Highlight winning cells
-    const combinacionesGanadoras = [
-        [0, 1, 2], [3, 4, 5], [6, 7, 8],
-        [0, 3, 6], [1, 4, 7], [2, 5, 8],
-        [0, 4, 8], [2, 4, 6]
-    ];
-    
-    for (let combo of combinacionesGanadoras) {
-        const [a, b, c] = combo;
-        if (window.tablero[a] && window.tablero[a] === window.tablero[b] && window.tablero[a] === window.tablero[c]) {
-            celdas[a].classList.add('winner');
-            celdas[b].classList.add('winner');
-            celdas[c].classList.add('winner');
-            break;
-        }
-    }
-};
-
-window.reiniciarTresEnRaya = function() {
-    window.tablero = ['', '', '', '', '', '', '', '', ''];
-    window.jugadorActual = 'X';
-    window.juegoActivo = true;
-    window.movimientos = 0;
-    window.actualizarTableroTresEnRaya();
-    document.getElementById('tres-en-raya-estado').textContent = 'Tu turno (X)';
-};
-
-// ==================== JUEGO DE AJEDREZ ====================
-function iniciarJuegoAjedrez() {
-    const container = prepararJuego();
-    
-    window.tableroAjedrez = [
-        ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
-        ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
-        ['', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', ''],
-        ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
-        ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
-    ];
-    window.jugadorAjedrez = 'blanco';
-    window.juegoActivoAjedrez = true;
-    window.celdaSeleccionada = null;
-    
-    container.innerHTML = `
-        <div class="game-arena-title">♟️ Ajedrez</div>
-        <div class="game-arena-subtitle">Blancas vs Negras</div>
-        
-        <div class="game-box" style="height: 520px; display: flex; align-items: center; justify-content: center; overflow: hidden; background: transparent; border: none;">
-            <div id="ajedrez-tablero" style="display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; width: 480px; height: 480px; border: 4px solid #8b4513; border-radius: 4px;">
-                ${window.tableroAjedrez.map((row, rowIndex) =>
-                    row.map((cell, colIndex) => `
-                        <div class="ajedrez-celda" data-row="${rowIndex}" data-col="${colIndex}" onclick="seleccionarCelda(${rowIndex}, ${colIndex})"
-                             style="background: ${(rowIndex + colIndex) % 2 === 0 ? '#f0d9b5' : '#b58863'};
-                                    border-radius: 2px; display: flex; align-items: center; justify-content: center;
-                                    font-size: 2.5rem; font-weight: bold; cursor: pointer; transition: all 0.2s;">
-                            ${window.obtenerSimboloPieza(cell)}
-                        </div>
-                    `).join('')
-                ).join('')}
-            </div>
-        </div>
-        
-        <div class="game-score-board">
-            <div id="ajedrez-estado">Turno: Blancas</div>
-            <button onclick="reiniciarAjedrez()" style="margin-top: 10px; padding: 10px 20px; background: #10b981; border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: bold;">Reiniciar</button>
-        </div>
-    `;
+function openAchievementsModal() {
+  alert("🏆 Logros de MiniAmigixV Arcade:\n\n• Maestro del Tic-Tac-Toe\n• Cazador de Monedas\n• Mente brillante de Memoria");
 }
 
-window.obtenerSimboloPieza = function(pieza) {
-    const simbolos = {
-        'r': '♜', 'n': '♞', 'b': '♝', 'q': '♛', 'k': '♚', 'p': '♟',
-        'R': '♖', 'N': '♘', 'B': '♗', 'Q': '♕', 'K': '♔', 'P': '♙'
-    };
-    return simbolos[pieza] || '';
-};
-
-window.seleccionarCelda = function(row, col) {
-    if (!window.juegoActivoAjedrez) return;
-    
-    const pieza = window.tableroAjedrez[row][col];
-    const esBlanca = pieza === pieza.toUpperCase();
-    const esPiezaBlanca = esBlanca && pieza !== '';
-    const esPiezaNegra = !esBlanca && pieza !== '';
-    
-    if (window.celdaSeleccionada === null) {
-        if ((window.jugadorAjedrez === 'blanco' && esPiezaBlanca) || (window.jugadorAjedrez === 'negro' && esPiezaNegra)) {
-            window.celdaSeleccionada = { row, col };
-            window.resaltarCelda(row, col, true);
-        }
-    } else {
-        if (window.celdaSeleccionada.row === row && window.celdaSeleccionada.col === col) {
-            window.celdaSeleccionada = null;
-            window.actualizarTableroAjedrez();
-        } else if ((window.jugadorAjedrez === 'blanco' && esPiezaBlanca) || (window.jugadorAjedrez === 'negro' && esPiezaNegra)) {
-            window.celdaSeleccionada = { row, col };
-            window.actualizarTableroAjedrez();
-            window.resaltarCelda(row, col, true);
-        } else {
-            window.moverPieza(window.celdaSeleccionada.row, window.celdaSeleccionada.col, row, col);
-            window.celdaSeleccionada = null;
-        }
-    }
-};
-
-window.moverPieza = function(fromRow, fromCol, toRow, toCol) {
-    const pieza = window.tableroAjedrez[fromRow][fromCol];
-    window.tableroAjedrez[toRow][toCol] = pieza;
-    window.tableroAjedrez[fromRow][fromCol] = '';
-    
-    window.actualizarTableroAjedrez();
-    
-    if (pieza.toLowerCase() === 'k') {
-        window.juegoActivoAjedrez = false;
-        const ganador = window.jugadorAjedrez === 'blanco' ? 'Blancas' : 'Negras';
-        document.getElementById('ajedrez-estado').textContent = `¡${ganador} ganaron! 🎉`;
-        showToast(`¡${ganador} ganaron! 🎉`, 'success');
-        return;
-    }
-    
-    window.jugadorAjedrez = window.jugadorAjedrez === 'blanco' ? 'negro' : 'blanco';
-    document.getElementById('ajedrez-estado').textContent = `Turno: ${window.jugadorAjedrez === 'blanco' ? 'Blancas' : 'Negras'}`;
-};
-
-window.resaltarCelda = function(row, col, resaltar) {
-    const celdas = document.querySelectorAll('.ajedrez-celda');
-    const index = row * 8 + col;
-    if (celdas[index]) {
-        celdas[index].style.background = resaltar ? '#ffff00' : ((row + col) % 2 === 0 ? '#f0d9b5' : '#b58863');
-    }
-};
-
-window.actualizarTableroAjedrez = function() {
-    const celdas = document.querySelectorAll('.ajedrez-celda');
-    celdas.forEach((celda, index) => {
-        const row = Math.floor(index / 8);
-        const col = index % 8;
-        const pieza = window.tableroAjedrez[row][col];
-        celda.textContent = window.obtenerSimboloPieza(pieza);
-        celda.style.background = (row + col) % 2 === 0 ? '#f0d9b5' : '#b58863';
-        celda.style.color = pieza === pieza.toUpperCase() ? '#ffffff' : '#000000';
-    });
-};
-
-window.reiniciarAjedrez = function() {
-    window.tableroAjedrez = [
-        ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'],
-        ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
-        ['', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '', ''],
-        ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
-        ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R']
-    ];
-    window.jugadorAjedrez = 'blanco';
-    window.juegoActivoAjedrez = true;
-    window.celdaSeleccionada = null;
-    window.actualizarTableroAjedrez();
-    document.getElementById('ajedrez-estado').textContent = 'Turno: Blancas';
-};
-
-// ==================== FILTERING AND FAVORITES ====================
-
-function filterGames() {
-    const searchTerm = document.getElementById('game-search').value.toLowerCase();
-    const cards = document.querySelectorAll('.game-card');
-    
-    cards.forEach(card => {
-        const gameName = card.dataset.name || '';
-        const matchesSearch = gameName.includes(searchTerm);
-        
-        if (matchesSearch) {
-            card.style.display = '';
-        } else {
-            card.style.display = 'none';
-        }
-    });
+function updateDuckTheme() {
+  const isDark = document.body.classList.contains('dark') || !document.body.classList.contains('light');
+  const src = isDark ? "{% static 'amigis/amigis-dark.svg' %}" : "{% static 'amigis/amigis-light.svg' %}";
+  const hostImg = document.getElementById('arena-amigis-duck-img');
+  if (hostImg) hostImg.src = src;
 }
-
-function filterByCategory(category) {
-    const cards = document.querySelectorAll('.game-card');
-    const buttons = document.querySelectorAll('.filter-btn');
-    
-    // Update active button
-    buttons.forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.dataset.category === category) {
-            btn.classList.add('active');
-        }
-    });
-    
-    // Filter cards
-    cards.forEach(card => {
-        const cardCategory = card.dataset.category || 'todos';
-        
-        if (category === 'all' || cardCategory === category) {
-            card.style.display = '';
-        } else {
-            card.style.display = 'none';
-        }
-    });
-}
-
-function toggleFavorite(button, event) {
-    event.stopPropagation();
-    button.classList.toggle('active');
-    
-    const isActive = button.classList.contains('active');
-    const svg = button.querySelector('svg');
-    
-    if (isActive) {
-        svg.innerHTML = '<path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M19.5 13.5l-7.5 -7.5l-7.5 7.5"></path><path d="M12 3v10"></path>';
-        svg.style.fill = '#ef4444';
-        showToast('Agregado a favoritos ❤️', 'success');
-    } else {
-        svg.innerHTML = '<path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M19.5 13.5l-7.5 -7.5l-7.5 7.5"></path><path d="M12 3v10"></path>';
-        svg.style.fill = 'none';
-        showToast('Eliminado de favoritos', 'info');
-    }
-}
-
-
 </script>
 {% endblock %}

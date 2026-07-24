@@ -1,1128 +1,585 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Mis Eventos · Organizador Personal{% endblock %}
+{% block title %}Eventos — MiniAmigixV{% endblock %}
+{% block nav_title %}Eventos{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/modules/eventos.css' %}?v=3">
+<link rel="stylesheet" href="{% static 'css/modules/eventos.css' %}?v=40">
 {% endblock %}
 
 {% block content %}
-<style>
-  /* ── TOKENS ─────────────────────────────────────────────── */
-  :root {
-    --pink:        #ec4899;
-    --pink-light:  #f472b6;
-    --pink-dark:   #be185d;
-    --bg:          #0a0a0f;
-    --surface:     rgba(255,255,255,0.04);
-    --surface-hov: rgba(255,255,255,0.07);
-    --border:      rgba(236,72,153,0.18);
-    --border-hov:  rgba(236,72,153,0.45);
-    --text:        #f1f5f9;
-    --muted:       #94a3b8;
-    --radius:      18px;
-    --radius-sm:   10px;
-    --shadow-pink: 0 0 40px rgba(236,72,153,0.18);
-    --glow:        0 0 18px rgba(236,72,153,0.5);
-  }
+<div class="ev-page fadein">
+  {% csrf_token %}
 
-  /* ── RESET & BASE ───────────────────────────────────────── */
-  .ev-page * { box-sizing: border-box; }
-  .ev-page {
-    min-height: 100vh;
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Inter', system-ui, sans-serif;
-    padding-bottom: 120px;
-  }
-
-  /* ── KEYFRAMES ──────────────────────────────────────────── */
-  @keyframes fadeSlideUp {
-    from { opacity: 0; transform: translateY(28px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes orbFloat1 {
-    0%,100% { transform: translate(0,0) scale(1); }
-    50%      { transform: translate(40px,-30px) scale(1.1); }
-  }
-  @keyframes orbFloat2 {
-    0%,100% { transform: translate(0,0) scale(1); }
-    50%      { transform: translate(-35px,25px) scale(0.95); }
-  }
-  @keyframes orbFloat3 {
-    0%,100% { transform: translate(0,0) scale(1); }
-    33%      { transform: translate(20px,20px) scale(1.05); }
-    66%      { transform: translate(-20px,-15px) scale(0.98); }
-  }
-  @keyframes pulse-border {
-    0%,100% { border-color: rgba(236,72,153,0.2); }
-    50%      { border-color: rgba(236,72,153,0.5); }
-  }
-  @keyframes countdownPulse {
-    0%,100% { text-shadow: 0 0 10px rgba(236,72,153,0.4); }
-    50%      { text-shadow: 0 0 25px rgba(236,72,153,0.9); }
-  }
-
-  /* ── HERO HEADER ────────────────────────────────────────── */
-  .ev-hero {
-    position: relative;
-    overflow: hidden;
-    padding: 64px 32px 52px;
-    margin-bottom: 32px;
-    background: linear-gradient(135deg,
-      rgba(236,72,153,0.07) 0%,
-      rgba(10,10,15,0) 60%);
-    border-bottom: 1px solid var(--border);
-  }
-
-  /* orb blobs */
-  .ev-orb {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(70px);
-    pointer-events: none;
-    z-index: 0;
-  }
-  .ev-orb-1 {
-    width: 420px; height: 420px;
-    background: radial-gradient(circle, rgba(236,72,153,0.25) 0%, transparent 70%);
-    top: -100px; right: -80px;
-    animation: orbFloat1 9s ease-in-out infinite;
-  }
-  .ev-orb-2 {
-    width: 300px; height: 300px;
-    background: radial-gradient(circle, rgba(190,24,93,0.18) 0%, transparent 70%);
-    bottom: -80px; left: 60px;
-    animation: orbFloat2 12s ease-in-out infinite;
-  }
-  .ev-orb-3 {
-    width: 200px; height: 200px;
-    background: radial-gradient(circle, rgba(244,114,182,0.14) 0%, transparent 70%);
-    top: 20px; left: 38%;
-    animation: orbFloat3 15s ease-in-out infinite;
-  }
-
-  .ev-hero-inner {
-    position: relative;
-    z-index: 1;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .ev-hero-top {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    margin-bottom: 10px;
-    animation: fadeSlideUp 0.55s ease both;
-  }
-  .ev-hero-emoji {
-    font-size: 3rem;
-    filter: drop-shadow(0 0 16px rgba(236,72,153,0.6));
-    line-height: 1;
-  }
-  .ev-hero-title {
-    font-size: clamp(2rem, 5vw, 3rem);
-    font-weight: 800;
-    margin: 0;
-    background: linear-gradient(135deg, #fff 30%, var(--pink-light) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    line-height: 1.1;
-  }
-  .ev-hero-desc {
-    font-size: 1rem;
-    color: var(--muted);
-    margin: 0 0 28px 0;
-    animation: fadeSlideUp 0.55s 0.1s ease both;
-  }
-
-  /* stat chips */
-  .ev-stat-chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 14px;
-    animation: fadeSlideUp 0.55s 0.2s ease both;
-  }
-  .ev-chip {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: rgba(236,72,153,0.08);
-    border: 1px solid rgba(236,72,153,0.22);
-    border-radius: 50px;
-    padding: 10px 20px;
-    backdrop-filter: blur(12px);
-    transition: all 0.25s;
-  }
-  .ev-chip:hover {
-    background: rgba(236,72,153,0.15);
-    border-color: var(--pink);
-    box-shadow: var(--glow);
-    transform: translateY(-2px);
-  }
-  .ev-chip-emoji { font-size: 1.2rem; }
-  .ev-chip-val {
-    font-size: 1.35rem;
-    font-weight: 800;
-    color: var(--pink-light);
-    line-height: 1;
-  }
-  .ev-chip-lbl {
-    font-size: 0.78rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: .06em;
-  }
-
-  /* ── GLASS PANEL ────────────────────────────────────────── */
-  .glass-panel {
-    background: var(--surface);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    transition: border-color 0.3s, box-shadow 0.3s;
-  }
-  .glass-panel:hover {
-    border-color: rgba(236,72,153,0.3);
-    box-shadow: var(--shadow-pink);
-  }
-
-  /* ── WRAPPER ────────────────────────────────────────────── */
-  .ev-content {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 24px;
-  }
-
-  /* ── NEXT EVENT HIGHLIGHT ───────────────────────────────── */
-  .next-event-highlight {
-    padding: 24px 28px;
-    margin-bottom: 24px;
-    position: relative;
-    overflow: hidden;
-    animation: fadeSlideUp 0.55s 0.25s ease both;
-    background: linear-gradient(135deg,
-      rgba(236,72,153,0.1) 0%,
-      rgba(255,255,255,0.03) 100%);
-    border: 1px solid rgba(236,72,153,0.3);
-    animation: pulse-border 4s ease infinite, fadeSlideUp 0.55s 0.25s ease both;
-  }
-  .next-event-label {
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .12em;
-    color: var(--pink);
-    margin-bottom: 14px;
-  }
-  .next-event-content {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    flex-wrap: wrap;
-  }
-  .next-event-icon {
-    font-size: 2.6rem;
-    filter: drop-shadow(0 0 10px rgba(236,72,153,0.5));
-    flex-shrink: 0;
-  }
-  .next-event-details { flex: 1; min-width: 160px; }
-  .next-event-details h3 {
-    margin: 0 0 6px;
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #fff;
-  }
-  .next-event-meta {
-    display: flex;
-    gap: 14px;
-    flex-wrap: wrap;
-    font-size: 0.85rem;
-    color: var(--muted);
-  }
-
-  /* countdown */
-  .countdown-timer {
-    display: flex;
-    gap: 12px;
-    margin-left: auto;
-  }
-  .countdown-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: rgba(236,72,153,0.1);
-    border: 1px solid rgba(236,72,153,0.25);
-    border-radius: var(--radius-sm);
-    padding: 10px 16px;
-    min-width: 60px;
-  }
-  .countdown-value {
-    font-size: 1.6rem;
-    font-weight: 800;
-    color: var(--pink-light);
-    line-height: 1;
-    animation: countdownPulse 2s ease infinite;
-  }
-  .countdown-label {
-    font-size: 0.65rem;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    margin-top: 4px;
-  }
-
-  /* ── SEARCH & FILTERS ───────────────────────────────────── */
-  .search-filters {
-    padding: 18px 22px;
-    margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    gap: 18px;
-    flex-wrap: wrap;
-    animation: fadeSlideUp 0.55s 0.3s ease both;
-  }
-  .search-box {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 50px;
-    padding: 10px 18px;
-    flex: 1;
-    min-width: 200px;
-    transition: border-color 0.25s, box-shadow 0.25s;
-  }
-  .search-box:focus-within {
-    border-color: var(--pink);
-    box-shadow: 0 0 0 3px rgba(236,72,153,0.15);
-  }
-  .search-box svg { color: var(--muted); flex-shrink: 0; }
-  .search-box input {
-    background: none;
-    border: none;
-    outline: none;
-    color: var(--text);
-    font-size: 0.95rem;
-    width: 100%;
-  }
-  .search-box input::placeholder { color: var(--muted); }
-
-  .filter-tabs {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-  }
-  .filter-tab {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: var(--muted);
-    border-radius: 50px;
-    padding: 8px 16px;
-    font-size: 0.88rem;
-    cursor: pointer;
-    transition: all 0.22s;
-    font-weight: 500;
-  }
-  .filter-tab:hover {
-    border-color: var(--pink);
-    color: var(--pink-light);
-    background: rgba(236,72,153,0.08);
-  }
-  .filter-tab.active {
-    background: linear-gradient(135deg, var(--pink-dark), var(--pink));
-    border-color: transparent;
-    color: #fff;
-    font-weight: 700;
-    box-shadow: 0 4px 14px rgba(236,72,153,0.35);
-  }
-
-  /* ── VIEW TABS ──────────────────────────────────────────── */
-  .view-tabs {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 24px;
-    animation: fadeSlideUp 0.55s 0.35s ease both;
-  }
-  .view-tab {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    color: var(--muted);
-    border-radius: var(--radius-sm);
-    padding: 10px 22px;
-    font-size: 0.9rem;
-    cursor: pointer;
-    transition: all 0.22s;
-    font-weight: 500;
-    backdrop-filter: blur(12px);
-  }
-  .view-tab:hover {
-    border-color: var(--pink);
-    color: var(--pink-light);
-    background: rgba(236,72,153,0.07);
-  }
-  .view-tab.active {
-    background: linear-gradient(135deg, rgba(236,72,153,0.22), rgba(190,24,93,0.22));
-    border-color: var(--pink);
-    color: var(--pink-light);
-    font-weight: 700;
-    box-shadow: inset 0 0 20px rgba(236,72,153,0.08);
-  }
-
-  /* ── LAYOUT ─────────────────────────────────────────────── */
-  .eventos-layout {
-    display: grid;
-    grid-template-columns: 340px 1fr;
-    gap: 24px;
-    animation: fadeSlideUp 0.55s 0.4s ease both;
-  }
-  @media (max-width: 900px) {
-    .eventos-layout { grid-template-columns: 1fr; }
-  }
-
-  /* ── CALENDAR ───────────────────────────────────────────── */
-  .calendar-section {
-    padding: 24px;
-    align-self: start;
-    position: sticky;
-    top: 24px;
-  }
-  .calendar-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 18px;
-  }
-  #calendar-mes-ano {
-    font-weight: 700;
-    font-size: 1rem;
-    color: var(--text);
-    letter-spacing: .03em;
-  }
-  .calendar-nav {
-    background: rgba(236,72,153,0.1);
-    border: 1px solid rgba(236,72,153,0.25);
-    color: var(--pink-light);
-    border-radius: 8px;
-    padding: 6px;
-    cursor: pointer;
-    display: flex;
-    transition: all 0.2s;
-  }
-  .calendar-nav:hover {
-    background: rgba(236,72,153,0.2);
-    box-shadow: 0 0 12px rgba(236,72,153,0.3);
-  }
-
-  .calendar-dias-semana {
-    display: grid;
-    grid-template-columns: repeat(7,1fr);
-    gap: 2px;
-    margin-bottom: 8px;
-  }
-  .calendar-dias-semana span {
-    text-align: center;
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: var(--muted);
-    text-transform: uppercase;
-    letter-spacing: .06em;
-    padding: 4px 0;
-  }
-
-  .calendar-dias {
-    display: grid;
-    grid-template-columns: repeat(7,1fr);
-    gap: 3px;
-  }
-  .calendar-dia {
-    aspect-ratio: 1;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    font-size: 0.82rem;
-    border-radius: 8px;
-    cursor: pointer;
-    position: relative;
-    transition: all 0.18s;
-    color: var(--text);
-    font-weight: 500;
-    gap: 2px;
-  }
-  .calendar-dia:hover:not(.empty) {
-    background: rgba(236,72,153,0.12);
-    color: var(--pink-light);
-  }
-  .calendar-dia.hoy {
-    background: linear-gradient(135deg, var(--pink-dark), var(--pink));
-    color: #fff;
-    font-weight: 800;
-    box-shadow: 0 4px 14px rgba(236,72,153,0.4);
-  }
-  .calendar-dia.con-evento .evento-dot {
-    width: 5px; height: 5px;
-    border-radius: 50%;
-    display: inline-block;
-  }
-  .calendar-dia.empty { opacity: 0; pointer-events: none; }
-
-  /* mini agenda */
-  .mini-agenda {
-    margin-top: 22px;
-    border-top: 1px solid var(--border);
-    padding-top: 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
-  .mini-agenda-section h4 {
-    font-size: 0.78rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    color: var(--pink);
-    margin: 0 0 10px;
-  }
-  .mini-event {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 12px;
-    background: rgba(236,72,153,0.05);
-    border: 1px solid rgba(236,72,153,0.12);
-    border-radius: var(--radius-sm);
-    transition: all 0.2s;
-  }
-  .mini-event:hover {
-    background: rgba(236,72,153,0.1);
-    border-color: rgba(236,72,153,0.3);
-  }
-  .mini-time {
-    font-size: 0.72rem;
-    font-weight: 700;
-    color: var(--pink-light);
-    white-space: nowrap;
-  }
-  .mini-title {
-    font-size: 0.82rem;
-    color: var(--text);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-  .no-mini-events {
-    font-size: 0.8rem;
-    color: var(--muted);
-    font-style: italic;
-  }
-
-  /* ── EVENTS LIST ────────────────────────────────────────── */
-  .eventos-list-section { padding: 28px; }
-  .section-title {
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--text);
-    margin: 0 0 22px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .section-title::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, rgba(236,72,153,0.3), transparent);
-  }
-
-  .eventos-list {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-
-  /* event card */
-  .evento-card {
-    display: flex;
-    align-items: flex-start;
-    gap: 18px;
-    padding: 20px 22px;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    backdrop-filter: blur(12px);
-    transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
-    position: relative;
-    overflow: hidden;
-  }
-  .evento-card::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0; bottom: 0;
-    width: 3px;
-    background: linear-gradient(180deg, var(--pink), var(--pink-dark));
-    border-radius: 3px 0 0 3px;
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-  .evento-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 12px 40px rgba(236,72,153,0.2), var(--shadow-pink);
-    border-color: var(--border-hov);
-  }
-  .evento-card:hover::before { opacity: 1; }
-
-  /* date badge */
-  .evento-date {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    background: linear-gradient(135deg, rgba(236,72,153,0.15), rgba(190,24,93,0.15));
-    border: 1px solid rgba(236,72,153,0.3);
-    border-radius: var(--radius-sm);
-    padding: 10px 14px;
-    flex-shrink: 0;
-    min-width: 54px;
-    text-align: center;
-  }
-  .date-day {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: var(--pink-light);
-    line-height: 1;
-  }
-  .date-month {
-    font-size: 0.68rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    color: var(--muted);
-    letter-spacing: .06em;
-    margin-top: 2px;
-  }
-
-  /* event info */
-  .evento-info { flex: 1; min-width: 0; }
-  .evento-category-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 0.72rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    border: 1px solid;
-    border-radius: 50px;
-    padding: 4px 10px;
-    margin-bottom: 8px;
-  }
-  .evento-info h3 {
-    font-size: 1.05rem;
-    font-weight: 700;
-    color: #fff;
-    margin: 0 0 6px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .evento-info p {
-    font-size: 0.85rem;
-    color: var(--muted);
-    margin: 0 0 10px;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-
-  .evento-meta {
-    display: flex;
-    gap: 14px;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-  .evento-time, .evento-location, .evento-reminder {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    font-size: 0.78rem;
-    color: var(--muted);
-  }
-  .evento-time svg, .evento-location svg, .evento-reminder svg {
-    color: var(--pink);
-  }
-
-  /* actions */
-  .evento-actions {
-    display: flex;
-    gap: 8px;
-    flex-direction: column;
-    flex-shrink: 0;
-    align-items: center;
-  }
-  .btn-edit-event, .btn-delete-event {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px; height: 36px;
-    border-radius: 10px;
-    border: 1px solid rgba(255,255,255,0.1);
-    background: rgba(255,255,255,0.04);
-    color: var(--muted);
-    text-decoration: none;
-    cursor: pointer;
-    transition: all 0.22s;
-  }
-  .btn-edit-event:hover {
-    background: rgba(99,179,237,0.15);
-    border-color: rgba(99,179,237,0.4);
-    color: #63b3ed;
-    transform: scale(1.1);
-  }
-  .btn-delete-event:hover {
-    background: rgba(239,68,68,0.15);
-    border-color: rgba(239,68,68,0.4);
-    color: #ef4444;
-    transform: scale(1.1);
-  }
-  .evento-delete-form { margin: 0; padding: 0; }
-
-  /* empty state */
-  .no-eventos {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-    padding: 60px 20px;
-    gap: 12px;
-  }
-  .no-eventos svg { color: var(--pink); opacity: 0.25; }
-  .no-eventos h3 {
-    font-size: 1.1rem;
-    font-weight: 700;
-    color: var(--text);
-    margin: 0;
-  }
-  .no-eventos p {
-    font-size: 0.9rem;
-    color: var(--muted);
-    margin: 0;
-  }
-
-  /* ── FAB BUTTON ─────────────────────────────────────────── */
-  .fab-button {
-    position: fixed;
-    bottom: 36px;
-    right: 36px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: linear-gradient(135deg, var(--pink-dark), var(--pink), var(--pink-light));
-    background-size: 200% 200%;
-    color: #fff;
-    text-decoration: none;
-    border-radius: 50px;
-    padding: 16px 28px;
-    font-size: 0.95rem;
-    font-weight: 700;
-    letter-spacing: .02em;
-    box-shadow: 0 8px 32px rgba(236,72,153,0.5);
-    transition: all 0.3s;
-    z-index: 100;
-    border: 1px solid rgba(255,255,255,0.2);
-    animation: fadeSlideUp 0.55s 0.5s ease both;
-  }
-  .fab-button:hover {
-    transform: translateY(-4px) scale(1.04);
-    box-shadow: 0 14px 45px rgba(236,72,153,0.65), 0 0 0 3px rgba(236,72,153,0.2);
-    color: #fff;
-  }
-  .fab-button svg { flex-shrink: 0; }
-
-  /* ── STATS LEGACY (compat) ──────────────────────────────── */
-  .stats-header, .stats-cards, .stat-card { display: none !important; }
-</style>
-
-<div class="ev-page">
-
-  <!-- ── HERO ──────────────────────────────────────────────── -->
-  <div class="ev-hero">
-    <div class="ev-orb ev-orb-1"></div>
-    <div class="ev-orb ev-orb-2"></div>
-    <div class="ev-orb ev-orb-3"></div>
-    <div class="ev-hero-inner">
-      <div class="ev-hero-top">
-        <span class="ev-hero-emoji">📅</span>
-        <h1 class="ev-hero-title">Mis Eventos</h1>
+  {# ─────────────────────────────────────────────────────
+     HEADER BAR
+  ───────────────────────────────────────────────────── #}
+  <div class="ev-header-bar">
+    <div class="ev-header-title">
+      <span style="font-size:26px;">📅</span>
+      <div>
+        <h1>Eventos &amp; Agenda</h1>
+        <p>Organiza tu tiempo de forma inteligente con ayuda de Amigis.</p>
       </div>
-      <p class="ev-hero-desc">Organiza y visualiza todos tus compromisos en un solo lugar. <span style="color: var(--pink-light); font-size: 0.9rem;">Todos los eventos son creados por ti - no hay eventos predefinidos del sistema. Si ves algún evento que no reconoces, verifica que fue creado por tu cuenta de usuario.</span></p>
-      <div class="ev-stat-chips">
-        <div class="ev-chip">
-          <span class="ev-chip-emoji">📅</span>
-          <div>
-            <div class="ev-chip-val">{{ eventos_hoy.count }}</div>
-            <div class="ev-chip-lbl">Hoy</div>
-          </div>
-        </div>
-        <div class="ev-chip">
-          <span class="ev-chip-emoji">📆</span>
-          <div>
-            <div class="ev-chip-val">{{ eventos_semana.count }}</div>
-            <div class="ev-chip-lbl">Esta semana</div>
-          </div>
-        </div>
-        <div class="ev-chip">
-          <span class="ev-chip-emoji">🗓️</span>
-          <div>
-            <div class="ev-chip-val">{{ eventos_mes.count }}</div>
-            <div class="ev-chip-lbl">Este mes</div>
-          </div>
-        </div>
+    </div>
+
+    <div class="ev-header-actions">
+      <!-- Live search -->
+      <div style="position:relative;">
+        <input type="text" id="ev-search-input" placeholder="Buscar evento…"
+               onkeyup="filterEvents()"
+               style="background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.15);
+                      border-radius:14px;padding:8px 14px 8px 32px;color:#fff;font-size:12px;
+                      outline:none;width:170px;font-family:inherit;">
+        <i class="ti ti-search"
+           style="position:absolute;left:10px;top:50%;transform:translateY(-50%);
+                  color:rgba(255,255,255,0.4);font-size:14px;pointer-events:none;"></i>
       </div>
+      <button class="ev-btn ev-btn-primary" onclick="openCreateModal()">
+        <i class="ti ti-plus"></i> Nuevo Evento
+      </button>
+      <button class="ev-btn" onclick="toggleReminderPanel()">
+        <i class="ti ti-bell"></i> Recordatorios
+      </button>
     </div>
   </div>
 
-  <div class="ev-content">
-
-    <!-- ── PRÓXIMO EVENTO ─────────────────────────────────── -->
-    {% if proximo_evento %}
-    <div class="next-event-highlight glass-panel">
-        <div class="next-event-label">⏰ Próximo evento</div>
-        <div class="next-event-content">
-            <div class="next-event-icon">{{ proximo_evento.get_categoria_emoji }}</div>
-            <div class="next-event-details">
-                <h3>{{ proximo_evento.titulo }}</h3>
-                <div class="next-event-meta">
-                    <span>{{ proximo_evento.fecha|date:"d M" }} - {{ proximo_evento.fecha|date:"H:i" }}</span>
-                    {% if proximo_evento.ubicacion %}
-                    <span>📍 {{ proximo_evento.ubicacion }}</span>
-                    {% endif %}
-                </div>
-            </div>
-            <div class="countdown-timer" data-fecha="{{ proximo_evento.fecha|date:"Y-m-d H:i:s" }}">
-                <div class="countdown-item">
-                    <span class="countdown-value" id="countdown-days">--</span>
-                    <span class="countdown-label">días</span>
-                </div>
-                <div class="countdown-item">
-                    <span class="countdown-value" id="countdown-hours">--</span>
-                    <span class="countdown-label">horas</span>
-                </div>
-                <div class="countdown-item">
-                    <span class="countdown-value" id="countdown-minutes">--</span>
-                    <span class="countdown-label">min</span>
-                </div>
-            </div>
-        </div>
+  {# ─────────────────────────────────────────────────────
+     AMIGIS AGENDA BANNER
+  ───────────────────────────────────────────────────── #}
+  <div class="amigis-agenda-banner" id="amigis-agenda-banner">
+    <img src="{% static 'amigis/amigis-dark.svg' %}" class="amigis-agenda-duck"
+         id="amigis-agenda-duck" alt="Amigis Agenda">
+    <div class="amigis-agenda-msg" id="amigis-agenda-msg">
+      <strong>Agenda Inteligente de Amigis 🦆:</strong>
+      <span>"¡Hola! Revisé tu agenda y tienes un examen importante mañana. ¿Quieres que repasemos juntos durante 30 minutos? 📚"</span>
     </div>
-    {% endif %}
+  </div>
 
-    <!-- ── SEARCH & FILTERS ──────────────────────────────── -->
-    <div class="search-filters glass-panel">
-        <div class="search-box">
-            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="20" height="20" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-                <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                <path d="M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"></path>
-                <path d="M21 21l-6 -6"></path>
-            </svg>
-            <input type="text" name="q" placeholder="Buscar evento..." value="{{ busqueda }}" id="search-input">
+  {# ─────────────────────────────────────────────────────
+     STATS GRID
+  ───────────────────────────────────────────────────── #}
+  <div class="ev-stats-grid">
+    <div class="ev-stat-card">
+      <div class="ev-stat-icon">📅</div>
+      <div class="ev-stat-val" id="stat-total">0</div>
+      <div class="ev-stat-lbl">Eventos este mes</div>
+    </div>
+    <div class="ev-stat-card">
+      <div class="ev-stat-icon">⏰</div>
+      <div class="ev-stat-val" id="stat-reminders">4</div>
+      <div class="ev-stat-lbl">Recordatorios activos</div>
+    </div>
+    <div class="ev-stat-card">
+      <div class="ev-stat-icon">✅</div>
+      <div class="ev-stat-val" id="stat-done">0</div>
+      <div class="ev-stat-lbl">Eventos completados</div>
+    </div>
+    <div class="ev-stat-card">
+      <div class="ev-stat-icon">⭐</div>
+      <div class="ev-stat-val" id="stat-pending">0</div>
+      <div class="ev-stat-lbl">Tareas pendientes</div>
+    </div>
+  </div>
+
+  {# ─────────────────────────────────────────────────────
+     MAIN GRID
+  ───────────────────────────────────────────────────── #}
+  <div class="ev-main-grid">
+
+    {# ── LEFT: Calendar Panel ── #}
+    <div>
+      <div class="ev-calendar-panel">
+
+        <!-- Month navigation -->
+        <div class="ev-cal-nav">
+          <button class="ev-cal-nav-btn" onclick="prevMonth()">‹</button>
+          <span class="ev-cal-month" id="cal-month-label">Julio 2026</span>
+          <button class="ev-cal-nav-btn" onclick="nextMonth()">›</button>
         </div>
-        <div class="filter-tabs">
-            <button class="filter-tab {% if not categoria_filtro %}active{% endif %}" onclick="filterByCategory('')">
-                Todos
-            </button>
-            {% for cat in categorias %}
-            <button class="filter-tab {% if categoria_filtro == cat.value %}active{% endif %}" onclick="filterByCategory('{{ cat.value }}')">
-                {{ cat.emoji }}
-            </button>
-            {% endfor %}
+
+        <!-- Day headers -->
+        <div class="ev-cal-grid">
+          <div class="ev-cal-day-header">L</div>
+          <div class="ev-cal-day-header">M</div>
+          <div class="ev-cal-day-header">X</div>
+          <div class="ev-cal-day-header">J</div>
+          <div class="ev-cal-day-header">V</div>
+          <div class="ev-cal-day-header">S</div>
+          <div class="ev-cal-day-header">D</div>
         </div>
+
+        <!-- Calendar days (rendered by JS) -->
+        <div class="ev-cal-grid" id="cal-days-grid" style="margin-top:4px;"></div>
+
+        <!-- Category legend -->
+        <div class="ev-category-legend">
+          <div class="ev-cat-pill" style="background:rgba(56,189,248,0.12);color:#38bdf8;"
+               onclick="filterByCategory('work')">
+            <span class="dot" style="background:#38bdf8;"></span> Trabajo
+          </div>
+          <div class="ev-cat-pill" style="background:rgba(16,185,129,0.12);color:#10b981;"
+               onclick="filterByCategory('edu')">
+            <span class="dot" style="background:#10b981;"></span> Estudio
+          </div>
+          <div class="ev-cat-pill" style="background:rgba(245,158,11,0.12);color:#f59e0b;"
+               onclick="filterByCategory('party')">
+            <span class="dot" style="background:#f59e0b;"></span> Personal
+          </div>
+          <div class="ev-cat-pill" style="background:rgba(244,63,94,0.12);color:#f43f5e;"
+               onclick="filterByCategory('health')">
+            <span class="dot" style="background:#f43f5e;"></span> Salud
+          </div>
+          <div class="ev-cat-pill" style="background:rgba(192,132,252,0.12);color:#c084fc;"
+               onclick="filterByCategory('travel')">
+            <span class="dot" style="background:#c084fc;"></span> Viajes
+          </div>
+          <div class="ev-cat-pill" style="background:rgba(124,58,237,0.12);color:#a78bfa;"
+               onclick="filterByCategory('fun')">
+            <span class="dot" style="background:#7c3aed;"></span> Ocio
+          </div>
+          <div class="ev-cat-pill" style="background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.6);"
+               onclick="filterByCategory('all')">
+            Todos
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- ── VIEW TABS ─────────────────────────────────────── -->
-    <div class="view-tabs">
-        <button class="view-tab {% if vista == 'mes' %}active{% endif %}" onclick="changeView('mes')">
-            📅 Mes
-        </button>
-        <button class="view-tab {% if vista == 'semana' %}active{% endif %}" onclick="changeView('semana')">
-            📆 Semana
-        </button>
-        <button class="view-tab {% if vista == 'lista' %}active{% endif %}" onclick="changeView('lista')">
-            📋 Lista
-        </button>
-    </div>
+    {# ── RIGHT: Upcoming + Reminders ── #}
+    <div class="ev-right-col">
 
-    <!-- ── MAIN LAYOUT ───────────────────────────────────── -->
-    <div class="eventos-layout">
-
-      <!-- Calendar -->
-      <div class="glass-panel calendar-section">
-          <div class="calendar-header">
-              <button onclick="cambiarMes(-1)" class="calendar-nav">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M15 6l-6 6l6 6"></path></svg>
-              </button>
-              <span id="calendar-mes-ano"></span>
-              <button onclick="cambiarMes(1)" class="calendar-nav">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-chevron-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M9 6l6 6l-6 6"></path></svg>
-              </button>
-          </div>
-          <div class="calendar-dias-semana">
-              <span>Dom</span><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span>
-          </div>
-          <div id="calendar-dias" class="calendar-dias"></div>
-
-          <!-- Mini agenda -->
-          <div class="mini-agenda">
-              <div class="mini-agenda-section">
-                  <h4>📅 Hoy</h4>
-                  {% for evento in eventos_hoy_lista %}
-                  <div class="mini-event">
-                      <span class="mini-time">{{ evento.fecha|date:"H:i" }}</span>
-                      <span class="mini-title">{{ evento.get_categoria_emoji }} {{ evento.titulo }}</span>
-                  </div>
-                  {% empty %}
-                  <span class="no-mini-events">Sin eventos</span>
-                  {% endfor %}
-              </div>
-              <div class="mini-agenda-section">
-                  <h4>📅 Mañana</h4>
-                  {% for evento in eventos_manana %}
-                  <div class="mini-event">
-                      <span class="mini-time">{{ evento.fecha|date:"H:i" }}</span>
-                      <span class="mini-title">{{ evento.get_categoria_emoji }} {{ evento.titulo }}</span>
-                  </div>
-                  {% empty %}
-                  <span class="no-mini-events">Sin eventos</span>
-                  {% endfor %}
-              </div>
-          </div>
+      <!-- Upcoming Events -->
+      <div class="ev-panel-box">
+        <h3 class="ev-section-title">
+          <i class="ti ti-calendar-event" style="color:#fb7185;"></i>
+          Próximos Eventos
+        </h3>
+        <div class="ev-upcoming-list" id="upcoming-events-list">
+          <!-- Populated by JS with default events -->
+        </div>
       </div>
 
-      <!-- Events list -->
-      <div class="glass-panel eventos-list-section">
-          <h3 class="section-title">⏰ Próximos eventos</h3>
-
-          <div class="eventos-list">
-              {% for evento in proximos_eventos %}
-              <div class="evento-card" data-fecha="{{ evento.fecha|date:"Y-m-d" }}" data-categoria="{{ evento.categoria }}">
-                  <div class="evento-date">
-                      <span class="date-day">{{ evento.fecha|date:"d" }}</span>
-                      <span class="date-month">{{ evento.fecha|date:"M" }}</span>
-                  </div>
-                  <div class="evento-info">
-                      <div class="evento-category-badge" style="background: {{ evento.get_categoria_color }}20; border-color: {{ evento.get_categoria_color }}">
-                          {{ evento.get_categoria_emoji }} {{ evento.get_categoria|title }}
-                      </div>
-                      <h3>{{ evento.titulo }}</h3>
-                      {% if evento.descripcion %}
-                      <p>{{ evento.descripcion }}</p>
-                      {% endif %}
-                      <div class="evento-meta">
-                          <span class="evento-time">
-                              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock-hour-4" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M12 12m-9 0a9 9 0 1 0 18 0a9 9 0 1 0 -18 0"></path><path d="M12 12l3 2"></path><path d="M12 7v5"></path></svg>
-                              {{ evento.fecha|date:"H:i" }}
-                          </span>
-                          {% if evento.ubicacion %}
-                          <span class="evento-location">
-                              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-map-pin" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M9 11a3 3 0 1 0 6 0a3 3 0 0 0 -6 0"></path><path d="M17.657 16.657l-4.243 4.243a2 2 0 0 1 -2.827 0l-4.244 -4.243a8 8 0 1 1 11.314 0z"></path></svg>
-                              {{ evento.ubicacion }}
-                          </span>
-                          {% endif %}
-                          {% if evento.recordatorio_activo %}
-                          <span class="evento-reminder">
-                              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-bell" width="16" height="16" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M10 5a2 2 0 0 1 4 0a7 7 0 0 1 4 5v9a1 1 0 0 1 -1 1h-10a1 1 0 0 1 -1 -1v-9a7 7 0 0 1 4 -5"></path><path d="M9 17v1a3 3 0 0 0 6 0v-1"></path></svg>
-                              {{ evento.recordatorio_minutos_antes }}min
-                          </span>
-                          {% endif %}
-                      </div>
-                  </div>
-                  <div class="evento-actions">
-                      <a href="{% url 'editar_evento' evento.id %}" class="btn-edit-event" title="Editar evento">
-                          <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-pencil" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M4 20h4l10.5 -10.5a1.5 1.5 0 0 0 -4 -4l-10.5 10.5v4"></path><path d="M13.5 6.5l4 4"></path></svg>
-                      </a>
-                      <form method="POST" action="{% url 'eliminar_evento' evento.id %}" class="evento-delete-form">
-                          {% csrf_token %}
-                          <button type="submit" class="btn-delete-event" onclick="return confirm('¿Eliminar este evento?')" title="Eliminar evento">
-                              <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-trash" width="18" height="18" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M4 7l16 0"></path><path d="M10 11l0 6"></path><path d="M14 11l0 6"></path><path d="M5 7l1 12a2 2 0 0 0 2 2h8a2 2 0 0 0 2 -2l1 -12"></path><path d="M9 7v-3a1 1 0 0 1 1 -1h4a1 1 0 0 1 1 1v3"></path></svg>
-                          </button>
-                      </form>
-                  </div>
-              </div>
-              {% empty %}
-              <div class="no-eventos">
-                  <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar" width="64" height="64" viewBox="0 0 24 24" stroke-width="1" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" style="opacity: 0.3; margin-bottom: 20px;">
-                      <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-                      <path d="M4 5m0 2a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2z"></path>
-                      <path d="M16 3l0 4"></path>
-                      <path d="M8 3l0 4"></path>
-                      <path d="M4 11l16 0"></path>
-                  </svg>
-                  <h3>No tienes eventos próximos</h3>
-                  <p>Empieza creando uno nuevo para organizarte mejor</p>
-              </div>
-              {% endfor %}
+      <!-- Reminders Panel -->
+      <div class="ev-panel-box" id="reminders-panel">
+        <h3 class="ev-section-title">
+          <i class="ti ti-bell" style="color:#f59e0b;"></i>
+          Recordatorios Activos
+        </h3>
+        <div id="reminders-list">
+          <div class="ev-reminder-row">
+            <span style="font-size:18px;">⏰</span>
+            <div style="flex:1;">
+              <div style="font-size:12.5px;font-weight:700;color:#fff;">Estudiar Java</div>
+              <div style="font-size:11px;color:var(--ev-dim);">Hoy — 7:00 PM</div>
+            </div>
+            <button class="ev-btn" style="padding:4px 10px;font-size:11px;" onclick="dismissReminder(this)">✓</button>
           </div>
+          <div class="ev-reminder-row">
+            <span style="font-size:18px;">📖</span>
+            <div style="flex:1;">
+              <div style="font-size:12.5px;font-weight:700;color:#fff;">Leer documentación Django</div>
+              <div style="font-size:11px;color:var(--ev-dim);">Hoy — 8:30 PM</div>
+            </div>
+            <button class="ev-btn" style="padding:4px 10px;font-size:11px;" onclick="dismissReminder(this)">✓</button>
+          </div>
+          <div class="ev-reminder-row">
+            <span style="font-size:18px;">💧</span>
+            <div style="flex:1;">
+              <div style="font-size:12.5px;font-weight:700;color:#fff;">Tomar agua</div>
+              <div style="font-size:11px;color:var(--ev-dim);">Cada 2 horas</div>
+            </div>
+            <button class="ev-btn" style="padding:4px 10px;font-size:11px;" onclick="dismissReminder(this)">✓</button>
+          </div>
+          <div class="ev-reminder-row">
+            <span style="font-size:18px;">💻</span>
+            <div style="flex:1;">
+              <div style="font-size:12.5px;font-weight:700;color:#fff;">Revisar MiniAmigixV</div>
+              <div style="font-size:11px;color:var(--ev-dim);">Mañana</div>
+            </div>
+            <button class="ev-btn" style="padding:4px 10px;font-size:11px;" onclick="dismissReminder(this)">✓</button>
+          </div>
+        </div>
       </div>
 
-    </div><!-- /eventos-layout -->
+    </div>{# end right col #}
+  </div>{# end main grid #}
+</div>{# end ev-page #}
 
-    <!-- ── FAB ───────────────────────────────────────────── -->
-    <a href="{% url 'crear_evento' %}" class="fab-button">
-        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-plus" width="32" height="32" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
-            <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
-            <path d="M12 5l0 14"></path>
-            <path d="M5 12l14 0"></path>
-        </svg>
-        <span>Nuevo Evento</span>
-    </a>
+{# ─────────────────────────────────────────────────────
+   CREATE EVENT MODAL
+───────────────────────────────────────────────────── #}
+<div class="ev-modal-overlay" id="create-modal">
+  <div class="ev-modal-box">
+    <button class="ev-modal-close" onclick="closeCreateModal()">✕</button>
+    <h2 style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;
+                margin:0 0 20px;color:#fff;display:flex;align-items:center;gap:8px;">
+      ➕ Crear Nuevo Evento
+    </h2>
 
-  </div><!-- /ev-content -->
-</div><!-- /ev-page -->
-{% endblock %}
+    <div class="ev-form-group">
+      <label class="ev-form-label">📝 Título</label>
+      <input type="text" id="ev-title" class="ev-form-input" placeholder="Nombre del evento">
+    </div>
 
-{% block extra_js %}
+    <div class="ev-form-row">
+      <div class="ev-form-group">
+        <label class="ev-form-label">📅 Fecha</label>
+        <input type="date" id="ev-date" class="ev-form-input">
+      </div>
+      <div class="ev-form-group">
+        <label class="ev-form-label">🕒 Hora</label>
+        <input type="time" id="ev-time" class="ev-form-input">
+      </div>
+    </div>
+
+    <div class="ev-form-group">
+      <label class="ev-form-label">📍 Lugar</label>
+      <input type="text" id="ev-location" class="ev-form-input" placeholder="Ej. Universidad, Google Meet, Casa...">
+    </div>
+
+    <div class="ev-form-group">
+      <label class="ev-form-label">🏷 Categoría</label>
+      <select id="ev-category" class="ev-form-select">
+        <option value="edu">📚 Estudio</option>
+        <option value="work">💼 Trabajo</option>
+        <option value="party">🎉 Personal</option>
+        <option value="health">🏥 Salud</option>
+        <option value="travel">✈ Viajes</option>
+        <option value="fun">🎮 Ocio</option>
+      </select>
+    </div>
+
+    <div class="ev-form-group">
+      <label class="ev-form-label">🎨 Color</label>
+      <div class="ev-color-row">
+        <div class="ev-color-swatch selected" style="background:#f43f5e;" data-color="#f43f5e" onclick="selectColor(this)"></div>
+        <div class="ev-color-swatch" style="background:#38bdf8;" data-color="#38bdf8" onclick="selectColor(this)"></div>
+        <div class="ev-color-swatch" style="background:#10b981;" data-color="#10b981" onclick="selectColor(this)"></div>
+        <div class="ev-color-swatch" style="background:#f59e0b;" data-color="#f59e0b" onclick="selectColor(this)"></div>
+        <div class="ev-color-swatch" style="background:#c084fc;" data-color="#c084fc" onclick="selectColor(this)"></div>
+        <div class="ev-color-swatch" style="background:#7c3aed;" data-color="#7c3aed" onclick="selectColor(this)"></div>
+      </div>
+    </div>
+
+    <div class="ev-form-group">
+      <label class="ev-form-label">🔔 Recordatorio</label>
+      <select id="ev-reminder" class="ev-form-select">
+        <option value="">Sin recordatorio</option>
+        <option value="15">15 minutos antes</option>
+        <option value="30">30 minutos antes</option>
+        <option value="60">1 hora antes</option>
+        <option value="1440">1 día antes</option>
+      </select>
+    </div>
+
+    <div class="ev-form-group">
+      <label class="ev-form-label">📝 Notas (opcional)</label>
+      <textarea id="ev-notes" class="ev-form-textarea" placeholder="Agrega detalles adicionales..."></textarea>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:6px;">
+      <button class="ev-btn ev-btn-primary" style="flex:1;justify-content:center;padding:12px;"
+              onclick="saveEvent()">
+        💾 Guardar Evento
+      </button>
+      <button class="ev-btn" onclick="closeCreateModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+{# ─────────────────────────────────────────────────────
+   EVENT DETAIL MODAL
+───────────────────────────────────────────────────── #}
+<div class="ev-detail-modal-overlay" id="detail-modal">
+  <div class="ev-detail-box">
+    <button class="ev-modal-close" onclick="closeDetailModal()">✕</button>
+    <div id="detail-modal-body"></div>
+  </div>
+</div>
+
+{# ─────────────────────────────────────────────────────
+   SCRIPT
+───────────────────────────────────────────────────── #}
 <script>
-let fechaActual = new Date();
-let mesActual = fechaActual.getMonth();
-let anoActual = fechaActual.getFullYear();
-let eventosData = [];
+/* ── State ── */
+const amigisImgEl = document.getElementById('amigis-agenda-duck');
+const isDark = () => !document.body.classList.contains('light');
 
-// Obtener datos de eventos con categorías
-{% for evento in eventos %}
-eventosData.push({
-    fecha: '{{ evento.fecha|date:"Y-m-d" }}',
-    categoria: '{{ evento.categoria }}',
-    color: '{{ evento.get_categoria_color }}'
-});
-{% endfor %}
+let selectedColor  = '#f43f5e';
+let currentYear    = new Date().getFullYear();
+let currentMonth   = new Date().getMonth();   /* 0-indexed */
+let activeCategory = 'all';
 
-function renderizarCalendario() {
-    const primerDia = new Date(anoActual, mesActual, 1);
-    const ultimoDia = new Date(anoActual, mesActual + 1, 0);
-    const diasMes = ultimoDia.getDate();
-    const diaSemana = primerDia.getDay();
-    
-    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
-                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-    
-    document.getElementById('calendar-mes-ano').textContent = `${meses[mesActual]} ${anoActual}`;
-    
-    let html = '';
-    
-    // Agrupar eventos por día
-    const eventosPorDia = {};
-    eventosData.forEach(ev => {
-        if (!eventosPorDia[ev.fecha]) {
-            eventosPorDia[ev.fecha] = [];
-        }
-        eventosPorDia[ev.fecha].push(ev);
-    });
-    
-    // Días vacíos antes del primer día del mes
-    for (let i = 0; i < diaSemana; i++) {
-        html += '<div class="calendar-dia empty"></div>';
-    }
-    
-    // Días del mes
-    const hoy = new Date();
-    for (let dia = 1; dia <= diasMes; dia++) {
-        const fechaStr = `${anoActual}-${String(mesActual + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
-        const esHoy = dia === hoy.getDate() && mesActual === hoy.getMonth() && anoActual === hoy.getFullYear();
-        const eventosDelDia = eventosPorDia[fechaStr] || [];
-        
-        let dotsHtml = '';
-        if (eventosDelDia.length > 0) {
-            const uniqueColors = [...new Set(eventosDelDia.map(e => e.color))];
-            uniqueColors.forEach(color => {
-                dotsHtml += `<span class="evento-dot" style="background: ${color}; box-shadow: 0 0 8px ${color};"></span>`;
-            });
-        }
-        
-        html += `<div class="calendar-dia ${esHoy ? 'hoy' : ''} ${eventosDelDia.length > 0 ? 'con-evento' : ''}" data-fecha="${fechaStr}">
-            ${dia}
-            ${dotsHtml}
-        </div>`;
-    }
-    
-    document.getElementById('calendar-dias').innerHTML = html;
+/* Seeded sample events for demo */
+let events = [
+  { id:1, title:'Entrega Proyecto de Software', date:'2026-07-25', time:'10:00', location:'Universidad',  category:'edu',    color:'#10b981', reminder:'60',  notes:'' },
+  { id:2, title:'Cumpleaños de un Amigo 🎂',    date:'2026-07-26', time:'18:00', location:'Casa',         category:'party',  color:'#f59e0b', reminder:'1440', notes:'' },
+  { id:3, title:'Reunión de Trabajo',            date:'2026-07-28', time:'09:00', location:'Google Meet', category:'work',   color:'#38bdf8', reminder:'30',  notes:'' },
+  { id:4, title:'Examen de Matemáticas',         date:'2026-07-30', time:'08:00', location:'Aula 304',    category:'edu',    color:'#10b981', reminder:'1440', notes:'Repasar capítulo 5' },
+];
+let nextId = 5;
+
+/* ── Calendar ── */
+function buildCalendar() {
+  const monthNames = ['Enero','Febrero','Marzo','Abril','Mayo','Junio',
+                      'Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+  document.getElementById('cal-month-label').textContent =
+    `${monthNames[currentMonth]} ${currentYear}`;
+
+  const grid     = document.getElementById('cal-days-grid');
+  grid.innerHTML = '';
+
+  const firstDay  = new Date(currentYear, currentMonth, 1).getDay(); /* 0=Sun */
+  const daysInMon = new Date(currentYear, currentMonth+1, 0).getDate();
+  const today     = new Date();
+
+  /* offset: Mon-first (1..7 → 0..6) */
+  const offset = (firstDay === 0) ? 6 : firstDay - 1;
+  const prevDays = new Date(currentYear, currentMonth, 0).getDate();
+
+  /* Previous month ghost cells */
+  for (let i = offset-1; i >= 0; i--) {
+    const d = document.createElement('div');
+    d.className = 'ev-cal-day other-month';
+    d.textContent = prevDays - i;
+    grid.appendChild(d);
+  }
+
+  /* Current month days */
+  const evDays = events
+    .filter(e => {
+      const dt = new Date(e.date);
+      return dt.getFullYear() === currentYear && dt.getMonth() === currentMonth;
+    })
+    .map(e => new Date(e.date).getDate());
+
+  for (let d = 1; d <= daysInMon; d++) {
+    const cell = document.createElement('div');
+    cell.className = 'ev-cal-day';
+    cell.textContent = d;
+    if (d === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear())
+      cell.classList.add('today');
+    if (evDays.includes(d)) cell.classList.add('has-event');
+    cell.onclick = () => highlightDayEvents(d);
+    grid.appendChild(cell);
+  }
+
+  /* Pad remaining */
+  const total = offset + daysInMon;
+  const remaining = total % 7 === 0 ? 0 : 7 - (total % 7);
+  for (let d = 1; d <= remaining; d++) {
+    const cell = document.createElement('div');
+    cell.className = 'ev-cal-day other-month';
+    cell.textContent = d;
+    grid.appendChild(cell);
+  }
 }
 
-function cambiarMes(delta) {
-    mesActual += delta;
-    if (mesActual > 11) {
-        mesActual = 0;
-        anoActual++;
-    } else if (mesActual < 0) {
-        mesActual = 11;
-        anoActual--;
-    }
-    renderizarCalendario();
+function prevMonth() {
+  currentMonth--;
+  if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+  buildCalendar();
+}
+function nextMonth() {
+  currentMonth++;
+  if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+  buildCalendar();
 }
 
-function filterByCategory(categoria) {
-    const url = new URL(window.location);
-    if (categoria) {
-        url.searchParams.set('categoria', categoria);
-    } else {
-        url.searchParams.delete('categoria');
-    }
-    window.location = url.toString();
+/* ── Render Upcoming Events ── */
+function renderUpcoming() {
+  const list = document.getElementById('upcoming-events-list');
+  let filtered = activeCategory === 'all' ? events : events.filter(e => e.category === activeCategory);
+  const term   = (document.getElementById('ev-search-input')?.value || '').toLowerCase();
+  if (term) filtered = filtered.filter(e => e.title.toLowerCase().includes(term));
+
+  /* sort by date */
+  filtered = filtered.slice().sort((a,b) => new Date(a.date+' '+a.time) - new Date(b.date+' '+b.time));
+
+  if (!filtered.length) {
+    list.innerHTML = `<div style="text-align:center;padding:24px;color:var(--ev-dim);font-size:13px;">
+      📭 No hay eventos. ¡Crea uno nuevo!
+    </div>`;
+  } else {
+    list.innerHTML = filtered.map(ev => eventCardHTML(ev)).join('');
+  }
+
+  updateStats();
 }
 
-function changeView(vista) {
-    const url = new URL(window.location);
-    url.searchParams.set('vista', vista);
-    window.location = url.toString();
+function eventCardHTML(ev) {
+  const catIcons = { edu:'📚', work:'💼', party:'🎉', health:'🏥', travel:'✈️', fun:'🎮' };
+  const icon = catIcons[ev.category] || '📌';
+  const dateStr = formatDate(ev.date);
+  return `
+    <div class="ev-event-card ${ev.category}" id="ev-card-${ev.id}"
+         onclick="viewEvent(${ev.id})" style="border-left-color:${ev.color};">
+      <div class="ev-event-icon">${icon}</div>
+      <div class="ev-event-info">
+        <div class="ev-event-title">${escHtml(ev.title)}</div>
+        <div class="ev-event-meta">
+          <span>🕒 ${dateStr} · ${ev.time}</span>
+          <span>📍 ${escHtml(ev.location || '—')}</span>
+        </div>
+      </div>
+      <div class="ev-event-actions">
+        <button class="ev-btn" style="padding:5px 9px;font-size:11px;" title="Completar"
+                onclick="event.stopPropagation();completeEvent(${ev.id})">✓</button>
+        <button class="ev-btn" style="padding:5px 9px;font-size:11px;" title="Eliminar"
+                onclick="event.stopPropagation();deleteEvent(${ev.id})">🗑</button>
+      </div>
+    </div>`;
 }
 
-// Countdown timer
-function updateCountdown() {
-    const countdownElement = document.querySelector('.countdown-timer');
-    if (!countdownElement) return;
-    
-    const fechaEvento = new Date(countdownElement.dataset.fecha);
-    const ahora = new Date();
-    const diferencia = fechaEvento - ahora;
-    
-    if (diferencia <= 0) {
-        document.getElementById('countdown-days').textContent = '0';
-        document.getElementById('countdown-hours').textContent = '0';
-        document.getElementById('countdown-minutes').textContent = '0';
-        return;
-    }
-    
-    const dias = Math.floor(diferencia / (1000 * 60 * 60 * 24));
-    const horas = Math.floor((diferencia % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutos = Math.floor((diferencia % (1000 * 60 * 60)) / (1000 * 60));
-    
-    document.getElementById('countdown-days').textContent = dias;
-    document.getElementById('countdown-hours').textContent = horas;
-    document.getElementById('countdown-minutes').textContent = minutos;
+function formatDate(dateStr) {
+  const d   = new Date(dateStr + 'T00:00:00');
+  const now  = new Date();
+  const tomorrow = new Date(now); tomorrow.setDate(now.getDate()+1);
+  if (d.toDateString() === now.toDateString())       return 'Hoy';
+  if (d.toDateString() === tomorrow.toDateString())  return 'Mañana';
+  return d.toLocaleDateString('es-ES', { day:'numeric', month:'short' });
 }
 
-// Search functionality
-document.getElementById('search-input').addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') {
-        const url = new URL(window.location);
-        const query = this.value.trim();
-        if (query) {
-            url.searchParams.set('q', query);
-        } else {
-            url.searchParams.delete('q');
-        }
-        window.location = url.toString();
-    }
-});
+/* ── Stats ── */
+function updateStats() {
+  const thisMonth = events.filter(e => {
+    const dt = new Date(e.date);
+    return dt.getMonth() === new Date().getMonth() && dt.getFullYear() === new Date().getFullYear();
+  });
+  document.getElementById('stat-total').textContent   = thisMonth.length;
+  document.getElementById('stat-pending').textContent = events.filter(e => new Date(e.date) >= new Date()).length;
+}
 
-// Inicializar
-document.addEventListener('DOMContentLoaded', function() {
-    renderizarCalendario();
-    updateCountdown();
-    setInterval(updateCountdown, 60000); // Actualizar cada minuto
+/* ── Filters ── */
+function filterByCategory(cat) { activeCategory = cat; renderUpcoming(); }
+function filterEvents()         { renderUpcoming(); }
+
+/* ── Create Modal ── */
+function openCreateModal() {
+  /* pre-fill date with today */
+  document.getElementById('ev-date').value = new Date().toISOString().slice(0,10);
+  document.getElementById('create-modal').classList.add('open');
+}
+function closeCreateModal() { document.getElementById('create-modal').classList.remove('open'); }
+
+function selectColor(el) {
+  document.querySelectorAll('.ev-color-swatch').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedColor = el.getAttribute('data-color');
+}
+
+function saveEvent() {
+  const title    = document.getElementById('ev-title').value.trim();
+  const date     = document.getElementById('ev-date').value;
+  const time     = document.getElementById('ev-time').value;
+  const location = document.getElementById('ev-location').value.trim();
+  const category = document.getElementById('ev-category').value;
+  const reminder = document.getElementById('ev-reminder').value;
+  const notes    = document.getElementById('ev-notes').value.trim();
+
+  if (!title || !date) { alert('Por favor ingresa un título y una fecha.'); return; }
+
+  events.push({ id:nextId++, title, date, time:time||'00:00', location, category, color:selectedColor, reminder, notes });
+  renderUpcoming();
+  buildCalendar();
+  updateAmigisMessage();
+  closeCreateModal();
+
+  /* Reset form */
+  ['ev-title','ev-date','ev-time','ev-location','ev-notes'].forEach(id => document.getElementById(id).value = '');
+}
+
+/* ── Event Actions ── */
+function completeEvent(id) {
+  events = events.filter(e => e.id !== id);
+  const doneEl = document.getElementById('stat-done');
+  doneEl.textContent = parseInt(doneEl.textContent) + 1;
+  renderUpcoming();
+  buildCalendar();
+}
+
+function deleteEvent(id) {
+  if (confirm('¿Eliminar este evento?')) {
+    events = events.filter(e => e.id !== id);
+    renderUpcoming();
+    buildCalendar();
+  }
+}
+
+function viewEvent(id) {
+  const ev = events.find(e => e.id === id);
+  if (!ev) return;
+  const catLabels = { edu:'📚 Estudio', work:'💼 Trabajo', party:'🎉 Personal', health:'🏥 Salud', travel:'✈️ Viajes', fun:'🎮 Ocio' };
+  document.getElementById('detail-modal-body').innerHTML = `
+    <h2 style="font-family:'Space Grotesk',sans-serif;font-size:20px;font-weight:800;color:#fff;margin:0 0 16px;">${escHtml(ev.title)}</h2>
+    <div style="display:flex;flex-direction:column;gap:10px;font-size:13px;color:rgba(255,255,255,0.75);">
+      <div>📅 <strong>Fecha:</strong> ${formatDate(ev.date)} — ${ev.time}</div>
+      <div>📍 <strong>Lugar:</strong> ${escHtml(ev.location||'—')}</div>
+      <div>🏷 <strong>Categoría:</strong> ${catLabels[ev.category]||ev.category}</div>
+      ${ev.notes ? `<div>📝 <strong>Notas:</strong> ${escHtml(ev.notes)}</div>` : ''}
+    </div>
+    <div style="display:flex;gap:8px;margin-top:20px;">
+      <button class="ev-btn ev-btn-primary" onclick="completeEvent(${ev.id});closeDetailModal();">✅ Marcar como hecho</button>
+      <button class="ev-btn" onclick="deleteEvent(${ev.id});closeDetailModal();">🗑 Eliminar</button>
+    </div>`;
+  document.getElementById('detail-modal').classList.add('open');
+}
+function closeDetailModal() { document.getElementById('detail-modal').classList.remove('open'); }
+
+function highlightDayEvents(day) {
+  const dateStr = `${currentYear}-${String(currentMonth+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+  const dayEvents = events.filter(e => e.date === dateStr);
+  if (!dayEvents.length) return;
+  const ev = dayEvents[0];
+  viewEvent(ev.id);
+}
+
+/* ── Reminders ── */
+function toggleReminderPanel() {
+  const panel = document.getElementById('reminders-panel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+function dismissReminder(btn) {
+  btn.closest('.ev-reminder-row').remove();
+  const count = document.getElementById('stat-reminders');
+  const n = parseInt(count.textContent) - 1;
+  count.textContent = Math.max(0, n);
+}
+
+/* ── Amigis contextual messages ── */
+function updateAmigisMessage() {
+  const msgs = [
+    '¡Tienes un evento próximo! ¿Quieres que prepare un recordatorio especial? 🔔',
+    'Llevas varias horas estudiando. ¿Qué tal un descanso de 10 minutos? ☕',
+    '¡Nuevo evento agregado! Tu agenda está organizada y lista. 📅',
+    'Recuerda que mañana tienes actividades. ¡Prepárate con tiempo! 💡',
+  ];
+  const span = document.querySelector('#amigis-agenda-msg span');
+  if (span) span.textContent = '"' + msgs[Math.floor(Math.random() * msgs.length)] + '"';
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;');
+}
+
+/* ── Duck theme sync ── */
+function syncDuck() {
+  if (amigisImgEl)
+    amigisImgEl.src = isDark()
+      ? "{% static 'amigis/amigis-dark.svg' %}"
+      : "{% static 'amigis/amigis-light.svg' %}";
+}
+
+/* ── Init ── */
+document.addEventListener('DOMContentLoaded', () => {
+  buildCalendar();
+  renderUpcoming();
+  syncDuck();
 });
 </script>
 {% endblock %}

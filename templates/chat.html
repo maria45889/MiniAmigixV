@@ -1,923 +1,632 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Chat IA{% endblock %}
-{% block nav_title %}Chat IA{% endblock %}
+{% block title %}IA Chat — MiniAmigixV{% endblock %}
+{% block nav_title %}IA Chat{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/chat.css' %}?v=7">
-<style>
-    /* ── TOKENS ─────────────────────────────────────────────── */
-    :root {
-        --purple:        #8b5cf6;
-        --purple-light:  #a78bfa;
-        --purple-dark:   #6d28d9;
-        --cyan:          #06b6d4;
-        --bg:            #0a0a0f;
-        --surface:       rgba(255,255,255,0.04);
-        --surface-hov:   rgba(255,255,255,0.07);
-        --border:        rgba(139,92,246,0.18);
-        --border-hov:    rgba(139,92,246,0.45);
-        --text:          #f1f5f9;
-        --muted:         #94a3b8;
-        --radius:        24px;
-        --shadow-purple: 0 0 40px rgba(139,92,246,0.18);
-        --glow:          0 0 18px rgba(139,92,246,0.5);
-    }
-
-    /* ── RESET & BASE ───────────────────────────────────────── */
-    .chat-page * { box-sizing: border-box; }
-    .chat-page {
-        min-height: 100vh;
-        background: var(--bg);
-        color: var(--text);
-        font-family: 'Inter', system-ui, sans-serif;
-        padding-bottom: 40px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    /* orb blobs */
-    .chat-orb {
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(80px);
-        pointer-events: none;
-        z-index: 0;
-    }
-    .chat-orb-1 {
-        width: 400px; height: 400px;
-        background: radial-gradient(circle, rgba(139,92,246,0.2) 0%, transparent 70%);
-        top: -100px; left: -100px;
-        animation: orbFloat1 10s ease-in-out infinite;
-    }
-    .chat-orb-2 {
-        width: 350px; height: 350px;
-        background: radial-gradient(circle, rgba(6,182,212,0.15) 0%, transparent 70%);
-        bottom: -50px; right: -50px;
-        animation: orbFloat2 12s ease-in-out infinite;
-    }
-
-    @keyframes orbFloat1 {
-        0%,100% { transform: translate(0,0) scale(1); }
-        50%      { transform: translate(40px,40px) scale(1.1); }
-    }
-    @keyframes orbFloat2 {
-        0%,100% { transform: translate(0,0) scale(1); }
-        50%      { transform: translate(-40px,-40px) scale(0.9); }
-    }
-    @keyframes fadeSlideUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .chat-hero {
-        position: relative;
-        z-index: 1;
-        text-align: center;
-        padding: 40px 20px 20px;
-        animation: fadeSlideUp 0.5s ease both;
-    }
-    .chat-hero h1 {
-        font-size: 2.5rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, #fff 30%, var(--purple-light) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin: 10px 0 5px;
-    }
-    .chat-hero p { color: var(--muted); margin: 0; }
-
-    /* ── LAYOUT ─────────────────────────────────────────────── */
-    .chat-wrapper {
-        display: flex !important;
-        height: calc(100vh - 220px) !important;
-        max-width: 1400px !important;
-        margin: 0 auto 20px !important;
-        background: var(--surface) !important;
-        border-radius: var(--radius) !important;
-        border: 1px solid var(--border) !important;
-        overflow: hidden !important;
-        backdrop-filter: blur(20px) !important;
-        box-shadow: var(--shadow-purple) !important;
-        position: relative;
-        z-index: 1;
-        animation: fadeSlideUp 0.5s 0.2s ease both;
-    }
-    .chat-list {
-        width: 320px !important;
-        border-right: 1px solid var(--border) !important;
-        display: flex !important;
-        flex-direction: column !important;
-        background: rgba(0,0,0,0.2) !important;
-        flex-shrink: 0 !important;
-    }
-    .chat-list-header {
-        padding: 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid rgba(255,255,255,0.05);
-        font-weight: 700;
-    }
-    .new-chat-btn {
-        background: linear-gradient(135deg, var(--purple), var(--cyan)) !important;
-        border: none !important; color: #fff !important; padding: 8px 16px !important; border-radius: 50px !important;
-        cursor: pointer !important; display: flex !important; align-items: center !important; gap: 6px !important;
-        font-weight: 600 !important; font-size: 0.85rem !important;
-        transition: all 0.3s !important;
-        box-shadow: none !important;
-    }
-    .new-chat-btn:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 4px 15px rgba(139,92,246,0.4) !important;
-    }
-    .chat-search {
-        padding: 15px; border-bottom: 1px solid rgba(255,255,255,0.05);
-        display: flex; align-items: center; gap: 10px;
-    }
-    .chat-search input {
-        background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 50px; padding: 8px 16px; width: 100%; color: var(--text);
-        outline: none; transition: all 0.3s;
-    }
-    .chat-search input:focus {
-        border-color: var(--purple); background: rgba(139,92,246,0.05);
-    }
-    #chat-list-items { overflow-y: auto; flex: 1; }
-    .chat-item {
-        padding: 15px 20px; display: flex; align-items: center; gap: 12px;
-        cursor: pointer; transition: all 0.2s;
-        border-left: 3px solid transparent;
-    }
-    .chat-item:hover { background: rgba(255,255,255,0.03); }
-    .chat-item.active {
-        background: rgba(139,92,246,0.1);
-        border-left-color: var(--purple);
-    }
-    .chat-item-name { font-weight: 600; font-size: 0.95rem; }
-    .chat-item-preview { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
-    
-    .chat-panel { flex: 1; display: flex; flex-direction: column; background: rgba(0,0,0,0.1); }
-    .chat-topbar {
-        padding: 20px; border-bottom: 1px solid var(--border);
-        display: flex; justify-content: space-between; align-items: center;
-        background: rgba(255,255,255,0.02);
-    }
-    .chat-title { font-weight: 700; font-size: 1.1rem; }
-    .chat-title-label { color: var(--purple-light); }
-    
-    .chat-area { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; gap: 20px; scroll-behavior: smooth; }
-    
-    .msg { display: flex; gap: 15px; max-width: 85%; }
-    .msg.user { align-self: flex-end; flex-direction: row-reverse; }
-    .avatar {
-        width: 40px; height: 40px; border-radius: 50%; display: flex;
-        align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0;
-    }
-    .avatar.bot { background: rgba(255,255,255,0.1); color: var(--cyan); }
-    .avatar.user { background: linear-gradient(135deg, var(--purple), var(--cyan)); color: #fff; }
-    
-    .bubble {
-        padding: 16px 20px; border-radius: 20px; font-size: 0.95rem; line-height: 1.5;
-        position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    }
-    .bubble.bot {
-        background: rgba(255,255,255,0.05) !important; border: 1px solid var(--border) !important;
-        border-radius: 20px 20px 20px 4px !important;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.2) !important;
-    }
-    .bubble.user {
-        background: linear-gradient(135deg, rgba(139,92,246,0.8), rgba(6,182,212,0.8)) !important;
-        border: 1px solid rgba(255,255,255,0.1) !important;
-        border-radius: 20px 20px 4px 20px !important; color: #fff !important;
-        box-shadow: 0 8px 32px rgba(139,92,246,0.2) !important;
-    }
-    
-    .input-bar {
-        padding: 20px; border-top: 1px solid var(--border);
-        display: flex; gap: 10px; align-items: center; background: rgba(0,0,0,0.2);
-    }
-    .msg-input {
-        flex: 1; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 50px; padding: 14px 20px; color: var(--text); outline: none;
-        transition: all 0.3s;
-    }
-    .msg-input:focus { border-color: var(--purple); background: rgba(139,92,246,0.05); }
-    
-    .icon-btn {
-        background: transparent; border: none; color: var(--muted); font-size: 1.2rem;
-        cursor: pointer; padding: 10px; border-radius: 50%; transition: all 0.2s;
-    }
-    .icon-btn:hover { color: var(--purple-light); background: rgba(255,255,255,0.05); }
-    
-    .send-btn {
-        background: linear-gradient(135deg, var(--purple), var(--cyan)) !important;
-        color: #fff !important; border: none !important; width: 48px !important; height: 48px !important; border-radius: 50% !important;
-        display: flex !important; align-items: center !important; justify-content: center !important; font-size: 1.2rem !important;
-        cursor: pointer !important; transition: all 0.3s !important; box-shadow: var(--glow) !important;
-    }
-    .send-btn:hover { transform: scale(1.05) !important; filter: brightness(1.1) !important; }
-    
-    .welcome-screen { text-align: center; margin: auto; padding: 40px; }
-    .welcome-icon { font-size: 4rem !important; margin-bottom: 20px !important; filter: drop-shadow(0 0 20px var(--purple)) !important; }
-    .suggestion-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 30px; }
-    .suggestion-card {
-        background: rgba(255,255,255,0.05); border: 1px solid var(--border);
-        padding: 15px; border-radius: 15px; color: var(--text); cursor: pointer;
-        transition: all 0.3s; display: flex; align-items: center; gap: 10px;
-    }
-    .suggestion-card:hover { background: rgba(139,92,246,0.1); border-color: var(--purple); transform: translateY(-2px); }
-</style>
+<link rel="stylesheet" href="{% static 'css/pages/chat.css' %}?v=40">
 {% endblock %}
 
 {% block content %}
-<div class="chat-page">
-    {% csrf_token %}
-    <div class="chat-orb chat-orb-1"></div>
-    <div class="chat-orb chat-orb-2"></div>
-    <div class="chat-hero">
-        <h1>Chat IA</h1>
-        <p>Conversa con MiniAmigixV y resuelve tus dudas al instante.</p>
-    </div>
-    <div class="chat-wrapper">
-    <!-- Panel de Chats (Izquierda) -->
-    {% if not request.user.is_authenticated %}
-    <div class="privacy-banner" id="privacy-banner" role="status">
-        <div class="privacy-banner-content">
-            <i class="ti ti-alert-circle"></i>
-            <span>No has iniciado sesión. El historial no se guardará.</span>
-        </div>
-        <div class="privacy-banner-actions">
-            <a href="{% url 'login' %}" class="privacy-link">Iniciar sesión</a>
-            <button class="privacy-close" onclick="dismissPrivacyBanner()" aria-label="Cerrar aviso">
-                <i class="ti ti-x"></i>
-            </button>
-        </div>
-    </div>
-    {% endif %}
-    <div class="chat-list">
-        <div class="chat-list-header">
-            <span>Chats</span>
-            <button class="new-chat-btn" id="new-chat-btn">
-                <i class="ti ti-plus"></i>
-                <span>Nuevo Chat</span>
-            </button>
-        </div>
-        <div class="chat-search">
-            <i class="ti ti-search"></i>
-            <input type="text" id="chat-search-input" placeholder="Buscar conversación..." onkeyup="filterChats()">
-        </div>
-        <div id="chat-list-items">
-            {% for item in conversaciones_data %}
-            {% with conv=item.conversation last_msg=item.last_message %}
-            <div class="chat-item {% if conv.id == active_id %}active{% endif %}" onclick="location.href='?id={{ conv.id }}'" data-title="{{ conv.titulo|lower }}">
-                <div class="chat-item-info">
-                    <div class="chat-item-name">{{ conv.titulo }}</div>
-                    <div class="chat-item-preview">{% if last_msg %}{{ last_msg.texto|truncatewords:5 }}{% else %}Sin mensajes{% endif %}</div>
-                    <div class="chat-item-time">{% if last_msg %}{{ last_msg.fecha_creacion|timesince }}{% else %}Nuevo{% endif %}</div>
-                </div>
-                <div class="chat-item-actions">
-                    <button class="chat-action-btn" onclick="event.stopPropagation(); renameChat({{ conv.id }})" title="Renombrar"><i class="ti ti-pencil"></i></button>
-                    <button class="chat-action-btn" onclick="event.stopPropagation(); favoriteChat({{ conv.id }})" title="Favorito"><i class="ti ti-star"></i></button>
-                    <button class="delete-chat-btn" onclick="deleteChat(event, {{ conv.id }})" title="Eliminar Chat"><i class="ti ti-trash"></i></button>
-                </div>
-            </div>
-            {% endwith %}
-            {% endfor %}
-        </div>
+<div class="chat-page-container fadein">
+  {% csrf_token %}
+
+  <!-- ════════════════════════════════════
+       HEADER BAR
+  ════════════════════════════════════ -->
+  <div class="chat-header-bar">
+    <div class="chat-header-title">
+      <span style="font-size: 24px;">🤖</span>
+      <div>
+        <h1>IA Chat</h1>
+        <p>Pregunta cualquier cosa... Tu compañero MiniAmigixV está listo para responder.</p>
+      </div>
     </div>
 
-    <!-- Panel de Conversación (Derecha) -->
-    <div class="chat-panel">
-        <div class="chat-topbar">
-            <div class="chat-title">
-                <span class="chat-title-label">Chat / </span>
-                <span id="active-chat-name">
-                    {% if active_id %}
-                        {% for conv in conversaciones %}
-                            {% if conv.id == active_id %}
-                                {{ conv.titulo }}
-                            {% endif %}
-                        {% endfor %}
-                    {% else %}
-                        Principal
-                    {% endif %}
-                </span>
-            </div>
-            <div class="chat-topbar-actions">
-                <div class="model-indicator">
-                    <i class="ti ti-robot"></i>
-                    <span>MiniAmigixV AI</span>
-                </div>
-            </div>
-        </div>
+    <div class="chat-header-actions">
+      <!-- Model Selector -->
+      <div class="model-select-btn" id="model-dropdown-btn" onclick="toggleModelSelect()" title="Cambiar modelo de IA">
+        <i class="ti ti-cpu"></i>
+        <span id="current-model-label">MiniAmigixV v3.0</span>
+        <i class="ti ti-chevron-down"></i>
+      </div>
 
-        <div class="chat-area" id="chat-area">
-            {% if mensajes %}
-                {% regroup mensajes by fecha_creacion|date:"Y-m-d" as date_groups %}
-                {% for date_group in date_groups %}
-                    <div class="date-divider">
-                        <span>{% if date_group.grouper == today %}Hoy{% elif date_group.grouper == yesterday %}Ayer{% else %}{{ date_group.grouper|date:"d M Y" }}{% endif %}</span>
-                    </div>
-                    {% for msg in date_group.list %}
-                        <div class="msg {% if msg.es_usuario %}user{% else %}bot{% endif %}">
-                            <div class="avatar {% if msg.es_usuario %}user{% else %}bot{% endif %}">
-                                {% if msg.es_usuario %}{{ request.user.username|slice:":1"|upper }}{% else %}<i class="ti ti-robot"></i>{% endif %}
-                            </div>
-                            <div class="bubble {% if msg.es_usuario %}user{% else %}bot{% endif %}">
-                                <div class="message-header">
-                                    <span class="message-sender">{% if msg.es_usuario %}👤 Tú{% else %}🤖 MiniAmigixV{% endif %}</span>
-                                    <span class="message-time">{{ msg.fecha_creacion|date:"H:i" }}</span>
-                                </div>
-                                <div class="message-content">{{ msg.texto }}</div>
-                                {% if msg.imagen %}
-                                <div style="margin-top: 10px;">
-                                    <img src="{{ msg.imagen.url }}" alt="Imagen del mensaje">
-                                </div>
-                                {% endif %}
-                                {% if not msg.es_usuario %}
-                                <div class="message-actions">
-                                    <button class="action-btn" onclick="copyMessage(this)" title="Copiar"><i class="ti ti-copy"></i></button>
-                                    <button class="action-btn" onclick="regenerateMessage()" title="Regenerar"><i class="ti ti-refresh"></i></button>
-                                </div>
-                                {% endif %}
-                            </div>
-                        </div>
-                    {% endfor %}
-                {% endfor %}
-            {% else %}
-                <div class="welcome-screen" id="welcome-screen">
-                    <div class="welcome-icon">🤖</div>
-                    <h2 class="welcome-title">¿En qué puedo ayudarte hoy?</h2>
-                    <p class="welcome-subtitle">Puedo ayudarte con:</p>
-                    <div class="welcome-capabilities">
-                        <div class="capability-item">💬 Resolver dudas</div>
-                        <div class="capability-item">🎵 Recomendar música</div>
-                        <div class="capability-item">🌦 Consultar el clima</div>
-                        <div class="capability-item">📅 Organizar eventos</div>
-                        <div class="capability-item">🌍 Traducir textos</div>
-                    </div>
-                    <div class="welcome-divider">────────────────────────</div>
-                    <div class="suggestion-cards">
-                        <button class="suggestion-card" onclick="useSuggestion('Resume un texto')">
-                            <span class="suggestion-icon">📝</span>
-                            <span>Resume un texto</span>
-                        </button>
-                        <button class="suggestion-card" onclick="useSuggestion('Ayúdame a estudiar')">
-                            <span class="suggestion-icon">📚</span>
-                            <span>Ayúdame a estudiar</span>
-                        </button>
-                        <button class="suggestion-card" onclick="useSuggestion('Crear una imagen')">
-                            <span class="suggestion-icon">🎨</span>
-                            <span>Crear una imagen</span>
-                        </button>
-                        <button class="suggestion-card" onclick="useSuggestion('Explicar código')">
-                            <span class="suggestion-icon">💻</span>
-                            <span>Explicar código</span>
-                        </button>
-                    </div>
-                </div>
-            {% endif %}
-            <div id="typing-indicator" class="typing-indicator">
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-                <div class="typing-dot"></div>
-            </div>
-        </div>
-
-        <div class="emoji-picker" id="emoji-picker">
-            <!-- Emociones -->
-            <div class="emoji-category">
-                <div class="emoji-category-title">😀 Emociones</div>
-                <div class="emoji-category-content">
-                    <span class="ep-emoji" onclick="insertEmoji('😊')">😊</span><span class="ep-emoji" onclick="insertEmoji('😂')">😂</span><span class="ep-emoji" onclick="insertEmoji('🤣')">🤣</span><span class="ep-emoji" onclick="insertEmoji('😢')">😢</span><span class="ep-emoji" onclick="insertEmoji('😭')">😭</span><span class="ep-emoji" onclick="insertEmoji('😍')">😍</span><span class="ep-emoji" onclick="insertEmoji('🥰')">🥰</span><span class="ep-emoji" onclick="insertEmoji('😘')">😘</span><span class="ep-emoji" onclick="insertEmoji('🤗')">🤗</span><span class="ep-emoji" onclick="insertEmoji('🥺')">🥺</span><span class="ep-emoji" onclick="insertEmoji('😎')">😎</span><span class="ep-emoji" onclick="insertEmoji('🤩')">🤩</span><span class="ep-emoji" onclick="insertEmoji('😋')">😋</span><span class="ep-emoji" onclick="insertEmoji('🤪')">🤪</span><span class="ep-emoji" onclick="insertEmoji('😴')">😴</span><span class="ep-emoji" onclick="insertEmoji('🥱')">🥱</span><span class="ep-emoji" onclick="insertEmoji('😡')">😡</span><span class="ep-emoji" onclick="insertEmoji('🤯')">🤯</span><span class="ep-emoji" onclick="insertEmoji('😱')">😱</span><span class="ep-emoji" onclick="insertEmoji('🤒')">🤒</span><span class="ep-emoji" onclick="insertEmoji('🤕')">🤕</span><span class="ep-emoji" onclick="insertEmoji('🤢')">🤢</span><span class="ep-emoji" onclick="insertEmoji('🤮')">🤮</span><span class="ep-emoji" onclick="insertEmoji('🥵')">🥵</span><span class="ep-emoji" onclick="insertEmoji('🥶')">🥶</span><span class="ep-emoji" onclick="insertEmoji('🤔')">🤔</span><span class="ep-emoji" onclick="insertEmoji('🙏')">🙏</span>
-                </div>
-            </div>
-
-            <!-- Gestos -->
-            <div class="emoji-category">
-                <div class="emoji-category-title">👋 Gestos</div>
-                <div class="emoji-category-content">
-                    <span class="ep-emoji" onclick="insertEmoji('👍')">👍</span><span class="ep-emoji" onclick="insertEmoji('👋')">👋</span><span class="ep-emoji" onclick="insertEmoji('👌')">👌</span><span class="ep-emoji" onclick="insertEmoji('✌️')">✌️</span><span class="ep-emoji" onclick="insertEmoji('🤞')">🤞</span><span class="ep-emoji" onclick="insertEmoji('🤙')">🤙</span><span class="ep-emoji" onclick="insertEmoji('👏')">👏</span><span class="ep-emoji" onclick="insertEmoji('🙌')">🙌</span><span class="ep-emoji" onclick="insertEmoji('🤝')">🤝</span><span class="ep-emoji" onclick="insertEmoji('💪')">💪</span>
-                </div>
-            </div>
-
-            <!-- Corazones -->
-            <div class="emoji-category">
-                <div class="emoji-category-title">❤️ Corazones</div>
-                <div class="emoji-category-content">
-                    <span class="ep-emoji" onclick="insertEmoji('❤️')">❤️</span><span class="ep-emoji" onclick="insertEmoji('💔')">💔</span><span class="ep-emoji" onclick="insertEmoji('💕')">💕</span><span class="ep-emoji" onclick="insertEmoji('💖')">💖</span><span class="ep-emoji" onclick="insertEmoji('💗')">💗</span><span class="ep-emoji" onclick="insertEmoji('💙')">💙</span><span class="ep-emoji" onclick="insertEmoji('💚')">💚</span><span class="ep-emoji" onclick="insertEmoji('💛')">💛</span><span class="ep-emoji" onclick="insertEmoji('💜')">💜</span><span class="ep-emoji" onclick="insertEmoji('🖤')">🖤</span><span class="ep-emoji" onclick="insertEmoji('🤍')">🤍</span><span class="ep-emoji" onclick="insertEmoji('🤎')">🤎</span><span class="ep-emoji" onclick="insertEmoji('💝')">💝</span><span class="ep-emoji" onclick="insertEmoji('💞')">💞</span><span class="ep-emoji" onclick="insertEmoji('💟')">💟</span><span class="ep-emoji" onclick="insertEmoji('❣️')">❣️</span>
-                </div>
-            </div>
-
-            <!-- Animales -->
-            <div class="emoji-category">
-                <div class="emoji-category-title">🐶 Animales</div>
-                <div class="emoji-category-content">
-                    <span class="ep-emoji" onclick="insertEmoji('🐶')">🐶</span><span class="ep-emoji" onclick="insertEmoji('🐱')">🐱</span><span class="ep-emoji" onclick="insertEmoji('🐭')">🐭</span><span class="ep-emoji" onclick="insertEmoji('🐹')">🐹</span><span class="ep-emoji" onclick="insertEmoji('🐰')">🐰</span><span class="ep-emoji" onclick="insertEmoji('🦊')">🦊</span><span class="ep-emoji" onclick="insertEmoji('🐻')">🐻</span><span class="ep-emoji" onclick="insertEmoji('🐼')">🐼</span><span class="ep-emoji" onclick="insertEmoji('🐨')">🐨</span><span class="ep-emoji" onclick="insertEmoji('🦁')">🦁</span><span class="ep-emoji" onclick="insertEmoji('🐯')">🐯</span><span class="ep-emoji" onclick="insertEmoji('🦄')">🦄</span><span class="ep-emoji" onclick="insertEmoji('🐸')">🐸</span><span class="ep-emoji" onclick="insertEmoji('🐵')">🐵</span><span class="ep-emoji" onclick="insertEmoji('🐔')">🐔</span><span class="ep-emoji" onclick="insertEmoji('🐧')">🐧</span><span class="ep-emoji" onclick="insertEmoji('🐦')">🐦</span><span class="ep-emoji" onclick="insertEmoji('🦆')">🦆</span><span class="ep-emoji" onclick="insertEmoji('🦉')">🦉</span><span class="ep-emoji" onclick="insertEmoji('🦅')">🦅</span><span class="ep-emoji" onclick="insertEmoji('🦋')">🦋</span><span class="ep-emoji" onclick="insertEmoji('🐌')">🐌</span><span class="ep-emoji" onclick="insertEmoji('🐛')">🐛</span><span class="ep-emoji" onclick="insertEmoji('🐜')">🐜</span><span class="ep-emoji" onclick="insertEmoji('🐝')">🐝</span><span class="ep-emoji" onclick="insertEmoji('🐞')">🐞</span><span class="ep-emoji" onclick="insertEmoji('🦗')">🦗</span><span class="ep-emoji" onclick="insertEmoji('🕷️')">🕷️</span><span class="ep-emoji" onclick="insertEmoji('🦂')">🦂</span><span class="ep-emoji" onclick="insertEmoji('🦀')">🦀</span><span class="ep-emoji" onclick="insertEmoji('🦞')">🦞</span><span class="ep-emoji" onclick="insertEmoji('🐙')">🐙</span><span class="ep-emoji" onclick="insertEmoji('🦑')">🦑</span><span class="ep-emoji" onclick="insertEmoji('🦐')">🦐</span><span class="ep-emoji" onclick="insertEmoji('🐠')">🐠</span><span class="ep-emoji" onclick="insertEmoji('🐟')">🐟</span><span class="ep-emoji" onclick="insertEmoji('🐡')">🐡</span><span class="ep-emoji" onclick="insertEmoji('🐬')">🐬</span><span class="ep-emoji" onclick="insertEmoji('🐳')">🐳</span><span class="ep-emoji" onclick="insertEmoji('🐋')">🐋</span><span class="ep-emoji" onclick="insertEmoji('🦈')">🦈</span><span class="ep-emoji" onclick="insertEmoji('🐊')">🐊</span><span class="ep-emoji" onclick="insertEmoji('🐢')">🐢</span><span class="ep-emoji" onclick="insertEmoji('🐍')">🐍</span><span class="ep-emoji" onclick="insertEmoji('🦎')">🦎</span><span class="ep-emoji" onclick="insertEmoji('🦖')">🦖</span><span class="ep-emoji" onclick="insertEmoji('🦕')">🦕</span><span class="ep-emoji" onclick="insertEmoji('🐉')">🐉</span>
-                </div>
-            </div>
-
-            <!-- Naturaleza -->
-            <div class="emoji-category">
-                <div class="emoji-category-title">🌸 Naturaleza</div>
-                <div class="emoji-category-content">
-                    <span class="ep-emoji" onclick="insertEmoji('🌸')">🌸</span><span class="ep-emoji" onclick="insertEmoji('🌹')">🌹</span><span class="ep-emoji" onclick="insertEmoji('🌻')">🌻</span><span class="ep-emoji" onclick="insertEmoji('🌼')">🌼</span><span class="ep-emoji" onclick="insertEmoji('🌷')">🌷</span><span class="ep-emoji" onclick="insertEmoji('💐')">💐</span><span class="ep-emoji" onclick="insertEmoji('🌺')">🌺</span><span class="ep-emoji" onclick="insertEmoji('🌴')">🌴</span><span class="ep-emoji" onclick="insertEmoji('🌲')">🌲</span><span class="ep-emoji" onclick="insertEmoji('🌳')">🌳</span><span class="ep-emoji" onclick="insertEmoji('🍀')">🍀</span><span class="ep-emoji" onclick="insertEmoji('🍁')">🍁</span><span class="ep-emoji" onclick="insertEmoji('🍂')">🍂</span><span class="ep-emoji" onclick="insertEmoji('🍃')">🍃</span><span class="ep-emoji" onclick="insertEmoji('🌍')">🌍</span><span class="ep-emoji" onclick="insertEmoji('🌎')">🌎</span><span class="ep-emoji" onclick="insertEmoji('🌏')">🌏</span><span class="ep-emoji" onclick="insertEmoji('🌐')">🌐</span><span class="ep-emoji" onclick="insertEmoji('🌄')">🌄</span><span class="ep-emoji" onclick="insertEmoji('🌅')">🌅</span><span class="ep-emoji" onclick="insertEmoji('🌆')">🌆</span><span class="ep-emoji" onclick="insertEmoji('🌇')">🌇</span><span class="ep-emoji" onclick="insertEmoji('🌉')">🌉</span><span class="ep-emoji" onclick="insertEmoji('♨️')">♨️</span><span class="ep-emoji" onclick="insertEmoji('🎇')">🎇</span><span class="ep-emoji" onclick="insertEmoji('🎆')">🎆</span><span class="ep-emoji" onclick="insertEmoji('🎐')">🎐</span><span class="ep-emoji" onclick="insertEmoji('🎑')">🎑</span>
-                </div>
-            </div>
-
-            <!-- Frutas -->
-            <div class="emoji-category">
-                <div class="emoji-category-title">🍎 Frutas</div>
-                <div class="emoji-category-content">
-                    <span class="ep-emoji" onclick="insertEmoji('🍎')">🍎</span><span class="ep-emoji" onclick="insertEmoji('🍏')">🍏</span><span class="ep-emoji" onclick="insertEmoji('🍊')">🍊</span><span class="ep-emoji" onclick="insertEmoji('🍋')">🍋</span><span class="ep-emoji" onclick="insertEmoji('🍌')">🍌</span><span class="ep-emoji" onclick="insertEmoji('🍉')">🍉</span><span class="ep-emoji" onclick="insertEmoji('🍇')">🍇</span><span class="ep-emoji" onclick="insertEmoji('🍓')">🍓</span><span class="ep-emoji" onclick="insertEmoji('🫐')">🫐</span><span class="ep-emoji" onclick="insertEmoji('🍒')">🍒</span><span class="ep-emoji" onclick="insertEmoji('🍑')">🍑</span><span class="ep-emoji" onclick="insertEmoji('🥭')">🥭</span><span class="ep-emoji" onclick="insertEmoji('🍍')">🍍</span><span class="ep-emoji" onclick="insertEmoji('🥥')">🥥</span><span class="ep-emoji" onclick="insertEmoji('🥝')">🥝</span><span class="ep-emoji" onclick="insertEmoji('🍅')">🍅</span><span class="ep-emoji" onclick="insertEmoji('🍆')">🍆</span><span class="ep-emoji" onclick="insertEmoji('🥑')">🥑</span><span class="ep-emoji" onclick="insertEmoji('🥦')">🥦</span><span class="ep-emoji" onclick="insertEmoji('🥬')">🥬</span><span class="ep-emoji" onclick="insertEmoji('🥒')">🥒</span><span class="ep-emoji" onclick="insertEmoji('🌶️')">🌶️</span><span class="ep-emoji" onclick="insertEmoji('🫑')">🫑</span><span class="ep-emoji" onclick="insertEmoji('🌽')">🌽</span><span class="ep-emoji" onclick="insertEmoji('🥕')">🥕</span><span class="ep-emoji" onclick="insertEmoji('🧄')">🧄</span><span class="ep-emoji" onclick="insertEmoji('🧅')">🧅</span><span class="ep-emoji" onclick="insertEmoji('🍄')">🍄</span><span class="ep-emoji" onclick="insertEmoji('🥜')">🥜</span><span class="ep-emoji" onclick="insertEmoji('🌰')">🌰</span>
-                </div>
-            </div>
-
-            <!-- Comida -->
-            <div class="emoji-category">
-                <div class="emoji-category-title">🍕 Comida</div>
-                <div class="emoji-category-content">
-                    <span class="ep-emoji" onclick="insertEmoji('🍞')">🍞</span><span class="ep-emoji" onclick="insertEmoji('🥐')">🥐</span><span class="ep-emoji" onclick="insertEmoji('🥖')">🥖</span><span class="ep-emoji" onclick="insertEmoji('🥨')">🥨</span><span class="ep-emoji" onclick="insertEmoji('🧀')">🧀</span><span class="ep-emoji" onclick="insertEmoji('🍖')">🍖</span><span class="ep-emoji" onclick="insertEmoji('🍗')">🍗</span><span class="ep-emoji" onclick="insertEmoji('🥩')">🥩</span><span class="ep-emoji" onclick="insertEmoji('🥓')">🥓</span><span class="ep-emoji" onclick="insertEmoji('🍔')">🍔</span><span class="ep-emoji" onclick="insertEmoji('🍟')">🍟</span><span class="ep-emoji" onclick="insertEmoji('🍕')">🍕</span><span class="ep-emoji" onclick="insertEmoji('🌭')">🌭</span><span class="ep-emoji" onclick="insertEmoji('🥪')">🥪</span><span class="ep-emoji" onclick="insertEmoji('🌮')">🌮</span><span class="ep-emoji" onclick="insertEmoji('🌯')">🌯</span><span class="ep-emoji" onclick="insertEmoji('🥙')">🥙</span><span class="ep-emoji" onclick="insertEmoji('🧆')">🧆</span><span class="ep-emoji" onclick="insertEmoji('🥚')">🥚</span><span class="ep-emoji" onclick="insertEmoji('🍳')">🍳</span><span class="ep-emoji" onclick="insertEmoji('🥘')">🥘</span><span class="ep-emoji" onclick="insertEmoji('🍲')">🍲</span><span class="ep-emoji" onclick="insertEmoji('🥣')">🥣</span><span class="ep-emoji" onclick="insertEmoji('🥗')">🥗</span><span class="ep-emoji" onclick="insertEmoji('🍿')">🍿</span><span class="ep-emoji" onclick="insertEmoji('🧈')">🧈</span><span class="ep-emoji" onclick="insertEmoji('🧂')">🧂</span><span class="ep-emoji" onclick="insertEmoji('🥫')">🥫</span><span class="ep-emoji" onclick="insertEmoji('🍱')">🍱</span><span class="ep-emoji" onclick="insertEmoji('🍘')">🍘</span><span class="ep-emoji" onclick="insertEmoji('🍙')">🍙</span><span class="ep-emoji" onclick="insertEmoji('🍚')">🍚</span><span class="ep-emoji" onclick="insertEmoji('🍛')">🍛</span><span class="ep-emoji" onclick="insertEmoji('🍜')">🍜</span><span class="ep-emoji" onclick="insertEmoji('🍝')">🍝</span><span class="ep-emoji" onclick="insertEmoji('🍠')">🍠</span><span class="ep-emoji" onclick="insertEmoji('🍢')">🍢</span><span class="ep-emoji" onclick="insertEmoji('🍣')">🍣</span><span class="ep-emoji" onclick="insertEmoji('🍤')">🍤</span><span class="ep-emoji" onclick="insertEmoji('🍥')">🍥</span><span class="ep-emoji" onclick="insertEmoji('🥮')">🥮</span><span class="ep-emoji" onclick="insertEmoji('🍡')">🍡</span><span class="ep-emoji" onclick="insertEmoji('🥟')">🥟</span><span class="ep-emoji" onclick="insertEmoji('🥠')">🥠</span><span class="ep-emoji" onclick="insertEmoji('🥡')">🥡</span>
-                </div>
-            </div>
-
-            <!-- Postres -->
-            <div class="emoji-category">
-                <div class="emoji-category-title">🍰 Postres</div>
-                <div class="emoji-category-content">
-                    <span class="ep-emoji" onclick="insertEmoji('🍦')">🍦</span><span class="ep-emoji" onclick="insertEmoji('🍧')">🍧</span><span class="ep-emoji" onclick="insertEmoji('🍨')">🍨</span><span class="ep-emoji" onclick="insertEmoji('🍩')">🍩</span><span class="ep-emoji" onclick="insertEmoji('🍪')">🍪</span><span class="ep-emoji" onclick="insertEmoji('🎂')">🎂</span><span class="ep-emoji" onclick="insertEmoji('🍰')">🍰</span><span class="ep-emoji" onclick="insertEmoji('🧁')">🧁</span><span class="ep-emoji" onclick="insertEmoji('🥧')">🥧</span><span class="ep-emoji" onclick="insertEmoji('🍫')">🍫</span><span class="ep-emoji" onclick="insertEmoji('🍬')">🍬</span><span class="ep-emoji" onclick="insertEmoji('🍭')">🍭</span><span class="ep-emoji" onclick="insertEmoji('🍮')">🍮</span><span class="ep-emoji" onclick="insertEmoji('🍯')">🍯</span>
-                </div>
-            </div>
-
-            <!-- Bebidas -->
-            <div class="emoji-category">
-                <div class="emoji-category-title">☕ Bebidas</div>
-                <div class="emoji-category-content">
-                    <span class="ep-emoji" onclick="insertEmoji('🍼')">🍼</span><span class="ep-emoji" onclick="insertEmoji('🥛')">🥛</span><span class="ep-emoji" onclick="insertEmoji('☕')">☕</span><span class="ep-emoji" onclick="insertEmoji('🫖')">🫖</span><span class="ep-emoji" onclick="insertEmoji('🍵')">🍵</span><span class="ep-emoji" onclick="insertEmoji('🍶')">🍶</span><span class="ep-emoji" onclick="insertEmoji('🍾')">🍾</span><span class="ep-emoji" onclick="insertEmoji('🍷')">🍷</span><span class="ep-emoji" onclick="insertEmoji('🍸')">🍸</span><span class="ep-emoji" onclick="insertEmoji('🍹')">🍹</span><span class="ep-emoji" onclick="insertEmoji('🍺')">🍺</span><span class="ep-emoji" onclick="insertEmoji('🍻')">🍻</span><span class="ep-emoji" onclick="insertEmoji('🥂')">🥂</span><span class="ep-emoji" onclick="insertEmoji('🥃')">🥃</span><span class="ep-emoji" onclick="insertEmoji('🥤')">🥤</span><span class="ep-emoji" onclick="insertEmoji('🧋')">🧋</span><span class="ep-emoji" onclick="insertEmoji('🧃')">🧃</span><span class="ep-emoji" onclick="insertEmoji('🧉')">🧉</span><span class="ep-emoji" onclick="insertEmoji('🧊')">🧊</span>
-                </div>
-            </div>
-
-            <!-- Lugares -->
-            <div class="emoji-category">
-                <div class="emoji-category-title">🏰 Lugares</div>
-                <div class="emoji-category-content">
-                    <span class="ep-emoji" onclick="insertEmoji('🗺️')">🗺️</span><span class="ep-emoji" onclick="insertEmoji('🗿')">🗿</span><span class="ep-emoji" onclick="insertEmoji('🗽')">🗽</span><span class="ep-emoji" onclick="insertEmoji('🗼')">🗼</span><span class="ep-emoji" onclick="insertEmoji('🏰')">🏰</span><span class="ep-emoji" onclick="insertEmoji('🏯')">🏯</span><span class="ep-emoji" onclick="insertEmoji('🏟️')">🏟️</span><span class="ep-emoji" onclick="insertEmoji('🎡')">🎡</span><span class="ep-emoji" onclick="insertEmoji('🎢')">🎢</span><span class="ep-emoji" onclick="insertEmoji('🎠')">🎠</span><span class="ep-emoji" onclick="insertEmoji('⛲')">⛲</span><span class="ep-emoji" onclick="insertEmoji('⛺')">⛺</span><span class="ep-emoji" onclick="insertEmoji('🌁')">🌁</span><span class="ep-emoji" onclick="insertEmoji('🌃')">🌃</span><span class="ep-emoji" onclick="insertEmoji('🏙️')">🏙️</span>
-                </div>
-            </div>
-
-            <!-- Deportes -->
-            <div class="emoji-category">
-                <div class="emoji-category-title">⚽ Deportes</div>
-                <div class="emoji-category-content">
-                    <span class="ep-emoji" onclick="insertEmoji('🏆')">🏆</span><span class="ep-emoji" onclick="insertEmoji('🏅')">🏅</span><span class="ep-emoji" onclick="insertEmoji('🥇')">🥇</span><span class="ep-emoji" onclick="insertEmoji('🥈')">🥈</span><span class="ep-emoji" onclick="insertEmoji('🥉')">🥉</span><span class="ep-emoji" onclick="insertEmoji('⚽')">⚽</span><span class="ep-emoji" onclick="insertEmoji('⚾')">⚾</span><span class="ep-emoji" onclick="insertEmoji('🥎')">🥎</span><span class="ep-emoji" onclick="insertEmoji('🏀')">🏀</span><span class="ep-emoji" onclick="insertEmoji('🏐')">🏐</span><span class="ep-emoji" onclick="insertEmoji('🏈')">🏈</span><span class="ep-emoji" onclick="insertEmoji('🏉')">🏉</span><span class="ep-emoji" onclick="insertEmoji('🎾')">🎾</span><span class="ep-emoji" onclick="insertEmoji('🥏')">🥏</span><span class="ep-emoji" onclick="insertEmoji('🎳')">🎳</span><span class="ep-emoji" onclick="insertEmoji('🏏')">🏏</span><span class="ep-emoji" onclick="insertEmoji('🏑')">🏑</span><span class="ep-emoji" onclick="insertEmoji('🏒')">🏒</span><span class="ep-emoji" onclick="insertEmoji('🥍')">🥍</span><span class="ep-emoji" onclick="insertEmoji('🏓')">🏓</span><span class="ep-emoji" onclick="insertEmoji('🏸')">🏸</span><span class="ep-emoji" onclick="insertEmoji('🥊')">🥊</span><span class="ep-emoji" onclick="insertEmoji('🥋')">🥋</span><span class="ep-emoji" onclick="insertEmoji('🥅')">🥅</span><span class="ep-emoji" onclick="insertEmoji('⛳')">⛳</span><span class="ep-emoji" onclick="insertEmoji('⛸️')">⛸️</span><span class="ep-emoji" onclick="insertEmoji('🎣')">🎣</span><span class="ep-emoji" onclick="insertEmoji('🤿')">🤿</span><span class="ep-emoji" onclick="insertEmoji('🎽')">🎽</span><span class="ep-emoji" onclick="insertEmoji('🎿')">🎿</span><span class="ep-emoji" onclick="insertEmoji('🛷')">🛷</span><span class="ep-emoji" onclick="insertEmoji('🥌')">🥌</span><span class="ep-emoji" onclick="insertEmoji('🎯')">🎯</span><span class="ep-emoji" onclick="insertEmoji('🪀')">🪀</span><span class="ep-emoji" onclick="insertEmoji('🪁')">🪁</span><span class="ep-emoji" onclick="insertEmoji('🎱')">🎱</span>
-                </div>
-            </div>
-
-            <!-- Juegos -->
-            <div class="emoji-category">
-                <div class="emoji-category-title">🎮 Juegos</div>
-                <div class="emoji-category-content">
-                    <span class="ep-emoji" onclick="insertEmoji('🎮')">🎮</span><span class="ep-emoji" onclick="insertEmoji('🕹️')">🕹️</span><span class="ep-emoji" onclick="insertEmoji('🎰')">🎰</span><span class="ep-emoji" onclick="insertEmoji('🎲')">🎲</span><span class="ep-emoji" onclick="insertEmoji('🧩')">🧩</span><span class="ep-emoji" onclick="insertEmoji('🔮')">🔮</span>
-                </div>
-            </div>
-
-            <!-- Música -->
-            <div class="emoji-category">
-                <div class="emoji-category-title">🎵 Música</div>
-                <div class="emoji-category-content">
-                    <span class="ep-emoji" onclick="insertEmoji('🎸')">🎸</span><span class="ep-emoji" onclick="insertEmoji('🎹')">🎹</span><span class="ep-emoji" onclick="insertEmoji('🎺')">🎺</span><span class="ep-emoji" onclick="insertEmoji('🎷')">🎷</span><span class="ep-emoji" onclick="insertEmoji('🥁')">🥁</span><span class="ep-emoji" onclick="insertEmoji('🎵')">🎵</span><span class="ep-emoji" onclick="insertEmoji('🎶')">🎶</span><span class="ep-emoji" onclick="insertEmoji('🎙️')">🎙️</span><span class="ep-emoji" onclick="insertEmoji('🎚️')">🎚️</span><span class="ep-emoji" onclick="insertEmoji('🎛️')">🎛️</span><span class="ep-emoji" onclick="insertEmoji('🎤')">🎤</span><span class="ep-emoji" onclick="insertEmoji('🎧')">🎧</span><span class="ep-emoji" onclick="insertEmoji('📻')">📻</span>
-                </div>
-            </div>
-
-            <!-- Arte -->
-            <div class="emoji-category">
-                <div class="emoji-category-title">🎨 Arte</div>
-                <div class="emoji-category-content">
-                    <span class="ep-emoji" onclick="insertEmoji('🎬')">🎬</span><span class="ep-emoji" onclick="insertEmoji('🎨')">🎨</span><span class="ep-emoji" onclick="insertEmoji('🎭')">🎭</span><span class="ep-emoji" onclick="insertEmoji('🎪')">🎪</span><span class="ep-emoji" onclick="insertEmoji('🎀')">🎀</span><span class="ep-emoji" onclick="insertEmoji('🎗️')">🎗️</span><span class="ep-emoji" onclick="insertEmoji('🎟️')">🎟️</span><span class="ep-emoji" onclick="insertEmoji('🎫')">🎫</span><span class="ep-emoji" onclick="insertEmoji('🎖️')">🎖️</span><span class="ep-emoji" onclick="insertEmoji('🧧')">🧧</span>
-                </div>
-            </div>
-
-            <!-- Símbolos -->
-            <div class="emoji-category">
-                <div class="emoji-category-title">✨ Símbolos</div>
-                <div class="emoji-category-content">
-                    <span class="ep-emoji" onclick="insertEmoji('🔥')">🔥</span><span class="ep-emoji" onclick="insertEmoji('✨')">✨</span><span class="ep-emoji" onclick="insertEmoji('🎉')">🎉</span><span class="ep-emoji" onclick="insertEmoji('🌟')">🌟</span><span class="ep-emoji" onclick="insertEmoji('💡')">💡</span><span class="ep-emoji" onclick="insertEmoji('🚀')">🚀</span><span class="ep-emoji" onclick="insertEmoji('💯')">💯</span><span class="ep-emoji" onclick="insertEmoji('⭐')">⭐</span><span class="ep-emoji" onclick="insertEmoji('🌈')">🌈</span><span class="ep-emoji" onclick="insertEmoji('🎁')">🎁</span><span class="ep-emoji" onclick="insertEmoji('📚')">📚</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="input-bar">
-            <button class="icon-btn" onclick="toggleEmoji()" title="Emoji">😊</button>
-            <button class="icon-btn" id="image-btn" title="Adjuntar archivo">
-                <i class="ti ti-paperclip"></i>
-            </button>
-            <input type="file" id="image-input" accept="image/*" style="display: none;">
-            <input type="text" id="user-input" class="msg-input" placeholder="Escribe un mensaje..." autocomplete="off">
-            <button class="icon-btn" id="mic-btn" title="Dictado por voz">
-                <i class="ti ti-microphone" id="mic-icon"></i>
-            </button>
-            <button class="send-btn" id="send-btn" title="Enviar mensaje">
-                <i class="ti ti-send"></i>
-            </button>
-        </div>
+      <!-- Quick Action: Export -->
+      <button class="msg-action-btn" onclick="exportChatTXT()" title="Exportar chat a TXT">
+        <i class="ti ti-download"></i> TXT
+      </button>
+      <button class="msg-action-btn" onclick="exportChatWord()" title="Exportar chat a Word">
+        <i class="ti ti-file-text"></i> Word
+      </button>
     </div>
+  </div>
+
+  <!-- Privacy Warning Banner if Not Logged In -->
+  {% if not request.user.is_authenticated %}
+  <div class="privacy-banner" id="privacy-banner">
+    <div class="privacy-banner-content">
+      <i class="ti ti-alert-circle"></i>
+      <span>No has iniciado sesión. El historial de conversación no se guardará en tu cuenta.</span>
+    </div>
+    <div class="privacy-banner-actions">
+      <a href="{% url 'login' %}" class="privacy-link" style="color: #c084fc; font-weight: 600;">Iniciar sesión</a>
+      <button class="privacy-close" onclick="dismissPrivacyBanner()" style="background:none; border:none; color:var(--c-text-dim); cursor:pointer;">
+        <i class="ti ti-x"></i>
+      </button>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ════════════════════════════════════
+       MAIN 3-COLUMN GRID LAYOUT
+  ════════════════════════════════════ -->
+  <div class="chat-main-grid">
+
+    <!-- ── LEFT SIDEBAR (Chats List) ── -->
+    <div class="chat-sidebar-panel">
+      <div class="sidebar-top-box">
+        <button class="btn-new-chat" id="new-chat-btn">
+          <i class="ti ti-plus"></i>
+          <span>Nuevo Chat</span>
+        </button>
+        <div class="sidebar-search">
+          <i class="ti ti-search"></i>
+          <input type="text" id="chat-search-input" placeholder="Buscar conversación..." onkeyup="filterChats()">
+        </div>
+      </div>
+
+      <div class="chat-history-list" id="chat-list-items">
+        {% if conversaciones_data %}
+          {% for item in conversaciones_data %}
+          {% with conv=item.conversation last_msg=item.last_message %}
+          <div class="chat-history-item {% if conv.id == active_id %}active{% endif %}"
+               onclick="location.href='?id={{ conv.id }}'"
+               data-title="{{ conv.titulo|lower }}">
+            <div class="chi-info">
+              <i class="ti ti-message-circle chi-icon"></i>
+              <div>
+                <div class="chi-title">{{ conv.titulo }}</div>
+                <div class="chi-preview">{% if last_msg %}{{ last_msg.texto|truncatewords:4 }}{% else %}Nueva charla{% endif %}</div>
+              </div>
+            </div>
+            <div class="chi-actions">
+              <button class="chi-btn" onclick="event.stopPropagation(); renameChat({{ conv.id }})" title="Renombrar"><i class="ti ti-pencil"></i></button>
+              <button class="chi-btn delete" onclick="deleteChat(event, {{ conv.id }})" title="Eliminar"><i class="ti ti-trash"></i></button>
+            </div>
+          </div>
+          {% endwith %}
+          {% endfor %}
+        {% else %}
+          <div style="padding: 20px; text-align: center; color: var(--c-text-dim); font-size: 12px;">
+            <i class="ti ti-messages" style="font-size: 24px; margin-bottom: 6px; display: block;"></i>
+            Sin historial previo.<br>¡Inicia un nuevo chat!
+          </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- ── CENTRAL PANEL (Active Chat) ── -->
+    <div class="chat-central-panel">
+
+      <!-- Top Quick Topic Chips -->
+      <div class="quick-topics-bar" role="list">
+        <div class="quick-topic-chip" onclick="useTopicPrompt('💻 Programación: Explicar conceptos de código y APIs')">💻 Programación</div>
+        <div class="quick-topic-chip" onclick="useTopicPrompt('📚 Estudio: Crear un plan de repaso intensivo')">📚 Estudio</div>
+        <div class="quick-topic-chip" onclick="useTopicPrompt('🌎 Traductor: Traducir texto manteniento estilo natural')">🌎 Traductor</div>
+        <div class="quick-topic-chip" onclick="useTopicPrompt('🎵 Música: Recomendar canciones según mi estado de ánimo')">🎵 Música</div>
+        <div class="quick-topic-chip" onclick="useTopicPrompt('🧮 Matemáticas: Ayudar a resolver problemas paso a paso')">🧮 Matemáticas</div>
+        <div class="quick-topic-chip" onclick="useTopicPrompt('📝 Redacción: Corregir y mejorar un texto')">📝 Redacción</div>
+        <div class="quick-topic-chip" onclick="useTopicPrompt('🖼️ Crear imágenes: Generar ideas para arte')">🖼️ Crear imágenes</div>
+      </div>
+
+      <!-- Messages Scroll Area -->
+      <div class="messages-scroll-area" id="chat-area">
+        {% if mensajes %}
+          {% for msg in mensajes %}
+            <div class="msg-wrapper {% if msg.es_usuario %}user-msg{% else %}bot-msg{% endif %}">
+              <div class="msg-avatar {% if msg.es_usuario %}user{% else %}bot{% endif %}">
+                {% if msg.es_usuario %}{{ request.user.username|slice:":1"|upper }}{% else %}🦆{% endif %}
+              </div>
+              <div class="msg-content-box">
+                <div class="msg-bubble">
+                  {{ msg.texto }}
+                  {% if msg.imagen %}
+                  <div style="margin-top: 8px;">
+                    <img src="{{ msg.imagen.url }}" alt="Imagen adjunta" style="max-width: 180px; border-radius: 12px;">
+                  </div>
+                  {% endif %}
+                </div>
+                <div class="msg-meta">
+                  <span>{% if msg.es_usuario %}Tú{% else %}Amigis 🦆{% endif %}</span>
+                  <span>•</span>
+                  <span>{{ msg.fecha_creacion|date:"H:i" }}</span>
+                </div>
+                {% if not msg.es_usuario %}
+                <div class="msg-actions-bar">
+                  <button class="msg-action-btn" onclick="copyText(this)" title="Copiar"><i class="ti ti-copy"></i> Copiar</button>
+                  <button class="msg-action-btn" onclick="regenerateMessage()" title="Regenerar"><i class="ti ti-refresh"></i> Regenerar</button>
+                  <button class="msg-action-btn" onclick="toggleReaction(this, 'like')" title="Me gusta"><i class="ti ti-thumb-up"></i></button>
+                  <button class="msg-action-btn" onclick="toggleReaction(this, 'dislike')" title="No me gusta"><i class="ti ti-thumb-down"></i></button>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <!-- Welcome Initial View -->
+          <div class="amigis-welcome-view" id="welcome-screen" style="text-align: center; margin: auto; padding: 40px 20px;">
+            <div style="width: 80px; height: 80px; margin: 0 auto 16px;">
+              <img src="{% static 'amigis/amigis-dark.svg' %}" id="welcome-duck-img" alt="Amigis" width="80" height="80">
+            </div>
+            <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 800; margin: 0 0 8px; color: #fff;">
+              ¡Hola! Soy Amigis 🦆
+            </h2>
+            <p style="color: var(--c-text-soft); font-size: 14px; margin: 0 0 24px; max-width: 420px; margin-left: auto; margin-right: auto;">
+              ¿En qué puedo ayudarte hoy? Elige una opción o escribe directamente tu pregunta.
+            </p>
+
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; max-width: 460px; margin: 0 auto;">
+              <button class="quick-topic-chip" style="padding: 12px 16px; justify-content: center; font-size: 13px;" onclick="useTopicPrompt('¿Cómo puedo crear una API en Django?')">
+                💬 ¿Cómo crear una API en Django?
+              </button>
+              <button class="quick-topic-chip" style="padding: 12px 16px; justify-content: center; font-size: 13px;" onclick="useTopicPrompt('Recomiéndame una playlist para estudiar')">
+                🎵 Playlist para estudiar
+              </button>
+              <button class="quick-topic-chip" style="padding: 12px 16px; justify-content: center; font-size: 13px;" onclick="useTopicPrompt('Explícame los conceptos básicos de Python')">
+                📚 Conceptos de Python
+              </button>
+              <button class="quick-topic-chip" style="padding: 12px 16px; justify-content: center; font-size: 13px;" onclick="useTopicPrompt('Ayúdame a organizar mi rutina diaria')">
+                📅 Planificar mi día
+              </button>
+            </div>
+          </div>
+        {% endif %}
+
+        <!-- Typing Indicator -->
+        <div id="typing-indicator" class="typing-indicator-box">
+          <span id="amigis-mood-reaction">🦆</span>
+          <span>Amigis está escribiendo...</span>
+          <div class="typing-dots">
+            <div class="typing-dot-circle"></div>
+            <div class="typing-dot-circle"></div>
+            <div class="typing-dot-circle"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Emoji Picker Popup -->
+      <div id="emoji-picker" class="emoji-picker-container" style="display: none; padding: 12px; background: rgba(18, 18, 26, 0.95); border: 1px solid var(--c-glass-border); border-radius: 16px; margin: 0 18px;">
+        <div style="display: flex; gap: 8px; font-size: 18px; flex-wrap: wrap;">
+          <span onclick="insertEmoji('😊')" style="cursor:pointer;">😊</span>
+          <span onclick="insertEmoji('🦆')" style="cursor:pointer;">🦆</span>
+          <span onclick="insertEmoji('💜')" style="cursor:pointer;">💜</span>
+          <span onclick="insertEmoji('🚀')" style="cursor:pointer;">🚀</span>
+          <span onclick="insertEmoji('📚')" style="cursor:pointer;">📚</span>
+          <span onclick="insertEmoji('🎵')" style="cursor:pointer;">🎵</span>
+          <span onclick="insertEmoji('🎮')" style="cursor:pointer;">🎮</span>
+          <span onclick="insertEmoji('💻')" style="cursor:pointer;">💻</span>
+          <span onclick="insertEmoji('💡')" style="cursor:pointer;">💡</span>
+          <span onclick="insertEmoji('🔥')" style="cursor:pointer;">🔥</span>
+          <span onclick="insertEmoji('✨')" style="cursor:pointer;">✨</span>
+          <span onclick="insertEmoji('👍')" style="cursor:pointer;">👍</span>
+        </div>
+      </div>
+
+      <!-- Input Bar -->
+      <div class="chat-input-bar">
+        <div id="image-preview-container"></div>
+        <div class="input-controls-wrapper">
+          <button class="input-icon-btn" onclick="toggleEmoji()" title="Emojis">😊</button>
+          <button class="input-icon-btn" onclick="triggerFileSelect()" title="Adjuntar imagen/archivo">
+            <i class="ti ti-paperclip"></i>
+          </button>
+          <input type="file" id="image-input" accept="image/*" style="display: none;">
+
+          <input type="text" id="user-input" class="chat-text-input" placeholder="Escribe un mensaje a MiniAmigixV..." autocomplete="off">
+
+          <button class="input-icon-btn" id="mic-btn" onclick="toggleRecording()" title="Dictado por voz">
+            <i class="ti ti-microphone" id="mic-icon"></i>
+          </button>
+
+          <button class="btn-send-main" id="send-btn" onclick="sendMessage()">
+            <span>Enviar</span>
+            <i class="ti ti-send"></i>
+          </button>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── RIGHT SIDEBAR (Amigis Info & Settings) ── -->
+    <div class="chat-right-panel">
+
+      <!-- Amigis Mascot Info Card -->
+      <div class="amigis-info-card">
+        <div class="amigis-avatar-box">
+          <img src="{% static 'amigis/amigis-dark.svg' %}" id="right-duck-img" alt="Amigis">
+        </div>
+        <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; margin: 0 0 4px; color: #fff;">
+          Amigis IA
+        </h3>
+        <p style="font-size: 11.5px; color: var(--c-text-dim); margin: 0 0 10px;">Tu compañero inteligente</p>
+        <span class="amigis-status-badge">
+          <span style="width: 6px; height: 6px; border-radius: 50%; background: #34d399;"></span>
+          En línea · Listo para ayudarte
+        </span>
+      </div>
+
+      <!-- AI Model Info -->
+      <div class="right-section-box">
+        <div class="right-section-title">
+          <i class="ti ti-cpu"></i> Modelo Activo
+        </div>
+        <div style="font-size: 12.5px; font-weight: 600; color: #c084fc; margin-bottom: 4px;">
+          MiniAmigixV Turbo 3.0
+        </div>
+        <div style="font-size: 11px; color: var(--c-text-dim);">
+          Optimizado para estudio, programación, traducción y conversación general.
+        </div>
+      </div>
+
+      <!-- Quick Export Actions -->
+      <div class="right-section-box">
+        <div class="right-section-title">
+          <i class="ti ti-file-export"></i> Exportar Chat
+        </div>
+        <div class="export-btns-group">
+          <button class="btn-export" onclick="exportChatTXT()">
+            <i class="ti ti-file-text" style="font-size: 16px; color: #38bdf8;"></i>
+            TXT
+          </button>
+          <button class="btn-export" onclick="exportChatWord()">
+            <i class="ti ti-file-code" style="font-size: 16px; color: #c084fc;"></i>
+            Word
+          </button>
+          <button class="btn-export" onclick="exportChatPDF()">
+            <i class="ti ti-pdf" style="font-size: 16px; color: #f43f5e;"></i>
+            Imprimir/PDF
+          </button>
+        </div>
+      </div>
+
+      <!-- Advice / Memory -->
+      <div class="right-section-box">
+        <div class="right-section-title">
+          <i class="ti ti-bulb"></i> Consejos de Amigis
+        </div>
+        <div style="font-size: 11.5px; color: var(--c-text-soft); line-height: 1.5;">
+          💜 Puedes pedirme que te cree cuestionarios de estudio o te explique código paso a paso.
+        </div>
+      </div>
+
+    </div>
+
+  </div>
 </div>
-</div>
-{% endblock %}
-{% block extra_js %}
+
+<!-- ════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════ -->
 <script>
-    const elements = {
-        history: document.getElementById('chat-area'),
-        input: document.getElementById('user-input'),
-        send: document.getElementById('send-btn'),
-        mic: document.getElementById('mic-btn'),
-        micIcon: document.getElementById('mic-icon'),
-        typing: document.getElementById('typing-indicator'),
-        picker: document.getElementById('emoji-picker'),
-        newChat: document.getElementById('new-chat-btn'),
-        imageBtn: document.getElementById('image-btn'),
-        imageInput: document.getElementById('image-input')
+const activeId = "{{ active_id }}";
+let selectedImage = null;
+let isRecording = false;
+let recognition = null;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const userInput = document.getElementById('user-input');
+
+  // Keypress Enter
+  userInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') sendMessage();
+  });
+
+  // Image paste support
+  userInput.addEventListener('paste', (e) => {
+    const items = e.clipboardData.items;
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].type.indexOf('image') !== -1) {
+        e.preventDefault();
+        const file = items[i].getAsFile();
+        handleSelectedImage(file);
+        break;
+      }
+    }
+  });
+
+  // Image input change
+  document.getElementById('image-input').addEventListener('change', (e) => {
+    if (e.target.files[0]) handleSelectedImage(e.target.files[0]);
+  });
+
+  // Voice Recognition Init
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRec();
+    recognition.lang = 'es-ES';
+    recognition.onstart = () => {
+      isRecording = true;
+      document.getElementById('mic-icon').className = 'ti ti-microphone-filled';
+      document.getElementById('mic-btn').style.color = '#f43f5e';
     };
-
-    let selectedImage = null;
-
-    let isRecording = false;
-    let recognition = null;
-    const activeId = "{{ active_id }}";
-
-    // Inicializar reconocimiento de voz
-    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        recognition = new SpeechRecognition();
-        recognition.lang = 'es-ES';
-        recognition.continuous = false;
-        recognition.interimResults = true;
-
-        recognition.onstart = () => {
-            isRecording = true;
-            elements.micIcon.className = 'ti ti-microphone-filled';
-            elements.mic.style.color = '#ef4444';
-            elements.input.placeholder = 'Escuchando...';
-        };
-
-        recognition.onend = () => {
-            isRecording = false;
-            elements.micIcon.className = 'ti ti-microphone';
-            elements.mic.style.color = '';
-            elements.input.placeholder = 'Escribe un mensaje...';
-        };
-
-        recognition.onresult = (event) => {
-            const transcript = Array.from(event.results)
-                .map(result => result[0].transcript)
-                .join('');
-            
-            if (event.results[0].isFinal) {
-                elements.input.value = transcript;
-                elements.input.focus();
-            }
-        };
-
-        recognition.onerror = (event) => {
-            console.error('Error en reconocimiento de voz:', event.error);
-            isRecording = false;
-            elements.micIcon.className = 'ti ti-microphone';
-            elements.mic.style.color = '';
-            elements.input.placeholder = 'Escribe un mensaje...';
-        };
-    }
-
-    function toggleRecording() {
-        if (!recognition) {
-            alert('Tu navegador no soporta reconocimiento de voz. Por favor usa Chrome o Edge.');
-            return;
-        }
-
-        if (isRecording) {
-            recognition.stop();
-        } else {
-            recognition.start();
-        }
-    }
-
-    function useSuggestion(text) {
-        elements.input.value = text;
-        elements.input.focus();
-    }
-
-    function copyMessage(btn) {
-        const bubble = btn.closest('.bubble');
-        const content = bubble.querySelector('.message-content').textContent;
-        navigator.clipboard.writeText(content).then(() => {
-            const originalIcon = btn.innerHTML;
-            btn.innerHTML = '<i class="ti ti-check"></i>';
-            setTimeout(() => btn.innerHTML = originalIcon, 2000);
-        });
-    }
-
-    function regenerateMessage() {
-        // Implementar regeneración de mensaje
-        const lastUserMessage = elements.history.querySelectorAll('.msg.user');
-        if (lastUserMessage.length > 0) {
-            const lastMsg = lastUserMessage[lastUserMessage.length - 1];
-            const text = lastMsg.querySelector('.message-content')?.textContent || '';
-            if (text) {
-                elements.input.value = text;
-                sendMessage();
-            }
-        }
-    }
-
-    function filterChats() {
-        const searchTerm = document.getElementById('chat-search-input').value.toLowerCase();
-        const chatItems = document.querySelectorAll('.chat-item');
-        chatItems.forEach(item => {
-            const title = item.getAttribute('data-title');
-            if (title.includes(searchTerm)) {
-                item.style.display = 'flex';
-            } else {
-                item.style.display = 'none';
-            }
-        });
-    }
-
-    function renameChat(chatId) {
-        const newName = prompt('Nuevo nombre para el chat:');
-        if (newName && newName.trim()) {
-            // Implementar renombrar chat
-            fetch(`/api/rename-chat/${chatId}/`, {
-                method: 'POST',
-                headers: { 
-                    'X-CSRFToken': getCookie('csrftoken'),
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ title: newName.trim() })
-            }).then(() => location.reload());
-        }
-    }
-
-    function favoriteChat(chatId) {
-        // Implementar favorito
-        const btn = event.target.closest('.chat-action-btn');
-        btn.classList.toggle('favorited');
-    }
-
-    function toggleEmoji() { elements.picker.classList.toggle('open'); }
-    function insertEmoji(e) { elements.input.value += e; elements.input.focus(); }
-
-    // Manejo de imágenes
-    elements.imageBtn.addEventListener('click', () => {
-        elements.imageInput.click();
-    });
-
-    elements.imageInput.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            selectedImage = file;
-            elements.imageBtn.style.color = '#7c3aed';
-            // Mostrar preview de la imagen
-            const preview = document.createElement('div');
-            preview.className = 'image-preview';
-            preview.innerHTML = `
-                <img src="${URL.createObjectURL(file)}" alt="Preview">
-                <button class="remove-image" onclick="removeImage()">×</button>
-            `;
-            elements.input.parentElement.insertBefore(preview, elements.input);
-        }
-    });
-
-    function removeImage() {
-        selectedImage = null;
-        elements.imageBtn.style.color = '';
-        elements.imageInput.value = '';
-        const preview = document.querySelector('.image-preview');
-        if (preview) preview.remove();
-    }
-
-    function appendMessage(text, isUser) {
-        const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        const msgDiv = document.createElement('div');
-        const role = isUser ? 'user' : 'bot';
-        msgDiv.className = `msg ${role}`;
-        const initial = isUser ? "{{ request.user.username|slice:":1"|upper }}" : '<i class="ti ti-robot"></i>';
-
-        // Ocultar pantalla de bienvenida si existe
-        const welcomeScreen = document.getElementById('welcome-screen');
-        if (welcomeScreen) {
-            welcomeScreen.style.display = 'none';
-        }
-
-        // Usamos textContent para el mensaje para evitar XSS
-        msgDiv.innerHTML = `
-            <div class="avatar ${role}">${initial}</div>
-            <div class="bubble ${role}">
-                <div class="message-header">
-                    <span class="message-sender">${isUser ? '👤 Tú' : '🤖 MiniAmigixV'}</span>
-                </div>
-                <div class="message-content"></div>
-                <span class="time">${time}</span>
-                ${!isUser ? `
-                <div class="message-actions">
-                    <button class="action-btn" onclick="copyMessage(this)" title="Copiar"><i class="ti ti-copy"></i></button>
-                    <button class="action-btn" onclick="regenerateMessage()" title="Regenerar"><i class="ti ti-refresh"></i></button>
-                </div>
-                ` : ''}
-            </div>
-        `;
-        msgDiv.querySelector('.message-content').textContent = text;
-
-        elements.history.insertBefore(msgDiv, elements.typing);
-        elements.history.scrollTop = elements.history.scrollHeight;
-    }
-
-    function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                if (cookie.startsWith(name + "=")) {
-                    cookieValue = decodeURIComponent(cookie.split("=")[1]);
-                    break;
-                }
-            }
-        }
-        return cookieValue;
-    }
-
-    async function deleteChat(event, chatId) {
-        event.stopPropagation();
-        if (!confirm('¿Estás seguro de que deseas eliminar este chat?')) return;
-        
-        try {
-            const response = await fetch(`/api/delete-chat/${chatId}/`, {
-                method: 'DELETE',
-                headers: { 'X-CSRFToken': getCookie('csrftoken') }
-            });
-            if (response.ok) {
-                if (chatId == activeId) {
-                    location.href = '{% url "chat" %}';
-                } else {
-                    location.reload();
-                }
-            } else {
-                alert('No se pudo eliminar el chat.');
-            }
-        } catch (e) {
-            console.error('Error al eliminar:', e);
-            alert('Ocurrió un error al intentar eliminar el chat.');
-        }
-    }
-
-    async function sendMessage() {
-        const text = elements.input.value.trim();
-        console.log('sendMessage llamado - text:', text, 'selectedImage:', selectedImage);
-        if (!text && !selectedImage) return;
-
-        // Mostrar mensaje del usuario
-        if (text) {
-            appendMessage(text, true);
-        }
-        
-        // Mostrar imagen si existe
-        if (selectedImage) {
-            console.log('Mostrando imagen en chat:', selectedImage);
-            const imageMsg = document.createElement('div');
-            imageMsg.className = 'msg user';
-            imageMsg.innerHTML = `
-                <div class="avatar user">{{ request.user.username|slice:":1"|upper }}</div>
-                <div class="bubble user">
-                    <img src="${URL.createObjectURL(selectedImage)}" alt="Imagen enviada">
-                    <span class="time">${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-                </div>
-            `;
-            elements.history.insertBefore(imageMsg, elements.typing);
-        }
-
-        elements.input.value = '';
-        elements.picker.classList.remove('open');
-
-        // Mostrar indicador de escritura
-        elements.typing.style.display = 'flex';
-        elements.history.scrollTop = elements.history.scrollHeight;
-
-        try {
-            // Preparar datos para enviar
-            const formData = new FormData();
-            formData.append('message', text);
-            if (activeId) formData.append('conversation_id', activeId);
-            if (selectedImage) formData.append('imagen', selectedImage);
-            
-            console.log('Enviando mensaje:', text);
-            console.log('Imagen seleccionada:', selectedImage);
-            console.log('FormData entries:', Array.from(formData.entries()));
-            
-            const response = await fetch('/api/chat/', {
-                method: 'POST',
-                headers: { 'X-CSRFToken': getCookie('csrftoken') },
-                body: formData
-            });
-
-            elements.typing.style.display = 'none'; // Ocultar indicador de escritura
-
-            if (!response.ok) { // Si la respuesta HTTP no es 2xx
-                const errorData = await response.json();
-                const errorMsg = errorData.message || errorData.error || response.statusText;
-                appendMessage(`Error del servidor: ${errorMsg} 😕`, false);
-                return;
-            }
-            
-            const data = await response.json(); // Parsear la respuesta JSON
-            elements.typing.style.display = 'none';
-
-            console.log('Respuesta del servidor:', data);
-
-            // La respuesta está en data.data.response por la estructura de JsonResponseHelper
-            const botResponse = data.data?.response || data.response;
-
-            if (botResponse) {
-                console.log('Mostrando respuesta:', botResponse);
-                appendMessage(botResponse, false);
-            } else if (data.error) { // Si la API devuelve un error en el JSON (ej. 200 OK pero con error lógico)
-                console.log('Error en respuesta:', data.error);
-                appendMessage(`Error de la IA: ${data.error} 😕`, false);
-            } else {
-                console.log('Respuesta sin response ni error:', data);
-                appendMessage('Respuesta vacía del servidor 😕', false);
-            }
-        } catch (error) {
-            elements.typing.style.display = 'none';
-            console.error('Error en la solicitud:', error); // Log the actual network error
-            appendMessage("Lo siento, hubo un problema de conexión con el servidor. 😕", false);
-        }
-        
-        // Limpiar imagen después del envío
-        removeImage();
-    }
-
-    elements.send.onclick = sendMessage;
-    elements.input.onkeypress = (e) => { if (e.key === 'Enter') sendMessage(); };
-    
-    // Soporte para pegar imágenes con Ctrl+V
-    elements.input.addEventListener('paste', (e) => {
-        console.log('Evento paste detectado');
-        const items = e.clipboardData.items;
-        console.log('Items en clipboard:', items.length);
-        
-        let hasImage = false;
-        for (let i = 0; i < items.length; i++) {
-            console.log('Item', i, 'tipo:', items[i].type);
-            if (items[i].type.indexOf('image') !== -1) {
-                hasImage = true;
-                e.preventDefault();
-                const file = items[i].getAsFile();
-                console.log('Imagen pegada:', file);
-                selectedImage = file;
-                elements.imageBtn.style.color = '#7c3aed';
-                // Mostrar preview de la imagen
-                const preview = document.createElement('div');
-                preview.className = 'image-preview';
-                preview.innerHTML = `
-                    <img src="${URL.createObjectURL(file)}" alt="Preview">
-                    <button class="remove-image" onclick="removeImage()">×</button>
-                `;
-                elements.input.parentElement.insertBefore(preview, elements.input);
-                break;
-            }
-        }
-        
-        // Si hay imagen, prevenir que se pegue texto
-        if (hasImage) {
-            e.preventDefault();
-        }
-    });
-    
-    // Event listeners para botones de voz
-    elements.mic.onclick = toggleRecording;
-    
-    elements.newChat.onclick = () => {
-        location.href = '{% url "chat" %}?new=true'; // Crea un nuevo chat con título único
+    recognition.onend = () => {
+      isRecording = false;
+      document.getElementById('mic-icon').className = 'ti ti-microphone';
+      document.getElementById('mic-btn').style.color = '';
     };
+    recognition.onresult = (event) => {
+      const text = Array.from(event.results).map(r => r[0].transcript).join('');
+      userInput.value = text;
+    };
+  }
 
-    elements.history.scrollTop = elements.history.scrollHeight;
+  updateDuckTheme();
+});
 
-    // Privacy banner dismiss
-    function dismissPrivacyBanner() {
-        const banner = document.getElementById('privacy-banner');
-        if (banner) {
-            banner.style.display = 'none';
-            localStorage.setItem('privacyBannerDismissed', 'true');
-        }
+// Trigger file selector
+function triggerFileSelect() {
+  document.getElementById('image-input').click();
+}
+
+function handleSelectedImage(file) {
+  selectedImage = file;
+  const container = document.getElementById('image-preview-container');
+  container.innerHTML = `
+    <div style="position: relative; display: inline-block; margin-bottom: 8px;">
+      <img src="${URL.createObjectURL(file)}" style="max-width: 90px; max-height: 90px; border-radius: 10px; border: 2px solid #a855f7;">
+      <button onclick="removeSelectedImage()" style="position: absolute; top: -6px; right: -6px; background: #f43f5e; color: #fff; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 12px;">×</button>
+    </div>
+  `;
+}
+
+function removeSelectedImage() {
+  selectedImage = null;
+  document.getElementById('image-preview-container').innerHTML = '';
+  document.getElementById('image-input').value = '';
+}
+
+// Topic Prompt Auto fill
+function useTopicPrompt(promptText) {
+  const input = document.getElementById('user-input');
+  input.value = promptText;
+  input.focus();
+}
+
+// Emoji toggle
+function toggleEmoji() {
+  const picker = document.getElementById('emoji-picker');
+  picker.style.display = picker.style.display === 'none' ? 'block' : 'none';
+}
+function insertEmoji(emoji) {
+  const input = document.getElementById('user-input');
+  input.value += emoji;
+  input.focus();
+}
+
+// Voice Recording Toggle
+function toggleRecording() {
+  if (!recognition) {
+    alert('Tu navegador no soporta reconocimiento de voz.');
+    return;
+  }
+  if (isRecording) recognition.stop();
+  else recognition.start();
+}
+
+// Send Message logic
+async function sendMessage() {
+  const input = document.getElementById('user-input');
+  const text = input.value.trim();
+  if (!text && !selectedImage) return;
+
+  const chatArea = document.getElementById('chat-area');
+  const welcomeScreen = document.getElementById('welcome-screen');
+  if (welcomeScreen) welcomeScreen.style.display = 'none';
+
+  // Append user message
+  if (text) appendBubble(text, true);
+
+  input.value = '';
+  document.getElementById('emoji-picker').style.display = 'none';
+
+  // Show typing indicator
+  const typing = document.getElementById('typing-indicator');
+  typing.style.display = 'flex';
+  chatArea.scrollTop = chatArea.scrollHeight;
+
+  try {
+    const formData = new FormData();
+    formData.append('message', text);
+    if (activeId) formData.append('conversation_id', activeId);
+    if (selectedImage) formData.append('imagen', selectedImage);
+
+    const response = await fetch('/api/chat/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCookie('csrftoken') },
+      body: formData
+    });
+
+    typing.style.display = 'none';
+
+    if (!response.ok) {
+      appendBubble('Hubo un inconveniente al conectar con Amigis 😕', false);
+      return;
     }
 
-    // Check if banner was previously dismissed
-    if (localStorage.getItem('privacyBannerDismissed') === 'true') {
-        const banner = document.getElementById('privacy-banner');
-        if (banner) {
-            banner.style.display = 'none';
-        }
+    const data = await response.json();
+    const botResponse = data.data?.response || data.response;
+    if (botResponse) {
+      appendBubble(botResponse, false);
+    } else {
+      appendBubble('Respuesta vacía 😕', false);
     }
+  } catch (err) {
+    typing.style.display = 'none';
+    appendBubble('Error de red. Intenta nuevamente 💜', false);
+  }
+
+  removeSelectedImage();
+}
+
+function appendBubble(text, isUser) {
+  const chatArea = document.getElementById('chat-area');
+  const typing = document.getElementById('typing-indicator');
+  const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  const wrapper = document.createElement('div');
+  wrapper.className = `msg-wrapper ${isUser ? 'user-msg' : 'bot-msg'}`;
+
+  const avatarChar = isUser ? "{{ request.user.username|slice:':1'|upper }}" : "🦆";
+
+  wrapper.innerHTML = `
+    <div class="msg-avatar ${isUser ? 'user' : 'bot'}">${avatarChar}</div>
+    <div class="msg-content-box">
+      <div class="msg-bubble">${escapeHtml(text)}</div>
+      <div class="msg-meta">
+        <span>${isUser ? 'Tú' : 'Amigis 🦆'}</span>
+        <span>•</span>
+        <span>${time}</span>
+      </div>
+      ${!isUser ? `
+      <div class="msg-actions-bar">
+        <button class="msg-action-btn" onclick="copyText(this)"><i class="ti ti-copy"></i> Copiar</button>
+        <button class="msg-action-btn" onclick="regenerateMessage()"><i class="ti ti-refresh"></i> Regenerar</button>
+        <button class="msg-action-btn" onclick="toggleReaction(this, 'like')"><i class="ti ti-thumb-up"></i></button>
+        <button class="msg-action-btn" onclick="toggleReaction(this, 'dislike')"><i class="ti ti-thumb-down"></i></button>
+      </div>` : ''}
+    </div>
+  `;
+
+  chatArea.insertBefore(wrapper, typing);
+  chatArea.scrollTop = chatArea.scrollHeight;
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+function copyText(btn) {
+  const bubble = btn.closest('.msg-content-box').querySelector('.msg-bubble');
+  navigator.clipboard.writeText(bubble.textContent).then(() => {
+    const orig = btn.innerHTML;
+    btn.innerHTML = '<i class="ti ti-check"></i> Copiado';
+    setTimeout(() => btn.innerHTML = orig, 2000);
+  });
+}
+
+function regenerateMessage() {
+  const userBubbles = document.querySelectorAll('.user-msg .msg-bubble');
+  if (userBubbles.length > 0) {
+    const lastUserText = userBubbles[userBubbles.length - 1].textContent;
+    document.getElementById('user-input').value = lastUserText;
+    sendMessage();
+  }
+}
+
+function toggleReaction(btn, type) {
+  if (type === 'like') {
+    btn.classList.toggle('active-like');
+  } else {
+    btn.classList.toggle('active-dislike');
+  }
+}
+
+function filterChats() {
+  const term = document.getElementById('chat-search-input').value.toLowerCase();
+  document.querySelectorAll('.chat-history-item').forEach(item => {
+    const title = item.getAttribute('data-title') || '';
+    item.style.display = title.includes(term) ? 'flex' : 'none';
+  });
+}
+
+function renameChat(id) {
+  const newTitle = prompt('Nuevo nombre para la conversación:');
+  if (newTitle && newTitle.trim()) {
+    fetch(`/api/rename-chat/${id}/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': getCookie('csrftoken'),
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ title: newTitle.trim() })
+    }).then(() => location.reload());
+  }
+}
+
+async function deleteChat(e, id) {
+  e.stopPropagation();
+  if (!confirm('¿Eliminar esta conversación?')) return;
+  const res = await fetch(`/api/delete-chat/${id}/`, {
+    method: 'DELETE',
+    headers: { 'X-CSRFToken': getCookie('csrftoken') }
+  });
+  if (res.ok) location.href = '{% url "chat" %}';
+}
+
+// Export Chat logic
+function exportChatTXT() {
+  const bubbles = document.querySelectorAll('.msg-wrapper');
+  let txt = "MiniAmigixV — Transcripción de Chat\n=========================================\n\n";
+  bubbles.forEach(b => {
+    const isUser = b.classList.contains('user-msg');
+    const text = b.querySelector('.msg-bubble').textContent.trim();
+    txt += `${isUser ? 'Usuario' : 'Amigis'}: ${text}\n\n`;
+  });
+  const blob = new Blob([txt], { type: 'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'chat_miniamigixv.txt';
+  a.click();
+}
+
+function exportChatWord() {
+  const bubbles = document.querySelectorAll('.msg-wrapper');
+  let htmlContent = "<h2>MiniAmigixV — Historial de Conversación</h2><hr>";
+  bubbles.forEach(b => {
+    const isUser = b.classList.contains('user-msg');
+    const text = b.querySelector('.msg-bubble').textContent.trim();
+    htmlContent += `<p><b>${isUser ? 'Usuario' : 'Amigis'}:</b> ${text}</p>`;
+  });
+  const blob = new Blob(['\ufeff' + htmlContent], { type: 'application/msword' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'chat_miniamigixv.doc';
+  a.click();
+}
+
+function exportChatPDF() {
+  window.print();
+}
+
+function toggleModelSelect() {
+  const models = ['MiniAmigixV v3.0 (Predeterminado)', 'MiniAmigixV Fast ⚡', 'MiniAmigixV Pro 🧠'];
+  const current = document.getElementById('current-model-label').textContent;
+  const nextIdx = (models.indexOf(current) + 1) % models.length;
+  document.getElementById('current-model-label').textContent = models[nextIdx < 0 ? 0 : nextIdx];
+}
+
+function getCookie(name) {
+  let value = null;
+  if (document.cookie && document.cookie !== '') {
+    document.cookie.split(';').forEach(c => {
+      const parts = c.trim().split('=');
+      if (parts[0] === name) value = decodeURIComponent(parts[1]);
+    });
+  }
+  return value;
+}
+
+function dismissPrivacyBanner() {
+  const b = document.getElementById('privacy-banner');
+  if (b) b.style.display = 'none';
+}
+
+function updateDuckTheme() {
+  const isDark = document.body.classList.contains('dark') || !document.body.classList.contains('light');
+  const src = isDark ? "{% static 'amigis/amigis-dark.svg' %}" : "{% static 'amigis/amigis-light.svg' %}";
+  const duckImgs = [document.getElementById('welcome-duck-img'), document.getElementById('right-duck-img')];
+  duckImgs.forEach(img => { if (img) img.src = src; });
+}
 </script>
 {% endblock %}

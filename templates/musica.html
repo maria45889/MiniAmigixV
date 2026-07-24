@@ -1,2120 +1,428 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Música{% endblock %}
+{% block title %}Música — MiniAmigixV{% endblock %}
+{% block nav_title %}Música{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/musica.css' %}?v=3">
+<link rel="stylesheet" href="{% static 'css/pages/musica.css' %}?v=40">
 {% endblock %}
 
 {% block content %}
-<style>
-    /* ── TOKENS ─────────────────────────────────────────────── */
-    :root {
-        --emerald:         #10b981;
-        --emerald-light:   #34d399;
-        --emerald-dark:    #059669;
-        --bg:              #0a0a0f;
-        --surface:         rgba(255,255,255,0.04);
-        --surface-hov:     rgba(255,255,255,0.07);
-        --border:          rgba(16,185,129,0.18);
-        --border-hov:      rgba(16,185,129,0.45);
-        --text:            #f1f5f9;
-        --muted:           #94a3b8;
-        --radius:          24px;
-        --shadow-emerald:  0 0 40px rgba(16,185,129,0.18);
-        --glow:            0 0 18px rgba(16,185,129,0.5);
-    }
+<div class="musica-page-wrapper fadein">
+  {% csrf_token %}
 
-    /* ── RESET & BASE ───────────────────────────────────────── */
-    .musica-page * { box-sizing: border-box; }
-    .musica-page {
-        min-height: 100vh;
-        background: var(--bg);
-        color: var(--text);
-        font-family: 'Inter', system-ui, sans-serif;
-        padding-bottom: 40px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    /* orb blobs */
-    .musica-orb {
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(80px);
-        pointer-events: none;
-        z-index: 0;
-    }
-    .musica-orb-1 {
-        width: 400px; height: 400px;
-        background: radial-gradient(circle, rgba(16,185,129,0.2) 0%, transparent 70%);
-        top: -100px; left: -100px;
-        animation: orbFloat1 10s ease-in-out infinite;
-    }
-    .musica-orb-2 {
-        width: 350px; height: 350px;
-        background: radial-gradient(circle, rgba(52,211,153,0.15) 0%, transparent 70%);
-        bottom: -50px; right: -50px;
-        animation: orbFloat2 12s ease-in-out infinite;
-    }
-
-    @keyframes orbFloat1 {
-        0%,100% { transform: translate(0,0) scale(1); }
-        50%      { transform: translate(40px,40px) scale(1.1); }
-    }
-    @keyframes orbFloat2 {
-        0%,100% { transform: translate(0,0) scale(1); }
-        50%      { transform: translate(-40px,-40px) scale(0.9); }
-    }
-    @keyframes fadeSlideUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .musica-hero {
-        position: relative;
-        z-index: 1;
-        text-align: center;
-        padding: 40px 20px 20px;
-        animation: fadeSlideUp 0.5s ease both;
-    }
-    .musica-hero h1 {
-        font-size: 2.5rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, #fff 30%, var(--emerald-light) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin: 10px 0 5px;
-    }
-    .musica-hero p { color: var(--muted); margin: 0; }
-
-    /* ── LAYOUT ─────────────────────────────────────────────── */
-    .music-wrapper {
-        max-width: 1400px !important;
-        margin: 0 auto !important;
-        position: relative;
-        z-index: 1;
-        animation: fadeSlideUp 0.5s 0.2s ease both;
-        padding: 0 20px;
-    }
-    
-    .music-section {
-        background: var(--surface) !important;
-        border: 1px solid var(--border) !important;
-        border-radius: var(--radius) !important;
-        padding: 24px !important;
-        backdrop-filter: blur(20px) !important;
-        box-shadow: var(--shadow-emerald) !important;
-        transition: transform 0.3s, box-shadow 0.3s;
-    }
-    .music-section:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 10px 40px rgba(16,185,129,0.3) !important;
-        border-color: var(--border-hov) !important;
-    }
-    
-    .playlist-card, .track-item {
-        background: rgba(0,0,0,0.2) !important;
-        border: 1px solid rgba(255,255,255,0.05) !important;
-        border-radius: 12px !important;
-        transition: all 0.3s;
-    }
-    .playlist-card:hover, .track-item:hover {
-        border-color: var(--emerald) !important;
-        background: rgba(16,185,129,0.05) !important;
-    }
-    
-    .play-btn-glow {
-        background: linear-gradient(135deg, var(--emerald), var(--emerald-light)) !important;
-        box-shadow: var(--glow) !important;
-        color: #fff !important;
-        border: none !important; border-radius: 50% !important;
-    }
-    .play-btn-glow:hover { transform: scale(1.1); filter: brightness(1.1); }
-</style>
-<div class="musica-page">
-    <div class="musica-orb musica-orb-1"></div>
-    <div class="musica-orb musica-orb-2"></div>
-    <div class="musica-hero">
+  <!-- ════════════════════════════════════
+       HEADER BAR
+  ════════════════════════════════════ -->
+  <div class="music-header-bar">
+    <div class="music-header-title">
+      <span style="font-size: 26px;">🎵</span>
+      <div>
         <h1>Música</h1>
-        <p>Tu banda sonora perfecta para cada momento.</p>
-    </div>
-    <div class="music-wrapper">
-    <div class="main-layout">
-        <!-- Columna Izquierda (Principal) -->
-        <div class="left-column">
-            <!-- Reproduciendo (Portada + Info) -->
-            <div class="music-section now-playing-section">
-                <div class="album-cover-container">
-                    <div class="album-cover" id="album-cover">
-                        <div class="vinyl-record" id="vinyl-record">
-                            <div class="vinyl-center"></div>
-                        </div>
-                    </div>
-                    <div class="equalizer" id="equalizer">
-                        <div class="eq-bar"></div>
-                        <div class="eq-bar"></div>
-                        <div class="eq-bar"></div>
-                        <div class="eq-bar"></div>
-                        <div class="eq-bar"></div>
-                        <div class="eq-bar"></div>
-                        <div class="eq-bar"></div>
-                        <div class="eq-bar"></div>
-                    </div>
-                </div>
-                <div class="now-playing-info">
-                    <div class="now-playing-label">REPRODUCIENDO AHORA</div>
-                    <h2 id="current-song-title">Selecciona una pista</h2>
-                    <p id="current-song-artist" class="song-artist-name">Artista Desconocido</p>
-                    
-                    <!-- Barra de progreso premium -->
-                    <div class="progress-container" id="progress-container" onclick="seekAudio(event)">
-                        <span id="current-time">0:00</span>
-                        <div class="progress-bar-bg" id="progress-bar-bg">
-                            <div class="progress-bar-fill" id="progress-bar-fill">
-                                <div class="progress-thumb"></div>
-                            </div>
-                        </div>
-                        <span id="total-time">0:00</span>
-                    </div>
-                    
-                    <!-- Controles principales mejorados -->
-                    <div class="main-controls">
-                        <button class="control-btn" onclick="toggleMute()" title="Aleatorio">🔀</button>
-                        <button class="control-btn" onclick="playPrevious()" title="Anterior">⏮</button>
-                        <button class="play-btn-glow" id="main-play-pause-btn" onclick="togglePause()" title="Reproducir/Pausar">▶️</button>
-                        <button class="control-btn" onclick="playNext()" title="Siguiente">⏭</button>
-                        <button class="control-btn" onclick="toggleLoop()" title="Repetir">🔁</button>
-                    </div>
-                    
-                    <!-- Control de volumen -->
-                    <div class="volume-control">
-                        <button class="volume-btn" onclick="toggleMute()" id="volume-btn">🔊</button>
-                        <input type="range" class="volume-slider" id="volume-slider" min="0" max="100" value="100" oninput="setVolume(this.value)">
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Video y Letra (Sub-grid) -->
-            <div class="video-lyrics-grid">
-                <!-- Video Player -->
-                <div class="music-section video-section">
-                    <div class="video-header">
-                        <span class="video-title">🎬 VIDEO</span>
-                        <button class="btn-toggle-video" onclick="toggleVideo()" id="toggle-video-btn" title="Mostrar/Ocultar Video">👁️</button>
-                    </div>
-                    <div id="player-wrapper" class="youtube-iframe-container">
-                        <div id="youtube-iframe">
-                            <div id="video-thumbnail" class="video-thumbnail">
-                                <img id="thumbnail-img" src="" alt="" style="display: none;">
-                                <div class="thumbnail-placeholder">
-                                    <span style="font-size: 48px;">🎬</span>
-                                    <p style="color: var(--text-muted); margin-top: 10px;">Selecciona una canción</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!-- Controles de Video -->
-                    <div class="video-controls">
-                        <button class="btn-icon" onclick="playPrevious()" title="Anterior">⏮</button>
-                        <button class="btn-icon btn-play-pause" id="video-play-pause-btn" onclick="togglePause()" title="Reproducir/Pausar">▶️</button>
-                        <button class="btn-icon" onclick="toggleMiniPlayer()" title="Abrir mini reproductor">📺</button>
-                        <button class="btn-icon" onclick="playNext()" title="Siguiente">⏭</button>
-                        <button class="btn-icon" onclick="toggleMute()" title="Silenciar">🔊</button>
-                    </div>
-                </div>
-                
-                <!-- Transmisión Lírica -->
-                <div class="music-section lyrics-section">
-                    <div class="lyrics-header">
-                        <div class="lyrics-title"><span class="dot"></span> TRANSMISIÓN LÍRICA</div>
-                        <button class="btn-lang">A ESPAÑOL 🔄</button>
-                    </div>
-                    <div id="lyrics-container" class="lyrics-content">
-                        <p style="color: rgba(255,255,255,0.3); font-size: 16px; text-align: center; padding: 20px;">Reproduce una canción para ver la letra</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Columna Derecha (Sidebar) -->
-        <div class="right-column">
-            <!-- Añadir Pista -->
-            <div class="music-section add-track-section">
-                <h3 class="neon-title">AÑADIR PISTA</h3>
-                <div class="add-song-form" style="display: flex; flex-direction: column; gap: 15px; max-width: 100%; margin: 0 auto; align-items: center;">
-                    <input type="text" id="song-name" placeholder="Nombre de la canción" class="music-input" style="width: 100%; max-width: 350px;">
-                    <input type="text" id="song-artist" placeholder="Artista (opcional)" class="music-input" style="width: 100%; max-width: 350px;">
-                    <input type="url" id="song-url" placeholder="YouTube Link (opcional)" class="music-input" style="width: 100%; max-width: 350px;">
-                    <div style="text-align: center; color: var(--text-muted); font-size: 12px; margin: 5px 0;">— O —</div>
-                    <input type="file" id="song-file" accept="audio/*" class="music-input" style="padding: 8px; width: 100%; max-width: 350px;">
-                    <button class="btn-gradient" onclick="addSong()" style="width: 100%; max-width: 350px;">AÑADIR CANCIÓN</button>
-                </div>
-            </div>
-            
-            <!-- Tu Matriz Sonora -->
-            <div class="music-section playlist-section">
-                <div class="playlist-header-neon">
-                    <h3 class="neon-title">TU BIBLIOTECA</h3>
-                    <span class="playlist-count">{{ canciones|length }}</span>
-                </div>
-                <!-- Barra de búsqueda -->
-                <div class="search-bar">
-                    <input type="text" id="song-search" placeholder="Buscar canción..." class="music-input" oninput="filterSongs()">
-                </div>
-                <div class="playlist-items custom-scrollbar" id="playlist-items">
-                    {% if request.user.is_authenticated %}
-                        {% for cancion in canciones %}
-                        <div class="playlist-item" data-id="{{ cancion.id }}" data-youtube-id="{{ cancion.youtube_id }}" data-audio-url="{% if cancion.audio_file %}{{ cancion.audio_file.url }}{% else %}{% endif %}" data-name="{{ cancion.nombre }}" data-artist="{{ cancion.artista|default:"" }}">
-                            <div class="song-thumbnail">
-                                {% if cancion.audio_file or cancion.youtube_id %}
-                                    {% if cancion.youtube_id %}
-                                    <img src="https://img.youtube.com/vi/{{ cancion.youtube_id }}/mqdefault.jpg" alt="{{ cancion.nombre }}" class="thumbnail-img" onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect fill=%22%231a1a2e%22 width=%22100%22 height=%22100%22/><text x=%2250%22 y=%2250%22 text-anchor=%22middle%22 dy=%22.3em%22 fill=%22%2364748b%22 font-size=%2240%22>🎵</text></svg>'">
-                                    {% else %}
-                                    <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%231a1a2e' width='100' height='100'/><text x='50' y='50' text-anchor='middle' dy='.3em' fill='%2364748b' font-size='40'>🎵</text></svg>" alt="{{ cancion.nombre }}" class="thumbnail-img">
-                                    {% endif %}
-                                    <button class="play-overlay" onclick="playSongFromItem({{ cancion.id }})">▶</button>
-                                {% else %}
-                                    <div style="width: 60px; height: 60px; background: #1a1a2e; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
-                                        <span style="font-size: 24px; color: #64748b;">🚫</span>
-                                    </div>
-                                {% endif %}
-                            </div>
-                            <div class="song-info" onclick="playSongFromItem({{ cancion.id }})">
-                                <div class="song-details">
-                                    <span class="song-name">{{ cancion.nombre }}</span>
-                                    <span class="song-artist">{{ cancion.artista|default:"Artista desconocido" }}</span>
-                                </div>
-                            </div>
-                            <div class="song-duration" id="duration-{{ cancion.id }}">--:--</div>
-                            <div class="song-actions">
-                                <button class="action-btn" onclick="toggleFavorite({{ cancion.id }})" title="Favorito">❤️</button>
-                                <button class="action-btn" onclick="editSong({{ cancion.id }}, '{{ cancion.nombre|escapejs }}', '{{ cancion.artista|default:""|escapejs }}')" title="Editar">✏️</button>
-                                <button class="action-btn delete-btn" onclick="deleteSong({{ cancion.id }})" title="Eliminar">🗑️</button>
-                            </div>
-                        </div>
-                        {% empty %}
-                        <div class="empty-playlist">
-                            <p style="color: var(--text-muted); text-align: center; padding: 20px;">🎵 Tu biblioteca está vacía</p>
-                        </div>
-                        {% endfor %}
-                    {% else %}
-                        <p style="color: var(--text-muted); text-align: center; padding: 20px;">
-                            <a href="{% url 'login' %}">Inicia sesión</a> para acceder a tu biblioteca
-                        </p>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <!-- Favoritas -->
-            <div class="music-section favorites-section">
-                <div class="playlist-header-neon">
-                    <h3 class="neon-title">FAVORITAS</h3>
-                    <span class="playlist-count" id="favorites-count">0</span>
-                </div>
-                <div class="playlist-items custom-scrollbar" id="favorites-items">
-                    <div class="empty-favorites">
-                        <p style="color: var(--text-muted); text-align: center; padding: 20px;">
-                            Añade canciones a tus favoritas
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Estadísticas -->
-            <div class="music-section stats-section">
-                <h3 class="neon-title">TUS ESTADÍSTICAS</h3>
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <div class="stat-icon">🎵</div>
-                        <div class="stat-value">{{ canciones|length }}</div>
-                        <div class="stat-label">Canciones</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-icon">⏱</div>
-                        <div class="stat-value">--</div>
-                        <div class="stat-label">Tiempo</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-icon">❤️</div>
-                        <div class="stat-value">0</div>
-                        <div class="stat-label">Favoritas</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-icon">📥</div>
-                        <div class="stat-value">0</div>
-                        <div class="stat-label">Descargas</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Recomendaciones -->
-            <div class="music-section recommendations-section">
-                <h3 class="neon-title">RECOMENDACIONES</h3>
-                <div class="recommendation-tags">
-                    <span class="rec-tag">Pop</span>
-                    <span class="rec-tag">Rock</span>
-                    <span class="rec-tag">Lo-fi</span>
-                    <span class="rec-tag">Jazz</span>
-                    <span class="rec-tag">Instrumental</span>
-                </div>
-            </div>
-
-        </div>
+        <p>Disfruta de tu música favorita y la mejor compañía sonora.</p>
+      </div>
     </div>
 
-    <!-- Descargador de Música (Secundario) -->
-    <div class="music-section secondary-section" style="margin-top: 30px;">
-        <h2>📥 Descargador de Música</h2>
-        <div class="downloader-container" style="flex-direction: row; align-items: center; justify-content: flex-start; flex-wrap: wrap;">
-            <input type="url" id="download-url" placeholder="URL de YouTube" class="music-input" style="max-width: 400px;">
-            <select id="download-format" class="music-input" style="max-width: 150px;">
-                <option value="mp3">MP3 (Audio)</option>
-                <option value="mp4">MP4 (Video)</option>
-            </select>
-            <button class="btn-primary" onclick="downloadMusic()">📥 Descargar</button>
-            <div id="download-status" style="width: 100%; margin-top: 10px; color: var(--text-muted);"></div>
+    <div class="music-header-actions">
+      <button class="m-header-btn" onclick="scrollToSection('playlist-section')">
+        <i class="ti ti-playlist"></i> Playlists
+      </button>
+      <button class="m-header-btn" onclick="filterFavoritesOnly()">
+        <i class="ti ti-heart" style="color: #f43f5e;"></i> Favoritos
+      </button>
+      <button class="m-header-btn" onclick="openSleepTimer()">
+        <i class="ti ti-alarm"></i> Temporizador
+      </button>
+      <button class="m-header-btn" onclick="toggleEqualizerModal()">
+        <i class="ti ti-adjustments-horizontal"></i> Ecualizador
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       MAIN GRID LAYOUT
+  ════════════════════════════════════ -->
+  <div class="music-main-grid">
+
+    <!-- ── LEFT COLUMN ── -->
+    <div class="music-left-column">
+
+      <!-- NOW PLAYING HERO CARD -->
+      <div class="now-playing-card">
+        <div class="now-playing-flex">
+
+          <!-- Album Vinyl Cover -->
+          <div class="album-vinyl-box">
+            <div class="vinyl-disc" id="vinyl-disc">
+              <div class="vinyl-center-dot"></div>
+            </div>
+            <img id="current-album-art" src="{% static 'imagenes/logo_square.png' %}" alt="Album Art" style="display: none;">
+          </div>
+
+          <!-- Song Info & Controls -->
+          <div class="player-info-column">
+            <div class="player-tag">
+              <i class="ti ti-music"></i> Reproduciendo Ahora
+            </div>
+            <h2 class="player-song-title" id="current-song-title">Selecciona una canción</h2>
+            <p class="player-artist-name" id="current-song-artist">Artista Desconocido</p>
+
+            <!-- Progress Bar -->
+            <div class="player-progress-wrap">
+              <div class="progress-bar-track" onclick="seekTrack(event)">
+                <div class="progress-bar-fill" id="progress-bar-fill"></div>
+              </div>
+              <div class="progress-timestamps">
+                <span id="current-time">0:00</span>
+                <span id="total-time">0:00</span>
+              </div>
+            </div>
+
+            <!-- Controls Row -->
+            <div class="player-controls-row">
+              <button class="p-control-btn" onclick="toggleShuffle()" title="Aleatorio" id="shuffle-btn">🔀</button>
+              <button class="p-control-btn" onclick="playPreviousSong()" title="Anterior">⏮</button>
+              <button class="p-control-btn play-main" id="play-pause-btn" onclick="togglePlayPause()" title="Reproducir / Pausa">▶️</button>
+              <button class="p-control-btn" onclick="playNextSong()" title="Siguiente">⏭</button>
+              <button class="p-control-btn" onclick="toggleRepeat()" title="Repetir" id="repeat-btn">🔁</button>
+              <button class="p-control-btn" onclick="toggleCurrentFavorite()" title="Favorito" id="fav-btn">❤️</button>
+
+              <div class="volume-slider-wrap">
+                <span style="font-size: 14px;">🔊</span>
+                <input type="range" id="volume-range" min="0" max="100" value="80" oninput="changeVolume(this.value)">
+              </div>
+            </div>
+
+            <!-- Equalizer Bars -->
+            <div class="visualizer-bars-row" id="visualizer-bars">
+              <div class="v-bar"></div>
+              <div class="v-bar"></div>
+              <div class="v-bar"></div>
+              <div class="v-bar"></div>
+              <div class="v-bar"></div>
+              <div class="v-bar"></div>
+              <div class="v-bar"></div>
+            </div>
+
+          </div>
+
         </div>
+
+        <!-- Amigis DJ Mascot Card -->
+        <div class="amigis-dj-box">
+          <div class="amigis-dj-duck" id="amigis-dj-duck">
+            <img src="{% static 'amigis/amigis-dark.svg' %}" id="amigis-music-duck-img" alt="Amigis DJ">
+          </div>
+          <div class="amigis-dj-text">
+            <strong style="color: #c084fc;">Amigis DJ 🎧</strong>:
+            <span id="amigis-dj-quote">"¡La música le da vida al día! Escuchemos un buen ritmo."</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- PLAYLISTS CATEGORIES -->
+      <h3 class="section-heading-title" id="playlist-section">
+        <i class="ti ti-layout-grid"></i> Playlists Recomendadas
+      </h3>
+      <div class="playlists-grid">
+        <div class="playlist-card-item" onclick="loadPlaylistGenre('Favoritas')">
+          <div class="pl-icon">🎧</div>
+          <div class="pl-title">Mis Favoritas</div>
+          <div class="pl-subtitle">Tus temas imprescindibles</div>
+        </div>
+
+        <div class="playlist-card-item" onclick="loadPlaylistGenre('Estudio')">
+          <div class="pl-icon">💻</div>
+          <div class="pl-title">Para Estudiar</div>
+          <div class="pl-subtitle">Concentración máxima</div>
+        </div>
+
+        <div class="playlist-card-item" onclick="loadPlaylistGenre('Relajación')">
+          <div class="pl-icon">🌙</div>
+          <div class="pl-title">Relajación</div>
+          <div class="pl-subtitle">Lo-fi y ambiente suave</div>
+        </div>
+
+        <div class="playlist-card-item" onclick="loadPlaylistGenre('Motivación')">
+          <div class="pl-icon">🔥</div>
+          <div class="pl-title">Motivación</div>
+          <div class="pl-subtitle">Energía al 100%</div>
+        </div>
+
+        <div class="playlist-card-item" onclick="loadPlaylistGenre('Gaming')">
+          <div class="pl-icon">🎮</div>
+          <div class="pl-title">Gaming</div>
+          <div class="pl-subtitle">Beats para jugar</div>
+        </div>
+
+        <div class="playlist-card-item" onclick="loadPlaylistGenre('Instrumental')">
+          <div class="pl-icon">🎼</div>
+          <div class="pl-title">Instrumental</div>
+          <div class="pl-subtitle">Melodías puras</div>
+        </div>
+      </div>
+
+      <!-- TIME RECOMMENDATIONS -->
+      <h3 class="section-heading-title">
+        <i class="ti ti-clock"></i> Sugerencia según la hora
+      </h3>
+      <div class="recommendations-row">
+        <div class="rec-time-card" onclick="loadPlaylistGenre('Tranquila')">
+          <span style="font-size: 24px;">🌞</span>
+          <div>
+            <div style="font-weight: 700; font-size: 13px;">Mañana</div>
+            <div style="font-size: 11px; color: var(--m-text-dim);">Música tranquila</div>
+          </div>
+        </div>
+
+        <div class="rec-time-card" onclick="loadPlaylistGenre('PopRock')">
+          <span style="font-size: 24px;">🌇</span>
+          <div>
+            <div style="font-weight: 700; font-size: 13px;">Tarde</div>
+            <div style="font-size: 11px; color: var(--m-text-dim);">Pop & Rock activo</div>
+          </div>
+        </div>
+
+        <div class="rec-time-card" onclick="loadPlaylistGenre('LoFi')">
+          <span style="font-size: 24px;">🌙</span>
+          <div>
+            <div style="font-weight: 700; font-size: 13px;">Noche</div>
+            <div style="font-size: 11px; color: var(--m-text-dim);">Lo-Fi Chill</div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
+    <!-- ── RIGHT COLUMN (Library & Lyrics) ── -->
+    <div class="music-right-column">
+
+      <!-- Lyrics Box -->
+      <div class="music-panel-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h3 class="section-heading-title" style="margin: 0;">
+            <i class="ti ti-align-center"></i> Letra Sincronizada
+          </h3>
+          <button class="m-header-btn" style="padding: 4px 8px; font-size: 10px;" onclick="translateLyrics()">
+            Traducir
+          </button>
+        </div>
+        <div class="lyrics-container-box" id="lyrics-content">
+          <p style="color: var(--m-text-dim); text-align: center; padding-top: 40px;">
+            Reproduce una canción para ver su letra en vivo 🎶
+          </p>
+        </div>
+      </div>
+
+      <!-- Add Song Form -->
+      <div class="music-panel-box">
+        <h3 class="section-heading-title">
+          <i class="ti ti-plus"></i> Añadir Nueva Canción
+        </h3>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <input type="text" id="new-song-title" placeholder="Nombre de la canción" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 8px 12px; color: #fff; font-size: 12px; outline: none;">
+          <input type="text" id="new-song-artist" placeholder="Artista" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 8px 12px; color: #fff; font-size: 12px; outline: none;">
+          <input type="url" id="new-song-url" placeholder="YouTube URL / Link de audio" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 8px 12px; color: #fff; font-size: 12px; outline: none;">
+
+          <button onclick="addNewSong()" style="background: linear-gradient(135deg, #7c3aed, #06b6d4); color: #fff; border: none; padding: 10px; border-radius: 12px; font-weight: 700; font-size: 12px; cursor: pointer; margin-top: 4px;">
+            Añadir a la Biblioteca
+          </button>
+        </div>
+      </div>
+
+      <!-- Library List -->
+      <div class="music-panel-box">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h3 class="section-heading-title" style="margin: 0;">
+            <i class="ti ti-list"></i> Tu Biblioteca
+          </h3>
+          <span style="font-size: 11px; color: var(--m-text-dim);" id="track-count-label">
+            {{ canciones|length }} canciones
+          </span>
+        </div>
+
+        <input type="text" id="library-search" placeholder="Buscar en biblioteca..." onkeyup="filterLibrary()" style="width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 10px; padding: 8px 12px; color: #fff; font-size: 12px; outline: none; margin-bottom: 12px;">
+
+        <div id="library-list-container" style="max-height: 280px; overflow-y: auto;">
+          {% if canciones %}
+            {% for cancion in canciones %}
+            <div class="library-song-item" onclick="playSongIndex({{ forloop.counter0 }})" data-name="{{ cancion.nombre|lower }}">
+              <img src="{% if cancion.youtube_id %}https://img.youtube.com/vi/{{ cancion.youtube_id }}/mqdefault.jpg{% else %}{% static 'imagenes/logo_square.png' %}{% endif %}" class="lsi-thumb" alt="Thumb">
+              <div class="lsi-details">
+                <div class="lsi-name">{{ cancion.nombre }}</div>
+                <div class="lsi-artist">{{ cancion.artista|default:"Artista desconocido" }}</div>
+              </div>
+              <button onclick="event.stopPropagation(); toggleSongFav({{ cancion.id }})" style="background: none; border: none; color: #f43f5e; cursor: pointer;">❤️</button>
+            </div>
+            {% endfor %}
+          {% else %}
+            <!-- Demo Tracks if database is empty -->
+            <div class="library-song-item" onclick="playDemoTrack('Impossible', 'James Arthur')">
+              <div class="lsi-thumb" style="display:flex; align-items:center; justify-content:center; font-size:18px;">🎵</div>
+              <div class="lsi-details">
+                <div class="lsi-name">Impossible</div>
+                <div class="lsi-artist">James Arthur</div>
+              </div>
+              <span>❤️</span>
+            </div>
+            <div class="library-song-item" onclick="playDemoTrack('Believer', 'Imagine Dragons')">
+              <div class="lsi-thumb" style="display:flex; align-items:center; justify-content:center; font-size:18px;">🎵</div>
+              <div class="lsi-details">
+                <div class="lsi-name">Believer</div>
+                <div class="lsi-artist">Imagine Dragons</div>
+              </div>
+              <span>❤️</span>
+            </div>
+            <div class="library-song-item" onclick="playDemoTrack('Night Changes', 'One Direction')">
+              <div class="lsi-thumb" style="display:flex; align-items:center; justify-content:center; font-size:18px;">🎵</div>
+              <div class="lsi-details">
+                <div class="lsi-name">Night Changes</div>
+                <div class="lsi-artist">One Direction</div>
+              </div>
+              <span>❤️</span>
+            </div>
+          {% endif %}
+        </div>
+      </div>
+
+    </div>
+
+  </div>
 </div>
-</div>
-{% endblock %}
-{% block extra_js %}
+
+<!-- Audio HTML Tag -->
+<audio id="main-audio-player"></audio>
+
+<!-- ════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════ -->
 <script>
-// Solución para event listeners no pasivos (mejora rendimiento en móviles)
-(function() {
-    const originalAddEventListener = EventTarget.prototype.addEventListener;
-    EventTarget.prototype.addEventListener = function(type, listener, options) {
-        if (type === 'touchstart' || type === 'touchmove') {
-            if (typeof options === 'boolean') {
-                options = { passive: true, capture: options };
-            } else if (typeof options === 'object') {
-                options.passive = options.passive !== false;
-            } else {
-                options = { passive: true };
-            }
-        }
-        return originalAddEventListener.call(this, type, listener, options);
-    };
-})();
+let isPlaying = false;
+let currentTrackIndex = 0;
+let sleepTimerId = null;
 
-// Suprimir warnings de event listeners no pasivos de YouTube (código externo)
-const originalConsoleWarn = console.warn;
-console.warn = function(...args) {
-    // Filtrar warnings específicos de YouTube sobre event listeners
-    if (args[0] && typeof args[0] === 'string' && 
-        args[0].includes('non-passive event listener') && 
-        args[0].includes('touchstart')) {
-        // Ignorar warnings de YouTube sobre touchstart/touchmove
-        return;
-    }
-    return originalConsoleWarn.apply(console, args);
-};
+const demoTracks = [
+  { title: "Impossible", artist: "James Arthur", lyrics: "I remember years ago...\nSomeone told me I should be careful when it comes to love...\nAnd I did." },
+  { title: "Believer", artist: "Imagine Dragons", lyrics: "First things first, I'mma say all the words inside my head...\nI'm fired up and tired of the way that things have been..." },
+  { title: "Night Changes", artist: "One Direction", lyrics: "Going out tonight, changes into something red...\nHer mother doesn't like that kind of dress..." },
+  { title: "Whatever It Takes", artist: "Imagine Dragons", lyrics: "Falling too fast to prepare for this...\nTripping in the world could be dangerous..." }
+];
 
-// Cargar YouTube IFrame API (ya se carga en base.html, pero lo mantenemos por compatibilidad)
-let currentPlayingId = null;
-let currentAudio = null;
-let player = null;
-let playerReady = false;
-let progressInterval = null;
-let buttonSyncInterval = null;
-let isAudioPlaying = false; // Variable de estado manual para audio
-let playerLoadTimeout = null; // Timeout para la carga del player
-const isAuthenticated = {{ request.user.is_authenticated|lower }};
+document.addEventListener('DOMContentLoaded', () => {
+  updateDuckTheme();
+});
 
-function onPlayerError(event) {
-    console.log('onPlayerError llamado, event.data:', event.data);
-    const iframeContainer = document.getElementById('player-wrapper');
+function togglePlayPause() {
+  isPlaying = !isPlaying;
+  const playBtn = document.getElementById('play-pause-btn');
+  const vinyl = document.getElementById('vinyl-disc');
+  const bars = document.getElementById('visualizer-bars');
+  const duck = document.getElementById('amigis-dj-duck');
 
-    // Limpiar timeout si existe
-    if (playerLoadTimeout) {
-        clearTimeout(playerLoadTimeout);
-        playerLoadTimeout = null;
-    }
-
-    // Resetear playerReady ya que hubo un error
-    playerReady = false;
-
-    if (event.data === 150 || event.data === 153) {
-        // Video no se puede incrustar - ocultar video y reproducir solo audio
-        const youtubeId = currentPlayingId ?
-            document.querySelector(`.playlist-item[data-id="${currentPlayingId}"]`)?.dataset.youtubeId : null;
-
-        if (youtubeId) {
-            console.log('Error 150/153: Video con restricción de incrustación, usando audio fallback');
-            // Ocultar el contenedor de video
-            const iframeContainer = document.getElementById('player-wrapper');
-            if (iframeContainer) {
-                iframeContainer.style.display = 'none';
-            }
-            // Destruir el player de YouTube para evitar conflictos
-            if (player) {
-                try {
-                    player.destroy();
-                } catch (e) {
-                    console.error('Error destruyendo player:', e);
-                }
-                player = null;
-            }
-            // Intentar reproducir audio usando yt_dlp stream
-            playAudioOnly(youtubeId);
-        } else {
-            resetPlayButton();
-        }
-    } else if (event.data === 2) {
-        // Parámetro inválido
-        console.error('Parámetro inválido en el reproductor de YouTube');
-        resetPlayButton();
-    } else if (event.data === 5) {
-        // Contenido HTML5 no compatible
-        console.error('Contenido HTML5 no compatible');
-        resetPlayButton();
-    } else if (event.data === 100) {
-        // Video no encontrado
-        iframeContainer.innerHTML = `
-            <div style="text-align: center; padding: 30px;">
-                <p style="color: #ef4444; font-size: 16px;">❌ Video no encontrado</p>
-            </div>
-        `;
-        resetPlayButton();
-    } else {
-        // Error desconocido
-        console.error('Error desconocido del reproductor de YouTube:', event.data);
-        resetPlayButton();
-    }
+  if (isPlaying) {
+    playBtn.textContent = '⏸';
+    vinyl.classList.add('playing');
+    bars.classList.add('active');
+    duck.classList.add('dancing');
+    document.getElementById('amigis-dj-quote').textContent = '"¡Ritmo genial! Me encanta esta canción." 🎶';
+  } else {
+    playBtn.textContent = '▶️';
+    vinyl.classList.remove('playing');
+    bars.classList.remove('active');
+    duck.classList.remove('dancing');
+    document.getElementById('amigis-dj-quote').textContent = '"En pausa... ¡Avisame cuando volvamos a bailar!" 🦆';
+  }
 }
 
-function showYouTubeError(youtubeId) {
-    const iframeContainer = document.getElementById('player-wrapper');
-    iframeContainer.innerHTML = `
-        <div style="text-align: center; padding: 30px;">
-            <p style="color: var(--text-muted); margin-bottom: 15px; font-size: 16px;">🚫 Este video no se puede reproducir aquí</p>
-            <p style="color: #94a3b8; margin-bottom: 20px; font-size: 14px;">El creador bloqueó la incrustación en otras webs</p>
-            <button class="btn-primary" onclick="window.open('https://www.youtube.com/watch?v=${youtubeId}', '_blank')" style="margin-top: 10px;">
-                🎬 Ver en YouTube
-            </button>
-        </div>
-    `;
+function playDemoTrack(title, artist) {
+  document.getElementById('current-song-title').textContent = title;
+  document.getElementById('current-song-artist').textContent = artist;
+  const track = demoTracks.find(t => t.title === title) || { lyrics: "Letra no disponible para este tema." };
+  document.getElementById('lyrics-content').innerText = track.lyrics;
+  isPlaying = false;
+  togglePlayPause();
 }
 
-function onPlayerStateChange(event) {
-    console.log('onPlayerStateChange llamado, event.data:', event.data);
-    const vinyl = document.getElementById('vinyl-record');
-    const pauseBtn = document.getElementById('main-play-pause-btn');
-
-    console.log('Botón en onPlayerStateChange:', pauseBtn ? pauseBtn.textContent : 'null');
-
-    if (event.data === YT.PlayerState.PLAYING) {
-        console.log('Estado PLAYING detectado');
-        if (vinyl) {
-            vinyl.style.animationPlayState = 'running';
-            vinyl.classList.add('spinning');
-        }
-        if (pauseBtn) {
-            pauseBtn.textContent = '⏸';
-            console.log('Botón actualizado a ⏸ en onPlayerStateChange');
-        }
-        if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(true);
-        activateEqualizer(true);
-        startProgressUpdate();
-    } else if (event.data === YT.PlayerState.PAUSED) {
-        console.log('Estado PAUSED detectado');
-        if (vinyl) vinyl.style.animationPlayState = 'paused';
-        if (pauseBtn) {
-            pauseBtn.textContent = '▶️';
-            console.log('Botón actualizado a ▶️ en onPlayerStateChange');
-        }
-        if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(false);
-        activateEqualizer(false);
-        stopProgressUpdate();
-    } else if (event.data === YT.PlayerState.ENDED) {
-        console.log('Estado ENDED detectado - reproduciendo siguiente');
-        if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(false);
-        activateEqualizer(false);
-        playNext();
-    } else {
-        console.log('Estado NO PLAYING detectado:', event.data);
-        if (vinyl) vinyl.style.animationPlayState = 'paused';
-        if (pauseBtn) {
-            pauseBtn.textContent = '▶️';
-            console.log('Botón actualizado a ▶️ en onPlayerStateChange');
-        }
-        if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(false);
-        activateEqualizer(false);
-        stopProgressUpdate();
-    }
+function playSongIndex(idx) {
+  currentTrackIndex = idx;
+  const items = document.querySelectorAll('.library-song-item');
+  if (items[idx]) {
+    const title = items[idx].querySelector('.lsi-name').textContent;
+    const artist = items[idx].querySelector('.lsi-artist').textContent;
+    playDemoTrack(title, artist);
+  }
 }
 
-// ==================== ACTUALIZACIÓN DE PROGRESO ====================
-function startProgressUpdate() {
-    if (progressInterval) clearInterval(progressInterval);
-    if (buttonSyncInterval) clearInterval(buttonSyncInterval);
-
-    progressInterval = setInterval(() => {
-        let currentTime = 0;
-        let duration = 0;
-
-        // Obtener tiempo del reproductor de audio local
-        if (currentAudio && currentAudio.duration > 0) {
-            currentTime = currentAudio.currentTime;
-            duration = currentAudio.duration;
-        }
-        // Obtener tiempo del reproductor de YouTube
-        else if (player && typeof player.getCurrentTime === 'function') {
-            currentTime = player.getCurrentTime();
-            duration = player.getDuration() || 0;
-        }
-
-        if (duration > 0) {
-            updateProgressBar(currentTime, duration);
-            // Sincronizar con mini player global
-            if (typeof updateMiniPlayerProgress === 'function') {
-                const percentage = (currentTime / duration) * 100;
-                updateMiniPlayerProgress(percentage);
-            }
-        }
-    }, 100);
+function playNextSong() {
+  currentTrackIndex = (currentTrackIndex + 1) % demoTracks.length;
+  playDemoTrack(demoTracks[currentTrackIndex].title, demoTracks[currentTrackIndex].artist);
 }
 
-function stopProgressUpdate() {
-    if (progressInterval) {
-        clearInterval(progressInterval);
-        progressInterval = null;
-    }
-    if (buttonSyncInterval) {
-        clearInterval(buttonSyncInterval);
-        buttonSyncInterval = null;
-    }
+function playPreviousSong() {
+  currentTrackIndex = (currentTrackIndex - 1 + demoTracks.length) % demoTracks.length;
+  playDemoTrack(demoTracks[currentTrackIndex].title, demoTracks[currentTrackIndex].artist);
 }
 
-function updateProgressBar(currentTime, duration) {
-    const progressFill = document.getElementById('progress-bar-fill');
-    const currentTimeEl = document.getElementById('current-time');
-    const totalTimeEl = document.getElementById('total-time');
-    
-    if (progressFill) {
-        const percentage = (currentTime / duration) * 100;
-        progressFill.style.width = percentage + '%';
-    }
-    
-    if (currentTimeEl) {
-        currentTimeEl.textContent = formatTime(currentTime);
-    }
-    
-    if (totalTimeEl) {
-        totalTimeEl.textContent = formatTime(duration);
-    }
+function loadPlaylistGenre(genre) {
+  document.getElementById('current-song-title').textContent = `Playlist: ${genre}`;
+  document.getElementById('current-song-artist').textContent = "Selección MiniAmigixV";
+  document.getElementById('lyrics-content').innerText = `Reproduciendo ambiente de ${genre}...\nDisfruta la mejor música seleccionada por Amigis 🦆🎶`;
+  if (!isPlaying) togglePlayPause();
 }
 
-function formatTime(seconds) {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+function openSleepTimer() {
+  const min = prompt("¿En cuántos minutos deseas pausar la música?", "30");
+  if (min && !isNaN(min)) {
+    alert(`Temporizador configurado para ${min} minutos.`);
+    clearTimeout(sleepTimerId);
+    sleepTimerId = setTimeout(() => {
+      if (isPlaying) togglePlayPause();
+      alert("Temporizador finalizado: Música pausada.");
+    }, min * 60 * 1000);
+  }
 }
 
-function seekAudio(event) {
-    const progressContainer = document.getElementById('progress-container');
-    if (!progressContainer) return;
-    
-    const rect = progressContainer.getBoundingClientRect();
-    const clickX = event.clientX - rect.left;
-    const percentage = clickX / rect.width;
-    
-    let duration = 0;
-    
-    // Obtener duración del reproductor de audio local
-    if (currentAudio && currentAudio.duration > 0) {
-        duration = currentAudio.duration;
-    }
-    // Obtener duración del reproductor de YouTube
-    else if (player && typeof player.getDuration === 'function') {
-        duration = player.getDuration() || 0;
-    } 
-    
-    if (duration > 0) {
-        const seekTime = percentage * duration;
-        
-        // Buscar en audio local
-        if (currentAudio) {
-            currentAudio.currentTime = seekTime;
-        }
-        // Buscar en YouTube
-        else if (player && typeof player.seekTo === 'function') {
-            player.seekTo(seekTime, true);
-        } 
-    } else {
-        console.error('Error del reproductor de YouTube:', event.data);
-    }
+function toggleEqualizerModal() {
+  alert("Ecualizador MiniAmigixV activado: Perfil Bass Boost & Glassmorphism 🎛️");
 }
 
-// ==================== CONTROLES DEL REPRODUCTOR ====================
-function togglePause() {
-    console.log('=== togglePause llamado ===');
-    const pauseBtn = document.getElementById('main-play-pause-btn');
-    console.log('Botón actual:', pauseBtn ? pauseBtn.textContent : 'null');
-
-    // Verificar si el reproductor de YouTube está listo para controlar
-    console.log('player:', player);
-    console.log('playerReady:', playerReady);
-
-    // Si hay audio local, controlar ese primero
-    if (currentAudio) {
-        console.log('Controlando audio local');
-        console.log('isAudioPlaying:', isAudioPlaying);
-        console.log('currentAudio.paused:', currentAudio.paused);
-        if (!isAudioPlaying) {
-            console.log('Reproduciendo audio');
-            currentAudio.play();
-            isAudioPlaying = true;
-            if (pauseBtn) pauseBtn.textContent = '⏸';
-            if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(true);
-            // No sincronizar video cuando es solo audio
-        } else {
-            console.log('Pausando audio');
-            currentAudio.pause();
-            isAudioPlaying = false;
-            if (pauseBtn) pauseBtn.textContent = '▶️';
-            if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(false);
-            // No sincronizar video cuando es solo audio
-        }
-        return;
-    }
-
-    // Si hay reproductor de YouTube activo, controlar ese
-    if (player && playerReady && typeof player.getPlayerState === 'function') {
-        try {
-            const currentState = player.getPlayerState();
-            console.log('Estado actual de YouTube:', currentState);
-            console.log('YT.PlayerState.PLAYING:', YT.PlayerState.PLAYING);
-
-            if (currentState !== YT.PlayerState.PLAYING) {
-                console.log('Reproduciendo video');
-                player.playVideo();
-                if (pauseBtn) pauseBtn.textContent = '⏸';
-                if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(true);
-                syncMiniPlayerVideoState(true);
-            } else {
-                console.log('Pausando video');
-                player.pauseVideo();
-                if (pauseBtn) pauseBtn.textContent = '▶️';
-                if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(false);
-                syncMiniPlayerVideoState(false);
-            }
-        } catch (e) {
-            console.error("Error al pausar/reproducir YouTube (player fue destruido):", e);
-            // Si el player fue destruido, intentar usar audio
-            if (currentPlayingId) {
-                const item = document.querySelector(`.playlist-item[data-id="${currentPlayingId}"]`);
-                if (item && item.dataset.youtubeId) {
-                    playAudioOnly(item.dataset.youtubeId);
-                }
-            }
-        }
-        return;
-    }
-
-    // Si no hay ningún reproductor, reproducir la primera canción
-    console.log('No hay reproductor activo, reproduciendo primera canción');
-    const firstItem = document.querySelector('.playlist-item');
-    if (firstItem) {
-        playSongFromItem(firstItem.dataset.id);
-    } else {
-        alert('Añade una canción a tu Biblioteca para empezar a escuchar.');
-    }
+function changeVolume(val) {
+  const audio = document.getElementById('main-audio-player');
+  if (audio) audio.volume = val / 100;
 }
 
-// Sincronizar estado del video del mini player con el reproductor principal
-function syncMiniPlayerVideoState(isPlaying) {
-    if (typeof globalPlayer !== 'undefined' && globalPlayer) {
-        const videoContainer = document.getElementById('mini-player-video-container');
-        if (videoContainer && videoContainer.style.display !== 'none') {
-            try {
-                if (isPlaying) {
-                    globalPlayer.playVideo();
-                } else {
-                    globalPlayer.pauseVideo();
-                }
-            } catch (e) {
-                console.error('Error sincronizando mini player video:', e);
-            }
-        }
-    }
+function filterLibrary() {
+  const term = document.getElementById('library-search').value.toLowerCase();
+  document.querySelectorAll('.library-song-item').forEach(item => {
+    const text = item.getAttribute('data-name') || item.textContent.toLowerCase();
+    item.style.display = text.includes(term) ? 'flex' : 'none';
+  });
 }
 
-function playNext() {
-    if (!currentPlayingId) {
-        const firstItem = document.querySelector('.playlist-item');
-        if (firstItem) playSongFromItem(firstItem.dataset.id);
-        return;
-    }
-    const items = Array.from(document.querySelectorAll('.playlist-item'));
-    const currentIndex = items.findIndex(item => item.dataset.id == currentPlayingId);
-    if (currentIndex !== -1 && currentIndex < items.length - 1) {
-        playSongFromItem(items[currentIndex + 1].dataset.id);
-    } else if (currentIndex === items.length - 1 && items.length > 0) {
-        // Volver al principio si estamos al final
-        playSongFromItem(items[0].dataset.id);
-    }
+function addNewSong() {
+  const title = document.getElementById('new-song-title').value.trim();
+  const artist = document.getElementById('new-song-artist').value.trim() || 'Artista Desconocido';
+  if (!title) {
+    alert('Ingresa el nombre de la canción.');
+    return;
+  }
+  playDemoTrack(title, artist);
+  document.getElementById('new-song-title').value = '';
+  document.getElementById('new-song-artist').value = '';
+  document.getElementById('new-song-url').value = '';
 }
 
-function playPrevious() {
-    if (!currentPlayingId) {
-        const firstItem = document.querySelector('.playlist-item');
-        if (firstItem) playSongFromItem(firstItem.dataset.id);
-        return;
-    }
-    const items = Array.from(document.querySelectorAll('.playlist-item'));
-    const currentIndex = items.findIndex(item => item.dataset.id == currentPlayingId);
-    if (currentIndex > 0) {
-        playSongFromItem(items[currentIndex - 1].dataset.id);
-    } else if (currentIndex === 0 && items.length > 0) {
-        // Ir al final si estamos al principio
-        playSongFromItem(items[items.length - 1].dataset.id);
-    }
+function scrollToSection(id) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
 }
 
-function toggleMute() {
-    const muteBtn = document.querySelector('button[onclick="toggleMute()"]');
-
-    // Si hay audio local, controlar ese primero
-    if (currentAudio) {
-        currentAudio.muted = !currentAudio.muted;
-        if (muteBtn) muteBtn.textContent = currentAudio.muted ? '🔇' : '🔊';
-        return;
-    }
-
-    // Si hay reproductor de YouTube, controlar ese
-    if (player && playerReady && typeof player.isMuted === 'function') {
-        try {
-            if (player.isMuted()) {
-                player.unMute();
-                if (muteBtn) muteBtn.textContent = '🔊';
-            } else {
-                player.mute();
-                if (muteBtn) muteBtn.textContent = '🔇';
-            }
-        } catch (e) {
-            console.error("Error al silenciar YouTube", e);
-        }
-        return;
-    }
-}
-
-// ==================== DESCARGADOR DE MÚSICA ====================
-async function downloadMusic() {
-    const url = document.getElementById('download-url').value;
-    const format = document.getElementById('download-format').value;
-    const statusDiv = document.getElementById('download-status');
-    
-    if (!url) {
-        alert('Por favor ingresa una URL de YouTube');
-        return;
-    }
-    
-    // Extraer YouTube ID
-    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s?]+)/);
-    if (!match) {
-        alert('URL de YouTube inválida');
-        return;
-    }
-    
-    const youtubeId = match[1];
-    statusDiv.innerHTML = '<p style="color: #06b6d4;">⏳ Procesando y descargando en el servidor... Esto puede tardar varios segundos, por favor espera.</p>';
-    
-    try {
-        const cleanUrl = `https://www.youtube.com/watch?v=${youtubeId}`;
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 180000); // 3 minute timeout
-        
-        const response = await fetch(`/api/download-media/?url=${encodeURIComponent(cleanUrl)}&format=${format}`, {
-            credentials: 'same-origin',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/octet-stream, audio/*, video/*'
-            },
-            signal: controller.signal
-        });
-        
-        clearTimeout(timeoutId);
-
-        // If user is not authenticated, API returns JSON 401 instead of HTML login page.
-        if (response.status === 401) {
-            statusDiv.innerHTML = '<p style="color: #ef4444;">🔒 Debes iniciar sesión para descargar música.</p>';
-            return;
-        }
-
-        // If server returned HTML (login redirect or error page), don't try to save as blob
-        const contentType = response.headers.get('Content-Type') || '';
-        if (contentType.includes('text/html')) {
-            statusDiv.innerHTML = '<p style="color: #ef4444;">🔒 La sesión expiró o la petición no está autenticada. Inicia sesión e inténtalo de nuevo.</p>';
-            return;
-        }
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            try {
-                const errorJson = JSON.parse(errorText);
-                throw new Error(errorJson.error || 'Error desconocido al descargar');
-            } catch (e) {
-                throw new Error(errorText || 'Error desconocido al descargar');
-            }
-        }
-        
-        // Obtener el nombre del archivo de los headers si es posible
-        let filename = `descarga.${format}`;
-        const disposition = response.headers.get('Content-Disposition');
-        if (disposition && disposition.indexOf('filename=') !== -1) {
-            const matches = /filename="([^"]+)"/.exec(disposition);
-            if (matches != null && matches[1]) {
-                filename = matches[1];
-            }
-        }
-        
-        const blob = await response.blob();
-        
-        // Verificar que el blob tenga contenido válido
-        if (blob.size === 0) {
-            throw new Error('El archivo descargado está vacío');
-        }
-        
-        // Verificar tamaño mínimo razonable (al menos 1KB para audio/video)
-        if (blob.size < 1024) {
-            throw new Error('El archivo descargado es demasiado pequeño, puede estar corrupto');
-        }
-        
-        const downloadUrl = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.style.display = 'none';
-        a.href = downloadUrl;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        
-        // Esperar un momento antes de revocar la URL
-        setTimeout(() => {
-            window.URL.revokeObjectURL(downloadUrl);
-            document.body.removeChild(a);
-        }, 100);
-        
-        statusDiv.innerHTML = `
-            <p style="color: #22c55e;">✓ ¡Descarga completada con éxito!</p>
-            <p style="font-size: 12px; color: var(--text-muted);">Archivo: ${filename}</p>
-            <p style="font-size: 11px; color: var(--text-muted);">Tamaño: ${(blob.size / 1024 / 1024).toFixed(2)} MB</p>
-            <p style="font-size: 11px; color: var(--text-muted);">Nota: Sin FFmpeg, el audio se descarga en formato nativo (M4A/WebM)</p>
-        `;
-    } catch (error) {
-        console.error("Error en descarga:", error);
-        
-        if (error.name === 'AbortError') {
-            statusDiv.innerHTML = '<p style="color: #ef4444;">❌ Tiempo de espera agotado. La descarga está tardando demasiado. Intenta con un video más corto.</p>';
-        } else if (error.message.includes('Failed to fetch') || error.message.includes('NetworkError')) {
-            statusDiv.innerHTML = '<p style="color: #ef4444;">❌ Error de conexión. Verifica tu internet e inténtalo de nuevo.</p>';
-        } else {
-            statusDiv.innerHTML = `<p style="color: #ef4444;">❌ Fallo en la descarga: ${error.message}</p>`;
-        }
-    }
-}
-
-// ==================== CHAT FLOTANTE ====================
-// El chat flotante ha sido eliminado a petición del usuario.
-
-let lyricsSyncInterval = null;
-let currentLyricsData = [];
-
-function searchLyricsForSong(songName, artist, songId) {
-    const container = document.getElementById('lyrics-container');
-    container.innerHTML = '<p style="color: var(--text-muted);">Buscando letra en la base de datos...</p>';
-    
-    if (lyricsSyncInterval) {
-        clearInterval(lyricsSyncInterval);
-        lyricsSyncInterval = null;
-    }
-    currentLyricsData = [];
-
-    // Primero intentamos obtenerla de nuestra base de datos
-    fetch(`/api/get-lyrics/${songId}/`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success && (data.letra_sincronizada || data.letra)) {
-                if (data.letra_sincronizada) {
-                    renderSyncedLyrics(data.letra_sincronizada, container);
-                } else {
-                    renderPlainLyrics(data.letra, container);
-                }
-            } else {
-                fetchFromLRCLIB(songName, artist, songId, container);
-            }
-        })
-        .catch(err => {
-            fetchFromLRCLIB(songName, artist, songId, container);
-        });
-}
-
-function fetchFromLRCLIB(songName, artist, songId, container) {
-    container.innerHTML = '<p style="color: var(--text-muted);">Buscando letra sincronizada...</p>';
-
-    let searchArtist = artist || "";
-    let searchSong = songName || "";
-
-    if (!artist && searchSong.includes("-")) {
-        // En algunos casos el nombre es "Artista - Canción"
-        const parts = searchSong.split("-");
-        searchArtist = parts[0].trim();
-        searchSong = parts.slice(1).join("-").trim();
-    }
-
-    // Limpiar el nombre de la canción para mejorar la búsqueda
-    searchSong = searchSong.replace(/\(feat\..*?\)/gi, '');
-    searchSong = searchSong.replace(/\(ft\..*?\)/gi, '');
-    searchSong = searchSong.replace(/\/sub\..*$/gi, '');
-    searchSong = searchSong.replace(/lyric.*?$/gi, '');
-    searchSong = searchSong.replace(/\[.*?\]/g, '');
-    searchSong = searchSong.replace(/\(.*?(official|video|audio|lyric|sub).*?\)/gi, '');
-    searchSong = searchSong.replace(/\|.*$/g, '');
-    searchSong = searchSong.trim();
-
-    const query = `${searchArtist} ${searchSong}`.trim();
-
-    // Usar la API del backend para evitar CORS
-    fetch(`/api/netease-lyrics/?song=${encodeURIComponent(searchSong)}&artist=${encodeURIComponent(searchArtist)}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data && data.success) {
-                if (data.syncedLyrics) {
-                    renderSyncedLyrics(data.syncedLyrics, container);
-                    saveLyricsToDB(songId, data.plainLyrics, data.syncedLyrics);
-                } else if (data.plainLyrics) {
-                    renderPlainLyrics(data.plainLyrics, container);
-                    saveLyricsToDB(songId, data.plainLyrics, null);
-                } else {
-                    showLyricsNotFound(songName, artist);
-                }
-            } else {
-                showLyricsNotFound(songName, artist);
-            }
-        })
-        .catch(err => {
-            showLyricsNotFound(songName, artist);
-        });
-}
-
-function fetchFromNetEase(songName, artist, songId, container, fallbackLyrics) {
-    container.innerHTML = '<p style="color: var(--text-muted);">Buscando letra sincronizada en NetEase...</p>';
-
-    const query = `${artist} ${songName}`.trim();
-    // Usar el proxy del backend para evitar CORS
-    fetch(`/api/netease-lyrics/?song=${encodeURIComponent(songName)}&artist=${encodeURIComponent(artist)}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data && data.success && data.syncedLyrics) {
-                // NetEase devuelve formato LRC (sincronizado)
-                renderSyncedLyrics(data.syncedLyrics, container);
-                saveLyricsToDB(songId, data.syncedLyrics, data.syncedLyrics);
-            } else {
-                // Usar letras simples como fallback
-                renderPlainLyrics(fallbackLyrics, container);
-                saveLyricsToDB(songId, fallbackLyrics, null);
-            }
-        })
-        .catch(err => {
-            console.log('NetEase falló, usando letras simples:', err);
-            renderPlainLyrics(fallbackLyrics, container);
-            saveLyricsToDB(songId, fallbackLyrics, null);
-        });
-}
-
-function saveLyricsToDB(songId, plainLyrics, syncedLyrics) {
-    fetch(`/api/save-lyrics/${songId}/`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({
-            letra: plainLyrics,
-            letra_sincronizada: syncedLyrics
-        })
-    }).catch(console.error);
-}
-
-function parseLRC(lrcText) {
-    const lines = lrcText.split('\n');
-    const parsed = [];
-    const timeRegex = /\[(\d{2}):(\d{2})\.(\d{2,3})\]/;
-    
-    for (let line of lines) {
-        const match = timeRegex.exec(line);
-        if (match) {
-            const minutes = parseInt(match[1]);
-            const seconds = parseInt(match[2]);
-            const milliseconds = match[3].length === 2 ? parseInt(match[3]) * 10 : parseInt(match[3]);
-            const timeInSeconds = (minutes * 60) + seconds + (milliseconds / 1000);
-            const text = line.replace(timeRegex, '').trim();
-            parsed.push({ time: timeInSeconds, text: text || "♪" });
-        }
-    }
-    return parsed;
-}
-
-function renderSyncedLyrics(syncedLyricsText, container) {
-    currentLyricsData = parseLRC(syncedLyricsText);
-    
-    if (currentLyricsData.length === 0) {
-        renderPlainLyrics(syncedLyricsText, container);
-        return;
-    }
-    
-    let html = '<div id="synced-lyrics-wrapper" style="text-align: center; max-height: 400px; overflow-y: auto; padding: 20px 30px; font-size: 22px; font-weight: 600; line-height: 2; color: rgba(255, 255, 255, 0.4); mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent); -webkit-mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);" class="custom-scrollbar lyrics-text-premium">';
-    
-    currentLyricsData.forEach((line, index) => {
-        html += `<div id="lyric-line-${index}" class="lyric-line" style="transition: all 0.3s ease; margin-bottom: 10px;">${line.text}</div>`;
-    });
-    
-    html += '</div>';
-    container.innerHTML = html;
-    
-    startLyricsSync();
-}
-
-function renderPlainLyrics(lyricsText, container) {
-    const lyricsHtml = lyricsText.replace(/\n/g, '<br>');
-    container.innerHTML = `
-        <div style="
-            text-align: center; 
-            max-height: 400px; 
-            overflow-y: auto; 
-            padding: 20px 30px; 
-            font-size: 18px; 
-            font-weight: 600;
-            line-height: 2; 
-            color: rgba(255, 255, 255, 0.85); 
-            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
-            mask-image: linear-gradient(to bottom, transparent, black 5%, black 95%, transparent);
-            -webkit-mask-image: linear-gradient(to bottom, transparent, black 5%, black 95%, transparent);
-            " class="custom-scrollbar lyrics-text-premium">
-            ${lyricsHtml}
-        </div>
-    `;
-}
-
-function startLyricsSync() {
-    if (lyricsSyncInterval) clearInterval(lyricsSyncInterval);
-    
-    lyricsSyncInterval = setInterval(() => {
-        let currentTime = 0;
-        
-        // Obtener el tiempo actual del reproductor
-        if (currentAudio) {
-            currentTime = currentAudio.currentTime;
-        } else if (player && typeof player.getCurrentTime === 'function') {
-            currentTime = player.getCurrentTime();
-        }
-        
-        if (currentTime > 0 && currentLyricsData.length > 0) {
-            updateLyricsHighlight(currentTime);
-        }
-    }, 100);
-}
-
-function updateLyricsHighlight(currentTime) {
-    let activeIndex = -1;
-    
-    // Encontrar la línea actual
-    for (let i = 0; i < currentLyricsData.length; i++) {
-        if (currentTime >= currentLyricsData[i].time) {
-            activeIndex = i;
-        } else {
-            break;
-        }
-    }
-    
-    if (activeIndex !== -1) {
-        // Remover clase activa de todas las líneas
-        document.querySelectorAll('.lyric-line').forEach(el => {
-            el.style.color = 'rgba(255, 255, 255, 0.4)';
-            el.style.transform = 'scale(1)';
-            el.style.textShadow = 'none';
-        });
-        
-        // Agregar clase activa a la línea actual
-        const activeLine = document.getElementById(`lyric-line-${activeIndex}`);
-        if (activeLine) {
-            activeLine.style.color = '#fff';
-            activeLine.style.transform = 'scale(1.1)';
-            activeLine.style.textShadow = '0 0 10px rgba(255,255,255,0.5)';
-            
-            // Auto-scroll para mantener la línea activa en el centro
-            const wrapper = document.getElementById('synced-lyrics-wrapper');
-            if (wrapper) {
-                const scrollPos = activeLine.offsetTop - (wrapper.clientHeight / 2) + (activeLine.clientHeight / 2);
-                wrapper.scrollTo({
-                    top: scrollPos,
-                    behavior: 'smooth'
-                });
-            }
-        }
-    }
-}
-
-function showLyricsNotFound(songName, artist) {
-    const container = document.getElementById('lyrics-container');
-    container.innerHTML = `
-        <div style="text-align: center; padding: 40px 20px;">
-            <p style="color: rgba(255,255,255,0.3); font-size: 16px;">Letra no disponible</p>
-        </div>
-    `;
-}
-
-function requestTranslation(songName, artist) {
-    const container = document.getElementById('lyrics-container');
-    container.innerHTML = `
-        <div style="text-align: center; padding: 40px 20px;">
-            <p style="font-size: 48px; margin-bottom: 15px;">🔄</p>
-            <p style="color: #06b6d4; font-size: 16px; margin-bottom: 10px;">Generando traducción...</p>
-            <p style="color: rgba(255,255,255,0.3); font-size: 14px;">Esto puede tomar unos segundos</p>
-        </div>
-    `;
-    
-    // TODO: Implementar traducción automática con API
-    setTimeout(() => {
-        container.innerHTML = `
-            <div style="text-align: center; padding: 40px 20px;">
-                <p style="font-size: 48px; margin-bottom: 15px;">⚠️</p>
-                <p style="color: #94a3b8; font-size: 16px; margin-bottom: 10px;">Traducción no disponible</p>
-                <p style="color: rgba(255,255,255,0.3); font-size: 14px; margin-bottom: 25px;">Esta función estará disponible pronto</p>
-            </div>
-        `;
-    }, 2000);
-}
-
-function searchLyricsManually(songName, artist) {
-    let query = "";
-    if (artist && artist !== "null" && artist !== "undefined") {
-        query += artist + " ";
-    }
-    if (songName && songName !== "null" && songName !== "undefined") {
-        query += songName + " ";
-    }
-    query += "letra";
-    window.open('https://www.google.com/search?q=' + encodeURIComponent(query.trim()), '_blank');
-}
-
-function escapeHtml(unsafe) {
-    if (!unsafe) return '';
-    return unsafe.toString()
-         .replace(/&/g, "&amp;")
-         .replace(/</g, "&lt;")
-         .replace(/>/g, "&gt;")
-         .replace(/"/g, "&quot;")
-         .replace(/'/g, "&#039;");
-}
-
-function showAddSongForm() {
-    document.getElementById('add-song-form').style.display = 'block';
-}
-
-function hideAddSongForm() {
-    document.getElementById('add-song-form').style.display = 'none';
-    document.getElementById('song-name').value = '';
-    document.getElementById('song-artist').value = '';
-    document.getElementById('song-url').value = '';
-}
-
-function addSong() {
-    const name = document.getElementById('song-name').value;
-    const artist = document.getElementById('song-artist').value;
-    const url = document.getElementById('song-url').value;
-    const fileInput = document.getElementById('song-file');
-    const file = fileInput.files[0];
-    
-    if (!name) {
-        alert('Por favor ingresa el nombre de la canción');
-        return;
-    }
-    
-    if (!url && !file) {
-        alert('Por favor ingresa un enlace de YouTube o sube un archivo de audio');
-        return;
-    }
-    
-    // Extraer YouTube ID si se proporciona URL
-    let youtubeId = null;
-    if (url) {
-        const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\s?]+)/);
-        if (match) {
-            youtubeId = match[1];
-        }
-    }
-    
-    // Si hay archivo, usar FormData
-    if (file) {
-        const formData = new FormData();
-        formData.append('titulo', name);
-        formData.append('artista', artist);
-        formData.append('youtube_id', youtubeId || '');
-        formData.append('audio_file', file);
-        
-        fetch('/api/add-song/', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert('Error al añadir la canción: ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error al añadir la canción');
-        });
-    } else {
-        // Si no hay archivo, usar JSON
-        const data = {
-            titulo: name,
-            artista: artist,
-            youtube_id: youtubeId
-        };
-        
-        fetch('/api/add-song/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify(data)
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            } else {
-                alert('Error al añadir la canción: ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error al añadir la canción');
-        });
-    }
-}
-
-function deleteSong(songId) {
-    if (!confirm('¿Estás seguro de eliminar esta canción?')) {
-        return;
-    }
-    
-    fetch(`/api/delete-song/${songId}/`, {
-        method: 'DELETE',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken')
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert('Error al eliminar la canción: ' + data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al eliminar la canción');
-    });
-}
-
-function editSong(songId, currentName, currentArtist) {
-    const newName = prompt("Editar nombre de la canción:", currentName);
-    if (newName === null) return; // Cancelado
-    
-    const newArtist = prompt("Editar nombre del artista (opcional):", currentArtist);
-    if (newArtist === null) return; // Cancelado
-    
-    if (!newName.trim()) {
-        alert("El nombre de la canción es requerido");
-        return;
-    }
-    
-    fetch(`/api/edit-song/${songId}/`, {
-        method: 'PATCH',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({
-            nombre: newName.trim(),
-            artista: newArtist.trim()
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload();
-        } else {
-            alert('Error al editar la canción: ' + data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al editar la canción');
-    });
-}
-
-function playSongFromItem(songId) {
-    console.log('=== playSongFromItem llamado con songId:', songId, '===');
-
-    const item = document.querySelector(`.playlist-item[data-id="${songId}"]`);
-    if (!item) {
-        console.error('No se encontró el item con ID:', songId);
-        return;
-    }
-
-    const youtubeId = item.dataset.youtubeId;
-    const audioUrl = item.dataset.audioUrl;
-    const songName = item.dataset.name;
-    const artist = item.dataset.artist;
-
-    currentPlayingId = songId;
-
-    // ==================== LIMPIEZA COMPLETA DE ESTADO ANTERIOR ====================
-    console.log('Limpiando estado anterior...');
-
-    // Detener y limpiar audio anterior
-    if (currentAudio) {
-        console.log('Deteniendo audio anterior');
-        currentAudio.pause();
-        currentAudio.currentTime = 0;
-        // Clonar el nodo para eliminar todos los event listeners
-        const oldAudio = currentAudio;
-        currentAudio = null;
-        oldAudio.remove();
-    }
-    isAudioPlaying = false;
-
-    // Detener y limpiar player de YouTube anterior
-    if (player) {
-        console.log('Deteniendo player de YouTube anterior');
-        try {
-            if (typeof player.stopVideo === 'function') {
-                player.stopVideo();
-            }
-        } catch (e) {
-            console.error('Error deteniendo video:', e);
-        }
-        try {
-            player.destroy();
-        } catch (e) {
-            console.error('Error destruyendo player:', e);
-        }
-        player = null;
-    }
-    playerReady = false;
-
-    // Limpiar timeout si existe
-    if (playerLoadTimeout) {
-        console.log('Limpiando timeout anterior');
-        clearTimeout(playerLoadTimeout);
-        playerLoadTimeout = null;
-    }
-
-    // Detener actualización de progreso
-    stopProgressUpdate();
-
-    // Resetear botón de play/pause
-    const pauseBtn = document.getElementById('main-play-pause-btn');
-    const vinyl = document.getElementById('vinyl-record');
-    if (pauseBtn) pauseBtn.textContent = '▶️';
-    if (vinyl) {
-        vinyl.style.animationPlayState = 'paused';
-        vinyl.classList.remove('spinning');
-    }
-    activateEqualizer(false);
-
-    // ==================== ACTUALIZAR UI ====================
-    console.log('Actualizando UI...');
-
-    document.getElementById('current-song-title').textContent = `${songName} ${artist ? '- ' + artist : ''}`;
-    document.getElementById('current-song-artist').textContent = artist || 'Artista Desconocido';
-
-    updateAlbumCover(youtubeId);
-    updateVideoThumbnail(youtubeId);
-    highlightActiveSong(songId);
-
-    // Sincronizar con mini player global
-    console.log('Intentando sincronizar con mini player global');
-    console.log('updateMiniPlayerUI existe?', typeof updateMiniPlayerUI === 'function');
-    if (typeof updateMiniPlayerUI === 'function') {
-        console.log('Llamando a updateMiniPlayerUI con:', songName, artist, youtubeId);
-        updateMiniPlayerUI(songName, artist, youtubeId, false, 0);
-    } else {
-        console.log('updateMiniPlayerUI no está definido');
-    }
-
-    // Sincronizar ID de YouTube con mini player global
-    if (typeof globalCurrentYoutubeId !== 'undefined') {
-        globalCurrentYoutubeId = youtubeId;
-        console.log('ID de YouTube sincronizado con mini player:', youtubeId);
-    } else {
-        console.log('globalCurrentYoutubeId no está definido');
-    }
-
-    // Buscar letras para esta canción
-    searchLyricsForSong(songName, artist, songId);
-
-    // ==================== CARGAR NUEVA CANCIÓN ====================
-    console.log('Cargando nueva canción...');
-
-    // Si hay video de YouTube, reproducirlo
-    if (youtubeId) {
-        console.log('Cargando video de YouTube:', youtubeId);
-        loadYouTubeVideo(youtubeId, vinyl);
-    }
-    // Si hay archivo de audio local, reproducirlo
-    else if (audioUrl) {
-        console.log('Cargando audio local:', audioUrl);
-        playAudioUrl(audioUrl, vinyl);
-    }
-    // Si no hay video ni audio local, intentar buscar audio por nombre
-    else if (songName && artist) {
-        console.log('No hay video ni audio local, buscando audio por nombre...');
-        searchAndPlayAudio(songName, artist, vinyl);
-    }
-    else {
-        console.error('Esta canción no tiene audio disponible');
-        alert('Esta canción no tiene audio disponible');
-        resetPlayButton();
-    }
-}
-
-function loadYouTubeVideo(youtubeId, vinyl) {
-    console.log('=== loadYouTubeVideo llamado con youtubeId:', youtubeId, '===');
-
-    playerReady = false;
-
-    const wrapper = document.getElementById('player-wrapper');
-    wrapper.innerHTML = `
-        <div id="youtube-iframe"></div>
-        <div id="loading-indicator" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; z-index: 10;">
-            <div style="width: 50px; height: 50px; border: 3px solid rgba(6, 182, 212, 0.3); border-top: 3px solid #06b6d4; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
-            <p style="color: #06b6d4; margin-top: 15px; font-size: 14px;">Cargando...</p>
-        </div>
-        <style>
-            @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
-            }
-        </style>
-    `;
-
-    // Timeout de 10 segundos
-    playerLoadTimeout = setTimeout(() => {
-        console.warn('Timeout: El reproductor de YouTube tardó demasiado en cargar');
-        if (!playerReady) {
-            console.log('Intentando fallback a audio local');
-            if (player) {
-                try {
-                    player.destroy();
-                } catch (e) {
-                    console.error('Error destruyendo player timeout:', e);
-                }
-                player = null;
-            }
-            playerReady = false;
-
-            const item = document.querySelector(`.playlist-item[data-id="${currentPlayingId}"]`);
-            if (item && item.dataset.audioUrl) {
-                playAudioUrl(item.dataset.audioUrl, vinyl);
-            } else {
-                if (isAuthenticated && youtubeId) {
-                    fetch(`/api/stream-audio/${youtubeId}/`)
-                        .then(response => response.json())
-                        .then(data => {
-                            if (data && data.success && data.url) {
-                                playAudioUrl(data.url, vinyl);
-                            } else {
-                                showYouTubeError(youtubeId);
-                                resetPlayButton();
-                            }
-                        })
-                        .catch(error => {
-                            console.error('Error en fallback timeout:', error);
-                            showYouTubeError(youtubeId);
-                            resetPlayButton();
-                        });
-                } else {
-                    showYouTubeError(youtubeId);
-                    resetPlayButton();
-                }
-            }
-        }
-    }, 10000);
-
-    // Crear reproductor de YouTube
-    if (typeof YT !== 'undefined' && YT.Player) {
-        player = new YT.Player('youtube-iframe', {
-            host: 'https://www.youtube.com',
-            height: '400',
-            width: '100%',
-            videoId: youtubeId,
-            playerVars: {
-                'autoplay': 1,
-                'origin': window.location.origin,
-                'rel': 0,
-                'modestbranding': 1,
-                'iv_load_policy': 3,
-                'disablekb': 1,
-                'fs': 0,
-                'playsinline': 1,
-                'controls': 1
-            },
-            events: {
-                'onReady': function(event) {
-                    console.log('YouTube player ready');
-                    if (playerLoadTimeout) {
-                        clearTimeout(playerLoadTimeout);
-                        playerLoadTimeout = null;
-                    }
-                    playerReady = true;
-
-                    const loadingIndicator = document.getElementById('loading-indicator');
-                    if (loadingIndicator) {
-                        loadingIndicator.remove();
-                    }
-
-                    try {
-                        event.target.playVideo();
-                    } catch (e) {
-                        console.error('Error al intentar reproducir en onReady:', e);
-                        resetPlayButton();
-                    }
-
-                    requestAnimationFrame(() => {
-                        try {
-                            // Verificar que el player aún existe antes de acceder a sus métodos
-                            if (!player) {
-                                console.log('Player fue destruido, omitiendo verificación de estado');
-                                return;
-                            }
-                            const state = player.getPlayerState();
-                            console.log('Estado inicial del player:', state);
-                            const pauseBtn = document.getElementById('main-play-pause-btn');
-
-                            if (state === YT.PlayerState.PLAYING) {
-                                console.log('Player está reproduciendo, actualizando botón a ⏸');
-                                if (pauseBtn) pauseBtn.textContent = '⏸';
-                                if (vinyl) {
-                                    vinyl.style.animationPlayState = 'running';
-                                    vinyl.classList.add('spinning');
-                                }
-                                startProgressUpdate();
-                            } else {
-                                console.log('Player no está reproduciendo, actualizando botón a ▶️');
-                                if (pauseBtn) pauseBtn.textContent = '▶️';
-                            }
-                        } catch (e) {
-                            console.error('Error verificando estado inicial:', e);
-                            resetPlayButton();
-                        }
-                    });
-                },
-                'onError': onPlayerError,
-                'onStateChange': onPlayerStateChange
-            }
-        });
-    } else {
-        const checkAPI = setInterval(() => {
-            if (typeof YT !== 'undefined' && YT.Player) {
-                clearInterval(checkAPI);
-                player = new YT.Player('youtube-iframe', {
-                    host: 'https://www.youtube.com',
-                    height: '400',
-                    width: '100%',
-                    videoId: youtubeId,
-                    playerVars: {
-                        'autoplay': 1,
-                        'origin': window.location.origin,
-                        'rel': 0,
-                        'modestbranding': 1,
-                        'iv_load_policy': 3,
-                        'disablekb': 1,
-                        'fs': 0,
-                        'playsinline': 1,
-                        'controls': 0
-                    },
-                    events: {
-                        'onReady': function(event) {
-                            console.log('YouTube player ready');
-                            if (playerLoadTimeout) {
-                                clearTimeout(playerLoadTimeout);
-                                playerLoadTimeout = null;
-                            }
-                            playerReady = true;
-
-                            const loadingIndicator = document.getElementById('loading-indicator');
-                            if (loadingIndicator) {
-                                loadingIndicator.remove();
-                            }
-
-                            try {
-                                event.target.playVideo();
-                            } catch (e) {
-                                console.error('Error al intentar reproducir en onReady (interval):', e);
-                                resetPlayButton();
-                            }
-
-                    requestAnimationFrame(() => {
-                        try {
-                            // Verificar que el player aún existe antes de acceder a sus métodos
-                            if (!player) {
-                                console.log('Player fue destruido, omitiendo verificación de estado');
-                                return;
-                            }
-                            const state = player.getPlayerState();
-                            console.log('Estado inicial del player:', state);
-                            const pauseBtn = document.getElementById('main-play-pause-btn');
-
-                            if (state === YT.PlayerState.PLAYING) {
-                                console.log('Player está reproduciendo, actualizando botón a ⏸');
-                                if (pauseBtn) pauseBtn.textContent = '⏸';
-                                if (vinyl) {
-                                    vinyl.style.animationPlayState = 'running';
-                                    vinyl.classList.add('spinning');
-                                }
-                                startProgressUpdate();
-                            } else {
-                                console.log('Player no está reproduciendo, actualizando botón a ▶️');
-                                if (pauseBtn) pauseBtn.textContent = '▶️';
-                            }
-                        } catch (e) {
-                            console.error('Error verificando estado inicial:', e);
-                            resetPlayButton();
-                        }
-                    });
-                        },
-                        'onError': onPlayerError,
-                        'onStateChange': onPlayerStateChange
-                    }
-                });
-            }
-        }, 100);
-    }
-}
-
-function playAudioUrl(url, vinyl) {
-    console.log('=== playAudioUrl llamado con url:', url, '===');
-    
-    // Crear un ID único para este audio
-    const audioId = Date.now();
-    currentAudio = new Audio(url);
-    currentAudio.dataset.audioId = audioId;
-    currentAudio.autoplay = true;
-    currentAudio.style.display = 'none';
-    document.body.appendChild(currentAudio);
-
-    const pauseBtn = document.getElementById('main-play-pause-btn');
-
-    // Forzar estado inicial del botón a pausa
-    if (pauseBtn) pauseBtn.textContent = '⏸';
-    if (vinyl) {
-        vinyl.style.animationPlayState = 'running';
-        vinyl.classList.add('spinning');
-    }
-
-    currentAudio.addEventListener('play', () => {
-        // Verificar que este audio sea el actual
-        if (currentAudio && currentAudio.dataset.audioId == audioId) {
-            console.log('Evento play disparado');
-            isAudioPlaying = true;
-            if (vinyl) {
-                vinyl.style.animationPlayState = 'running';
-                vinyl.classList.add('spinning');
-            }
-            if (pauseBtn) pauseBtn.textContent = '⏸';
-            activateEqualizer(true);
-            startProgressUpdate();
-        }
-    });
-
-    currentAudio.addEventListener('pause', () => {
-        // Verificar que este audio sea el actual
-        if (currentAudio && currentAudio.dataset.audioId == audioId) {
-            console.log('Evento pause disparado');
-            isAudioPlaying = false;
-            if (vinyl) vinyl.style.animationPlayState = 'paused';
-            if (pauseBtn) pauseBtn.textContent = '▶️';
-            activateEqualizer(false);
-            stopProgressUpdate();
-        }
-    });
-
-    currentAudio.addEventListener('ended', () => {
-        // Verificar que este audio sea el actual
-        if (currentAudio && currentAudio.dataset.audioId == audioId) {
-            console.log('Evento ended disparado');
-            isAudioPlaying = false;
-            if (vinyl) vinyl.style.animationPlayState = 'paused';
-            if (pauseBtn) pauseBtn.textContent = '▶️';
-            activateEqualizer(false);
-            stopProgressUpdate();
-            playNext();
-        }
-    });
-
-    currentAudio.addEventListener('timeupdate', () => {
-        // Verificar que este audio sea el actual antes de procesar
-        if (currentAudio && currentAudio.dataset.audioId == audioId && currentAudio.duration > 0) {
-            updateProgressBar(currentAudio.currentTime, currentAudio.duration);
-        }
-    });
-
-    currentAudio.addEventListener('error', (e) => {
-        // Verificar que este audio sea el actual
-        if (currentAudio && currentAudio.dataset.audioId == audioId) {
-            console.error('Error en reproductor de audio:', e);
-            resetPlayButton();
-        }
-    });
-
-    requestAnimationFrame(() => {
-        currentAudio.play().then(() => {
-            console.log('Audio iniciado correctamente');
-        }).catch(e => {
-            console.log('Autoplay bloqueado por el navegador');
-            if (pauseBtn) pauseBtn.textContent = '▶️';
-            if (vinyl) vinyl.style.animationPlayState = 'paused';
-        });
-    });
-}
-
-function playAudioOnly(youtubeId) {
-    console.log('Intentando reproducir solo audio para:', youtubeId);
-    
-    // Usar la API de yt_dlp para obtener el stream de audio
-    fetch(`/api/get-audio-stream/?youtube_id=${youtubeId}`, {
-        credentials: 'same-origin',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.audio_url) {
-            console.log('Stream de audio obtenido:', data.audio_url);
-            const vinyl = document.querySelector('.vinyl-record');
-            playAudioUrl(data.audio_url, vinyl);
-            
-            // Actualizar botón de reproducción
-            const pauseBtn = document.getElementById('main-play-pause-btn');
-            if (pauseBtn) pauseBtn.textContent = '⏸';
-        } else {
-            console.error('No se pudo obtener el stream de audio');
-            showYouTubeError(youtubeId);
-        }
-    })
-    .catch(error => {
-        console.error('Error obteniendo stream de audio:', error);
-        showYouTubeError(youtubeId);
-    });
-}
-
-function searchAndPlayAudio(songName, artist, vinyl) {
-    console.log('Buscando audio para:', songName, artist);
-    
-    const query = `${artist} ${songName}`;
-    
-    // Usar la API para buscar y obtener audio
-    fetch(`/api/search-and-play-audio/?query=${encodeURIComponent(query)}`, {
-        credentials: 'same-origin',
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.audio_url) {
-            console.log('Audio encontrado:', data.audio_url);
-            playAudioUrl(data.audio_url, vinyl);
-            
-            // Actualizar botón de reproducción
-            const pauseBtn = document.getElementById('main-play-pause-btn');
-            if (pauseBtn) pauseBtn.textContent = '⏸';
-        } else {
-            console.error('No se pudo encontrar audio');
-            alert('No se pudo encontrar audio para esta canción');
-            resetPlayButton();
-        }
-    })
-    .catch(error => {
-        console.error('Error buscando audio:', error);
-        alert('Error al buscar audio');
-        resetPlayButton();
-    });
-}
-
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.startsWith(name + "=")) {
-                cookieValue = decodeURIComponent(cookie.split("=")[1]);
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-function toggleVideo() {
-    const playerWrapper = document.getElementById('player-wrapper');
-    const toggleBtn = document.getElementById('toggle-video-btn');
-    
-    if (playerWrapper.style.display === 'none') {
-        playerWrapper.style.display = 'block';
-        toggleBtn.textContent = '👁️';
-        toggleBtn.title = 'Ocultar Video';
-    } else {
-        playerWrapper.style.display = 'none';
-        toggleBtn.textContent = '👁️‍🗨️';
-        toggleBtn.title = 'Mostrar Video';
-    }
-}
-
-// ==================== NUEVAS FUNCIONES ====================
-
-// Filtrar canciones por búsqueda
-function filterSongs() {
-    const searchTerm = document.getElementById('song-search').value.toLowerCase();
-    const items = document.querySelectorAll('.playlist-item');
-    
-    items.forEach(item => {
-        const songName = item.dataset.name.toLowerCase();
-        const artist = item.dataset.artist.toLowerCase();
-        
-        if (songName.includes(searchTerm) || artist.includes(searchTerm)) {
-            item.style.display = 'flex';
-        } else {
-            item.style.display = 'none';
-        }
-    });
-}
-
-// Toggle favorito
-let favorites = new Set();
-
-function toggleFavorite(songId) {
-    const item = document.querySelector(`.playlist-item[data-id="${songId}"]`);
-    const btn = item.querySelector('.action-btn');
-    
-    // Toggle visual state
-    if (favorites.has(songId)) {
-        favorites.delete(songId);
-        btn.textContent = '❤️';
-        btn.style.color = 'rgba(255, 255, 255, 0.4)';
-        removeFromFavoritesList(songId);
-    } else {
-        favorites.add(songId);
-        btn.textContent = '❤️';
-        btn.style.color = '#ef4444';
-        addToFavoritesList(songId);
-    }
-    
-    // Update favorites count
-    document.getElementById('favorites-count').textContent = favorites.size;
-    
-    // TODO: Guardar en backend
-    console.log('Toggle favorite for song:', songId);
-}
-
-function addToFavoritesList(songId) {
-    const item = document.querySelector(`.playlist-item[data-id="${songId}"]`);
-    if (!item) return;
-    
-    const favoritesContainer = document.getElementById('favorites-items');
-    const emptyFavorites = document.querySelector('.empty-favorites');
-    
-    if (emptyFavorites) {
-        emptyFavorites.remove();
-    }
-    
-    // Clone the item for favorites list
-    const favoriteItem = item.cloneNode(true);
-    favoriteItem.dataset.favoriteId = songId;
-    
-    // Remove delete button from favorites
-    const deleteBtn = favoriteItem.querySelector('.delete-btn');
-    if (deleteBtn) deleteBtn.remove();
-    
-    // Update the favorite button to remove
-    const favBtn = favoriteItem.querySelector('.action-btn');
-    if (favBtn) {
-        favBtn.onclick = () => toggleFavorite(songId);
-    }
-    
-    favoritesContainer.appendChild(favoriteItem);
-}
-
-function removeFromFavoritesList(songId) {
-    const favoriteItem = document.querySelector(`.playlist-item[data-favorite-id="${songId}"]`);
-    if (favoriteItem) {
-        favoriteItem.remove();
-    }
-    
-    // Check if favorites is empty
-    if (favorites.size === 0) {
-        const favoritesContainer = document.getElementById('favorites-items');
-        favoritesContainer.innerHTML = `
-            <div class="empty-favorites">
-                <p style="color: var(--text-muted); text-align: center; padding: 20px;">
-                    <span style="font-size: 32px; display: block; margin-bottom: 10px;">💜</span>
-                    Añade canciones a tus favoritas
-                </p>
-            </div>
-        `;
-    }
-}
-
-// Toggle loop
-let isLooping = false;
-function toggleLoop() {
-    isLooping = !isLooping;
-    const btn = document.querySelector('button[onclick="toggleLoop()"]');
-    
-    if (isLooping) {
-        btn.style.color = '#7c3aed';
-        btn.style.background = 'rgba(124, 58, 237, 0.2)';
-        // TODO: Implementar loop en el reproductor
-    } else {
-        btn.style.color = '';
-        btn.style.background = '';
-    }
-}
-
-// Control de volumen
-function setVolume(value) {
-    const volume = value / 100;
-    
-    if (currentAudio) {
-        currentAudio.volume = volume;
-    }
-    
-    if (player && playerReady && typeof player.setVolume === 'function') {
-        player.setVolume(value);
-    }
-    
-    // Actualizar icono del botón
-    const volumeBtn = document.getElementById('volume-btn');
-    if (value == 0) {
-        volumeBtn.textContent = '🔇';
-    } else if (value < 50) {
-        volumeBtn.textContent = '🔉';
-    } else {
-        volumeBtn.textContent = '🔊';
-    }
-}
-
-// Actualizar portada del álbum
-function updateAlbumCover(youtubeId) {
-    const albumCover = document.getElementById('album-cover');
-    
-    if (youtubeId) {
-        const img = document.createElement('img');
-        img.src = `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`;
-        img.alt = 'Album Cover';
-        img.onerror = function() {
-            // Fallback to medium quality if maxres fails
-            this.src = `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`;
-        };
-        
-        // Remove existing image
-        const existingImg = albumCover.querySelector('img');
-        if (existingImg) {
-            existingImg.remove();
-        }
-        
-        albumCover.appendChild(img);
-        albumCover.classList.add('has-cover');
-    } else {
-        albumCover.classList.remove('has-cover');
-        const existingImg = albumCover.querySelector('img');
-        if (existingImg) {
-            existingImg.remove();
-        }
-    }
-}
-
-// Actualizar thumbnail del video
-function updateVideoThumbnail(youtubeId) {
-    const thumbnailImg = document.getElementById('thumbnail-img');
-    const placeholder = document.querySelector('.thumbnail-placeholder');
-
-    if (!thumbnailImg) {
-        // Silenciosamente retornar si no existe el elemento
-        return;
-    }
-
-    if (youtubeId) {
-        thumbnailImg.src = `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`;
-        thumbnailImg.style.display = 'block';
-        thumbnailImg.onerror = function() {
-            this.src = `https://img.youtube.com/vi/${youtubeId}/mqdefault.jpg`;
-        };
-        if (placeholder) placeholder.style.display = 'none';
-    } else {
-        thumbnailImg.style.display = 'none';
-        if (placeholder) placeholder.style.display = 'block';
-    }
-}
-
-// Activar ecualizador
-function activateEqualizer(active) {
-    const equalizer = document.getElementById('equalizer');
-    if (equalizer) {
-        if (active) {
-            equalizer.classList.add('active');
-        } else {
-            equalizer.classList.remove('active');
-        }
-    }
-}
-
-// Resaltar canción activa en la playlist
-function highlightActiveSong(songId) {
-    // Remover clase active de todos los items
-    document.querySelectorAll('.playlist-item').forEach(item => {
-        item.classList.remove('active');
-    });
-    
-    // Agregar clase active al item actual
-    const activeItem = document.querySelector(`.playlist-item[data-id="${songId}"]`);
-    if (activeItem) {
-        activeItem.classList.add('active');
-    }
-}
-
-// Resetear el botón de play/pause a estado inicial
-function resetPlayButton() {
-    const pauseBtn = document.getElementById('main-play-pause-btn');
-    const vinyl = document.getElementById('vinyl-record');
-    
-    if (pauseBtn) {
-        pauseBtn.textContent = '▶️';
-    }
-    if (vinyl) {
-        vinyl.style.animationPlayState = 'paused';
-    }
-    activateEqualizer(false);
-    stopProgressUpdate();
-    isAudioPlaying = false;
+function updateDuckTheme() {
+  const isDark = document.body.classList.contains('dark') || !document.body.classList.contains('light');
+  const src = isDark ? "{% static 'amigis/amigis-dark.svg' %}" : "{% static 'amigis/amigis-light.svg' %}";
+  const duckImg = document.getElementById('amigis-music-duck-img');
+  if (duckImg) duckImg.src = src;
 }
 </script>
 {% endblock %}

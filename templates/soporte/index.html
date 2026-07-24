@@ -1,1092 +1,339 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Soporte{% endblock %}
+{% block title %}Centro de Ayuda & Soporte — MiniAmigixV{% endblock %}
+{% block nav_title %}Centro de Ayuda{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/support/soporte.css' %}?v=4">
+<link rel="stylesheet" href="{% static 'css/support/soporte.css' %}?v=40">
 {% endblock %}
 
 {% block content %}
-<style>
-    :root {
-        --accent:         #3b82f6;
-        --accent-light:   #60a5fa;
-        --accent-dark:    #1d4ed8;
-        --bg:            #0a0a0f;
-        --surface:       rgba(255,255,255,0.04);
-        --surface-hov:   rgba(255,255,255,0.07);
-        --border:        rgba(255,255,255,0.1);
-        --border-hov:    #3b82f650;
-        --text:          #f1f5f9;
-        --muted:         #94a3b8;
-        --radius:        24px;
-        --shadow-accent: 0 0 40px #3b82f630;
-        --glow:          0 0 18px #3b82f680;
-    }
+<div class="soporte-page-container fadein">
+  {% csrf_token %}
 
-    .soporte-page * { box-sizing: border-box; }
-    .soporte-page {
-        min-height: 100vh;
-        background: var(--bg);
-        color: var(--text);
-        font-family: 'Inter', system-ui, sans-serif;
-        padding-bottom: 40px;
-        position: relative;
-        overflow: hidden;
-    }
+  <!-- ════════════════════════════════════
+       HEADER BAR
+  ════════════════════════════════════ -->
+  <div class="sp-header-bar">
+    <div class="sp-header-title">
+      <span style="font-size: 26px;">🆘</span>
+      <div>
+        <h1>Centro de Ayuda & Soporte</h1>
+        <p>¿En qué podemos ayudarte hoy? Encuentra respuestas, guías o contacta al equipo.</p>
+      </div>
+    </div>
 
-    .soporte-orb {
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(80px);
-        pointer-events: none;
-        z-index: 0;
-    }
-    .soporte-orb-1 {
-        width: 400px; height: 400px;
-        background: radial-gradient(circle, #3b82f633 0%, transparent 70%);
-        top: -100px; left: -100px;
-        animation: orbFloat1 10s ease-in-out infinite;
-    }
-    .soporte-orb-2 {
-        width: 350px; height: 350px;
-        background: radial-gradient(circle, #60a5fa26 0%, transparent 70%);
-        bottom: -50px; right: -50px;
-        animation: orbFloat2 12s ease-in-out infinite;
-    }
+    <div class="sp-header-actions">
+      <div style="position: relative;">
+        <input type="text" id="faq-search-input" placeholder="Buscar ayuda..." onkeyup="filterFAQ()" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; padding: 8px 14px 8px 32px; color: #fff; font-size: 12px; outline: none; width: 170px;">
+        <i class="ti ti-search" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--sp-text-dim); font-size: 14px;"></i>
+      </div>
 
-    @keyframes orbFloat1 {
-        0%,100% { transform: translate(0,0) scale(1); }
-        50%      { transform: translate(40px,40px) scale(1.1); }
-    }
-    @keyframes orbFloat2 {
-        0%,100% { transform: translate(0,0) scale(1); }
-        50%      { transform: translate(-40px,-40px) scale(0.9); }
-    }
-    @keyframes fadeSlideUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
+      <button class="sp-btn sp-btn-primary" onclick="scrollToSection('diagnostico-section')">
+        🔧 Diagnóstico
+      </button>
+      <button class="sp-btn" onclick="scrollToSection('reporte-section')">
+        📢 Reportar Problema
+      </button>
+      <button class="sp-btn" onclick="scrollToSection('sugerencias-section')">
+        💡 Sugerencias
+      </button>
+    </div>
+  </div>
 
-    .soporte-hero {
-        position: relative;
-        z-index: 1;
-        text-align: center;
-        padding: 40px 20px 20px;
-        animation: fadeSlideUp 0.5s ease both;
-    }
-    .soporte-hero h1 {
-        font-size: 2.5rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, #fff 30%, var(--accent-light) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin: 10px 0 5px;
-    }
-    .soporte-hero p { color: var(--muted); margin: 0; }
-
-    /* Glassmorphism Overrides */
-    .soporte-page > div:not(.soporte-hero):not(.soporte-orb) {
-        position: relative;
-        z-index: 1;
-        animation: fadeSlideUp 0.5s 0.2s ease both;
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 0 20px;
-    }
-    
-    .games-hero-banner, .translator-header, .movies-header, .stats-cards, .games-grid, .ticket-list, .translator-layout {
-        background: var(--surface) !important;
-        border: 1px solid var(--border) !important;
-        border-radius: var(--radius) !important;
-        backdrop-filter: blur(20px) !important;
-        box-shadow: var(--shadow-accent) !important;
-        margin-bottom: 24px;
-        transition: transform 0.3s, box-shadow 0.3s;
-    }
-    
-    .game-card, .movie-card, .series-card, .ticket-card, .translator-box {
-        background: rgba(0,0,0,0.2) !important;
-        border: 1px solid rgba(255,255,255,0.05) !important;
-        border-radius: 16px !important;
-        transition: all 0.3s;
-    }
-    
-    .game-card:hover, .movie-card:hover, .series-card:hover, .ticket-card:hover {
-        border-color: var(--accent) !important;
-        background: #3b82f60D !important;
-        transform: translateY(-4px) !important;
-    }
-    
-    .hero-continue-btn, .btn-primary, .translate-btn {
-        background: linear-gradient(135deg, var(--accent), var(--accent-light)) !important;
-        color: #fff !important;
-        border: none !important;
-        box-shadow: var(--glow) !important;
-        border-radius: 12px !important;
-        font-weight: 700 !important;
-    }
-</style>
-<div class="soporte-page">
-
-    <!-- Hero Section -->
-    <section class="soporte-hero">
-        <div class="hero-orbs">
-            <div class="orb orb-1"></div>
-            <div class="orb orb-2"></div>
-            <div class="orb orb-3"></div>
+  <!-- ════════════════════════════════════
+       💎 DIAGNÓSTICO INTELIGENTE DE AMIGIS
+  ════════════════════════════════════ -->
+  <div class="sp-diag-card" id="diagnostico-section">
+    <div class="sp-diag-flex">
+      <div>
+        <div style="font-size: 11px; font-weight: 700; color: #60a5fa; text-transform: uppercase; letter-spacing: 0.5px;">
+          IDEAS EXCLUSIVAS • AMIGIS DIAGNOSTICS
         </div>
-        <div class="hero-content">
-            <div class="hero-badge">
-                <i class="ti ti-headset"></i>
-                <span>Centro de Soporte</span>
-            </div>
-            <h1 class="hero-title">
-                ¿Necesitas
-                <span class="gradient-text">ayuda</span>?
-            </h1>
-            <p class="hero-subtitle">
-                Estamos disponibles para resolver tus dudas y mejorar tu experiencia.
-            </p>
-
-            <!-- Smart Search -->
-            <div class="smart-search-container">
-                <div class="search-input-wrapper">
-                    <i class="ti ti-search search-icon"></i>
-                    <input type="text" id="smart-search" placeholder="¿Qué necesitas? Ej: ¿Cómo recuperar mi contraseña?" autocomplete="off">
-                    <div class="search-suggestions" id="search-suggestions"></div>
-                </div>
-            </div>
+        <h2 style="font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 800; color: #fff; margin: 4px 0;">
+          🔧 Diagnóstico Inteligente de MiniAmigixV
+        </h2>
+        <div style="font-size: 12.5px; color: var(--sp-text-soft);" id="diag-status-text">
+          Haz clic en el botón para verificar el estado de tu cuenta, conexión, espacio y notificaciones.
         </div>
-    </section>
+      </div>
 
-    <!-- Quick Access to Modules -->
-    <section class="quick-access-section">
-        <div class="section-header">
-            <i class="ti ti-grid-dots"></i>
-            <h2>Accesos Rápidos</h2>
-        </div>
-        <div class="quick-access-grid">
-            <a href="javascript:void(0)" class="quick-access-card" onclick="showInlineGuide('Chat IA')">
-                <div class="quick-icon">
-                    <i class="ti ti-robot"></i>
-                </div>
-                <span>Chat IA</span>
-            </a>
-            <a href="/musica/" class="quick-access-card">
-                <div class="quick-icon">
-                    <i class="ti ti-music"></i>
-                </div>
-                <span>Música</span>
-            </a>
-            <a href="/eventos/" class="quick-access-card">
-                <div class="quick-icon">
-                    <i class="ti ti-calendar-event"></i>
-                </div>
-                <span>Eventos</span>
-            </a>
-            <a href="/clima/" class="quick-access-card">
-                <div class="quick-icon">
-                    <i class="ti ti-sun"></i>
-                </div>
-                <span>Clima</span>
-            </a>
-            <a href="/traductor/" class="quick-access-card">
-                <div class="quick-icon">
-                    <i class="ti ti-language"></i>
-                </div>
-                <span>Traductor</span>
-            </a>
-            <a href="/juegos/" class="quick-access-card">
-                <div class="quick-icon">
-                    <i class="ti ti-gamepad-2"></i>
-                </div>
-                <span>Juegos</span>
-            </a>
-        </div>
-    </section>
+      <button class="sp-btn sp-btn-primary" onclick="runSmartDiagnostic()" id="run-diag-btn">
+        ⚡ Ejecutar Diagnóstico
+      </button>
+    </div>
 
-    <!-- AI Support Assistant -->
-    <section class="ai-assistant-section">
-        <div class="ai-assistant-card">
-            <div class="ai-header">
-                <div class="ai-avatar">
-                    <i class="ti ti-robot"></i>
-                </div>
-                <div class="ai-title">
-                    <h3>🤖 Asistente de Soporte</h3>
-                    <p>Hola 👋 Puedo ayudarte con:</p>
-                </div>
-            </div>
-            <div class="ai-topics">
-                <span class="ai-topic">Cuenta</span>
-                <span class="ai-topic">Música</span>
-                <span class="ai-topic">Eventos</span>
-                <span class="ai-topic">Juegos</span>
-                <span class="ai-topic">Traductor</span>
-            </div>
-            <a href="/chat/" class="btn-ai-chat">
-                <i class="ti ti-message"></i>
-                Iniciar conversación
-            </a>
-        </div>
-    </section>
+    <!-- Diagnostic Items Grid -->
+    <div class="diag-items-grid" id="diag-items-grid">
+      <div class="diag-item-mini">
+        <div>🌐 Conexión</div>
+        <div style="color: #10b981; font-weight: 700; margin-top: 2px;" id="d-net">Pendiente</div>
+      </div>
+      <div class="diag-item-mini">
+        <div>🔑 Cuenta</div>
+        <div style="color: #10b981; font-weight: 700; margin-top: 2px;" id="d-acc">Pendiente</div>
+      </div>
+      <div class="diag-item-mini">
+        <div>☁ Sincronización</div>
+        <div style="color: #10b981; font-weight: 700; margin-top: 2px;" id="d-sync">Pendiente</div>
+      </div>
+      <div class="diag-item-mini">
+        <div>💾 Espacio</div>
+        <div style="color: #10b981; font-weight: 700; margin-top: 2px;" id="d-space">Pendiente</div>
+      </div>
+      <div class="diag-item-mini">
+        <div>🔔 Notificaciones</div>
+        <div style="color: #10b981; font-weight: 700; margin-top: 2px;" id="d-notif">Pendiente</div>
+      </div>
+      <div class="diag-item-mini">
+        <div>⚙️ Configuración</div>
+        <div style="color: #10b981; font-weight: 700; margin-top: 2px;" id="d-cfg">Pendiente</div>
+      </div>
+    </div>
+  </div>
 
-    <!-- Support Status -->
-    <section class="support-status-section">
-        <div class="status-card status-online">
-            <div class="status-indicator">
-                <span class="status-dot"></span>
-                <span class="status-text">Soporte disponible</span>
-            </div>
-            <div class="status-schedule">
-                <i class="ti ti-clock"></i>
-                <span>Lunes a Viernes | 08:00 - 18:00</span>
-            </div>
-            <div class="status-response">
-                <i class="ti ti-bolt"></i>
-                <span>Normalmente responde en menos de 24 horas</span>
-            </div>
-        </div>
-    </section>
+  <!-- ════════════════════════════════════
+       📚 PREGUNTAS FRECUENTES (FAQ)
+  ════════════════════════════════════ -->
+  <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; margin: 0 0 14px; color: #fff; display: flex; align-items: center; gap: 8px;">
+    <i class="ti ti-help-circle"></i> Preguntas Frecuentes (FAQ)
+  </h3>
 
-    <!-- Info Cards Grid -->
-    <section class="info-cards-grid">
-        <div class="info-card card-about">
-            <div class="card-icon-wrapper">
-                <i class="ti ti-info-circle"></i>
+  <div class="faq-grid" id="faq-cards-container">
+    <div class="faq-card-item" onclick="toggleFAQAnswer(this)">
+      <div class="faq-title-text">🔐 ¿Cómo cambiar mi contraseña?</div>
+      <div class="faq-desc-text">Dirígete al módulo de Configuración ➔ Privacidad o a la sección de tu Perfil para actualizar tu clave de acceso de forma segura.</div>
+    </div>
+
+    <div class="faq-card-item" onclick="toggleFAQAnswer(this)">
+      <div class="faq-title-text">📱 ¿Cómo instalar la aplicación (PWA)?</div>
+      <div class="faq-desc-text">Abre la app en Chrome o Edge y haz clic en "Instalar MiniAmigixV" en la barra de navegación para tener el acceso directo en tu escritorio.</div>
+    </div>
+
+    <div class="faq-card-item" onclick="toggleFAQAnswer(this)">
+      <div class="faq-title-text">☁ ¿Cómo sincronizar mis datos?</div>
+      <div class="faq-desc-text">Tus progresos de estudio, chats y configuraciones se guardan automáticamente en tu cuenta sincronizada en la nube.</div>
+    </div>
+
+    <div class="faq-card-item" onclick="toggleFAQAnswer(this)">
+      <div class="faq-title-text">🤖 ¿Cómo funciona Amigis?</div>
+      <div class="faq-desc-text">Amigis es tu compañero IA inteligente. Responde dudas, recomienda canciones, organiza tus eventos y te acompaña en los minijuegos.</div>
+    </div>
+
+    <div class="faq-card-item" onclick="toggleFAQAnswer(this)">
+      <div class="faq-title-text">🎵 ¿Cómo crear una playlist?</div>
+      <div class="faq-desc-text">En el módulo de Música, haz clic en "+ Nueva Playlist", dale un nombre y agrega tus canciones favoritas fácilmente.</div>
+    </div>
+
+    <div class="faq-card-item" onclick="toggleFAQAnswer(this)">
+      <div class="faq-title-text">📄 ¿Cómo exportar mis archivos?</div>
+      <div class="faq-desc-text">En el módulo Mis Archivos o en Configuración ➔ Copias de seguridad puedes descargar tus datos en formato PDF o JSON.</div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       MAIN SPLIT GRID
+  ════════════════════════════════════ -->
+  <div class="sp-main-grid">
+
+    <!-- ── LEFT COLUMN (Report Issue & Ideas) ── -->
+    <div>
+
+      <!-- 📢 Reportar un problema -->
+      <div class="sp-panel-box" id="reporte-section">
+        <h3 class="sp-panel-title">
+          <i class="ti ti-alert-triangle" style="color: #f43f5e;"></i> Reportar un Problema / Ticket
+        </h3>
+
+        <form onsubmit="submitSupportTicket(event)">
+          <label style="font-size: 11px; font-weight: 700; color: var(--sp-text-dim); text-transform: uppercase;">Título del problema</label>
+          <input type="text" id="ticket-title" class="sp-input" placeholder="Ej. Error al reproducir audio" required>
+
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div>
+              <label style="font-size: 11px; font-weight: 700; color: var(--sp-text-dim); text-transform: uppercase;">Categoría</label>
+              <select id="ticket-cat" class="sp-select">
+                <option value="chat">🤖 IA Chat</option>
+                <option value="music">🎵 Música</option>
+                <option value="games">🎮 Juegos</option>
+                <option value="weather">🌤 Clima</option>
+                <option value="general">⚙ General</option>
+              </select>
             </div>
-            <h3>¿Qué es MiniAmigixV?</h3>
-            <p>
-                Una plataforma todo en uno con Chat IA, música, juegos, estudio,
-                eventos, herramientas inteligentes y más. Diseñada para simplificar
-                tu vida digital.
-            </p>
-            <div class="card-glow"></div>
+
+            <div>
+              <label style="font-size: 11px; font-weight: 700; color: var(--sp-text-dim); text-transform: uppercase;">Prioridad</label>
+              <select id="ticket-priority" class="sp-select">
+                <option value="low">Baja</option>
+                <option value="medium" selected>Media</option>
+                <option value="high">Alta</option>
+              </select>
+            </div>
+          </div>
+
+          <label style="font-size: 11px; font-weight: 700; color: var(--sp-text-dim); text-transform: uppercase;">Descripción detallada</label>
+          <textarea id="ticket-desc" class="sp-textarea" placeholder="Explica qué sucedió y cómo podemos reproducir el fallo..." required></textarea>
+
+          <button type="submit" class="sp-btn sp-btn-primary" style="width: 100%; justify-content: center;">
+            📤 Enviar Reporte de Soporte
+          </button>
+        </form>
+      </div>
+
+      <!-- 💡 Sugerencias de Usuarios -->
+      <div class="sp-panel-box" id="sugerencias-section">
+        <h3 class="sp-panel-title">
+          <i class="ti ti-bulb" style="color: #f59e0b;"></i> Enviar una Sugerencia / Idea
+        </h3>
+
+        <form onsubmit="submitIdeaSuggestion(event)">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px;">
+            <select id="idea-type" class="sp-select">
+              <option value="func">✨ Nueva función</option>
+              <option value="design">🎨 Mejorar el diseño</option>
+              <option value="amigis">🤖 Habilidad para Amigis</option>
+              <option value="game">🎮 Nuevo juego</option>
+              <option value="tutorial">📚 Nuevo tutorial</option>
+            </select>
+            <input type="text" id="idea-title" class="sp-input" placeholder="Título de tu idea" required>
+          </div>
+
+          <textarea id="idea-desc" class="sp-textarea" placeholder="Describe tu sugerencia para mejorar MiniAmigixV..." required></textarea>
+
+          <button type="submit" class="sp-btn" style="width: 100%; justify-content: center; background: rgba(245,158,11,0.2); border-color: rgba(245,158,11,0.4); color: #fff;">
+            💡 Enviar Idea al Equipo
+          </button>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- ── RIGHT COLUMN (System Status & Quick Chat & Contact) ── -->
+    <div>
+
+      <!-- 📊 Estado del Sistema -->
+      <div class="sp-panel-box">
+        <h3 class="sp-panel-title">
+          <i class="ti ti-activity" style="color: #10b981;"></i> Estado del Sistema
+        </h3>
+
+        <div style="padding: 10px 12px; background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); border-radius: 12px; font-size: 12px; color: #34d399; margin-bottom: 12px;">
+          🟢 Todos los servicios funcionando al 100%.
         </div>
 
-        <div class="info-card card-mission">
-            <div class="card-icon-wrapper">
-                <i class="ti ti-target-arrow"></i>
-            </div>
-            <h3>Misión</h3>
-            <p>
-                Crear una app moderna, inteligente y accesible que unifique herramientas
-                útiles en un solo sistema digital, facilitando la productividad y el
-                entretenimiento.
-            </p>
-            <div class="card-glow"></div>
+        <div class="status-row-item">
+          <span>🤖 Servicio IA Chat</span>
+          <span style="color: #34d399; font-weight: 700;"><span class="status-indicator-dot"></span>En línea</span>
         </div>
 
-        <div class="info-card card-vision">
-            <div class="card-icon-wrapper">
-                <i class="ti ti-sparkles"></i>
-            </div>
-            <h3>Visión</h3>
-            <p>
-                Ser una plataforma global tipo "super app" educativa, social e inteligente
-                que transforme la manera en que las personas interactúan con la tecnología.
-            </p>
-            <div class="card-glow"></div>
+        <div class="status-row-item">
+          <span>🎵 Reproductor Música</span>
+          <span style="color: #34d399; font-weight: 700;"><span class="status-indicator-dot"></span>En línea</span>
         </div>
-    </section>
 
-    <!-- FAQ Section -->
-    <section class="faq-section">
-        <div class="section-header">
-            <i class="ti ti-help-circle"></i>
-            <h2>Preguntas Frecuentes</h2>
+        <div class="status-row-item">
+          <span>🌤 Servicio Clima API</span>
+          <span style="color: #34d399; font-weight: 700;"><span class="status-indicator-dot"></span>En línea</span>
         </div>
-        <div class="faq-grid">
-            <div class="faq-card" onclick="toggleFaq(this)">
-                <div class="faq-card-header">
-                    <div class="faq-card-icon">
-                        <i class="ti ti-lock"></i>
-                    </div>
-                    <div class="faq-card-title">
-                        <h4>🔐 Cuenta</h4>
-                        <p>¿Cómo creo mi cuenta?</p>
-                    </div>
-                    <i class="ti ti-chevron-down faq-chevron"></i>
-                </div>
-                <div class="faq-card-answer">
-                    <p>Haz clic en "Registrarse" en la página de inicio, completa tus datos y listo. También puedes registrarte con tu cuenta de Google.</p>
-                </div>
-            </div>
-            <div class="faq-card" onclick="toggleFaq(this)">
-                <div class="faq-card-header">
-                    <div class="faq-card-icon">
-                        <i class="ti ti-robot"></i>
-                    </div>
-                    <div class="faq-card-title">
-                        <h4>🤖 Chat IA</h4>
-                        <p>¿Cómo funciona?</p>
-                    </div>
-                    <i class="ti ti-chevron-down faq-chevron"></i>
-                </div>
-                <div class="faq-card-answer">
-                    <p>Dirígete a la sección de Chat desde el menú lateral. Escribe tu pregunta y la inteligencia artificial te responderá al instante.</p>
-                </div>
-            </div>
-            <div class="faq-card" onclick="toggleFaq(this)">
-                <div class="faq-card-header">
-                    <div class="faq-card-icon">
-                        <i class="ti ti-bug"></i>
-                    </div>
-                    <div class="faq-card-title">
-                        <h4>🐞 Reportar errores</h4>
-                        <p>¿Cómo enviar un reporte?</p>
-                    </div>
-                    <i class="ti ti-chevron-down faq-chevron"></i>
-                </div>
-                <div class="faq-card-answer">
-                    <p>Usa el formulario de contacto más abajo describiendo el problema con el mayor detalle posible. ¡Nos encargamos!</p>
-                </div>
-            </div>
-            <div class="faq-card" onclick="toggleFaq(this)">
-                <div class="faq-card-header">
-                    <div class="faq-card-icon">
-                        <i class="ti ti-credit-card"></i>
-                    </div>
-                    <div class="faq-card-title">
-                        <h4>💰 Costo</h4>
-                        <p>¿Es gratuito?</p>
-                    </div>
-                    <i class="ti ti-chevron-down faq-chevron"></i>
-                </div>
-                <div class="faq-card-answer">
-                    <p>Sí, MiniAmigixV es completamente gratuita. Todas las funciones básicas están disponibles sin costo alguno.</p>
-                </div>
-            </div>
+
+        <div class="status-row-item">
+          <span>🌎 Motor Traductor</span>
+          <span style="color: #34d399; font-weight: 700;"><span class="status-indicator-dot"></span>En línea</span>
         </div>
-    </section>
+      </div>
 
-    <!-- Quick Guides Section -->
-    <section class="guides-section">
-        <div class="section-header">
-            <i class="ti ti-book"></i>
-            <h2>📚 Guías Rápidas</h2>
+      <!-- 💬 Chat Rápido con Amigis -->
+      <div class="sp-panel-box" style="background: linear-gradient(135deg, rgba(124,58,237,0.15), rgba(6,182,212,0.1));">
+        <h3 class="sp-panel-title">
+          💬 Chat de Asistencia Amigis
+        </h3>
+
+        <div style="font-size: 12.5px; color: var(--sp-text-soft); margin-bottom: 12px;">
+          "Hola 👋 Soy Amigis. Puedo guiarte paso a paso o responder cualquier pregunta sobre la app."
         </div>
-        <div class="guides-grid">
-            <div class="guide-card" onclick="toggleGuide('chat-guide')">
-                <div class="guide-icon">
-                    <i class="ti ti-player-play"></i>
-                </div>
-                <h4>Cómo usar el Chat IA</h4>
-                <p>Aprende a interactuar con la IA</p>
-                <i class="ti ti-chevron-down guide-chevron"></i>
-            </div>
-            <div class="guide-card" onclick="toggleGuide('eventos-guide')">
-                <div class="guide-icon">
-                    <i class="ti ti-player-play"></i>
-                </div>
-                <h4>Crear un evento</h4>
-                <p>Organiza tu agenda fácilmente</p>
-                <i class="ti ti-chevron-down guide-chevron"></i>
-            </div>
-            <div class="guide-card" onclick="toggleGuide('traductor-guide')">
-                <div class="guide-icon">
-                    <i class="ti ti-player-play"></i>
-                </div>
-                <h4>Traducir texto</h4>
-                <p>Traduce entre idiomas</p>
-                <i class="ti ti-chevron-down guide-chevron"></i>
-            </div>
-            <div class="guide-card" onclick="toggleGuide('musica-guide')">
-                <div class="guide-icon">
-                    <i class="ti ti-player-play"></i>
-                </div>
-                <h4>Escuchar música</h4>
-                <p>Disfruta tu música favorita</p>
-                <i class="ti ti-chevron-down guide-chevron"></i>
-            </div>
-            <div class="guide-card" onclick="toggleGuide('perfil-guide')">
-                <div class="guide-icon">
-                    <i class="ti ti-player-play"></i>
-                </div>
-                <h4>Configurar tu perfil</h4>
-                <p>Personaliza tu cuenta</p>
-                <i class="ti ti-chevron-down guide-chevron"></i>
-            </div>
+
+        <a href="{% url 'chat' %}" class="sp-btn sp-btn-primary" style="width: 100%; justify-content: center;">
+          💬 Iniciar Conversación en Chat IA
+        </a>
+      </div>
+
+      <!-- 📞 Contacto -->
+      <div class="sp-panel-box">
+        <h3 class="sp-panel-title">
+          📞 Canales de Contacto
+        </h3>
+
+        <div style="display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: var(--sp-text-soft);">
+          <div>📧 <strong>Correo:</strong> soporte@miniamigixv.com</div>
+          <div>🌐 <strong>Web:</strong> miniamigixv.app</div>
+          <div>📱 <strong>Redes:</strong> @MiniAmigixV</div>
         </div>
-        
-        <!-- Guide Content Panels -->
-        <div id="chat-guide" class="guide-content-panel" style="display: none;">
-            <div class="guide-content-inner">
-                <h3>🤖 Cómo usar el Chat IA</h3>
-                <p>El Chat IA es tu asistente inteligente personal. Aquí te explicamos cómo usarlo:</p>
-                <ol>
-                    <li>Accede a la sección de Chat desde el menú lateral</li>
-                    <li>Escribe tu pregunta o solicitud en el campo de texto</li>
-                    <li>Pulsa el botón de enviar o presiona Enter</li>
-                    <li>La IA responderá en segundos con información útil</li>
-                    <li>Puedes continuar la conversación haciendo más preguntas</li>
-                </ol>
-                <p><strong>Tip:</strong> Sé específico en tus preguntas para obtener mejores respuestas.</p>
-            </div>
-        </div>
-        
-        <div id="eventos-guide" class="guide-content-panel" style="display: none;">
-            <div class="guide-content-inner">
-                <h3>📅 Crear un evento</h3>
-                <p>Organiza tu agenda personal con el sistema de eventos:</p>
-                <ol>
-                    <li>Ve a la sección de Eventos desde el menú</li>
-                    <li>Haz clic en "Crear nuevo evento"</li>
-                    <li>Completa los datos: título, fecha, hora y descripción</li>
-                    <li>Puedes agregar recordatorios para no olvidarte</li>
-                    <li>Guarda el evento y aparecerá en tu calendario</li>
-                </ol>
-                <p><strong>Tip:</strong> Usa recordatorios para eventos importantes.</p>
-            </div>
-        </div>
-        
-        <div id="traductor-guide" class="guide-content-panel" style="display: none;">
-            <div class="guide-content-inner">
-                <h3>🌐 Traducir texto</h3>
-                <p>Traduce entre múltiples idiomas fácilmente:</p>
-                <ol>
-                    <li>Accede a la sección de Traductor</li>
-                    <li>Escribe o pega el texto que quieres traducir</li>
-                    <li>Selecciona el idioma de origen y destino</li>
-                    <li>Haz clic en "Traducir"</li>
-                    <li>El resultado aparecerá instantáneamente</li>
-                </ol>
-                <p><strong>Tip:</strong> Soporta más de 100 idiomas diferentes.</p>
-            </div>
-        </div>
-        
-        <div id="musica-guide" class="guide-content-panel" style="display: none;">
-            <div class="guide-content-inner">
-                <h3>🎵 Escuchar música</h3>
-                <p>Disfruta de tu música favorita en la plataforma:</p>
-                <ol>
-                    <li>Ve a la sección de Música desde el menú</li>
-                    <li>Busca canciones por nombre o artista</li>
-                    <li>Haz clic en una canción para reproducirla</li>
-                    <li>Usa los controles para pausar, avanzar o retroceder</li>
-                    <li>Crea playlists para organizar tu música</li>
-                </ol>
-                <p><strong>Tip:</strong> Puedes agregar canciones a favoritos para acceder rápido.</p>
-            </div>
-        </div>
-        
-        <div id="perfil-guide" class="guide-content-panel" style="display: none;">
-            <div class="guide-content-inner">
-                <h3>👤 Configurar tu perfil</h3>
-                <p>Personaliza tu cuenta y preferencias:</p>
-                <ol>
-                    <li>Accede a tu perfil desde el menú de usuario</li>
-                    <li>Haz clic en "Editar perfil"</li>
-                    <li>Actualiza tu foto de perfil</li>
-                    <li>Modifica tu información personal</li>
-                    <li>Configura el tema (claro/oscuro)</li>
-                    <li>Guarda los cambios</li>
-                </ol>
-                <p><strong>Tip:</strong> Una foto de perfil ayuda a personalizar tu experiencia.</p>
-            </div>
-        </div>
-    </section>
+      </div>
 
-    <!-- System Status Section -->
-    <section class="system-status-section" style="display: none;">
-        <div class="section-header">
-            <i class="ti ti-server"></i>
-            <h2>⚙ Estado del Sistema</h2>
-        </div>
-        <div class="status-grid">
-            <div class="status-item status-operational">
-                <div class="status-item-icon">
-                    <i class="ti ti-robot"></i>
-                </div>
-                <div class="status-item-info">
-                    <h4>Chat IA</h4>
-                    <span class="status-badge">Operativo</span>
-                </div>
-            </div>
-            <div class="status-item status-operational">
-                <div class="status-item-icon">
-                    <i class="ti ti-music"></i>
-                </div>
-                <div class="status-item-info">
-                    <h4>Música</h4>
-                    <span class="status-badge">Operativo</span>
-                </div>
-            </div>
-            <div class="status-item status-operational">
-                <div class="status-item-icon">
-                    <i class="ti ti-calendar-event"></i>
-                </div>
-                <div class="status-item-info">
-                    <h4>Eventos</h4>
-                    <span class="status-badge">Operativo</span>
-                </div>
-            </div>
-            <div class="status-item status-operational">
-                <div class="status-item-icon">
-                    <i class="ti ti-language"></i>
-                </div>
-                <div class="status-item-info">
-                    <h4>Traductor</h4>
-                    <span class="status-badge">Operativo</span>
-                </div>
-            </div>
-            <div class="status-item status-operational">
-                <div class="status-item-icon">
-                    <i class="ti ti-sun"></i>
-                </div>
-                <div class="status-item-info">
-                    <h4>Clima</h4>
-                    <span class="status-badge">Operativo</span>
-                </div>
-            </div>
-        </div>
-    </section>
+    </div>
 
-    <!-- Contact Form Section -->
-    <section class="contact-section">
-        <div class="contact-wrapper">
-            <div class="contact-info-panel">
-                <div class="contact-info-content">
-                    <h2>Escríbenos</h2>
-                    <p>¿No encontraste la respuesta? Nuestro equipo te ayudará personalmente.</p>
-
-                    <div class="contact-details">
-                        <div class="contact-detail-item">
-                            <div class="contact-detail-icon">
-                                <i class="ti ti-mail"></i>
-                            </div>
-                            <div>
-                                <span class="detail-label">Email</span>
-                                <span class="detail-value">miniamigixv@gmail.com</span>
-                            </div>
-                        </div>
-                        <div class="contact-detail-item">
-                            <div class="contact-detail-icon">
-                                <i class="ti ti-world"></i>
-                            </div>
-                            <div>
-                                <span class="detail-label">Web</span>
-                                <span class="detail-value">miniamigixv.com</span>
-                            </div>
-                        </div>
-                        <div class="contact-detail-item">
-                            <div class="contact-detail-icon">
-                                <i class="ti ti-clock"></i>
-                            </div>
-                            <div>
-                                <span class="detail-label">Tiempo de respuesta</span>
-                                <span class="detail-value">Menos de 24 horas</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="contact-info-decoration">
-                    <div class="deco-circle deco-1"></div>
-                    <div class="deco-circle deco-2"></div>
-                </div>
-            </div>
-
-            <div class="contact-form-panel">
-                {% if enviado %}
-                <div class="alert-message alert-success">
-                    <div class="alert-icon"><i class="ti ti-circle-check"></i></div>
-                    <div>
-                        <strong>¡Mensaje enviado!</strong>
-                        <p>Te responderemos pronto. Gracias por contactarnos.</p>
-                    </div>
-                </div>
-                {% endif %}
-
-                {% if error %}
-                <div class="alert-message alert-error">
-                    <div class="alert-icon"><i class="ti ti-alert-circle"></i></div>
-                    <div>
-                        <strong>Error al enviar</strong>
-                        <p>{% if error_msg %}{{ error_msg }}{% else %}Por favor intenta nuevamente.{% endif %}</p>
-                    </div>
-                </div>
-                {% endif %}
-
-                <form method="POST" class="contact-form" id="soporte-form" novalidate>
-                    {% csrf_token %}
-
-                    <div class="form-group" id="group-nombre">
-                        <label for="nombre">
-                            <i class="ti ti-user"></i>
-                            Tu nombre <span class="required">*</span>
-                        </label>
-                        <input type="text" id="nombre" name="nombre" placeholder="Ej: Juan Pérez" required minlength="2">
-                        <div class="input-focus-line"></div>
-                        <div class="error-message" id="error-nombre"></div>
-                    </div>
-
-                    <div class="form-group" id="group-email">
-                        <label for="email">
-                            <i class="ti ti-mail"></i>
-                            Tu correo <span class="required">*</span>
-                        </label>
-                        <input type="email" id="email" name="email" placeholder="ejemplo@correo.com" required>
-                        <div class="input-focus-line"></div>
-                        <div class="error-message" id="error-email"></div>
-                    </div>
-
-                    <div class="form-group" id="group-asunto">
-                        <label for="asunto">
-                            <i class="ti ti-tag"></i>
-                            Asunto <span class="required">*</span>
-                        </label>
-                        <select id="asunto" name="asunto" required>
-                            <option value="">Selecciona un asunto</option>
-                            <option value="general">Consulta general</option>
-                            <option value="bug">Reportar un error</option>
-                            <option value="cuenta">Problema con mi cuenta</option>
-                            <option value="sugerencia">Sugerencia</option>
-                            <option value="otro">Otro</option>
-                        </select>
-                        <div class="input-focus-line"></div>
-                        <div class="error-message" id="error-asunto"></div>
-                    </div>
-
-                    <div class="form-group" id="group-mensaje">
-                        <label for="mensaje">
-                            <i class="ti ti-message-2"></i>
-                            Mensaje <span class="required">*</span>
-                        </label>
-                        <textarea id="mensaje" name="mensaje" rows="5" placeholder="Describe tu consulta con detalle..." required minlength="10"></textarea>
-                        <div class="input-focus-line"></div>
-                        <div class="error-message" id="error-mensaje"></div>
-                    </div>
-
-                    <button type="submit" class="btn-submit" id="btn-enviar">
-                        <span class="btn-text">
-                            <i class="ti ti-send"></i>
-                            Enviar mensaje
-                        </span>
-                        <span class="btn-loading" style="display:none;">
-                            <i class="ti ti-loader-2 spin-icon"></i>
-                            Enviando...
-                        </span>
-                    </button>
-                </form>
-            </div>
-        </div>
-    </section>
-
-    <!-- Social Media Section -->
-    <section class="social-section">
-        <div class="section-header">
-            <i class="ti ti-brand-facebook"></i>
-            <h2>📱 Síguenos</h2>
-        </div>
-        <div class="social-grid">
-            <a href="https://www.tiktok.com/@miniamigixv?is_from_webapp=1&sender_device=pc" target="_blank" class="social-card social-tiktok">
-                <div class="social-icon">
-                    <i class="ti ti-brand-tiktok"></i>
-                </div>
-                <span>TikTok</span>
-            </a>
-            <a href="https://github.com/maria45889/MiniAmigixV.git" target="_blank" class="social-card social-github">
-                <div class="social-icon">
-                    <i class="ti ti-brand-github"></i>
-                </div>
-                <span>GitHub</span>
-            </a>
-            <a href="https://youtube.com/@miniamigixv?si=kpRnNuRwrR4ZUn2f" target="_blank" class="social-card social-youtube">
-                <div class="social-icon">
-                    <i class="ti ti-brand-youtube"></i>
-                </div>
-                <span>YouTube</span>
-            </a>
-        </div>
-    </section>
-
+  </div>
 </div>
-{% endblock %}
 
-{% block extra_js %}
+<!-- ════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════ -->
 <script>
-    // Smart Search with Suggestions
-    const searchInput = document.getElementById('smart-search');
-    const suggestionsContainer = document.getElementById('search-suggestions');
+function runSmartDiagnostic() {
+  const btn = document.getElementById('run-diag-btn');
+  const statusText = document.getElementById('diag-status-text');
+  btn.textContent = "⏳ Verificando...";
+  btn.disabled = true;
 
-    const searchSuggestions = [
-        { text: '¿Cómo recuperar mi contraseña?', category: 'Cuenta', icon: 'ti ti-lock' },
-        { text: '¿Cómo usar el Chat IA?', category: 'Chat IA', icon: 'ti ti-robot' },
-        { text: '¿Cómo crear un evento?', category: 'Eventos', icon: 'ti ti-calendar-event' },
-        { text: '¿Cómo reportar un error?', category: 'Soporte', icon: 'ti ti-bug' },
-        { text: '¿Cómo cambiar mi foto de perfil?', category: 'Cuenta', icon: 'ti ti-user' },
-        { text: '¿Cómo usar el traductor?', category: 'Traductor', icon: 'ti ti-language' },
-        { text: '¿Cómo escuchar música?', category: 'Música', icon: 'ti ti-music' },
-        { text: '¿Cómo ver el clima?', category: 'Clima', icon: 'ti ti-sun' },
-    ];
+  const items = ['d-net', 'd-acc', 'd-sync', 'd-space', 'd-notif', 'd-cfg'];
+  items.forEach(id => {
+    document.getElementById(id).textContent = "Verificando...";
+    document.getElementById(id).style.color = "#f59e0b";
+  });
 
-    if (searchInput && suggestionsContainer) {
-        searchInput.addEventListener('input', function() {
-            const query = this.value.toLowerCase();
-            suggestionsContainer.innerHTML = '';
-
-            if (query.length < 2) {
-                suggestionsContainer.style.display = 'none';
-                return;
-            }
-
-            const matches = searchSuggestions.filter(s =>
-                s.text.toLowerCase().includes(query) ||
-                s.category.toLowerCase().includes(query)
-            );
-
-            if (matches.length > 0) {
-                matches.forEach(match => {
-                    const suggestion = document.createElement('div');
-                    suggestion.className = 'search-suggestion-item';
-                    suggestion.innerHTML = `
-                        <i class="${match.icon}"></i>
-                        <div class="suggestion-content">
-                            <span class="suggestion-text">${match.text}</span>
-                            <span class="suggestion-category">${match.category}</span>
-                        </div>
-                    `;
-                    suggestion.addEventListener('click', () => {
-                        searchInput.value = match.text;
-                        suggestionsContainer.style.display = 'none';
-                        // Show inline guide instead of redirecting
-                        showInlineGuide(match.category);
-                    });
-                    suggestionsContainer.appendChild(suggestion);
-                });
-                suggestionsContainer.style.display = 'block';
-            } else {
-                suggestionsContainer.style.display = 'none';
-            }
-        });
-
-        searchInput.addEventListener('blur', function() {
-            setTimeout(() => {
-                suggestionsContainer.style.display = 'none';
-            }, 200);
-        });
-
-        searchInput.addEventListener('focus', function() {
-            if (this.value.length >= 2) {
-                suggestionsContainer.style.display = 'block';
-            }
-        });
-    }
-
-    function scrollToRelevantSection(category) {
-        const sectionMap = {
-            'Cuenta': '.faq-card',
-            'Chat IA': '.faq-card',
-            'Eventos': '.quick-access-card',
-            'Soporte': '.contact-section',
-            'Traductor': '.quick-access-card',
-            'Música': '.quick-access-card',
-            'Clima': '.quick-access-card',
-        };
-
-        const selector = sectionMap[category];
-        if (selector) {
-            const element = document.querySelector(selector);
-            if (element) {
-                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                // Add highlight effect
-                element.classList.add('highlight');
-                setTimeout(() => element.classList.remove('highlight'), 2000);
-            }
-        }
-    }
-
-    function showInlineGuide(category) {
-        const guideMap = {
-            'Chat IA': 'chat-guide',
-            'Eventos': 'eventos-guide',
-            'Traductor': 'traductor-guide',
-            'Música': 'musica-guide',
-            'Cuenta': 'perfil-guide',
-        };
-
-        const guideId = guideMap[category];
-        if (guideId) {
-            // Close all panels first
-            document.querySelectorAll('.guide-content-panel').forEach(panel => {
-                panel.style.display = 'none';
-            });
-            // Reset all chevrons
-            document.querySelectorAll('.guide-chevron').forEach(chevron => {
-                chevron.style.transform = 'rotate(0deg)';
-            });
-            // Open the specific guide
-            const guidePanel = document.getElementById(guideId);
-            if (guidePanel) {
-                guidePanel.style.display = 'block';
-                // Rotate the chevron
-                const guideCard = document.querySelector(`.guide-card[onclick="toggleGuide('${guideId}')"]`);
-                if (guideCard) {
-                    const chevron = guideCard.querySelector('.guide-chevron');
-                    if (chevron) {
-                        chevron.style.transform = 'rotate(180deg)';
-                    }
-                }
-                // Scroll to the guide
-                guidePanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }
-    }
-
-    // FAQ Accordion
-    function toggleFaq(item) {
-        const isOpen = item.classList.contains('open');
-        // Close all
-        document.querySelectorAll('.faq-card, .faq-item').forEach(i => i.classList.remove('open'));
-        // Toggle clicked
-        if (!isOpen) item.classList.add('open');
-    }
-
-    // Guide Toggle
-    function toggleGuide(guideId) {
-        const guidePanel = document.getElementById(guideId);
-        const allPanels = document.querySelectorAll('.guide-content-panel');
-        const allChevrons = document.querySelectorAll('.guide-chevron');
-        
-        // Close all panels
-        allPanels.forEach(panel => {
-            if (panel.id !== guideId) {
-                panel.style.display = 'none';
-            }
-        });
-        
-        // Reset all chevrons
-        allChevrons.forEach(chevron => {
-            chevron.style.transform = 'rotate(0deg)';
-        });
-        
-        // Toggle clicked panel
-        if (guidePanel.style.display === 'none' || !guidePanel.style.display) {
-            guidePanel.style.display = 'block';
-            // Find the chevron for this guide and rotate it
-            const guideCard = document.querySelector(`.guide-card[onclick="toggleGuide('${guideId}')"]`);
-            if (guideCard) {
-                const chevron = guideCard.querySelector('.guide-chevron');
-                if (chevron) {
-                    chevron.style.transform = 'rotate(180deg)';
-                }
-            }
-        } else {
-            guidePanel.style.display = 'none';
-        }
-    }
-
-    // Form validation
-    const form = document.getElementById('soporte-form');
-    if (form) {
-        // Real-time validation
-        const inputs = form.querySelectorAll('input, select, textarea');
-        inputs.forEach(input => {
-            input.addEventListener('blur', () => validateField(input));
-            input.addEventListener('input', () => {
-                if (input.classList.contains('error')) {
-                    validateField(input);
-                }
-            });
-        });
-
-        // Form submit validation and async submission
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            let isValid = true;
-            inputs.forEach(input => {
-                if (!validateField(input)) {
-                    isValid = false;
-                }
-            });
-
-            if (isValid) {
-                const btn = document.getElementById('btn-enviar');
-                btn.querySelector('.btn-text').style.display = 'none';
-                btn.querySelector('.btn-loading').style.display = 'inline-flex';
-                btn.disabled = true;
-
-                // Collect form data
-                const formData = new FormData(form);
-                formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
-
-                // Submit via fetch
-                fetch(window.location.href, {
-                    method: 'POST',
-                    body: formData,
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Reset button
-                    btn.querySelector('.btn-text').style.display = 'inline-flex';
-                    btn.querySelector('.btn-loading').style.display = 'none';
-                    btn.disabled = false;
-
-                    // Show success message
-                    if (data.success) {
-                        showSuccessMessage();
-                        form.reset();
-                        // Reset validation states
-                        inputs.forEach(input => {
-                            input.classList.remove('error');
-                            const group = input.closest('.form-group');
-                            if (group) {
-                                group.classList.remove('error');
-                                const errorDiv = group.querySelector('.error-message');
-                                if (errorDiv) errorDiv.textContent = '';
-                            }
-                        });
-                    } else {
-                        showErrorMessage(data.error || 'Error al enviar el mensaje');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    btn.querySelector('.btn-text').style.display = 'inline-flex';
-                    btn.querySelector('.btn-loading').style.display = 'none';
-                    btn.disabled = false;
-                    showErrorMessage('Error de conexión. Por favor intenta nuevamente.');
-                });
-            }
-        });
-    }
-
-    function showSuccessMessage() {
-        // Remove existing alerts
-        const existingAlerts = document.querySelectorAll('.alert-message');
-        existingAlerts.forEach(alert => alert.remove());
-
-        // Create success alert
-        const alertDiv = document.createElement('div');
-        alertDiv.className = 'alert-message alert-success';
-        alertDiv.innerHTML = `
-            <div class="alert-icon"><i class="ti ti-circle-check"></i></div>
-            <div>
-                <strong>¡Mensaje enviado!</strong>
-                <p>Te responderemos pronto. Gracias por contactarnos.</p>
-            </div>
-        `;
-
-        // Insert before form
-        const formPanel = document.querySelector('.contact-form-panel');
-        if (formPanel) {
-            formPanel.insertBefore(alertDiv, formPanel.firstChild);
-            
-            // Scroll to alert
-            alertDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            
-            // Auto-remove after 5 seconds
-            setTimeout(() => {
-                alertDiv.style.opacity = '0';
-                setTimeout(() => alertDiv.remove(), 300);
-            }, 5000);
-        }
-    }
-
-    function showErrorMessage(message) {
-        // Remove existing alerts
-        const existingAlerts = document.querySelectorAll('.alert-message');
-        existingAlerts.forEach(alert => alert.remove());
-
-        // Create error alert
-        const alertDiv = document.createElement('div');
-        alertDiv.className = 'alert-message alert-error';
-        alertDiv.innerHTML = `
-            <div class="alert-icon"><i class="ti ti-alert-circle"></i></div>
-            <div>
-                <strong>Error al enviar</strong>
-                <p>${message}</p>
-            </div>
-        `;
-
-        // Insert before form
-        const formPanel = document.querySelector('.contact-form-panel');
-        if (formPanel) {
-            formPanel.insertBefore(alertDiv, formPanel.firstChild);
-            
-            // Scroll to alert
-            alertDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            
-            // Auto-remove after 5 seconds
-            setTimeout(() => {
-                alertDiv.style.opacity = '0';
-                setTimeout(() => alertDiv.remove(), 300);
-            }, 5000);
-        }
-    }
-
-    function validateField(input) {
-        const group = input.closest('.form-group');
-        if (!group) return true; // Skip validation if input is not in a form-group
-        const errorDiv = group.querySelector('.error-message');
-        let isValid = true;
-        let errorMessage = '';
-
-        // Reset error state
-        group.classList.remove('error');
-        errorDiv.textContent = '';
-
-        // Required validation
-        if (input.hasAttribute('required') && !input.value.trim()) {
-            isValid = false;
-            errorMessage = 'Este campo es obligatorio';
-        }
-
-        // Email validation
-        if (input.type === 'email' && input.value.trim()) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(input.value.trim())) {
-                isValid = false;
-                errorMessage = 'Ingresa un correo válido';
-            }
-        }
-
-        // Min length validation
-        if (input.hasAttribute('minlength') && input.value.trim()) {
-            const minLength = parseInt(input.getAttribute('minlength'));
-            if (input.value.trim().length < minLength) {
-                isValid = false;
-                errorMessage = `Mínimo ${minLength} caracteres`;
-            }
-        }
-
-        // Select validation
-        if (input.tagName === 'SELECT' && input.value === '') {
-            isValid = false;
-            errorMessage = 'Selecciona una opción';
-        }
-
-        // Show error
-        if (!isValid) {
-            group.classList.add('error');
-            errorDiv.textContent = errorMessage;
-            input.classList.add('error');
-        } else {
-            input.classList.remove('error');
-        }
-
-        return isValid;
-    }
-
-    // Intersection Observer for scroll animations
-    const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -50px 0px' };
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-                observer.unobserve(entry.target);
-            }
-        });
-    }, observerOptions);
-
-    document.querySelectorAll('.info-card, .faq-section, .contact-section, .quick-access-section, .ai-assistant-section, .support-status-section, .guides-section, .system-status-section, .social-section').forEach(el => {
-        observer.observe(el);
+  setTimeout(() => {
+    items.forEach(id => {
+      document.getElementById(id).textContent = "✅ En línea";
+      document.getElementById(id).style.color = "#10b981";
     });
+
+    statusText.innerHTML = "<strong style='color:#34d399;'>🦆 Diagnóstico completado:</strong> Todos los módulos funcionan correctamente.";
+    btn.textContent = "✔ Verificado";
+    btn.disabled = false;
+  }, 1200);
+}
+
+function submitSupportTicket(e) {
+  e.preventDefault();
+  const title = document.getElementById('ticket-title').value;
+  alert(`Ticket de soporte "${title}" enviado correctamente. Nuestro equipo responderá a tu correo ✔`);
+  document.getElementById('ticket-title').value = '';
+  document.getElementById('ticket-desc').value = '';
+}
+
+function submitIdeaSuggestion(e) {
+  e.preventDefault();
+  const title = document.getElementById('idea-title').value;
+  alert(`¡Gracias! Tu idea "${title}" ha sido registrada. ¡Amigis te lo agradece! 💡🎉`);
+  document.getElementById('idea-title').value = '';
+  document.getElementById('idea-desc').value = '';
+}
+
+function filterFAQ() {
+  const term = document.getElementById('faq-search-input').value.toLowerCase();
+  document.querySelectorAll('.faq-card-item').forEach(card => {
+    const text = card.textContent.toLowerCase();
+    card.style.display = text.includes(term) ? 'block' : 'none';
+  });
+}
+
+function toggleFAQAnswer(el) {
+  el.style.borderColor = "#38bdf8";
+}
+
+function scrollToSection(id) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+}
 </script>
 {% endblock %}

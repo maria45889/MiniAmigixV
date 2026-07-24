@@ -1,1420 +1,450 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Estudio{% endblock %}
+{% block title %}Estudio — MiniAmigixV{% endblock %}
+{% block nav_title %}Estudio{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/estudios.css' %}?v=6">
+<link rel="stylesheet" href="{% static 'css/pages/estudios.css' %}?v=40">
 {% endblock %}
 
 {% block content %}
-<style>
-    /* ── TOKENS ─────────────────────────────────────────────── */
-    :root {
-        --amber:         #f59e0b;
-        --amber-light:   #fbbf24;
-        --amber-dark:    #b45309;
-        --bg:            #0a0a0f;
-        --surface:       rgba(255,255,255,0.04);
-        --surface-hov:   rgba(255,255,255,0.07);
-        --border:        rgba(245,158,11,0.18);
-        --border-hov:    rgba(245,158,11,0.45);
-        --text:          #f1f5f9;
-        --muted:         #94a3b8;
-        --radius:        24px;
-        --shadow-amber:  0 0 40px rgba(245,158,11,0.18);
-        --glow:          0 0 18px rgba(245,158,11,0.5);
-    }
+<div class="estudio-page-container fadein">
+  {% csrf_token %}
 
-    /* ── RESET & BASE ───────────────────────────────────────── */
-    .estudio-page * { box-sizing: border-box; }
-    .estudio-page {
-        min-height: 100vh;
-        background: var(--bg);
-        color: var(--text);
-        font-family: 'Inter', system-ui, sans-serif;
-        padding-bottom: 40px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    /* orb blobs */
-    .estudio-orb {
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(80px);
-        pointer-events: none;
-        z-index: 0;
-    }
-    .estudio-orb-1 {
-        width: 400px; height: 400px;
-        background: radial-gradient(circle, rgba(245,158,11,0.2) 0%, transparent 70%);
-        top: -100px; left: -100px;
-        animation: orbFloat1 10s ease-in-out infinite;
-    }
-    .estudio-orb-2 {
-        width: 350px; height: 350px;
-        background: radial-gradient(circle, rgba(251,191,36,0.15) 0%, transparent 70%);
-        bottom: -50px; right: -50px;
-        animation: orbFloat2 12s ease-in-out infinite;
-    }
-
-    @keyframes orbFloat1 {
-        0%,100% { transform: translate(0,0) scale(1); }
-        50%      { transform: translate(40px,40px) scale(1.1); }
-    }
-    @keyframes orbFloat2 {
-        0%,100% { transform: translate(0,0) scale(1); }
-        50%      { transform: translate(-40px,-40px) scale(0.9); }
-    }
-    @keyframes fadeSlideUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .estudio-hero {
-        position: relative;
-        z-index: 1;
-        text-align: center;
-        padding: 40px 20px 20px;
-        animation: fadeSlideUp 0.5s ease both;
-    }
-    .estudio-hero h1 {
-        font-size: 2.5rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, #fff 30%, var(--amber-light) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin: 10px 0 5px;
-    }
-    .estudio-hero p { color: var(--muted); margin: 0; }
-
-    /* ── LAYOUT ─────────────────────────────────────────────── */
-    .dashboard {
-        max-width: 1400px !important;
-        margin: 0 auto !important;
-        position: relative;
-        z-index: 1;
-        animation: fadeSlideUp 0.5s 0.2s ease both;
-        padding: 0 20px;
-    }
-    
-    .summary-panel {
-        background: var(--surface) !important;
-        border: 1px solid var(--border) !important;
-        border-radius: var(--radius) !important;
-        padding: 24px !important;
-        backdrop-filter: blur(20px) !important;
-        box-shadow: var(--shadow-amber) !important;
-        margin-bottom: 24px;
-    }
-    .summary-stats {
-        display: flex; gap: 20px; flex-wrap: wrap; margin-top: 15px;
-    }
-    .stat-item {
-        flex: 1; min-width: 200px;
-        background: rgba(0,0,0,0.2) !important;
-        border: 1px solid rgba(255,255,255,0.05) !important;
-        border-radius: 16px !important;
-        padding: 16px !important; display: flex; align-items: center; gap: 15px;
-        transition: all 0.3s;
-    }
-    .stat-item:hover { border-color: var(--amber); background: rgba(245,158,11,0.05) !important; }
-    
-    .quick-actions {
-        display: flex; gap: 15px; margin-bottom: 24px; flex-wrap: wrap;
-    }
-    .quick-action-btn {
-        background: var(--surface) !important;
-        border: 1px solid var(--border) !important;
-        color: var(--text) !important;
-        padding: 12px 24px !important; border-radius: 50px !important;
-        display: flex; align-items: center; gap: 8px; cursor: pointer;
-        transition: all 0.3s !important; backdrop-filter: blur(12px); font-weight: 600;
-    }
-    .quick-action-btn:hover {
-        background: linear-gradient(135deg, var(--amber), var(--amber-light)) !important;
-        color: #000 !important;
-        border-color: transparent !important;
-        box-shadow: var(--glow) !important;
-    }
-    
-    .nota-card, .calendario-card, .grafico-card, .pomodoro-card {
-        background: var(--surface) !important;
-        border: 1px solid var(--border) !important;
-        border-radius: var(--radius) !important;
-        padding: 24px !important;
-        backdrop-filter: blur(20px) !important;
-        box-shadow: var(--shadow-amber) !important;
-        transition: transform 0.3s, box-shadow 0.3s;
-    }
-    .nota-card:hover, .calendario-card:hover, .grafico-card:hover, .pomodoro-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 10px 40px rgba(245,158,11,0.3) !important;
-        border-color: var(--border-hov) !important;
-    }
-    
-    textarea, input[type="text"], input[type="number"], select {
-        background: rgba(0,0,0,0.2) !important;
-        border: 1px solid rgba(255,255,255,0.1) !important;
-        color: var(--text) !important; border-radius: 12px !important;
-        padding: 12px !important; width: 100%; outline: none; transition: all 0.3s;
-    }
-    textarea:focus, input[type="text"]:focus, input[type="number"]:focus, select:focus {
-        border-color: var(--amber) !important; background: rgba(245,158,11,0.05) !important;
-    }
-    
-    .btn-primary {
-        background: linear-gradient(135deg, var(--amber), var(--amber-light)) !important;
-        color: #000 !important; border: none !important; font-weight: 700 !important;
-        padding: 12px 24px !important; border-radius: 12px !important; cursor: pointer;
-        transition: all 0.3s !important; margin-top: 15px; display: inline-block;
-    }
-    .btn-primary:hover {
-        transform: translateY(-2px); box-shadow: var(--glow) !important;
-    }
-    
-    #timer-display { font-size: 4rem !important; font-weight: 800 !important; color: var(--amber-light) !important; }
-</style>
-<div class="estudio-page">
-    <div class="estudio-orb estudio-orb-1"></div>
-    <div class="estudio-orb estudio-orb-2"></div>
-    <div class="estudio-hero">
-        <span style="font-size:3rem;">📖</span>
-        <h1>Estudio</h1>
-        <p>Tu espacio de aprendizaje y concentración.</p>
-    </div>
-    <div class="dashboard">
-    <!-- Panel de Resumen del Día -->
-    <div class="summary-panel">
-        <div class="summary-header">
-            <h2 style="font-family: var(--font-title); margin: 0;">📚 Sesión de Estudio</h2>
-            <span id="fecha-actual" style="color: var(--text-muted);"></span>
-        </div>
-        <div class="summary-stats">
-            <div class="stat-item stat-blue">
-                <div class="stat-icon">⏱</div>
-                <div class="stat-content">
-                    <div class="stat-label">Hoy</div>
-                    <div class="stat-value" id="stat-hoy">0h 0m</div>
-                </div>
-            </div>
-            <div class="stat-item stat-orange">
-                <div class="stat-icon">🔥</div>
-                <div class="stat-content">
-                    <div class="stat-label">Racha</div>
-                    <div class="stat-value" id="stat-racha">0 días</div>
-                </div>
-            </div>
-            <div class="stat-item stat-green">
-                <div class="stat-icon">✅</div>
-                <div class="stat-content">
-                    <div class="stat-label">Tareas</div>
-                    <div class="stat-value" id="stat-tareas">0</div>
-                </div>
-            </div>
-            <div class="stat-item stat-purple">
-                <div class="stat-icon">📄</div>
-                <div class="stat-content">
-                    <div class="stat-label">Resúmenes</div>
-                    <div class="stat-value" id="stat-resumenes">0</div>
-                </div>
-            </div>
-        </div>
+  <!-- ════════════════════════════════════
+       HEADER BAR
+  ════════════════════════════════════ -->
+  <div class="estudio-header-bar">
+    <div class="estudio-header-title">
+      <span style="font-size: 26px;">📚</span>
+      <div>
+        <h1>Estudio & Aprendizaje</h1>
+        <p>Aprende a tu ritmo con la guía inteligente de MiniAmigixV y Amigis.</p>
+      </div>
     </div>
 
-    <!-- Acciones Rápidas -->
-    <div class="quick-actions">
-        <button class="quick-action-btn" onclick="scrollToSection('resumen')">
-            <span class="quick-icon">📄</span>
-            <span>Resumir</span>
-        </button>
-        <button class="quick-action-btn" onclick="scrollToSection('notas')">
-            <span class="quick-icon">📝</span>
-            <span>Notas</span>
-        </button>
-        <button class="quick-action-btn" onclick="scrollToSection('temporizador')">
-            <span class="quick-icon">🍅</span>
-            <span>Pomodoro</span>
-        </button>
-        <button class="quick-action-btn" onclick="scrollToSection('calendario')">
-            <span class="quick-icon">📅</span>
-            <span>Calendario</span>
-        </button>
+    <div class="estudio-header-actions">
+      <button class="e-header-btn" onclick="scrollToSection('courses-section')">
+        <i class="ti ti-book"></i> Mis Cursos
+      </button>
+      <button class="e-header-btn" onclick="scrollToSection('notes-section')">
+        <i class="ti ti-notes"></i> Mis Apuntes
+      </button>
+      <button class="e-header-btn" onclick="scrollToSection('pomodoro-section')">
+        <i class="ti ti-clock"></i> Pomodoro
+      </button>
+      <button class="e-header-btn" onclick="scrollToSection('academia-section')">
+        <i class="ti ti-school" style="color: #c084fc;"></i> Academia Amigis
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       STATS BAR
+  ════════════════════════════════════ -->
+  <div class="study-stats-grid">
+    <div class="study-stat-card">
+      <div class="sstat-icon" style="color: #38bdf8;">📚</div>
+      <div>
+        <div class="sstat-val" id="stat-study-hours">28.5h</div>
+        <div class="sstat-lbl">Horas Estudiadas</div>
+      </div>
     </div>
 
-    <h1 style="font-family: var(--font-title); margin: 2rem 0;">📚 Estudio</h1>
-    
-    <div class="study-grid sortable-grid" data-grid-id="estudio">
-        <!-- Resumen de Texto con Nivel -->
-        <div class="nota-card" data-id="resumen">
-            <h3>📝 Resumen de Texto</h3>
-            <p style="color: var(--text-muted);">Pega tu texto aquí para obtener un resumen automático usando IA.</p>
-            <textarea id="textoInput" rows="6" placeholder="Escribe o pega el texto que quieres resumir..."></textarea>
-            <div class="summary-level-selector">
-                <label style="color: var(--text-muted); font-size: 0.9rem; margin-right: 10px;">Nivel de resumen:</label>
-                <div class="level-options">
-                    <label class="level-option">
-                        <input type="radio" name="summary-level" value="corto">
-                        <span>Corto</span>
-                    </label>
-                    <label class="level-option">
-                        <input type="radio" name="summary-level" value="medio" checked>
-                        <span>Medio</span>
-                    </label>
-                    <label class="level-option">
-                        <input type="radio" name="summary-level" value="detallado">
-                        <span>Detallado</span>
-                    </label>
-                </div>
-            </div>
-            <button class="btn-primary" onclick="resumirTexto()">🤖 Resumir con IA</button>
-            <div id="resumenOutput" class="resumen-output" style="display: none;"></div>
-        </div>
-
-        <!-- Notas Rápidas con Colores -->
-        <div class="nota-card" data-id="notas">
-            <h3>💡 Notas Rápidas</h3>
-            <div class="note-color-picker">
-                <button class="color-btn color-yellow" data-color="#fef08a" onclick="selectNoteColor('#fef08a')"></button>
-                <button class="color-btn color-green" data-color="#bbf7d0" onclick="selectNoteColor('#bbf7d0')"></button>
-                <button class="color-btn color-blue" data-color="#bfdbfe" onclick="selectNoteColor('#bfdbfe')"></button>
-                <button class="color-btn color-pink" data-color="#fbcfe8" onclick="selectNoteColor('#fbcfe8')"></button>
-                <button class="color-btn color-purple" data-color="#ddd6fe" onclick="selectNoteColor('#ddd6fe')"></button>
-            </div>
-            <textarea id="notaInput" rows="3" placeholder="Escribe una nota rápida..." style="resize: vertical; white-space: pre-wrap; word-wrap: break-word; overflow-wrap: break-word; max-width: 100%; overflow-x: hidden;"></textarea>
-            <div style="display: flex; gap: 10px; margin-top: 10px;">
-                <button class="btn-primary" onclick="guardarNota()">💾 Guardar</button>
-                <button class="btn-secondary" onclick="togglePin()" id="btn-pin">📌 Fijar</button>
-            </div>
-            <div id="notasGuardadas" style="margin-top: 15px;"></div>
-        </div>
-
-        <!-- Temporizador Pomodoro Mejorado -->
-        <div class="nota-card" data-id="temporizador">
-            <h3>🍅 Pomodoro</h3>
-            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 15px;">
-                Técnica Pomodoro para sesiones de estudio enfocadas
-            </p>
-            <div class="pomodoro-container">
-                <div class="pomodoro-circle">
-                    <svg class="progress-ring" width="200" height="200">
-                        <circle class="progress-ring-bg" cx="100" cy="100" r="90"/>
-                        <circle class="progress-ring-circle" cx="100" cy="100" r="90"/>
-                    </svg>
-                    <div class="pomodoro-display">
-                        <div class="pomodoro-emoji">🍅</div>
-                        <div id="pomodoro-time">25:00</div>
-                    </div>
-                </div>
-                <div class="pomodoro-progress-bar">
-                    <div class="progress-fill" id="pomodoro-progress"></div>
-                </div>
-                <div style="display: flex; gap: 10px; justify-content: center; margin: 20px 0;">
-                    <button class="pomodoro-btn btn-start" onclick="iniciarPomodoro()" id="btn-start-pomodoro">▶ Iniciar</button>
-                    <button class="pomodoro-btn btn-pause" onclick="pausarPomodoro()" id="btn-pause-pomodoro" style="display: none;">⏸ Pausar</button>
-                    <button class="pomodoro-btn btn-reset" onclick="reiniciarPomodoro()">⟳ Reiniciar</button>
-                </div>
-                <div class="pomodoro-presets">
-                    <button class="preset-pomodoro preset-work" onclick="setPomodoroPreset(25, 'trabajo')">🍅 Pomodoro (25 min)</button>
-                    <button class="preset-pomodoro preset-short" onclick="setPomodoroPreset(5, 'descanso_corto')">☕ Descanso corto (5 min)</button>
-                    <button class="preset-pomodoro preset-long" onclick="setPomodoroPreset(15, 'descanso_largo')">🌴 Descanso largo (15 min)</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Mini Calendario -->
-        <div class="nota-card" data-id="calendario">
-            <h3>📅 Mini Calendario</h3>
-            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 10px;">
-                <strong>Nota:</strong> Este calendario es solo informativo y guarda eventos localmente en tu navegador. Para crear y gestionar eventos con recordatorios, sincronización en la nube y más funcionalidades, usa la sección <a href="/eventos/" style="color: var(--amber-light);">Eventos</a>.
-            </p>
-            <div id="mini-calendario" class="mini-calendario">
-                <div class="calendar-header">
-                    <button onclick="cambiarMes(-1)" class="calendar-nav">◀</button>
-                    <span id="calendar-mes-ano"></span>
-                    <button onclick="cambiarMes(1)" class="calendar-nav">▶</button>
-                </div>
-                <div class="calendar-dias-semana">
-                    <span>Dom</span><span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span>Sáb</span>
-                </div>
-                <div id="calendar-dias" class="calendar-dias"></div>
-            </div>
-        </div>
-
-        <!-- Modal para crear evento -->
-        <div id="modal-evento" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center;">
-            <div style="width: 90%; max-width: 400px; padding: 25px; border-radius: 16px;">
-                <h3 style="color: #fff; margin-bottom: 15px;">📅 Agregar Evento</h3>
-                <p style="color: var(--text-muted); margin-bottom: 15px;">Fecha: <span id="fecha-seleccionada" style="color: #06b6d4;"></span></p>
-                <input type="text" id="evento-titulo" placeholder="Título del evento" style="margin-bottom: 10px;">
-                <div style="margin-bottom: 15px;">
-                    <label style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 8px; display: block;">Tipo de evento:</label>
-                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                        <label class="event-type-option">
-                            <input type="radio" name="evento-tipo" value="examen" checked>
-                            <span>🔴 Examen</span>
-                        </label>
-                        <label class="event-type-option">
-                            <input type="radio" name="evento-tipo" value="entrega">
-                            <span>🟢 Entrega</span>
-                        </label>
-                        <label class="event-type-option">
-                            <input type="radio" name="evento-tipo" value="clase">
-                            <span>🔵 Clase</span>
-                        </label>
-                        <label class="event-type-option">
-                            <input type="radio" name="evento-tipo" value="recordatorio">
-                            <span>🟡 Recordatorio</span>
-                        </label>
-                    </div>
-                </div>
-                <textarea id="evento-descripcion" rows="3" placeholder="Descripción (opcional)" style="margin-bottom: 15px; resize: vertical;"></textarea>
-                <div id="eventos-del-dia" style="margin-bottom: 15px; max-height: 150px; overflow-y: auto;"></div>
-                <div style="display: flex; gap: 10px; justify-content: flex-end;">
-                    <button class="btn-primary" style="background: rgba(255,255,255,0.1);" onclick="cerrarModalEvento()">Cancelar</button>
-                    <button class="btn-primary" onclick="guardarEvento()">Guardar</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Cronómetro -->
-        <div class="nota-card" data-id="cronometro">
-            <h3>⏱️ Cronómetro</h3>
-            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 15px;">
-                Cronómetro para medir tu tiempo de estudio
-            </p>
-            <div class="cronometro-container">
-                <div id="cronometro-display">
-                    00:00:00
-                </div>
-                <div style="display: flex; gap: 10px; justify-content: center; margin-bottom: 15px; margin-top: 15px;">
-                    <button class="cronometro-btn btn-iniciar" onclick="iniciarCronometro()" id="btn-iniciar">▶ Iniciar</button>
-                    <button class="cronometro-btn btn-pausar" onclick="pausarCronometro()" id="btn-pausar" style="display: none;">⏸ Pausar</button>
-                    <button class="cronometro-btn btn-vuelta" onclick="registrarVuelta()" id="btn-vuelta">🏁 Vuelta</button>
-                    <button class="cronometro-btn btn-reiniciar" onclick="reiniciarCronometro()">🔄 Reiniciar</button>
-                </div>
-            </div>
-            <div id="vueltas-container" style="margin-top: 15px; max-height: 200px; overflow-y: auto;"></div>
-            <div id="tiempos-guardados" style="margin-top: 15px;"></div>
-        </div>
-
-        <!-- Estadísticas de Estudio -->
-        <div class="nota-card" data-id="estadisticas">
-            <h3>📈 Estadísticas</h3>
-            <div class="stats-grid">
-                <div class="stat-card stat-blue">
-                    <div class="stat-icon">📖</div>
-                    <div class="stat-info">
-                        <div class="stat-label">Tiempo estudiado</div>
-                        <div class="stat-value" id="stats-tiempo">0h 0m</div>
-                    </div>
-                </div>
-                <div class="stat-card stat-orange">
-                    <div class="stat-icon">🍅</div>
-                    <div class="stat-info">
-                        <div class="stat-label">Pomodoros</div>
-                        <div class="stat-value" id="stats-pomodoros">0</div>
-                    </div>
-                </div>
-                <div class="stat-card stat-green">
-                    <div class="stat-icon">🏆</div>
-                    <div class="stat-info">
-                        <div class="stat-label">Mejor día</div>
-                        <div class="stat-value" id="stats-mejor-dia">0h 0m</div>
-                    </div>
-                </div>
-                <div class="stat-card stat-purple">
-                    <div class="stat-icon">🔥</div>
-                    <div class="stat-info">
-                        <div class="stat-label">Racha</div>
-                        <div class="stat-value" id="stats-racha">0 días</div>
-                    </div>
-                </div>
-            </div>
-            <div class="weekly-chart">
-                <h4 style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 15px;">Horas estudiadas esta semana</h4>
-                <div class="chart-bars" id="weekly-chart">
-                    <!-- Se llenará dinámicamente -->
-                </div>
-            </div>
-        </div>
-        <!-- Historial de Resúmenes -->
-        <div class="nota-card" data-id="historial">
-            <h3>📋 Historial de Resúmenes</h3>
-            <div id="resumenesGuardados" style="margin-top: 15px; max-height: 400px; overflow-y: auto;"></div>
-        </div>
-
-        <!-- Motivación y Consejos -->
-        <div class="nota-card motivation-card" data-id="motivacion">
-            <h3>💡 Motivación</h3>
-            <div class="motivation-content">
-                <div class="motivation-tip">
-                    <div class="tip-icon">💡</div>
-                    <div class="tip-text" id="motivacion-consejo">
-                        "Estudia 25 minutos y descansa 5."
-                    </div>
-                </div>
-                <div class="motivation-stats">
-                    <div class="motivation-stat">
-                        <div class="mot-label">Productividad estimada</div>
-                        <div class="mot-value" id="productividad-estimada">82%</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="study-stat-card">
+      <div class="sstat-icon" style="color: #f43f5e;">🔥</div>
+      <div>
+        <div class="sstat-val" id="stat-streak">7 días</div>
+        <div class="sstat-lbl">Racha Diaria</div>
+      </div>
     </div>
+
+    <div class="study-stat-card">
+      <div class="sstat-icon" style="color: #10b981;">🏆</div>
+      <div>
+        <div class="sstat-val" id="stat-courses-completed">4</div>
+        <div class="sstat-lbl">Cursos Terminados</div>
+      </div>
+    </div>
+
+    <div class="study-stat-card">
+      <div class="sstat-icon" style="color: #f59e0b;">⭐</div>
+      <div>
+        <div class="sstat-val" id="stat-learning-level">Avanzado</div>
+        <div class="sstat-lbl">Nivel de Aprendizaje</div>
+      </div>
+    </div>
+
+    <div class="study-stat-card">
+      <div class="sstat-icon" style="color: #c084fc;">📈</div>
+      <div>
+        <div class="sstat-val" id="stat-weekly-progress">+12%</div>
+        <div class="sstat-lbl">Progreso Semanal</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       📖 MIS CURSOS (Progress Cards Grid)
+  ════════════════════════════════════ -->
+  <h2 class="estudio-section-title" id="courses-section">
+    <span>📖 Mis Cursos</span>
+  </h2>
+
+  <div class="courses-grid">
+    <!-- Desarrollo de Software -->
+    <div class="course-card-item">
+      <div class="course-icon-badge">💻</div>
+      <h3>Desarrollo de Software</h3>
+      <p style="font-size: 12px; color: var(--e-text-dim); margin: 0;">Arquitectura, patrones y código limpio.</p>
+      <div class="course-progress-bar">
+        <div class="course-progress-fill" style="width: 80%;"></div>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--e-text-soft);">
+        <span>Progreso</span>
+        <strong style="color: #c084fc;">80%</strong>
+      </div>
+      <button class="btn-continue-course" onclick="continueCourse('Desarrollo de Software')">
+        Continuar Curso <i class="ti ti-arrow-right"></i>
+      </button>
+    </div>
+
+    <!-- HTML y CSS -->
+    <div class="course-card-item">
+      <div class="course-icon-badge">🌐</div>
+      <h3>HTML5 y CSS3</h3>
+      <p style="font-size: 12px; color: var(--e-text-dim); margin: 0;">Maquetación web y Glassmorphism.</p>
+      <div class="course-progress-bar">
+        <div class="course-progress-fill" style="width: 100%; background: #10b981;"></div>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--e-text-soft);">
+        <span>Completado</span>
+        <strong style="color: #10b981;">100% ✔</strong>
+      </div>
+      <button class="btn-continue-course" style="background: rgba(16,185,129,0.2); border: 1px solid #10b981; color: #10b981;" onclick="continueCourse('HTML5 y CSS3')">
+        Repasar Contenido <i class="ti ti-check"></i>
+      </button>
+    </div>
+
+    <!-- JavaScript -->
+    <div class="course-card-item">
+      <div class="course-icon-badge">⚙️</div>
+      <h3>JavaScript Moderno</h3>
+      <p style="font-size: 12px; color: var(--e-text-dim); margin: 0;">ES6+, Promesas y Async/Await.</p>
+      <div class="course-progress-bar">
+        <div class="course-progress-fill" style="width: 60%;"></div>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--e-text-soft);">
+        <span>Progreso</span>
+        <strong style="color: #c084fc;">60%</strong>
+      </div>
+      <button class="btn-continue-course" onclick="continueCourse('JavaScript Moderno')">
+        Continuar Curso <i class="ti ti-arrow-right"></i>
+      </button>
+    </div>
+
+    <!-- Python -->
+    <div class="course-card-item">
+      <div class="course-icon-badge">🐍</div>
+      <h3>Python Avanzado</h3>
+      <p style="font-size: 12px; color: var(--e-text-dim); margin: 0;">Django, APIs y Data Science.</p>
+      <div class="course-progress-bar">
+        <div class="course-progress-fill" style="width: 45%;"></div>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--e-text-soft);">
+        <span>Progreso</span>
+        <strong style="color: #c084fc;">45%</strong>
+      </div>
+      <button class="btn-continue-course" onclick="continueCourse('Python Avanzado')">
+        Continuar Curso <i class="ti ti-arrow-right"></i>
+      </button>
+    </div>
+
+    <!-- Java -->
+    <div class="course-card-item">
+      <div class="course-icon-badge">☕</div>
+      <h3>Java & Spring Boot</h3>
+      <p style="font-size: 12px; color: var(--e-text-dim); margin: 0;">POO, Servlets y Microservicios.</p>
+      <div class="course-progress-bar">
+        <div class="course-progress-fill" style="width: 90%;"></div>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--e-text-soft);">
+        <span>Progreso</span>
+        <strong style="color: #c084fc;">90%</strong>
+      </div>
+      <button class="btn-continue-course" onclick="continueCourse('Java & Spring Boot')">
+        Continuar Curso <i class="ti ti-arrow-right"></i>
+      </button>
+    </div>
+
+    <!-- Bases de Datos -->
+    <div class="course-card-item">
+      <div class="course-icon-badge">🗄️</div>
+      <h3>Bases de Datos SQL & NoSQL</h3>
+      <p style="font-size: 12px; color: var(--e-text-dim); margin: 0;">PostgreSQL, SQLite y MongoDB.</p>
+      <div class="course-progress-bar">
+        <div class="course-progress-fill" style="width: 70%;"></div>
+      </div>
+      <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--e-text-soft);">
+        <span>Progreso</span>
+        <strong style="color: #c084fc;">70%</strong>
+      </div>
+      <button class="btn-continue-course" onclick="continueCourse('Bases de Datos')">
+        Continuar Curso <i class="ti ti-arrow-right"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       SPLIT GRID: POMODORO TIMER & GOALS
+  ════════════════════════════════════ -->
+  <div class="study-split-grid" id="pomodoro-section">
+
+    <!-- Pomodoro Timer Box -->
+    <div class="study-panel-box pomodoro-box">
+      <div class="estudio-section-title" style="margin: 0;">
+        <i class="ti ti-timer"></i> Temporizador Pomodoro
+      </div>
+
+      <div class="pomodoro-clock" id="pomodoro-timer-display">25:00</div>
+
+      <div class="pomodoro-controls">
+        <button class="e-header-btn" style="background: linear-gradient(135deg, #7c3aed, #06b6d4); color: #fff;" onclick="startPomodoro()">
+          ▶ Iniciar
+        </button>
+        <button class="e-header-btn" onclick="pausePomodoro()">
+          ⏸ Pausar
+        </button>
+        <button class="e-header-btn" onclick="resetPomodoro()">
+          🔄 Reiniciar
+        </button>
+      </div>
+
+      <div style="font-size: 12px; color: var(--e-text-soft); margin-top: 10px;">
+        🍅 Pomodoros completados hoy: <strong style="color: #f43f5e;" id="pomodoros-count">4</strong>
+      </div>
+    </div>
+
+    <!-- Metas y Objetivos -->
+    <div class="study-panel-box">
+      <div class="estudio-section-title" style="margin-bottom: 14px;">
+        <i class="ti ti-target"></i> Metas del Día
+      </div>
+
+      <div class="goals-list-box">
+        <div class="goal-item-row" onclick="toggleGoal(this)">
+          <i class="ti ti-square-check" style="color: #10b981;"></i>
+          <span>Estudiar 2 horas de programación</span>
+        </div>
+        <div class="goal-item-row" onclick="toggleGoal(this)">
+          <i class="ti ti-square" style="color: var(--e-text-dim);"></i>
+          <span>Completar un módulo de curso</span>
+        </div>
+        <div class="goal-item-row" onclick="toggleGoal(this)">
+          <i class="ti ti-square" style="color: var(--e-text-dim);"></i>
+          <span>Leer 20 páginas de documentación</span>
+        </div>
+        <div class="goal-item-row" onclick="toggleGoal(this)">
+          <i class="ti ti-square-check" style="color: #10b981;"></i>
+          <span>Resolver 5 ejercicios prácticos</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ════════════════════════════════════
+       📝 MIS APUNTES BOARD
+  ════════════════════════════════════ -->
+  <div class="study-panel-box" id="notes-section" style="margin-bottom: 28px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h2 class="estudio-section-title" style="margin: 0;">
+        <i class="ti ti-notes"></i> Mis Apuntes & Notas
+      </h2>
+      <div style="display: flex; gap: 8px;">
+        <button class="e-header-btn" onclick="addNewNotePrompt()">
+          <i class="ti ti-plus"></i> Nueva Nota
+        </button>
+        <button class="e-header-btn" onclick="exportNotesPDF()">
+          <i class="ti ti-file-export"></i> Exportar Apuntes
+        </button>
+      </div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;" id="notes-grid-container">
+      {% if notas %}
+        {% for nota in notas %}
+        <div class="study-panel-box" style="padding: 16px; background: rgba(255,255,255,0.04);">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <strong style="color: #c084fc; font-size: 14px;">📌 {{ nota.titulo }}</strong>
+            <span style="font-size: 10px; color: var(--e-text-dim);">{{ nota.fecha_creacion|date:"d M" }}</span>
+          </div>
+          <p style="font-size: 12px; color: var(--e-text-soft); margin: 0; line-height: 1.5;">{{ nota.contenido }}</p>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="study-panel-box" style="padding: 16px; background: rgba(255,255,255,0.04);">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <strong style="color: #c084fc; font-size: 14px;">📌 Apuntes de Django APIs</strong>
+            <span style="font-size: 10px; color: var(--e-text-dim);">Hoy</span>
+          </div>
+          <p style="font-size: 12px; color: var(--e-text-soft); margin: 0; line-height: 1.5;">Conceptos clave: Serializers, ViewSets, Routers y autenticación por Token.</p>
+        </div>
+
+        <div class="study-panel-box" style="padding: 16px; background: rgba(255,255,255,0.04);">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <strong style="color: #38bdf8; font-size: 14px;">📌 Comandos Git Esenciales</strong>
+            <span style="font-size: 10px; color: var(--e-text-dim);">Ayer</span>
+          </div>
+          <p style="font-size: 12px; color: var(--e-text-soft); margin: 0; line-height: 1.5;">git checkout -b feature, git commit -m, git push origin branch.</p>
+        </div>
+
+        <div class="study-panel-box" style="padding: 16px; background: rgba(255,255,255,0.04);">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+            <strong style="color: #10b981; font-size: 14px;">📌 Trucos CSS Glassmorphism</strong>
+            <span style="font-size: 10px; color: var(--e-text-dim);">Hace 3 días</span>
+          </div>
+          <p style="font-size: 12px; color: var(--e-text-soft); margin: 0; line-height: 1.5;">backdrop-filter: blur(20px), background: rgba(255,255,255,0.08), border translucido.</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       🎓 ACADEMIA DE AMIGIS & RECOMPENSAS
+  ════════════════════════════════════ -->
+  <div class="study-panel-box" id="academia-section">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+      <h2 class="estudio-section-title" style="margin: 0;">
+        <span>🎓 Academia de Amigis & Tienda de Accesorios</span>
+      </h2>
+      <span style="font-size: 12px; color: #f59e0b; font-weight: 700;">🪙 320 Monedas Amigis</span>
+    </div>
+
+    <p style="font-size: 12.5px; color: var(--e-text-soft); margin: 0 0 16px;">
+      Cada curso completado te otorga insignias, experiencia XP y desbloquea accesorios exclusivos para vestir a tu mascota Amigis.
+    </p>
+
+    <div class="academia-store-grid">
+      <div class="accessory-card">
+        <span style="font-size: 32px;">🧢</span>
+        <div style="font-weight: 700; font-size: 13px; margin: 6px 0 2px;">Gorra Gamer</div>
+        <span style="font-size: 11px; color: #10b981;">Desbloqueado ✔</span>
+      </div>
+
+      <div class="accessory-card">
+        <span style="font-size: 32px;">👓</span>
+        <div style="font-weight: 700; font-size: 13px; margin: 6px 0 2px;">Gafas Neón</div>
+        <span style="font-size: 11px; color: #10b981;">Desbloqueado ✔</span>
+      </div>
+
+      <div class="accessory-card">
+        <span style="font-size: 32px;">🎒</span>
+        <div style="font-weight: 700; font-size: 13px; margin: 6px 0 2px;">Mochila de Estudio</div>
+        <span style="font-size: 11px; color: #c084fc;">100 Monedas</span>
+      </div>
+
+      <div class="accessory-card">
+        <span style="font-size: 32px;">💻</span>
+        <div style="font-weight: 700; font-size: 13px; margin: 6px 0 2px;">Laptop Neón</div>
+        <span style="font-size: 11px; color: #10b981;">Equipado ✔</span>
+      </div>
+    </div>
+  </div>
+
 </div>
-</div>
-{% endblock %}
 
-{% block extra_js %}
+<!-- ════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════ -->
 <script>
-// Variables del calendario
-let fechaActual = new Date();
-let mesActual = fechaActual.getMonth();
-let anoActual = fechaActual.getFullYear();
+let pomodoroSeconds = 25 * 60;
+let pomodoroTimerId = null;
+let completedPomodoros = 4;
 
-// Cargar notas, resúmenes, calendario y estadísticas al iniciar
-document.addEventListener('DOMContentLoaded', function() {
-    cargarNotas();
-    cargarResumenes();
-    renderizarCalendario();
-    cargarEstadisticas();
-    mostrarFechaActual();
-    inicializarPomodoro();
-    rotarConsejoMotivacion();
-});
-
-// ==================== FECHA ACTUAL ====================
-function mostrarFechaActual() {
-    const opciones = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    const fecha = new Date().toLocaleDateString('es-ES', opciones);
-    document.getElementById('fecha-actual').textContent = fecha.charAt(0).toUpperCase() + fecha.slice(1);
-}
-
-// ==================== ACCIONES RÁPIDAS ====================
-function scrollToSection(sectionId) {
-    const element = document.querySelector(`[data-id="${sectionId}"]`);
-    if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-}
-
-// ==================== ESTADÍSTICAS ====================
-function cargarEstadisticas() {
-    fetch('/estudio/api/obtener-estadisticas/')
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const stats = data.estadisticas;
-            
-            // Panel de resumen
-            document.getElementById('stat-hoy').textContent = stats.hoy.tiempo_formateado;
-            document.getElementById('stat-racha').textContent = `${stats.racha} días`;
-            document.getElementById('stat-tareas').textContent = stats.hoy.notas;
-            document.getElementById('stat-resumenes').textContent = stats.hoy.resumenes;
-            
-            // Estadísticas detalladas
-            document.getElementById('stats-tiempo').textContent = stats.semana.tiempo_formateado;
-            document.getElementById('stats-pomodoros').textContent = stats.semana.pomodoros;
-            document.getElementById('stats-mejor-dia').textContent = stats.mejor_dia.tiempo_formateado;
-            document.getElementById('stats-racha').textContent = `${stats.racha} días`;
-            
-            // Gráfico semanal
-            renderizarGraficoSemanal(stats.grafico_semana);
-        }
-    })
-    .catch(error => {
-        console.error('Error al cargar estadísticas:', error);
-    });
-}
-
-function renderizarGraficoSemanal(datos) {
-    const container = document.getElementById('weekly-chart');
-    const maxHoras = Math.max(...datos.map(d => d.horas), 1);
-    
-    container.innerHTML = datos.map(d => {
-        const altura = (d.horas / maxHoras) * 100;
-        return `
-            <div class="chart-bar-wrapper">
-                <div class="chart-bar" style="height: ${altura}%;">
-                    <span class="chart-value">${d.horas > 0 ? d.horas : ''}</span>
-                </div>
-                <span class="chart-label">${d.dia}</span>
-            </div>
-        `;
-    }).join('');
-}
-
-// ==================== POMODORO MEJORADO ====================
-let pomodoroInterval = null;
-let pomodoroTiempoRestante = 25 * 60; // 25 minutos en segundos
-let pomodoroTiempoTotal = 25 * 60;
-let pomodoroTipo = 'trabajo';
-
-function inicializarPomodoro() {
-    actualizarPomodoroDisplay();
-    actualizarPomodoroProgressRing();
-}
-
-function setPomodoroPreset(minutos, tipo) {
-    pomodoroTiempoTotal = minutos * 60;
-    pomodoroTiempoRestante = minutos * 60;
-    pomodoroTipo = tipo;
-    
-    if (pomodoroInterval) {
-        pausarPomodoro();
-    }
-    
-    actualizarPomodoroDisplay();
-    actualizarPomodoroProgressRing();
-    
-    // Cambiar emoji según tipo
-    const emoji = tipo === 'trabajo' ? '🍅' : (tipo === 'descanso_corto' ? '☕' : '🌴');
-    document.querySelector('.pomodoro-emoji').textContent = emoji;
-}
-
-function iniciarPomodoro() {
-    if (pomodoroInterval) return;
-    
-    document.getElementById('btn-start-pomodoro').style.display = 'none';
-    document.getElementById('btn-pause-pomodoro').style.display = 'inline-block';
-    
-    pomodoroInterval = setInterval(() => {
-        if (pomodoroTiempoRestante > 0) {
-            pomodoroTiempoRestante--;
-            actualizarPomodoroDisplay();
-            actualizarPomodoroProgressRing();
-        } else {
-            pausarPomodoro();
-            alert('¡Pomodoro completado!');
-            
-            // Guardar en backend
-            fetch('/estudio/api/guardar-pomodoro/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: JSON.stringify({
-                    duracion_minutos: pomodoroTiempoTotal / 60,
-                    tipo: pomodoroTipo,
-                    completado: true
-                })
-            });
-            
-            cargarEstadisticas();
-        }
-    }, 1000);
-}
-
-function pausarPomodoro() {
-    if (pomodoroInterval) {
-        clearInterval(pomodoroInterval);
-        pomodoroInterval = null;
-        document.getElementById('btn-start-pomodoro').style.display = 'inline-block';
-        document.getElementById('btn-pause-pomodoro').style.display = 'none';
-    }
-}
-
-function reiniciarPomodoro() {
-    if (pomodoroInterval) {
-        pausarPomodoro();
-    }
-    pomodoroTiempoRestante = pomodoroTiempoTotal;
-    actualizarPomodoroDisplay();
-    actualizarPomodoroProgressRing();
-}
-
-function actualizarPomodoroDisplay() {
-    const minutos = Math.floor(pomodoroTiempoRestante / 60);
-    const segundos = pomodoroTiempoRestante % 60;
-    document.getElementById('pomodoro-time').textContent = 
-        `${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
-}
-
-function actualizarPomodoroProgressRing() {
-    const circle = document.querySelector('.progress-ring-circle');
-    const radius = circle.r.baseVal.value;
-    const circumference = radius * 2 * Math.PI;
-    
-    const progress = pomodoroTiempoRestante / pomodoroTiempoTotal;
-    const offset = circumference - progress * circumference;
-    
-    circle.style.strokeDashoffset = offset;
-}
-
-// Inicializar el círculo de progreso
-document.addEventListener('DOMContentLoaded', function() {
-    const circle = document.querySelector('.progress-ring-circle');
-    const radius = circle.r.baseVal.value;
-    const circumference = radius * 2 * Math.PI;
-    
-    circle.style.strokeDasharray = `${circumference} ${circumference}`;
-    circle.style.strokeDashoffset = circumference;
-});
-
-// ==================== NOTAS CON COLORES ====================
-let selectedNoteColor = '#fef08a';
-let isNotePinned = false;
-
-function selectNoteColor(color) {
-    selectedNoteColor = color;
-    
-    // Actualizar selección visual
-    document.querySelectorAll('.color-btn').forEach(btn => {
-        btn.classList.remove('selected');
-        if (btn.dataset.color === color) {
-            btn.classList.add('selected');
-        }
-    });
-}
-
-function togglePin() {
-    isNotePinned = !isNotePinned;
-    const btn = document.getElementById('btn-pin');
-    btn.textContent = isNotePinned ? '📍 Soltar' : '📌 Fijar';
-    btn.style.background = isNotePinned ? 'var(--accent-gradient)' : '';
-}
-
-// Modificar guardarNota para incluir color y pin
-const originalGuardarNota = guardarNota;
-guardarNota = function() {
-    const nota = document.getElementById('notaInput').value;
-    
-    if (nota.trim() === '') {
-        alert('Por favor escribe una nota');
-        return;
-    }
-    
-    fetch('/estudio/api/guardar-nota/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ 
-            contenido: nota,
-            color: selectedNoteColor,
-            fijada: isNotePinned
-        })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            document.getElementById('notaInput').value = '';
-            isNotePinned = false;
-            document.getElementById('btn-pin').textContent = '📌 Fijar';
-            cargarNotas();
-        } else {
-            alert('Error al guardar la nota: ' + data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al guardar la nota');
-    });
-};
-
-// Modificar cargarNotas para mostrar colores y pins
-const originalCargarNotas = cargarNotas;
-cargarNotas = function() {
-    fetch('/estudio/api/obtener-notas/')
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const container = document.getElementById('notasGuardadas');
-            if (data.notas.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">📝</div>
-                        <p style="color: var(--text-muted);">Todavía no tienes notas.</p>
-                        <p style="color: var(--text-muted); font-size: 0.85rem;">Empieza escribiendo una idea.</p>
-                    </div>
-                `;
-            } else {
-                // Ordenar: notas fijadas primero
-                const notasOrdenadas = data.notas.sort((a, b) => (b.fijada ? 1 : 0) - (a.fijada ? 1 : 0));
-                
-                container.innerHTML = notasOrdenadas.map(nota => `
-                    <div class="lista-item sticky-note" style="background: ${nota.color || '#fef08a'}; color: #1e293b;">
-                        ${nota.fijada ? '<span class="pin-indicator">📌</span>' : ''}
-                        <p style="color: #1e293b; margin-bottom: 5px; font-weight: 500;">${nota.contenido}</p>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-                            <small style="color: #475569;">${nota.fecha_creacion}</small>
-                            <button class="btn-danger" onclick="eliminarNota('${nota.id}')">🗑️</button>
-                        </div>
-                    </div>
-                `).join('');
-            }
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-};
-
-// Mejorar cargarResumenes para mostrar visualización más atractiva con botón para reabrir
-const originalCargarResumenes = cargarResumenes;
-cargarResumenes = function() {
-    fetch('/estudio/api/obtener-resumenes/')
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const container = document.getElementById('resumenesGuardados');
-            if (data.resumenes.length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <div class="empty-icon">📄</div>
-                        <p style="color: var(--text-muted);">Todavía no tienes resúmenes.</p>
-                        <p style="color: var(--text-muted); font-size: 0.85rem;">Pega un texto para generar el primero.</p>
-                    </div>
-                `;
-            } else {
-                container.innerHTML = data.resumenes.map(resumen => {
-                    const fecha = new Date(resumen.fecha_creacion);
-                    const ahora = new Date();
-                    const diffMs = ahora - fecha;
-                    const diffHoras = Math.floor(diffMs / (1000 * 60 * 60));
-                    const diffDias = Math.floor(diffHoras / 24);
-                    
-                    let tiempoRelativo;
-                    if (diffHoras < 1) {
-                        tiempoRelativo = 'Hace menos de 1 hora';
-                    } else if (diffHoras < 24) {
-                        tiempoRelativo = `Hace ${diffHoras} hora${diffHoras > 1 ? 's' : ''}`;
-                    } else {
-                        tiempoRelativo = `Hace ${diffDias} día${diffDias > 1 ? 's' : ''}`;
-                    }
-                    
-                    const tituloCorto = resumen.texto_original.substring(0, 30) + (resumen.texto_original.length > 30 ? '...' : '');
-                    
-                    return `
-                        <div class="lista-item resumen-item">
-                            <div class="resumen-header">
-                                <span class="resumen-title">📄 ${tituloCorto}</span>
-                                <span class="resumen-time">${tiempoRelativo}</span>
-                            </div>
-                            <p class="resumen-preview">${resumen.resumen.substring(0, 100)}...</p>
-                            <div style="display: flex; gap: 8px; margin-top: 10px;">
-                                <button class="btn-secondary btn-sm" onclick="reabrirResumen('${resumen.id}')">📂 Reabrir</button>
-                                <button class="btn-danger btn-sm" onclick="eliminarResumen('${resumen.id}')">🗑️</button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-};
-
-function reabrirResumen(resumenId) {
-    fetch('/estudio/api/obtener-resumenes/')
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const resumen = data.resumenes.find(r => r.id === resumenId);
-            if (resumen) {
-                document.getElementById('textoInput').value = resumen.texto_original;
-                const output = document.getElementById('resumenOutput');
-                output.style.display = 'block';
-                output.innerHTML = `
-                    <h4 style="color: #7c3aed; margin-bottom: 10px;">📝 Resumen:</h4>
-                    <p style="color: var(--text-main); line-height: 1.6;">${resumen.resumen}</p>
-                `;
-                scrollToSection('resumen');
-            }
-        }
-    });
-}
-
-// ==================== MOTIVACIÓN ====================
-const consejosMotivacion = [
-    "Estudia 25 minutos y descansa 5.",
-    "Divide y vencerás: separa tareas grandes.",
-    "El ambiente influye: busca un lugar tranquilo.",
-    "Descansa tu mente cada 90 minutos.",
-    "La constancia supera a la intensidad.",
-    "Apaga notificaciones durante el estudio.",
-    "Revisa tus notas antes de dormir.",
-    "Enseña lo que aprendes para retenerlo mejor."
-];
-
-function rotarConsejoMotivacion() {
-    const consejoElement = document.getElementById('motivacion-consejo');
-    const indice = Math.floor(Math.random() * consejosMotivacion.length);
-    consejoElement.textContent = `"${consejosMotivacion[indice]}"`;
-}
-
-// Rotar consejo cada 30 segundos
-setInterval(rotarConsejoMotivacion, 30000);
-
-// ==================== CALENDARIO ====================
-function renderizarCalendario() {
-    const primerDia = new Date(anoActual, mesActual, 1);
-    const ultimoDia = new Date(anoActual, mesActual + 1, 0);
-    const diasMes = ultimoDia.getDate();
-    const diaSemana = primerDia.getDay();
-    
-    const meses = ['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 
-                   'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'];
-    
-    document.getElementById('calendar-mes-ano').textContent = `${meses[mesActual]} ${anoActual}`;
-    
-    let html = '';
-    
-    // Días vacíos antes del primer día del mes
-    for (let i = 0; i < diaSemana; i++) {
-        html += '<div class="calendar-dia empty"></div>';
-    }
-    
-    // Días del mes
-    const hoy = new Date();
-    const eventos = JSON.parse(localStorage.getItem('eventos_calendario') || '{}');
-    
-    for (let dia = 1; dia <= diasMes; dia++) {
-        const esHoy = dia === hoy.getDate() && mesActual === hoy.getMonth() && anoActual === hoy.getFullYear();
-        const fechaCompleta = `${anoActual}-${String(mesActual + 1).padStart(2, '0')}-${String(dia).padStart(2, '0')}`;
-        
-        // Verificar si hay eventos en este día
-        const eventosDelDia = eventos[fechaCompleta] || [];
-        let indicadores = '';
-        if (eventosDelDia.length > 0) {
-            const tipos = eventosDelDia.map(e => e.tipo || 'recordatorio');
-            const tiposUnicos = [...new Set(tipos)];
-            indicadores = tiposUnicos.map(tipo => {
-                const colorMap = {
-                    'examen': '#ef4444',
-                    'entrega': '#10b981',
-                    'clase': '#3b82f6',
-                    'recordatorio': '#f59e0b'
-                };
-                return `<span class="event-indicator" style="background: ${colorMap[tipo] || '#f59e0b'};"></span>`;
-            }).join('');
-        }
-        
-        html += `<div class="calendar-dia ${esHoy ? 'hoy' : ''}" onclick="mostrarModalEvento('${fechaCompleta}')" style="cursor: pointer;">
-            ${dia}
-            ${indicadores ? `<div class="event-indicators">${indicadores}</div>` : ''}
-        </div>`;
-    }
-    
-    document.getElementById('calendar-dias').innerHTML = html;
-}
-
-function cambiarMes(delta) {
-    mesActual += delta;
-    if (mesActual > 11) {
-        mesActual = 0;
-        anoActual++;
-    } else if (mesActual < 0) {
-        mesActual = 11;
-        anoActual--;
-    }
-    renderizarCalendario();
-}
-
-// ==================== INICIALIZACIÓN ÚNICA ====================
-document.addEventListener('DOMContentLoaded', function() {
-    // Cargar datos base
-    cargarNotas();
-    cargarResumenes();
-    renderizarCalendario();
-});
-
-// ==================== RESUMEN DE TEXTO ====================
-function resumirTexto() {
-    const texto = document.getElementById('textoInput').value;
-    const output = document.getElementById('resumenOutput');
-    
-    if (texto.trim() === '') {
-        alert('Por favor ingresa un texto para resumir');
-        return;
-    }
-    
-    output.style.display = 'block';
-    output.innerHTML = '<p style="color: var(--text-muted);">Generando resumen con IA...</p>';
-    
-    fetch('/estudio/api/resumir-texto/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ texto: texto })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            output.innerHTML = `
-                <h4 style="color: #7c3aed; margin-bottom: 10px;">📝 Resumen:</h4>
-                <p style="color: var(--text-main); line-height: 1.6;">${data.resumen}</p>
-            `;
-            document.getElementById('textoInput').value = '';
-            cargarResumenes();
-        } else {
-            output.innerHTML = `<p style="color: #ff4d4d;">Error: ${data.error}</p>`;
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        output.innerHTML = '<p style="color: #ff4d4d;">Error al generar el resumen</p>';
-    });
-}
-
-// ==================== NOTAS RÁPIDAS ====================
-function guardarNota() {
-    const nota = document.getElementById('notaInput').value;
-    
-    if (nota.trim() === '') {
-        alert('Por favor escribe una nota');
-        return;
-    }
-    
-    fetch('/estudio/api/guardar-nota/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ contenido: nota })
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            document.getElementById('notaInput').value = '';
-            cargarNotas();
-        } else {
-            alert('Error al guardar la nota: ' + data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al guardar la nota');
-    });
-}
-
-function cargarNotas() {
-    fetch('/estudio/api/obtener-notas/')
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const container = document.getElementById('notasGuardadas');
-            if (data.notas.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-muted);">No hay notas guardadas</p>';
-            } else {
-                container.innerHTML = data.notas.map(nota => `
-                    <div class="lista-item">
-                        <p style="color: var(--text-main); margin-bottom: 5px;">${nota.contenido}</p>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-                            <small style="color: var(--text-muted);">${nota.fecha_creacion}</small>
-                            <button class="btn-danger" onclick="eliminarNota('${nota.id}')">🗑️ Eliminar</button>
-                        </div>
-                    </div>
-                `).join('');
-            }
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-}
-
-function eliminarNota(notaId) {
-    if (!confirm('¿Estás seguro de eliminar esta nota?')) {
-        return;
-    }
-    
-    fetch(`/estudio/api/eliminar-nota/${notaId}/`, {
-        method: 'DELETE',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken')
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            cargarNotas();
-        } else {
-            alert('Error al eliminar la nota: ' + data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al eliminar la nota');
-    });
-}
-
-// ==================== HISTORIAL DE RESÚMENES ====================
-function cargarResumenes() {
-    fetch('/estudio/api/obtener-resumenes/')
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const container = document.getElementById('resumenesGuardados');
-            if (data.resumenes.length === 0) {
-                container.innerHTML = '<p style="color: var(--text-muted);">No hay resúmenes guardados</p>';
-            } else {
-                container.innerHTML = data.resumenes.map(resumen => `
-                    <div class="lista-item">
-                        <h4 style="color: #06b6d4; margin-bottom: 5px;">Texto original:</h4>
-                        <p style="color: var(--text-muted); font-style: italic; margin-bottom: 10px;">${resumen.texto_original}</p>
-                        <h4 style="color: #7c3aed; margin-bottom: 5px;">Resumen:</h4>
-                        <p style="color: var(--text-main); margin-bottom: 10px;">${resumen.resumen}</p>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 10px;">
-                            <small style="color: var(--text-muted);">${resumen.fecha_creacion}</small>
-                            <button class="btn-danger" onclick="eliminarResumen('${resumen.id}')">🗑️ Eliminar</button>
-                        </div>
-                    </div>
-                `).join('');
-            }
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-    });
-}
-
-function eliminarResumen(resumenId) {
-    if (!confirm('¿Estás seguro de eliminar este resumen?')) {
-        return;
-    }
-    
-    fetch(`/estudio/api/eliminar-resumen/${resumenId}/`, {
-        method: 'DELETE',
-        headers: {
-            'X-CSRFToken': getCookie('csrftoken')
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            cargarResumenes();
-        } else {
-            alert('Error al eliminar el resumen: ' + data.error);
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Error al eliminar el resumen');
-    });
-}
-
-// ==================== UTILIDADES ====================
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.startsWith(name + "=")) {
-                cookieValue = decodeURIComponent(cookie.split("=")[1]);
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-// ==================== MODAL DE EVENTOS ====================
-let fechaSeleccionada = null;
-
-function mostrarModalEvento(fecha) {
-    fechaSeleccionada = fecha;
-    document.getElementById('fecha-seleccionada').textContent = fecha;
-    document.getElementById('modal-evento').style.display = 'flex';
-    document.getElementById('evento-titulo').value = '';
-    document.getElementById('evento-descripcion').value = '';
-    cargarEventosDelDia(fecha);
-}
-
-function cerrarModalEvento() {
-    document.getElementById('modal-evento').style.display = 'none';
-    fechaSeleccionada = null;
-}
-
-function guardarEvento() {
-    const titulo = document.getElementById('evento-titulo').value;
-    const descripcion = document.getElementById('evento-descripcion').value;
-    const tipo = document.querySelector('input[name="evento-tipo"]:checked')?.value || 'recordatorio';
-    
-    if (!titulo.trim()) {
-        alert('Por favor ingresa un título para el evento');
-        return;
-    }
-    
-    // Guardar en localStorage
-    const eventos = JSON.parse(localStorage.getItem('eventos_calendario') || '{}');
-    if (!eventos[fechaSeleccionada]) {
-        eventos[fechaSeleccionada] = [];
-    }
-    
-    eventos[fechaSeleccionada].push({
-        titulo: titulo,
-        descripcion: descripcion,
-        tipo: tipo,
-        id: Date.now()
-    });
-    
-    localStorage.setItem('eventos_calendario', JSON.stringify(eventos));
-    
-    cerrarModalEvento();
-    cargarEventosDelDia(fechaSeleccionada);
-    renderizarCalendario(); // Para mostrar indicadores
-}
-
-function cargarEventosDelDia(fecha) {
-    const eventos = JSON.parse(localStorage.getItem('eventos_calendario') || '{}');
-    const eventosDelDia = eventos[fecha] || [];
-    const container = document.getElementById('eventos-del-dia');
-    
-    if (eventosDelDia.length === 0) {
-        container.innerHTML = '<p style="color: var(--text-muted); font-size: 0.9rem;">No hay eventos para este día</p>';
+function startPomodoro() {
+  if (pomodoroTimerId) return;
+  pomodoroTimerId = setInterval(() => {
+    if (pomodoroSeconds > 0) {
+      pomodoroSeconds--;
+      updatePomodoroDisplay();
     } else {
-        container.innerHTML = eventosDelDia.map(evento => `
-            <div class="lista-item" style="border-left: 3px solid #06b6d4; padding-left: 12px;">
-                <strong style="color: var(--text-main);">${evento.titulo}</strong>
-                ${evento.descripcion ? `<p style="color: var(--text-muted); margin: 5px 0 0 0; font-size: 0.85rem;">${evento.descripcion}</p>` : ''}
-                <button class="btn-danger" style="margin-top: 10px;" onclick="eliminarEvento(${evento.id})">Eliminar</button>
-            </div>
-        `).join('');
+      clearInterval(pomodoroTimerId);
+      pomodoroTimerId = null;
+      completedPomodoros++;
+      document.getElementById('pomodoros-count').textContent = completedPomodoros;
+      alert("🍅 ¡Pomodoro completado! Tómate un descanso de 5 minutos.");
+      pomodoroSeconds = 25 * 60;
+      updatePomodoroDisplay();
     }
+  }, 1000);
 }
 
-function eliminarEvento(eventoId) {
-    const eventos = JSON.parse(localStorage.getItem('eventos_calendario') || '{}');
-    if (eventos[fechaSeleccionada]) {
-        eventos[fechaSeleccionada] = eventos[fechaSeleccionada].filter(e => e.id !== eventoId);
-        localStorage.setItem('eventos_calendario', JSON.stringify(eventos));
-        cargarEventosDelDia(fechaSeleccionada);
-        renderizarCalendario();
-    }
+function pausePomodoro() {
+  clearInterval(pomodoroTimerId);
+  pomodoroTimerId = null;
 }
 
-// ==================== CRONÓMETRO ====================
-let cronometroInterval = null;
-let segundos = 0;
-let minutos = 0;
-let horas = 0;
-let vueltas = [];
-let tiempoUltimaVuelta = 0;
-
-function iniciarCronometro() {
-    if (cronometroInterval) return;
-    
-    document.getElementById('btn-iniciar').style.display = 'none';
-    document.getElementById('btn-pausar').style.display = 'inline-block';
-    document.getElementById('cronometro-display').classList.add('running');
-    
-    cronometroInterval = setInterval(() => {
-        segundos++;
-        if (segundos >= 60) {
-            segundos = 0;
-            minutos++;
-            if (minutos >= 60) {
-                minutos = 0;
-                horas++;
-            }
-        }
-        actualizarDisplayCronometro();
-    }, 1000);
+function resetPomodoro() {
+  pausePomodoro();
+  pomodoroSeconds = 25 * 60;
+  updatePomodoroDisplay();
 }
 
-function pausarCronometro() {
-    if (cronometroInterval) {
-        clearInterval(cronometroInterval);
-        cronometroInterval = null;
-        document.getElementById('btn-iniciar').style.display = 'inline-block';
-        document.getElementById('btn-pausar').style.display = 'none';
-        document.getElementById('cronometro-display').classList.remove('running');
-        
-        // Guardar tiempo en localStorage
-        guardarTiempoCronometro();
-    }
+function updatePomodoroDisplay() {
+  const m = Math.floor(pomodoroSeconds / 60);
+  const s = pomodoroSeconds % 60;
+  document.getElementById('pomodoro-timer-display').textContent =
+    `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
 }
 
-function reiniciarCronometro() {
-    if (cronometroInterval) {
-        clearInterval(cronometroInterval);
-        cronometroInterval = null;
-    }
-    segundos = 0;
-    minutos = 0;
-    horas = 0;
-    vueltas = [];
-    tiempoUltimaVuelta = 0;
-    actualizarDisplayCronometro();
-    document.getElementById('btn-iniciar').style.display = 'inline-block';
-    document.getElementById('btn-pausar').style.display = 'none';
-    document.getElementById('cronometro-display').classList.remove('running');
-    document.getElementById('vueltas-container').innerHTML = '';
+function continueCourse(name) {
+  alert(`Iniciando sesión de estudio para: ${name} 📚\n¡Amigis está listo para ayudarte con las dudas!`);
 }
 
-function registrarVuelta() {
-    const tiempoActual = horas * 3600 + minutos * 60 + segundos;
-    const tiempoVuelta = tiempoActual - tiempoUltimaVuelta;
-    tiempoUltimaVuelta = tiempoActual;
-    
-    const minutosVuelta = Math.floor(tiempoVuelta / 60);
-    const segundosVuelta = tiempoVuelta % 60;
-    
-    vueltas.push({
-        numero: vueltas.length + 1,
-        tiempo: tiempoVuelta,
-        tiempoFormateado: `${String(minutosVuelta).padStart(2, '0')}:${String(segundosVuelta).padStart(2, '0')}`
-    });
-    
-    actualizarVueltas();
+function toggleGoal(row) {
+  row.classList.toggle('completed');
+  const icon = row.querySelector('i');
+  if (row.classList.contains('completed')) {
+    icon.className = 'ti ti-square-check';
+    icon.style.color = '#10b981';
+  } else {
+    icon.className = 'ti ti-square';
+    icon.style.color = 'var(--e-text-dim)';
+  }
 }
 
-function actualizarVueltas() {
-    const container = document.getElementById('vueltas-container');
-    if (vueltas.length === 0) {
-        container.innerHTML = '';
-        return;
-    }
-    
-    container.innerHTML = `
-        <div style="margin-top: 15px;">
-            <h4 style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 10px;">Vueltas registradas:</h4>
-            ${vueltas.map(vuelta => `
-                <div class="vuelta-item">
-                    <span class="vuelta-numero">Vuelta ${vuelta.numero}</span>
-                    <span class="vuelta-tiempo">${vuelta.tiempoFormateado}</span>
-                </div>
-            `).join('')}
-        </div>
+function addNewNotePrompt() {
+  const title = prompt("Título de la nota:");
+  const content = prompt("Contenido de la nota:");
+  if (title && content) {
+    const container = document.getElementById('notes-grid-container');
+    const noteDiv = document.createElement('div');
+    noteDiv.className = 'study-panel-box';
+    noteDiv.style.padding = '16px';
+    noteDiv.style.background = 'rgba(255,255,255,0.04)';
+    noteDiv.innerHTML = `
+      <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+        <strong style="color: #c084fc; font-size: 14px;">📌 ${escapeHtml(title)}</strong>
+        <span style="font-size: 10px; color: var(--e-text-dim);">Ahora</span>
+      </div>
+      <p style="font-size: 12px; color: var(--e-text-soft); margin: 0; line-height: 1.5;">${escapeHtml(content)}</p>
     `;
+    container.prepend(noteDiv);
+  }
 }
 
-function actualizarDisplayCronometro() {
-    const display = document.getElementById('cronometro-display');
-    const horasStr = String(horas).padStart(2, '0');
-    const minutosStr = String(minutos).padStart(2, '0');
-    const segundosStr = String(segundos).padStart(2, '0');
-    display.textContent = `${horasStr}:${minutosStr}:${segundosStr}`;
+function exportNotesPDF() {
+  window.print();
 }
 
-function guardarTiempoCronometro() {
-    const tiempo = {
-        horas: horas,
-        minutos: minutos,
-        segundos: segundos,
-        fecha: new Date().toLocaleString()
-    };
-    
-    const tiempos = JSON.parse(localStorage.getItem('tiempos_cronometro') || '[]');
-    tiempos.unshift(tiempo);
-    localStorage.setItem('tiempos_cronometro', JSON.stringify(tiempos.slice(0, 10))); // Guardar solo los últimos 10
-    cargarTiemposGuardados();
+function scrollToSection(id) {
+  document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
 }
 
-function cargarTiemposGuardados() {
-    const tiempos = JSON.parse(localStorage.getItem('tiempos_cronometro') || '[]');
-    const container = document.getElementById('tiempos-guardados');
-    
-    if (tiempos.length === 0) {
-        container.innerHTML = '';
-    } else {
-        container.innerHTML = `
-            <h4 style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 10px;">Últimos tiempos:</h4>
-            ${tiempos.map(t => `
-                <div class="lista-item" style="display: flex; justify-content: space-between; align-items: center; padding: 12px; margin-bottom: 8px;">
-                    <span style="font-weight: bold; font-family: monospace; font-size: 1.1rem; color: #10b981;">${String(t.horas).padStart(2, '0')}:${String(t.minutos).padStart(2, '0')}:${String(t.segundos).padStart(2, '0')}</span>
-                    <span style="color: var(--text-muted); font-size: 0.85rem;">${t.fecha}</span>
-                </div>
-            `).join('')}
-        `;
-    }
+function escapeHtml(str) {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
-
-// Cargar tiempos guardados al iniciar
-document.addEventListener('DOMContentLoaded', function() {
-    cargarTiemposGuardados();
-});
-
-// ==================== TEMPORIZADOR ====================
-let temporizadorInterval = null;
-let tiempoTotal = 0;
-
-function iniciarTemporizador() {
-    if (temporizadorInterval) return;
-    
-    if (tiempoTotal === 0) {
-        const horas = parseInt(document.getElementById('temp-horas').value) || 0;
-        const minutos = parseInt(document.getElementById('temp-minutos').value) || 0;
-        const segundos = parseInt(document.getElementById('temp-segundos').value) || 0;
-        tiempoTotal = horas * 3600 + minutos * 60 + segundos;
-    }
-    
-    if (tiempoTotal <= 0) {
-        alert('Por favor configura un tiempo para el temporizador');
-        return;
-    }
-    
-    document.getElementById('btn-iniciar-temp').style.display = 'none';
-    document.getElementById('btn-pausar-temp').style.display = 'inline-block';
-    document.getElementById('temporizador-config').style.display = 'none';
-    document.getElementById('temporizador-preset').style.display = 'none';
-    document.getElementById('temporizador-display').classList.add('running');
-    
-    temporizadorInterval = setInterval(() => {
-        if (tiempoTotal > 0) {
-            tiempoTotal--;
-            actualizarDisplayTemporizador();
-        } else {
-            pausarTemporizador();
-            document.getElementById('temporizador-display').textContent = '¡Tiempo!';
-            document.getElementById('temporizador-display').style.color = '#10b981';
-            alert('¡El temporizador ha terminado!');
-        }
-    }, 1000);
-}
-
-function pausarTemporizador() {
-    if (temporizadorInterval) {
-        clearInterval(temporizadorInterval);
-        temporizadorInterval = null;
-        document.getElementById('btn-iniciar-temp').style.display = 'inline-block';
-        document.getElementById('btn-pausar-temp').style.display = 'none';
-        document.getElementById('temporizador-display').classList.remove('running');
-    }
-}
-
-function reiniciarTemporizador() {
-    if (temporizadorInterval) {
-        clearInterval(temporizadorInterval);
-        temporizadorInterval = null;
-    }
-    tiempoTotal = 0;
-    actualizarDisplayTemporizador();
-    document.getElementById('btn-iniciar-temp').style.display = 'inline-block';
-    document.getElementById('btn-pausar-temp').style.display = 'none';
-    document.getElementById('temporizador-config').style.display = 'flex';
-    document.getElementById('temporizador-preset').style.display = 'block';
-    document.getElementById('temporizador-display').style.color = '';
-    document.getElementById('temporizador-display').classList.remove('running');
-}
-
-function actualizarDisplayTemporizador() {
-    const display = document.getElementById('temporizador-display');
-    const horas = Math.floor(tiempoTotal / 3600);
-    const minutos = Math.floor((tiempoTotal % 3600) / 60);
-    const segundos = tiempoTotal % 60;
-    display.textContent = `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}:${String(segundos).padStart(2, '0')}`;
-}
-
-function setPreset(minutos) {
-    document.getElementById('temp-horas').value = 0;
-    document.getElementById('temp-minutos').value = minutos;
-    document.getElementById('temp-segundos').value = 0;
-    tiempoTotal = minutos * 60;
-    actualizarDisplayTemporizador();
-}
-
 </script>
 {% endblock %}

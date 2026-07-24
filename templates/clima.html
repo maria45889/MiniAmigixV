@@ -1,164 +1,392 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Clima{% endblock %}
+{% block title %}Clima — MiniAmigixV{% endblock %}
+{% block nav_title %}Clima{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/clima.css' %}?v=5">
-<script src="https://unpkg.com/lucide@latest"></script>
+<link rel="stylesheet" href="{% static 'css/pages/clima.css' %}?v=40">
 {% endblock %}
 
 {% block content %}
-<div class="clima-wrapper">
-    
-    <div class="cyber-header">
-        <h1 class="cyber-title">CLIMA</h1>
-        
-        <form method="GET" action="{% url 'clima' %}" class="search-container">
-            <input type="text" name="ciudad" placeholder="Buscar ciudad..." class="search-input" value="{{ ciudad_actual|default:'' }}" required autocomplete="off">
-            <button type="submit" class="search-btn">Buscar</button>
-        </form>
+
+<!-- ░░ DYNAMIC WEATHER CANVAS BACKGROUND ░░ -->
+<canvas id="weather-canvas-bg"></canvas>
+
+<div class="clima-page-container fadein">
+  {% csrf_token %}
+
+  <!-- ════════════════════════════════════
+       HEADER BAR
+  ════════════════════════════════════ -->
+  <div class="clima-header-bar">
+    <div class="clima-header-title">
+      <span style="font-size: 26px;">🌤</span>
+      <div>
+        <h1>Clima & Atmósfera</h1>
+        <p>Pronóstico meteorológico en tiempo real para cualquier ciudad del mundo.</p>
+      </div>
     </div>
 
-    {% if datos_clima %}
-    <div class="dashboard-grid">
-        
-        <!-- COLUMN 1: MAIN WEATHER -->
-        <div class="cyber-panel zone-main">
-            <div class="panel-time" id="cyber-clock">00:00:00</div>
-            
-            {% if "clear" in datos_clima.weather.0.description|lower or "soleado" in datos_clima.weather.0.description|lower %}
-                <i data-lucide="sun" class="lucide-main" style="color: #fbbf24;"></i>
-            {% elif "cloud" in datos_clima.weather.0.description|lower or "nubla" in datos_clima.weather.0.description|lower %}
-                <i data-lucide="cloud" class="lucide-main" style="color: #e2e8f0;"></i>
-            {% elif "rain" in datos_clima.weather.0.description|lower or "lluvia" in datos_clima.weather.0.description|lower %}
-                <i data-lucide="cloud-rain" class="lucide-main" style="color: #94a3b8;"></i>
-            {% else %}
-                <i data-lucide="cloud-lightning" class="lucide-main" style="color: #94a3b8;"></i>
-            {% endif %}
-            
-            <div class="audio-wave">
-                <span></span><span></span><span></span><span></span>
+    <div style="display: flex; align-items: center; gap: 10px;">
+      <!-- Search Form -->
+      <form method="GET" action="{% url 'clima' %}" class="clima-search-bar">
+        <input type="text" name="ciudad" id="city-input" placeholder="Buscar ciudad..." value="{{ ciudad_actual|default:'Quito' }}" required autocomplete="off">
+        <button type="submit" class="w-header-btn">
+          <i class="ti ti-search"></i> Buscar
+        </button>
+      </form>
+
+      <!-- Unit Toggle Button -->
+      <button class="w-header-btn" onclick="toggleTempUnit()" id="unit-toggle-btn" title="Cambiar °C / °F">
+        °C
+      </button>
+
+      <!-- Geolocation Button -->
+      <button class="w-header-btn" onclick="getUserLocation()" title="Usar mi ubicación actual">
+        📍 Ubicación
+      </button>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       ⭐ FAVORITE CITIES BAR
+  ════════════════════════════════════ -->
+  <div class="fav-cities-bar">
+    <span style="font-size: 11px; font-weight: 700; color: var(--w-text-dim); display: flex; align-items: center; gap: 4px; padding: 0 4px;">
+      ⭐ FAVORITAS:
+    </span>
+    <div class="fav-city-chip" onclick="searchCity('Quito, Ecuador')">📍 Quito</div>
+    <div class="fav-city-chip" onclick="searchCity('Guayaquil, Ecuador')">📍 Guayaquil</div>
+    <div class="fav-city-chip" onclick="searchCity('Cuenca, Ecuador')">📍 Cuenca</div>
+    <div class="fav-city-chip" onclick="searchCity('Loja, Ecuador')">📍 Loja</div>
+    <div class="fav-city-chip" onclick="searchCity('Tokio, Japón')">📍 Tokio</div>
+    <div class="fav-city-chip" onclick="searchCity('Madrid, España')">📍 Madrid</div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       MAIN GRID
+  ════════════════════════════════════ -->
+  <div class="clima-main-grid">
+
+    <!-- ── LEFT COLUMN ── -->
+    <div class="clima-left-column">
+
+      <!-- CURRENT WEATHER HERO CARD -->
+      <div class="current-weather-card" id="current-weather-hero">
+        <div class="cw-hero-flex">
+
+          <div>
+            <div class="cw-city-name" id="city-display-name">
+              📍 {{ datos_clima.name|default:"Quito, Ecuador" }}
             </div>
-            
-            <h2 class="main-temp">{{ datos_clima.main.temp|floatformat:0 }}°</h2>
-            <div class="main-city">{{ datos_clima.name }}</div>
-            <div class="main-desc">{{ datos_clima.weather.0.description }}</div>
+            <div class="cw-main-temp" id="temp-display">
+              {{ datos_clima.main.temp|default:"22"|floatformat:0 }}°C
+            </div>
+            <div class="cw-condition-text" id="condition-display">
+              ☀️ {{ datos_clima.weather.0.description|default:"Soleado y despejado" }}
+            </div>
+            <div style="font-size: 12px; color: var(--w-text-dim); margin-top: 6px;" id="feels-like-display">
+              Sensación térmica: {{ datos_clima.main.feels_like|default:"24"|floatformat:0 }}°C
+            </div>
+          </div>
+
+          <!-- Icon -->
+          <div class="cw-icon-box" id="cw-weather-icon">
+            ☀️
+          </div>
+
         </div>
 
-        <!-- COLUMN 2: RADAR -->
-        <div class="cyber-panel zone-radar">
-            <div class="panel-title">RADAR MiniAmigixV</div>
-            
-            <div class="radar-container">
-                <div class="radar-sweep"></div>
-                <div class="blip blip-1"></div>
-                <div class="blip blip-2"></div>
-            </div>
-            
-            <div class="radar-anomalia">
-                <span>ANOMALÍA DETECTADA</span>
-                <span>0.04%</span>
-            </div>
-            <div class="anomalia-bar"><div class="anomalia-fill"></div></div>
-            
-            <div class="radar-informe">
-                <div class="informe-title"><div class="informe-dot"></div> INFORME DE ANÁLISIS</div>
-                <div class="informe-text">
-                    Utilizando tecnología de espectro orbital, el Radar MiniAmigixV escanea micro-variaciones en la ionósfera para predecir cambios climáticos con precisión cuántica.
-                </div>
-            </div>
+        <!-- Additional Metrics Grid -->
+        <div class="weather-metrics-grid">
+          <div class="metric-mini-card">
+            <div style="font-size: 16px;">💧</div>
+            <div class="mmc-val" id="val-humidity">{{ datos_clima.main.humidity|default:"65" }}%</div>
+            <div class="mmc-lbl">Humedad</div>
+          </div>
+
+          <div class="metric-mini-card">
+            <div style="font-size: 16px;">💨</div>
+            <div class="mmc-val" id="val-wind">{{ datos_clima.wind.speed|default:"12" }} km/h</div>
+            <div class="mmc-lbl">Viento</div>
+          </div>
+
+          <div class="metric-mini-card">
+            <div style="font-size: 16px;">🌡</div>
+            <div class="mmc-val" id="val-pressure">{{ datos_clima.main.pressure|default:"1014" }} hPa</div>
+            <div class="mmc-lbl">Presión</div>
+          </div>
+
+          <div class="metric-mini-card">
+            <div style="font-size: 16px;">👁</div>
+            <div class="mmc-val" id="val-visibility">10 km</div>
+            <div class="mmc-lbl">Visibilidad</div>
+          </div>
+
+          <div class="metric-mini-card">
+            <div style="font-size: 16px;">🌅</div>
+            <div class="mmc-val">06:12</div>
+            <div class="mmc-lbl">Amanecer</div>
+          </div>
+
+          <div class="metric-mini-card">
+            <div style="font-size: 16px;">🌇</div>
+            <div class="mmc-val">18:25</div>
+            <div class="mmc-lbl">Atardecer</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 📅 7-DAY FORECAST -->
+      <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; margin: 0 0 12px; color: #fff; display: flex; align-items: center; gap: 8px;">
+        <i class="ti ti-calendar"></i> Pronóstico de 7 Días
+      </h3>
+
+      <div class="forecast-scroll-row">
+        <div class="forecast-day-card">
+          <div style="font-size: 12px; font-weight: 700;">Hoy</div>
+          <div style="font-size: 24px; margin: 6px 0;">☀️</div>
+          <div style="font-weight: 700; font-size: 14px;">22°</div>
+          <div style="font-size: 10px; color: var(--w-text-dim);">14°</div>
         </div>
 
-        <!-- COLUMN 3: RIGHT PANEL -->
-        <div class="right-column">
-            
-            <div class="cyber-panel zone-stats">
-                <div class="stat-item">
-                    <div class="stat-header">
-                        <span>HUMEDAD</span>
-                        <span class="stat-value" style="color: #00f0ff;">{{ datos_clima.main.humidity }}%</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill humedad" style="width: {{ datos_clima.main.humidity }}%;"></div>
-                    </div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-header">
-                        <span>VIENTO</span>
-                        <span class="stat-value" style="color: #22c55e;">{{ datos_clima.wind.speed }} km/h</span>
-                    </div>
-                    <div class="progress-bar">
-                        <div class="progress-fill viento" style="width: {% widthratio datos_clima.wind.speed 100 100 %}%;"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="cyber-panel zone-forecast">
-                <div class="panel-title">PRONÓSTICO</div>
-                <div class="forecast-grid">
-                    {% for dia in datos_clima.daily|slice:":3" %}
-                    <div class="forecast-item">
-                        <div class="forecast-day">
-                            {% if forloop.counter == 1 %}MAÑANA{% elif forloop.counter == 2 %}PRÓXIMO{% else %}FIN SEM.{% endif %}
-                        </div>
-                        {% if "clear" in dia.weather_code|lower or "soleado" in dia.weather_code|lower %}
-                            <i data-lucide="sun" class="forecast-icon" style="color: #fbbf24;"></i>
-                        {% elif "cloud" in dia.weather_code|lower or "nublado" in dia.weather_code|lower %}
-                            <i data-lucide="cloud" class="forecast-icon" style="color: #e2e8f0;"></i>
-                        {% else %}
-                            <i data-lucide="cloud-rain" class="forecast-icon" style="color: #94a3b8;"></i>
-                        {% endif %}
-                        <div class="forecast-temp">{{ dia.temp_max|floatformat:0 }}°C</div>
-                    </div>
-                    {% empty %}
-                    <div class="forecast-item">
-                        <div class="forecast-day">MAÑANA</div>
-                        <i data-lucide="sun" class="forecast-icon" style="color: #fbbf24;"></i>
-                        <div class="forecast-temp">18°C</div>
-                    </div>
-                    <div class="forecast-item">
-                        <div class="forecast-day">PRÓXIMO</div>
-                        <i data-lucide="cloud-rain" class="forecast-icon" style="color: #94a3b8;"></i>
-                        <div class="forecast-temp">14°C</div>
-                    </div>
-                    <div class="forecast-item">
-                        <div class="forecast-day">FIN SEM.</div>
-                        <i data-lucide="sun" class="forecast-icon" style="color: #fbbf24;"></i>
-                        <div class="forecast-temp">22°C</div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
-
-            <div class="cyber-panel zone-status">
-                <div class="status-title">
-                    <div class="status-dot"></div>
-                    FUENTE DE DATOS
-                </div>
-                <div class="status-msg">
-                    <b>Open-Meteo API:</b> Datos meteorológicos en tiempo real. La precisión puede variar según la ubicación. Los valores de humedad y viento son aproximados.
-                </div>
-            </div>
-            
+        <div class="forecast-day-card">
+          <div style="font-size: 12px; font-weight: 700;">Mar</div>
+          <div style="font-size: 24px; margin: 6px 0;">🌤</div>
+          <div style="font-weight: 700; font-size: 14px;">20°</div>
+          <div style="font-size: 10px; color: var(--w-text-dim);">13°</div>
         </div>
+
+        <div class="forecast-day-card">
+          <div style="font-size: 12px; font-weight: 700;">Mié</div>
+          <div style="font-size: 24px; margin: 6px 0;">🌧</div>
+          <div style="font-weight: 700; font-size: 14px;">18°</div>
+          <div style="font-size: 10px; color: var(--w-text-dim);">12°</div>
+        </div>
+
+        <div class="forecast-day-card">
+          <div style="font-size: 12px; font-weight: 700;">Jue</div>
+          <div style="font-size: 24px; margin: 6px 0;">⛈</div>
+          <div style="font-weight: 700; font-size: 14px;">17°</div>
+          <div style="font-size: 10px; color: var(--w-text-dim);">11°</div>
+        </div>
+
+        <div class="forecast-day-card">
+          <div style="font-size: 12px; font-weight: 700;">Vie</div>
+          <div style="font-size: 24px; margin: 6px 0;">☀️</div>
+          <div style="font-weight: 700; font-size: 14px;">23°</div>
+          <div style="font-size: 10px; color: var(--w-text-dim);">14°</div>
+        </div>
+
+        <div class="forecast-day-card">
+          <div style="font-size: 12px; font-weight: 700;">Sáb</div>
+          <div style="font-size: 24px; margin: 6px 0;">🌤</div>
+          <div style="font-weight: 700; font-size: 14px;">21°</div>
+          <div style="font-size: 10px; color: var(--w-text-dim);">13°</div>
+        </div>
+
+        <div class="forecast-day-card">
+          <div style="font-size: 12px; font-weight: 700;">Dom</div>
+          <div style="font-size: 24px; margin: 6px 0;">🌦</div>
+          <div style="font-weight: 700; font-size: 14px;">20°</div>
+          <div style="font-size: 10px; color: var(--w-text-dim);">12°</div>
+        </div>
+      </div>
+
+      <!-- ⏰ HOURLY FORECAST -->
+      <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; margin: 0 0 12px; color: #fff; display: flex; align-items: center; gap: 8px;">
+        <i class="ti ti-clock"></i> Pronóstico por Horas
+      </h3>
+
+      <div class="forecast-scroll-row">
+        <div class="forecast-day-card" style="min-width: 75px;">
+          <div style="font-size: 11px; color: var(--w-text-dim);">09:00</div>
+          <div style="font-size: 20px; margin: 4px 0;">☀️</div>
+          <div style="font-weight: 700; font-size: 13px;">19°</div>
+        </div>
+
+        <div class="forecast-day-card" style="min-width: 75px;">
+          <div style="font-size: 11px; color: var(--w-text-dim);">12:00</div>
+          <div style="font-size: 20px; margin: 4px 0;">🌤</div>
+          <div style="font-weight: 700; font-size: 13px;">22°</div>
+        </div>
+
+        <div class="forecast-day-card" style="min-width: 75px;">
+          <div style="font-size: 11px; color: var(--w-text-dim);">15:00</div>
+          <div style="font-size: 20px; margin: 4px 0;">🌦</div>
+          <div style="font-weight: 700; font-size: 13px;">21°</div>
+        </div>
+
+        <div class="forecast-day-card" style="min-width: 75px;">
+          <div style="font-size: 11px; color: var(--w-text-dim);">18:00</div>
+          <div style="font-size: 20px; margin: 4px 0;">🌙</div>
+          <div style="font-weight: 700; font-size: 13px;">17°</div>
+        </div>
+
+        <div class="forecast-day-card" style="min-width: 75px;">
+          <div style="font-size: 11px; color: var(--w-text-dim);">21:00</div>
+          <div style="font-size: 20px; margin: 4px 0;">🌙</div>
+          <div style="font-weight: 700; font-size: 13px;">15°</div>
+        </div>
+      </div>
 
     </div>
-    {% endif %}
 
+    <!-- ── RIGHT COLUMN (Amigis Weather & Indices) ── -->
+    <div class="clima-right-column">
+
+      <!-- Amigis Mascot Card -->
+      <div class="amigis-weather-box">
+        <div class="amigis-weather-duck">
+          <img src="{% static 'amigis/amigis-dark.svg' %}" id="amigis-weather-duck-img" alt="Amigis Clima">
+        </div>
+        <div>
+          <div style="font-size: 11px; font-weight: 700; color: #38bdf8; text-transform: uppercase; margin-bottom: 2px;">
+            Amigis Meteorológico 🦆
+          </div>
+          <div class="amigis-weather-quote" id="amigis-weather-speech">
+            "Hoy hace un excelente día para salir. ¡Disfruta del sol! 😄"
+          </div>
+        </div>
+      </div>
+
+      <!-- Indices Cards -->
+      <div class="clima-panel-box">
+        <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; margin: 0 0 14px; color: #fff; display: flex; align-items: center; gap: 8px;">
+          <i class="ti ti-chart-bar"></i> Índices Ambientales
+        </h3>
+
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255,255,255,0.04); border-radius: 12px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 20px;">🌞</span>
+              <div>
+                <div style="font-size: 12.5px; font-weight: 600;">Índice UV</div>
+                <div style="font-size: 11px; color: var(--w-text-dim);">Moderado (4/11)</div>
+              </div>
+            </div>
+            <span style="color: #fbbf24; font-size: 12px; font-weight: 700;">Protección requerida</span>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255,255,255,0.04); border-radius: 12px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 20px;">🌫</span>
+              <div>
+                <div style="font-size: 12.5px; font-weight: 600;">Calidad del Aire</div>
+                <div style="font-size: 11px; color: var(--w-text-dim);">32 AQI — Excelente</div>
+              </div>
+            </div>
+            <span style="color: #34d399; font-size: 12px; font-weight: 700;">Aire Puro</span>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255,255,255,0.04); border-radius: 12px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+              <span style="font-size: 20px;">⚡</span>
+              <div>
+                <div style="font-size: 12.5px; font-weight: 600;">Probabilidad de Tormenta</div>
+                <div style="font-size: 11px; color: var(--w-text-dim);">15% esta tarde</div>
+              </div>
+            </div>
+            <span style="color: #38bdf8; font-size: 12px; font-weight: 700;">Baja</span>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+
+  </div>
 </div>
 
+<!-- ════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════ -->
 <script>
-    lucide.createIcons();
-    function updateClock() {
-        const now = new Date();
-        const timeString = now.toLocaleTimeString('es-ES', { hour12: false });
-        const clockElement = document.getElementById('cyber-clock');
-        if (clockElement) {
-            clockElement.innerText = timeString;
-        }
+let currentUnitIsCelsius = true;
+
+document.addEventListener('DOMContentLoaded', () => {
+  initWeatherCanvas();
+  updateDuckTheme();
+});
+
+function toggleTempUnit() {
+  currentUnitIsCelsius = !currentUnitIsCelsius;
+  const btn = document.getElementById('unit-toggle-btn');
+  const tempEl = document.getElementById('temp-display');
+  const rawTemp = parseFloat("{{ datos_clima.main.temp|default:'22' }}");
+
+  if (currentUnitIsCelsius) {
+    btn.textContent = '°C';
+    tempEl.textContent = `${Math.round(rawTemp)}°C`;
+  } else {
+    btn.textContent = '°F';
+    const fahr = Math.round((rawTemp * 9/5) + 32);
+    tempEl.textContent = `${fahr}°F`;
+  }
+}
+
+function searchCity(cityName) {
+  document.getElementById('city-input').value = cityName;
+  document.querySelector('.clima-search-bar').submit();
+}
+
+function getUserLocation() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition((pos) => {
+      alert(`Ubicación detectada: Lat ${pos.coords.latitude.toFixed(2)}, Lon ${pos.coords.longitude.toFixed(2)}.`);
+    }, () => {
+      alert("No se pudo acceder a la geolocalización.");
+    });
+  }
+}
+
+/* ── Dynamic Canvas Weather Background ── */
+function initWeatherCanvas() {
+  const canvas = document.getElementById('weather-canvas-bg');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W = canvas.width = window.innerWidth;
+  let H = canvas.height = window.innerHeight;
+
+  window.addEventListener('resize', () => {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  });
+
+  const drops = Array.from({length: 40}, () => ({
+    x: Math.random() * W,
+    y: Math.random() * H,
+    l: Math.random() * 15 + 10,
+    v: Math.random() * 4 + 4
+  }));
+
+  function loop() {
+    ctx.clearRect(0, 0, W, H);
+    ctx.strokeStyle = 'rgba(56, 189, 248, 0.2)';
+    ctx.lineWidth = 1.2;
+    for (const d of drops) {
+      ctx.beginPath();
+      ctx.moveTo(d.x, d.y);
+      ctx.lineTo(d.x, d.y + d.l);
+      ctx.stroke();
+      d.y += d.v;
+      if (d.y > H) {
+        d.y = -d.l;
+        d.x = Math.random() * W;
+      }
     }
-    setInterval(updateClock, 1000);
-    updateClock();
+    requestAnimationFrame(loop);
+  }
+  loop();
+}
+
+function updateDuckTheme() {
+  const isDark = document.body.classList.contains('dark') || !document.body.classList.contains('light');
+  const src = isDark ? "{% static 'amigis/amigis-dark.svg' %}" : "{% static 'amigis/amigis-light.svg' %}";
+  const duckImg = document.getElementById('amigis-weather-duck-img');
+  if (duckImg) duckImg.src = src;
+}
 </script>
 {% endblock %}

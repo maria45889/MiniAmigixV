@@ -131,3 +131,9 @@ def app_v2(request):
     """Render full single-page application version of MiniAmigixV."""
     return render(request, 'mini_amigix_v2.html')
 
+
+def archivos(request):
+    """Render Mis Archivos page."""
+    return render(request, 'archivos.html')
+
+

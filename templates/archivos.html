@@ -1,0 +1,394 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Mis Archivos — MiniAmigixV{% endblock %}
+{% block nav_title %}Mis Archivos{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/archivos.css' %}?v=40">
+{% endblock %}
+
+{% block content %}
+<div class="archivos-page-container fadein">
+  {% csrf_token %}
+
+  <!-- ════════════════════════════════════
+       HEADER BAR
+  ════════════════════════════════════ -->
+  <div class="archivos-header-bar">
+    <div class="archivos-header-title">
+      <span style="font-size: 26px;">📁</span>
+      <div>
+        <h1>Mis Archivos & Documentos</h1>
+        <p>Todo tu contenido organizado en un solo lugar con inteligencia artificial.</p>
+      </div>
+    </div>
+
+    <div class="archivos-header-actions">
+      <div style="position: relative;">
+        <input type="text" id="file-search-input" placeholder="Buscar archivo..." onkeyup="filterFiles()" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 14px; padding: 8px 14px 8px 32px; color: #fff; font-size: 12px; outline: none; width: 170px;">
+        <i class="ti ti-search" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: var(--ar-text-dim); font-size: 14px;"></i>
+      </div>
+
+      <button class="a-header-btn a-header-btn-primary" onclick="triggerFileUpload()">
+        <i class="ti ti-upload"></i> Subir Archivo
+      </button>
+      <button class="a-header-btn" onclick="createNewFolderPrompt()">
+        <i class="ti ti-folder-plus"></i> Nueva Carpeta
+      </button>
+      <button class="a-header-btn" onclick="syncCloudStorage()">
+        <i class="ti ti-refresh"></i> Sincronizar
+      </button>
+      <input type="file" id="real-file-input" style="display: none;" onchange="handleFileSelect(this)">
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       🦆 AMIGIS SMART FILES BANNER
+  ════════════════════════════════════ -->
+  <div class="amigis-files-banner">
+    <div class="amigis-files-duck">
+      <img src="{% static 'amigis/amigis-dark.svg' %}" id="amigis-files-duck-img" alt="Amigis Files">
+    </div>
+    <div class="amigis-files-text">
+      <strong style="color: #38bdf8;">Centro Inteligente de Archivos 🦆</strong>:
+      "¡Hola! Puedo resumir tus PDFs, traducir documentos, corregir ortografía o transcribir audios con un solo clic. 📄✨"
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       ☁ DRAG & DROP UPLOAD ZONE
+  ════════════════════════════════════ -->
+  <div class="drop-upload-zone" id="drop-zone" onclick="triggerFileUpload()">
+    <div style="font-size: 32px; margin-bottom: 6px;">☁️</div>
+    <div style="font-size: 14px; font-weight: 700; color: #fff;">Arrastra tus archivos aquí o haz clic para examinar</div>
+    <div style="font-size: 11.5px; color: var(--ar-text-dim); margin-top: 4px;">Soporta PDF, Word, PPTX, MP3, PNG, JPG, ZIP y más (Máx 100 MB).</div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       📂 CARPETAS (GRID DE TARJETAS)
+  ════════════════════════════════════ -->
+  <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; margin: 0 0 12px; color: #fff; display: flex; align-items: center; gap: 8px;">
+    <i class="ti ti-folder"></i> Mis Carpetas
+  </h3>
+
+  <div class="folders-grid">
+    <div class="folder-card-item" onclick="filterByFolder('estudio')">
+      <div class="folder-icon">📚</div>
+      <div class="folder-name">Estudio</div>
+      <div class="folder-count">14 archivos</div>
+    </div>
+
+    <div class="folder-card-item" onclick="filterByFolder('programacion')">
+      <div class="folder-icon">💻</div>
+      <div class="folder-name">Programación</div>
+      <div class="folder-count">32 archivos</div>
+    </div>
+
+    <div class="folder-card-item" onclick="filterByFolder('musica')">
+      <div class="folder-icon">🎵</div>
+      <div class="folder-name">Música</div>
+      <div class="folder-count">24 canciones</div>
+    </div>
+
+    <div class="folder-card-item" onclick="filterByFolder('imagenes')">
+      <div class="folder-icon">🖼️</div>
+      <div class="folder-name">Imágenes</div>
+      <div class="folder-count">18 fotos</div>
+    </div>
+
+    <div class="folder-card-item" onclick="filterByFolder('documentos')">
+      <div class="folder-icon">📄</div>
+      <div class="folder-name">Documentos</div>
+      <div class="folder-count">12 PDFs</div>
+    </div>
+
+    <div class="folder-card-item" onclick="filterByFolder('videos')">
+      <div class="folder-icon">🎥</div>
+      <div class="folder-name">Videos</div>
+      <div class="folder-count">5 clips</div>
+    </div>
+
+    <div class="folder-card-item" onclick="filterByFolder('descargas')">
+      <div class="folder-icon">📥</div>
+      <div class="folder-name">Descargas</div>
+      <div class="folder-count">8 ítems</div>
+    </div>
+
+    <div class="folder-card-item" onclick="filterByFolder('favoritos')">
+      <div class="folder-icon">⭐</div>
+      <div class="folder-name">Favoritos</div>
+      <div class="folder-count">6 ítems</div>
+    </div>
+
+    <div class="folder-card-item" onclick="filterByFolder('papelera')">
+      <div class="folder-icon">🗑️</div>
+      <div class="folder-name">Papelera</div>
+      <div class="folder-count">3 ítems</div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       MAIN SPLIT GRID
+  ════════════════════════════════════ -->
+  <div class="archivos-main-grid">
+
+    <!-- ── LEFT COLUMN (Recent Files List) ── -->
+    <div class="files-panel-box">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; margin: 0; color: #fff; display: flex; align-items: center; gap: 8px;">
+          <i class="ti ti-file"></i> Archivos Recientes
+        </h3>
+        <span style="font-size: 11px; color: var(--ar-text-dim);">5 archivos mostrados</span>
+      </div>
+
+      <div id="files-list-container">
+
+        <!-- File 1 -->
+        <div class="file-row-item" onclick="openFilePreview('Proyecto_Django.pdf', 'PDF', '4.2 MB')">
+          <div class="file-info-flex">
+            <div class="file-type-icon" style="color: #f43f5e;">📄</div>
+            <div>
+              <div class="file-name-text">Proyecto_Django.pdf</div>
+              <div class="file-meta-text">Documento PDF • 4.2 MB • Ayer</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button class="a-header-btn" onclick="event.stopPropagation(); shareFileModal('Proyecto_Django.pdf')">📤 Compartir</button>
+            <button class="a-header-btn" onclick="event.stopPropagation(); summarizePDF('Proyecto_Django.pdf')">🤖 Resumir</button>
+          </div>
+        </div>
+
+        <!-- File 2 -->
+        <div class="file-row-item" onclick="openFilePreview('Apuntes_Python.docx', 'DOCX', '1.1 MB')">
+          <div class="file-info-flex">
+            <div class="file-type-icon" style="color: #38bdf8;">📝</div>
+            <div>
+              <div class="file-name-text">Apuntes_Python.docx</div>
+              <div class="file-meta-text">Documento Word • 1.1 MB • Hoy</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button class="a-header-btn" onclick="event.stopPropagation(); shareFileModal('Apuntes_Python.docx')">📤 Compartir</button>
+            <button class="a-header-btn" onclick="event.stopPropagation(); fixGrammar('Apuntes_Python.docx')">📝 Corregir</button>
+          </div>
+        </div>
+
+        <!-- File 3 -->
+        <div class="file-row-item" onclick="openFilePreview('Presentación.pptx', 'PPTX', '8.5 MB')">
+          <div class="file-info-flex">
+            <div class="file-type-icon" style="color: #f59e0b;">📊</div>
+            <div>
+              <div class="file-name-text">Presentación.pptx</div>
+              <div class="file-meta-text">Presentación PowerPoint • 8.5 MB • Hace 3 días</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button class="a-header-btn" onclick="event.stopPropagation(); shareFileModal('Presentación.pptx')">📤 Compartir</button>
+            <button class="a-header-btn" onclick="event.stopPropagation(); summarizePPT('Presentación.pptx')">📊 Resumir</button>
+          </div>
+        </div>
+
+        <!-- File 4 -->
+        <div class="file-row-item" onclick="openFilePreview('Captura.png', 'PNG', '2.4 MB')">
+          <div class="file-info-flex">
+            <div class="file-type-icon" style="color: #c084fc;">📸</div>
+            <div>
+              <div class="file-name-text">Captura.png</div>
+              <div class="file-meta-text">Imagen PNG • 2.4 MB • Hoy</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button class="a-header-btn" onclick="event.stopPropagation(); shareFileModal('Captura.png')">📤 Compartir</button>
+          </div>
+        </div>
+
+        <!-- File 5 -->
+        <div class="file-row-item" onclick="openFilePreview('Música.mp3', 'MP3', '5.8 MB')">
+          <div class="file-info-flex">
+            <div class="file-type-icon" style="color: #10b981;">🎵</div>
+            <div>
+              <div class="file-name-text">Música.mp3</div>
+              <div class="file-meta-text">Archivo Audio • 5.8 MB • Hace 2 días</div>
+            </div>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button class="a-header-btn" onclick="event.stopPropagation(); transcribeAudio('Música.mp3')">🎧 Transcribir</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ── RIGHT COLUMN (Storage & AI Smart Tools) ── -->
+    <div>
+
+      <!-- Storage Card -->
+      <div class="storage-card-box">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="font-size: 13px; font-weight: 700; color: #fff;">☁️ Almacenamiento</div>
+          <span style="font-size: 11px; color: #38bdf8; font-weight: 700;">8.5 GB / 15 GB</span>
+        </div>
+        <div class="storage-progress-bar">
+          <div class="storage-progress-fill"></div>
+        </div>
+        <div style="font-size: 11px; color: var(--ar-text-dim);">56.6% usado. Espacio suficiente para tus cursos y proyectos.</div>
+      </div>
+
+      <!-- AI Smart Tools Cards -->
+      <div class="files-panel-box">
+        <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; margin: 0 0 14px; color: #fff; display: flex; align-items: center; gap: 6px;">
+          🤖 Herramientas de IA con Amigis
+        </h3>
+
+        <div class="ai-tools-grid">
+          <div class="ai-tool-card" onclick="summarizePDF('Proyecto_Django.pdf')">
+            <div style="font-size: 20px;">📄</div>
+            <div style="font-size: 11.5px; font-weight: 700; color: #fff; margin-top: 4px;">Resumir PDF</div>
+          </div>
+
+          <div class="ai-tool-card" onclick="alert('Iniciando traductor de documentos con IA...')">
+            <div style="font-size: 20px;">🌍</div>
+            <div style="font-size: 11.5px; font-weight: 700; color: #fff; margin-top: 4px;">Traducir Doc</div>
+          </div>
+
+          <div class="ai-tool-card" onclick="fixGrammar('Apuntes_Python.docx')">
+            <div style="font-size: 20px;">📝</div>
+            <div style="font-size: 11.5px; font-weight: 700; color: #fff; margin-top: 4px;">Ortografía</div>
+          </div>
+
+          <div class="ai-tool-card" onclick="alert('Analizando código subido con IA...')">
+            <div style="font-size: 20px;">💻</div>
+            <div style="font-size: 11.5px; font-weight: 700; color: #fff; margin-top: 4px;">Explicar Código</div>
+          </div>
+
+          <div class="ai-tool-card" onclick="summarizePPT('Presentación.pptx')">
+            <div style="font-size: 20px;">📊</div>
+            <div style="font-size: 11.5px; font-weight: 700; color: #fff; margin-top: 4px;">Resumir PPT</div>
+          </div>
+
+          <div class="ai-tool-card" onclick="transcribeAudio('Música.mp3')">
+            <div style="font-size: 20px;">🎧</div>
+            <div style="font-size: 11.5px; font-weight: 700; color: #fff; margin-top: 4px;">Transcribir</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- ════════════════════════════════════
+     SCRIPTS
+════════════════════════════════════ -->
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  updateDuckTheme();
+
+  const dropZone = document.getElementById('drop-zone');
+  if (dropZone) {
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+      dropZone.addEventListener(eventName, preventDefaults, false);
+    });
+    function preventDefaults(e) { e.preventDefault(); e.stopPropagation(); }
+
+    dropZone.addEventListener('dragover', () => dropZone.classList.add('dragover'));
+    dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+    dropZone.addEventListener('drop', (e) => {
+      dropZone.classList.remove('dragover');
+      if (e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
+    });
+  }
+});
+
+function triggerFileUpload() {
+  document.getElementById('real-file-input').click();
+}
+
+function handleFileSelect(input) {
+  if (input.files.length) handleFiles(input.files);
+}
+
+function handleFiles(files) {
+  const file = files[0];
+  alert(`Subiendo archivo "${file.name}" (${(file.size / (1024*1024)).toFixed(2)} MB) a tu espacio personal ✔`);
+
+  const container = document.getElementById('files-list-container');
+  const div = document.createElement('div');
+  div.className = 'file-row-item';
+  div.innerHTML = `
+    <div class="file-info-flex">
+      <div class="file-type-icon" style="color: #38bdf8;">📁</div>
+      <div>
+        <div class="file-name-text">${escapeHtml(file.name)}</div>
+        <div class="file-meta-text">Subido recientemente • ${(file.size / (1024*1024)).toFixed(2)} MB • Ahora</div>
+      </div>
+    </div>
+    <div style="display: flex; gap: 6px;">
+      <button class="a-header-btn" onclick="shareFileModal('${escapeHtml(file.name)}')">📤 Compartir</button>
+    </div>
+  `;
+  container.prepend(div);
+}
+
+function createNewFolderPrompt() {
+  const name = prompt("Nombre de la nueva carpeta:");
+  if (name) {
+    alert(`Carpeta "${name}" creada exitosamente 📂`);
+  }
+}
+
+function syncCloudStorage() {
+  alert("Sincronizando tus archivos con la nube de MiniAmigixV... 🔄");
+}
+
+function filterByFolder(folderName) {
+  alert(`Filtrando archivos por carpeta: ${folderName.toUpperCase()} 📂`);
+}
+
+function openFilePreview(name, type, size) {
+  alert(`Vista previa de ${name} (${type} - ${size}).\nArchivo listo para visualizar o editar.`);
+}
+
+function shareFileModal(name) {
+  const email = prompt(`Compartir "${name}" por correo electrónico:`);
+  if (email) alert(`Enlace seguro enviado a ${email} 📧`);
+}
+
+function summarizePDF(name) {
+  alert(`🤖 Amigis IA procesando ${name}...\nResumen: Documento sobre arquitectura de software Django, modelos ORM y patrones MVT.`);
+}
+
+function fixGrammar(name) {
+  alert(`🤖 Amigis IA revisando ortografía de ${name}...\nResultado: 0 errores detectados. Redacción impecable ✔`);
+}
+
+function summarizePPT(name) {
+  alert(`🤖 Amigis IA analizando presentación ${name}...\nResumen Ejecutivo: 12 diapositivas sobre métricas de desarrollo y roadmap 2026.`);
+}
+
+function transcribeAudio(name) {
+  alert(`🤖 Amigis IA transcribiendo ${name} a texto...\nTranscripción: "Bienvenidos a la clase de desarrollo web inteligente con MiniAmigixV..."`);
+}
+
+function filterFiles() {
+  const term = document.getElementById('file-search-input').value.toLowerCase();
+  document.querySelectorAll('.file-row-item').forEach(row => {
+    const text = row.querySelector('.file-name-text').textContent.toLowerCase();
+    row.style.display = text.includes(term) ? 'flex' : 'none';
+  });
+}
+
+function updateDuckTheme() {
+  const isDark = document.body.classList.contains('dark') || !document.body.classList.contains('light');
+  const src = isDark ? "{% static 'amigis/amigis-dark.svg' %}" : "{% static 'amigis/amigis-light.svg' %}";
+  const duckImg = document.getElementById('amigis-files-duck-img');
+  if (duckImg) duckImg.src = src;
+}
+
+function escapeHtml(str) {
+  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+</script>
+{% endblock %}
