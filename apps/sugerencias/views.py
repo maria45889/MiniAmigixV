@@ -148,7 +148,8 @@ def responder_sugerencia(request, sugerencia_id):
                         [sugerencia.usuario.email],
                     )
                     email.encoding = 'utf-8'
-                    email.send()
+                    import threading
+                    threading.Thread(target=email.send).start()
                 except:
                     pass
             

@@ -595,17 +595,18 @@
 }
 
 .avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 14px;
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 15px;
+    font-size: 18px;
     font-weight: 700;
     flex-shrink: 0;
     box-shadow: 0 6px 20px rgba(0,0,0,0.2);
     transition: transform 0.3s ease;
+    padding: 4px;
 }
 
 .avatar.bot { background: linear-gradient(135deg, #8b5cf6, #6366f1); color: #fff; box-shadow: 0 6px 20px rgba(124, 58, 237, 0.4); }

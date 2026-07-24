@@ -481,16 +481,18 @@ def netease_lyrics_api(request):
     try:
         import json
         data = json.loads(request.body) if request.content_type == 'application/json' else {}
-        song = request.GET.get('song', data.get('song', ''))
-        artist = request.GET.get('artist', data.get('artist', ''))
+        song = request.GET.get('song', data.get('song', '')).strip()
+        artist = request.GET.get('artist', data.get('artist', '')).strip()
         
-        if not song or not artist:
-            return JsonResponse({'error': 'song y artist son requeridos'}, status=400)
+        if not song:
+            return JsonResponse({'error': 'song es requerido'}, status=400)
         
         # Search for lyrics using LRCLIB as fallback
         import requests
         from requests.exceptions import Timeout, RequestException
-        query = f'{artist} {song}'
+        
+        # Build query - if artist is empty, just search by song
+        query = f'{artist} {song}'.strip() if artist else song
         
         try:
             response = requests.get(f'https://lrclib.net/api/search?q={query}', timeout=15)
@@ -516,11 +518,14 @@ def netease_lyrics_api(request):
                         'syncedLyrics': None,
                         'plainLyrics': results[0].get('plainLyrics')
                     })
+            else:
+                return JsonResponse({'success': False, 'error': 'No se encontraron letras para esta canción'})
+        else:
+            return JsonResponse({'success': False, 'error': 'Error al buscar letras'})
         
-        return JsonResponse({'success': False, 'error': 'No se encontraron letras'})
     except Exception as e:
-        LogHelper.log_error(logger, f"Error al obtener letras de Netease: {str(e)}", exc_info=True)
-        return JsonResponse({'success': False, 'error': 'Error interno del servidor'})
+        LogHelper.log_error(logger, f"Error en netease_lyrics_api: {str(e)}", exc_info=True)
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
 
 
 @require_http_methods(["GET", "POST"])

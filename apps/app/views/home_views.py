@@ -44,11 +44,80 @@ def home(request):
     
     # Estadísticas del usuario
     if request.user.is_authenticated:
-        context['stats'] = UserService.get_user_statistics(request.user)
+        stats = UserService.get_user_statistics(request.user)
+        context['stats_chats'] = stats.get('chats', 0)
+        context['stats_canciones'] = stats.get('canciones', 0)
+        context['stats_eventos'] = stats.get('eventos', 0)
         
         # Obtener eventos próximos para el reloj inteligente
         eventos_proximos = CalendarSelector.get_for_clock_widget(3, 3)
         context['eventos_proximos'] = eventos_proximos
+        
+        # Obtener clima real
+        try:
+            from apps.app.services import WeatherService
+            clima_data = WeatherService.get_current_weather()
+            if clima_data:
+                context['clima_temp'] = clima_data.get('temp', 23)
+                context['clima_desc'] = clima_data.get('description', 'Parcialmente nublado')
+                context['clima_icon'] = clima_data.get('icon', '⛅')
+        except:
+            context['clima_temp'] = 23
+            context['clima_desc'] = 'Parcialmente nublado'
+            context['clima_icon'] = '⛅'
+        
+        # Actividad reciente del usuario
+        from apps.app.models import ConversacionChat
+        from apps.app.models import Cancion
+        from eventos.models import Evento
+        from django.utils import timezone
+        from datetime import timedelta
+        
+        actividad = []
+        
+        # Último chat
+        ultimo_chat = ConversacionChat.objects.filter(usuario=request.user).order_by('-fecha_actualizacion').first()
+        if ultimo_chat:
+            actividad.append({
+                'tipo': 'chat',
+                'nombre': 'Chat IA',
+                'tiempo': 'Hoy' if ultimo_chat.fecha_actualizacion.date() == timezone.now().date() else 'Ayer',
+                'icono': 'ti ti-message-dots',
+                'bg': 'chat-bg'
+            })
+        
+        # Última canción agregada
+        ultima_cancion = Cancion.objects.filter(usuario=request.user).order_by('-fecha_agregada').first()
+        if ultima_cancion:
+            actividad.append({
+                'tipo': 'musica',
+                'nombre': 'Música',
+                'tiempo': 'Hoy' if ultima_cancion.fecha_agregada.date() == timezone.now().date() else 'Ayer',
+                'icono': 'ti ti-music',
+                'bg': 'music-bg'
+            })
+        
+        # Último evento creado
+        ultimo_evento = Evento.objects.filter(usuario=request.user).order_by('-fecha_creacion').first()
+        if ultimo_evento:
+            actividad.append({
+                'tipo': 'evento',
+                'nombre': 'Evento creado',
+                'tiempo': 'Hoy' if ultimo_evento.fecha_creacion.date() == timezone.now().date() else 'Ayer',
+                'icono': 'ti ti-calendar',
+                'bg': 'events-bg'
+            })
+        
+        context['actividad_reciente'] = actividad[:4]
+    else:
+        # Datos por defecto para usuarios no autenticados
+        context['stats_chats'] = 0
+        context['stats_canciones'] = 0
+        context['stats_eventos'] = 0
+        context['clima_temp'] = 23
+        context['clima_desc'] = 'Parcialmente nublado'
+        context['clima_icon'] = '⛅'
+        context['actividad_reciente'] = []
     
     return render(request, 'home.html', context)
 

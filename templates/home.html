@@ -56,22 +56,22 @@
             <div class="hero-mini-stats">
                 <div class="mini-stat">
                     <span class="mini-stat-icon">💬</span>
-                    <span class="mini-stat-val">{{ stats_chats|default:0 }}</span>
+                    <span class="mini-stat-val">{{ stats_chats }}</span>
                     <span class="mini-stat-lbl">Chats</span>
                 </div>
                 <div class="mini-stat">
                     <span class="mini-stat-icon">🎵</span>
-                    <span class="mini-stat-val">{{ stats_canciones|default:0 }}</span>
+                    <span class="mini-stat-val">{{ stats_canciones }}</span>
                     <span class="mini-stat-lbl">Canciones</span>
                 </div>
                 <div class="mini-stat">
                     <span class="mini-stat-icon">📅</span>
-                    <span class="mini-stat-val">{{ stats_eventos|default:0 }}</span>
+                    <span class="mini-stat-val">{{ stats_eventos }}</span>
                     <span class="mini-stat-lbl">Eventos</span>
                 </div>
                 <div class="mini-stat">
                     <span class="mini-stat-icon">🌦</span>
-                    <span class="mini-stat-val">23°</span>
+                    <span class="mini-stat-val">{{ clima_temp }}°</span>
                     <span class="mini-stat-lbl">Clima</span>
                 </div>
             </div>
@@ -133,9 +133,9 @@
         <!-- Clima -->
         <a href="{% url 'clima' %}" class="bento-cell module-cell weather-cell">
             <div class="bento-noise"></div>
-            <div class="weather-big-icon">⛅</div>
-            <div class="weather-temp">23°C</div>
-            <div class="weather-desc">Pronóstico y condiciones actuales</div>
+            <div class="weather-big-icon">{{ clima_icon }}</div>
+            <div class="weather-temp">{{ clima_temp }}°C</div>
+            <div class="weather-desc">{{ clima_desc }}</div>
             <div class="module-icon-wrap mini"><i class="ti ti-cloud-sun"></i></div>
             <div class="cell-glow"></div>
         </a>
@@ -155,30 +155,18 @@
             <div class="bento-noise"></div>
             <h3 class="cell-heading"><i class="ti ti-history"></i> Actividad Reciente</h3>
             <div class="activity-mini-list">
+                {% for act in actividad_reciente %}
                 <div class="activity-row">
-                    <div class="activity-chip-icon chat-bg"><i class="ti ti-message-dots"></i></div>
-                    <span class="activity-row-name">Chat IA</span>
-                    <span class="activity-row-time">Hoy</span>
+                    <div class="activity-chip-icon {{ act.bg }}"><i class="{{ act.icono }}"></i></div>
+                    <span class="activity-row-name">{{ act.nombre }}</span>
+                    <span class="activity-row-time">{{ act.tiempo }}</span>
                     <div class="activity-check"><i class="ti ti-circle-check-filled"></i></div>
                 </div>
-                <div class="activity-row">
-                    <div class="activity-chip-icon music-bg"><i class="ti ti-music"></i></div>
-                    <span class="activity-row-name">Música</span>
-                    <span class="activity-row-time">Hoy</span>
-                    <div class="activity-check"><i class="ti ti-circle-check-filled"></i></div>
+                {% empty %}
+                <div class="activity-row" style="justify-content: center; color: rgba(255,255,255,0.4);">
+                    <span>No hay actividad reciente</span>
                 </div>
-                <div class="activity-row">
-                    <div class="activity-chip-icon events-bg"><i class="ti ti-calendar"></i></div>
-                    <span class="activity-row-name">Evento creado</span>
-                    <span class="activity-row-time">Hoy</span>
-                    <div class="activity-check"><i class="ti ti-circle-check-filled"></i></div>
-                </div>
-                <div class="activity-row">
-                    <div class="activity-chip-icon translator-bg"><i class="ti ti-language"></i></div>
-                    <span class="activity-row-name">Traducción</span>
-                    <span class="activity-row-time">Hoy</span>
-                    <div class="activity-check"><i class="ti ti-circle-check-filled"></i></div>
-                </div>
+                {% endfor %}
             </div>
         </div>
 

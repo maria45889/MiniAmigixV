@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.db.models import Q, Count
 from django.core.paginator import Paginator
+from django.utils import timezone
 from .models import Category, Tutorial, Step, TutorialProgress, FAQ
 
 

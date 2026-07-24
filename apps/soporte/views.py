@@ -206,7 +206,8 @@ def responder_ticket(request, ticket_id):
                         [ticket.usuario.email],
                     )
                     email.encoding = 'utf-8'
-                    email.send()
+                    import threading
+                    threading.Thread(target=email.send).start()
                 except:
                     pass
             
