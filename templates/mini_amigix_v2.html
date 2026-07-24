@@ -1,0 +1,1445 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MiniAmigixV</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Sora:wght@400;500;600;700&display=swap');
+  :root{
+    --bg-0:#0c0915; --bg-1:#120e20; --bg-2:#19142e; --bg-3:#231c3f;
+    --border:rgba(255,255,255,0.08); --pink:#ff5fd0; --purple:#6d35e3; --purple-light:#8b5cf6;
+    --cyan:#5fe0ff; --green:#5dcaa5; --text:#ffffff; --text-dim:#a79fc7;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;color:var(--text);font-family:'Sora',system-ui,sans-serif;background:var(--bg-0);}
+  .app{display:flex;height:100vh;overflow:hidden;}
+  
+  ::-webkit-scrollbar{width:6px;height:6px;}
+  ::-webkit-scrollbar-thumb{background:#2a2145;border-radius:6px;}
+  ::-webkit-scrollbar-thumb:hover{background:var(--purple-light);}
+  ::-webkit-scrollbar-track{background:transparent;}
+  button,input,select{font-family:inherit;}
+
+  /* SIDEBAR */
+  .sidebar{width:230px;background:linear-gradient(180deg,#100c1d,#0a0714);border-right:1px solid rgba(255,255,255,0.06);display:flex;flex-direction:column;flex-shrink:0;}
+  .logo-box{margin:16px 16px 20px;height:82px;border-radius:18px;background:linear-gradient(135deg,#2a1140,#130a24);display:flex;align-items:center;justify-content:center;border:1px solid #3c1d5c;position:relative;overflow:hidden;}
+  .logo-box::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 20%, rgba(255,95,208,.3), transparent 65%);}
+  .logo-box span{position:relative;font-family:'Space Grotesk',sans-serif;font-style:italic;font-weight:700;font-size:21px;background:linear-gradient(90deg,var(--pink),#a855f7 55%,var(--cyan));-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(0 0 12px rgba(255,95,208,.5));}
+  
+  .nav{flex:1;padding:0 12px;overflow-y:auto;}
+  .nav-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;color:var(--text-dim);font-size:13.5px;font-weight:500;cursor:pointer;margin-bottom:3px;transition:all .18s ease;}
+  .nav-item:hover{background:rgba(255,255,255,0.05);color:var(--text);}
+  .nav-item.active{background:linear-gradient(90deg,#6d35e3,#8146f2);color:#fff;box-shadow:0 4px 20px rgba(109,53,227,0.45);font-weight:600;}
+  .nav-item .ic{width:18px;text-align:center;font-size:14px;}
+  .nav-item.logout{color:#ff5555;margin-top:14px;font-weight:600;}
+  .nav-item.logout:hover{background:rgba(255,85,85,0.1);color:#ff7777;}
+  
+  .sidebar-bottom{padding:14px 18px;border-top:1px solid rgba(255,255,255,0.06);display:flex;gap:16px;color:var(--text-dim);font-size:15px;}
+  .sidebar-bottom span{cursor:pointer;transition:color .15s;}
+  .sidebar-bottom span:hover{color:var(--cyan);}
+
+  /* MAIN AREA */
+  .main{flex:1;display:flex;flex-direction:column;min-width:0;background:var(--bg-0);}
+  
+  /* TOPBAR */
+  .topbar{height:60px;border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between;padding:0 24px;background:rgba(12,9,21,0.85);backdrop-filter:blur(12px);flex-shrink:0;}
+  .breadcrumb{font-size:14px;color:var(--text-dim);font-weight:500;}
+  .breadcrumb b{color:var(--text);font-family:'Space Grotesk',sans-serif;font-weight:700;}
+  
+  .search-wrap{position:relative;width:340px;}
+  .search{background:#181329;border:1px solid rgba(255,255,255,0.1);border-radius:22px;padding:9px 18px;color:var(--text);font-size:13px;width:100%;outline:none;transition:all .2s ease;}
+  .search::placeholder{color:#766c98;}
+  .search:focus{border-color:var(--purple-light);box-shadow:0 0 0 3px rgba(139,92,246,0.25);}
+  
+  .top-icons{display:flex;align-items:center;gap:18px;color:var(--text-dim);font-size:16px;}
+  .top-icons span{cursor:pointer;transition:all .15s ease;}
+  .top-icons span:hover{color:var(--cyan);transform:translateY(-1px);}
+  .avatar{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#a855f7,var(--pink));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;box-shadow:0 0 0 2px #181329,0 0 12px rgba(168,85,247,0.5);}
+
+  /* CONTENT AREA */
+  .content{flex:1;overflow-y:auto;padding:24px 28px 48px;}
+
+  .fadein{animation:fadeUp .35s ease both;}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+  @keyframes float{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
+  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+
+  /* HERO CARD */
+  .hero-card{
+    background: linear-gradient(135deg, #6025d5, #7533e6 60%, #4618a5);
+    border-radius: 20px;
+    padding: 32px 36px;
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 22px;
+    box-shadow: 0 12px 36px rgba(96,37,213,0.3);
+  }
+  .hero-card h1{
+    font-size: 28px;
+    margin: 0 0 10px;
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    color: #fff;
+    letter-spacing: -0.5px;
+  }
+  .hero-card h1 u{
+    text-decoration: underline;
+    text-decoration-color: var(--cyan);
+    text-underline-offset: 4px;
+    text-decoration-thickness: 2.5px;
+  }
+  .hero-card p{
+    color: rgba(255,255,255,0.85);
+    font-size: 13.5px;
+    max-width: 460px;
+    margin: 0 0 22px;
+    line-height: 1.5;
+  }
+  .hero-actions{display:flex;gap:12px;}
+  .hero-btn{
+    padding: 12px 22px;
+    border-radius: 20px;
+    font-size: 13.5px;
+    font-weight: 700;
+    border: none;
+    cursor: pointer;
+    transition: transform .18s ease, box-shadow .18s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    text-decoration: none;
+  }
+  .hero-btn:hover{transform:translateY(-2px);}
+  .hero-btn.primary{
+    background: #ffffff;
+    color: #5b22d0;
+    box-shadow: 0 4px 18px rgba(0,0,0,0.25);
+  }
+  .hero-btn.ghost{
+    background: rgba(255,255,255,0.16);
+    color: #ffffff;
+    border: 1px solid rgba(255,255,255,0.3);
+  }
+  .hero-mascot-svg{
+    position: absolute;
+    right: 36px;
+    bottom: 12px;
+    width: 100px;
+    height: 100px;
+    animation: float 3.5s ease-in-out infinite;
+    filter: drop-shadow(0 8px 20px rgba(0,0,0,0.4));
+  }
+
+  /* FEATURE GRID (2 COLUMNS × 3 ROWS) */
+  .feature-grid{
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .feature-card{
+    border-radius: 18px;
+    padding: 22px 24px;
+    cursor: pointer;
+    transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    border: 1px solid rgba(255,255,255,0.06);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 140px;
+  }
+  .feature-card:hover{
+    transform: translateY(-4px);
+    box-shadow: 0 14px 32px rgba(0,0,0,0.45);
+    border-color: rgba(255,255,255,0.18);
+  }
+  .feature-card .f-icon{
+    width: 38px;
+    height: 38px;
+    border-radius: 12px;
+    background: rgba(255,255,255,0.16);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    margin-bottom: 14px;
+  }
+  .feature-card h3{
+    margin: 0 0 6px;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  .feature-card p{
+    margin: 0;
+    font-size: 12.5px;
+    color: rgba(255,255,255,0.78);
+    line-height: 1.4;
+  }
+
+  /* CARD COLORS EXACT TO SCREENSHOT */
+  .card-chat{ background: linear-gradient(135deg, #2e1763, #1c0e42); }
+  .card-music{ background: linear-gradient(135deg, #123875, #0b234a); }
+  .card-games{ background: linear-gradient(135deg, #0f5945, #09382b); }
+  .card-events{ background: linear-gradient(135deg, #823817, #54240f); }
+  .card-weather{ background: linear-gradient(135deg, #0c585a, #07393a); }
+  .card-translate{ background: linear-gradient(135deg, #0c564c, #073832); }
+
+  /* CHAT STYLES */
+  .chat-page-header { text-align: center; margin-bottom: 20px; }
+  .chat-page-header h1 { font-size: 24px; font-weight: 700; font-family: 'Space Grotesk', sans-serif; color: #fff; margin: 0 0 4px; }
+  .chat-page-header p { color: var(--text-dim); font-size: 13.5px; margin: 0; }
+
+  .chat-shell { display: flex; border: 1px solid var(--border); border-radius: 20px; overflow: hidden; background: linear-gradient(180deg, #120e22, #0d091a); box-shadow: 0 20px 60px rgba(0,0,0,0.45); height: calc(100vh - 170px); }
+  .chat-list { width: 240px; border-right: 1px solid var(--border); display: flex; flex-direction: column; flex-shrink: 0; background: rgba(0,0,0,0.18); }
+  .chat-list-head { padding: 16px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+  .chat-list-head b { font-size: 15px; font-family: 'Space Grotesk', sans-serif; color: #fff; }
+  .new-chat-btn { background: linear-gradient(90deg, #6d35e3, #8146f2); border: none; color: #fff; font-size: 12px; font-weight: 600; padding: 7px 14px; border-radius: 16px; cursor: pointer; box-shadow: 0 4px 14px rgba(109,53,227,0.35); transition: transform 0.15s ease; }
+  .new-chat-btn:hover { transform: translateY(-1px); }
+  .chat-search { margin: 12px; background: #181329; border: 1px solid var(--border); border-radius: 10px; padding: 9px 12px; color: var(--text-dim); font-size: 12px; outline: none; }
+  .chat-search::placeholder { color: #766c98; }
+  .chat-entry { padding: 12px 16px; border-left: 3px solid #8146f2; background: #19142e; margin: 0 10px 8px; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 14px rgba(0,0,0,0.2); }
+  .chat-entry b { font-size: 13.5px; display: block; font-weight: 600; color: #fff; }
+  .chat-entry span { font-size: 11.5px; color: var(--text-dim); display: block; margin-top: 3px; }
+
+  .chat-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+  .chat-main-top { padding: 14px 22px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.1); }
+  .chat-title-path { font-size: 14px; font-family: 'Space Grotesk', sans-serif; }
+  .ai-pill { border: 1px solid #6d35e3; background: rgba(109,53,227,0.12); color: #a78bfa; font-size: 11.5px; font-weight: 600; padding: 5px 12px; border-radius: 16px; display: flex; align-items: center; gap: 6px; }
+  .ai-pill .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--cyan); box-shadow: 0 0 6px var(--cyan); animation: pulse 1.6s infinite; }
+
+  .messages { flex: 1; overflow-y: auto; padding: 24px; display: flex; flex-direction: column; justify-content: center; align-items: center; }
+  .empty-state { text-align: center; max-width: 580px; margin: auto; width: 100%; }
+  .bot-avatar { width: 64px; height: 64px; border-radius: 20px; background: linear-gradient(135deg, #a855f7, #ff5fd0); margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 36px rgba(255,95,208,0.55); animation: float 3.5s ease-in-out infinite; }
+  .empty-state h2 { font-size: 22px; margin: 0 0 6px; font-weight: 700; font-family: 'Space Grotesk', sans-serif; color: #fff; }
+  .empty-state h2 b { color: #ff5fd0; font-weight: 700; }
+  .empty-state .sub-lead { color: var(--text-dim); font-size: 13px; margin: 0 0 16px; }
+
+  .chips-group { display: flex; flex-direction: column; gap: 10px; align-items: center; margin-bottom: 20px; }
+  .chips-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .chip { border: 1px solid var(--border); background: #18132b; color: #d1cbe8; font-size: 12.5px; font-weight: 500; padding: 8px 16px; border-radius: 20px; cursor: pointer; transition: all 0.18s ease; display: inline-flex; align-items: center; gap: 6px; }
+  .chip:hover { border-color: #8146f2; color: #fff; transform: translateY(-2px); box-shadow: 0 4px 14px rgba(129,70,242,0.3); }
+  .chip-ic { font-size: 13px; }
+
+  .chat-divider { border: none; border-top: 1px solid var(--border); margin: 0 0 20px; width: 100%; }
+
+  .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; width: 100%; }
+  .quick-card { border: 1px solid var(--border); background: #161126; border-radius: 14px; padding: 16px; text-align: center; cursor: pointer; font-size: 13px; font-weight: 600; color: #fff; transition: all 0.18s ease; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; min-height: 80px; }
+  .quick-card:hover { border-color: var(--cyan); transform: translateY(-2px); box-shadow: 0 6px 20px rgba(95,224,255,0.25); }
+  .quick-card.selected { border-color: var(--cyan); box-shadow: 0 0 0 1px var(--cyan); }
+  .quick-card .q-icon { font-size: 20px; }
+
+  .input-bar { border-top: 1px solid var(--border); padding: 14px 20px; display: flex; align-items: center; gap: 12px; background: rgba(0,0,0,0.18); }
+  .bar-icon { color: var(--text-dim); cursor: pointer; font-size: 18px; transition: color 0.15s ease; }
+  .bar-icon:hover { color: var(--cyan); }
+  .input-wrap { flex: 1; }
+  .input-wrap input { width: 100%; background: #181329; border: 1px solid var(--border); border-radius: 22px; padding: 11px 18px; color: var(--text); font-size: 13.5px; outline: none; transition: all 0.2s ease; }
+  .input-wrap input:focus { border-color: #8146f2; box-shadow: 0 0 0 3px rgba(129,70,242,0.2); }
+  .send-btn { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #a855f7, #ff5fd0); border: none; color: #fff; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; box-shadow: 0 4px 16px rgba(255,95,208,0.4); transition: transform 0.15s ease, box-shadow 0.15s ease; }
+  .send-btn:hover { transform: scale(1.05); box-shadow: 0 6px 20px rgba(255,95,208,0.6); }
+
+  .msg-row{display:flex;gap:10px;max-width:78%;animation:msgIn .3s cubic-bezier(.2,.8,.3,1) both;margin-bottom:12px;}
+  .msg-row.user{align-self:flex-end;flex-direction:row-reverse;}
+  .msg-avatar{width:30px;height:30px;border-radius:9px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:14px;}
+  .msg-avatar.bot{background:linear-gradient(135deg,var(--purple-light),var(--pink));}
+  .msg-avatar.user{background:var(--bg-2);border:1px solid var(--border);font-size:11px;font-weight:700;color:var(--text-dim);}
+  .bubble{padding:11px 16px;border-radius:16px;font-size:13.5px;line-height:1.55;white-space:pre-wrap;}
+  .msg-row.bot .bubble{background:var(--bg-2);border:1px solid var(--border);border-top-left-radius:4px;}
+  .msg-row.user .bubble{background:linear-gradient(135deg,var(--purple),#8146f2);border-top-right-radius:4px;color:#fff;}
+
+  /* MUSIC PAGE STYLES */
+  .music-page-header { text-align: center; margin-bottom: 20px; }
+  .music-page-header h1 { font-size: 24px; font-weight: 700; font-family: 'Space Grotesk', sans-serif; color: #ffffff; margin: 0 0 4px; }
+  .music-page-header p { color: var(--text-dim); font-size: 13.5px; margin: 0; }
+
+  .music-layout { display: grid; grid-template-columns: 1fr 300px; gap: 20px; align-items: start; }
+  .music-main-col { flex: 1; }
+  .music-side-col { width: 300px; }
+
+  .card-box { background: #161127; border: 1px solid var(--border); border-radius: 18px; padding: 22px; }
+  
+  .player-card { margin-bottom: 20px; }
+  .player-row { display: flex; gap: 16px; align-items: center; margin-bottom: 18px; }
+  .player-art { width: 60px; height: 60px; border-radius: 14px; background: linear-gradient(135deg, #a855f7, #ff5fd0); display: flex; align-items: center; justify-content: center; font-size: 22px; color: #fff; flex-shrink: 0; box-shadow: 0 4px 16px rgba(168,85,247,0.4); }
+  .player-art.spin { animation: spin 4s linear infinite; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+  .player-info h3 { margin: 0 0 4px; font-size: 16px; font-weight: 700; color: #fff; font-family: 'Space Grotesk', sans-serif; }
+  .player-info p { margin: 0; color: var(--text-dim); font-size: 13px; }
+
+  .progress-bar-wrap { cursor: pointer; padding: 4px 0; margin-bottom: 6px; }
+  .progress-bar { height: 4px; background: #241d3d; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #a855f7, #5fe0ff); width: 0%; }
+
+  .time-row { display: flex; justify-content: space-between; font-size: 11.5px; color: var(--text-dim); margin-bottom: 16px; }
+  
+  .player-controls { display: flex; align-items: center; gap: 16px; justify-content: center; }
+  .ctrl-btn { width: 38px; height: 38px; border-radius: 50%; background: #201938; border: 1px solid var(--border); color: var(--text); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 14px; transition: all 0.15s ease; }
+  .ctrl-btn:hover { background: #2a224a; color: #fff; }
+  .ctrl-btn.play-btn-main { width: 48px; height: 48px; background: linear-gradient(135deg, #a855f7, #ff5fd0); border: none; font-size: 18px; color: #fff; box-shadow: 0 4px 18px rgba(255,95,208,0.45); }
+  .ctrl-btn.play-btn-main:hover { transform: scale(1.05); box-shadow: 0 6px 22px rgba(255,95,208,0.6); }
+
+  .section-label { font-size: 11px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 14px; }
+
+  .form-field { margin-bottom: 14px; }
+  .form-field label { font-size: 12px; color: var(--text-dim); display: block; margin-bottom: 6px; }
+  .form-field input { width: 100%; background: #181329; border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; color: var(--text); font-size: 13px; outline: none; }
+  .form-field input:focus { border-color: #8146f2; }
+
+  .btn-pink-gradient { width: 100%; padding: 12px; border-radius: 12px; background: linear-gradient(90deg, #c084fc, #ff5fd0); border: none; color: #fff; font-weight: 700; font-size: 13.5px; cursor: pointer; box-shadow: 0 4px 18px rgba(255,95,208,0.4); transition: all 0.18s ease; }
+  .btn-pink-gradient:hover { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(255,95,208,0.55); }
+
+  .lib-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; background: #18132b; border: 1px solid var(--border); cursor: pointer; transition: all 0.18s ease; margin-bottom: 8px; }
+  .lib-item:hover { background: #201938; border-color: #8146f2; }
+  .lib-art { width: 36px; height: 36px; border-radius: 8px; background: rgba(168,85,247,0.2); color: #c084fc; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .lib-meta { flex: 1; min-width: 0; }
+  .lib-meta b { display: block; font-size: 13px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .lib-meta span { font-size: 11.5px; color: var(--text-dim); }
+  .lib-actions { display: flex; gap: 10px; color: var(--text-dim); font-size: 14px; }
+  .lib-actions span { cursor: pointer; transition: color 0.15s ease; }
+  .lib-actions span:hover { color: #ff5fd0; }
+
+  .stat-mini-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .stat-box { background: #18132b; border: 1px solid var(--border); border-radius: 12px; padding: 16px 12px; text-align: center; }
+  .stat-box b { display: block; font-size: 20px; font-weight: 700; color: #fff; font-family: 'Space Grotesk', sans-serif; margin-bottom: 4px; }
+  .stat-box span { font-size: 11px; color: var(--text-dim); }
+
+  /* ================= GAMES PAGE STYLES (MATCHING SCREENSHOT EXACTLY) ================= */
+  .games-page-header {
+    text-align: center;
+    margin-bottom: 22px;
+  }
+  .games-page-header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    font-family: 'Space Grotesk', sans-serif;
+    color: #ffffff;
+    margin: 0 0 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+  .games-page-header p {
+    color: var(--text-dim);
+    font-size: 13.5px;
+    margin: 0;
+  }
+
+  .games-top-stats {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .game-stat-box {
+    text-align: center;
+    padding: 16px 12px;
+  }
+  .game-stat-box b {
+    display: block;
+    font-size: 22px;
+    font-weight: 700;
+    font-family: 'Space Grotesk', sans-serif;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .game-stat-box span {
+    font-size: 11.5px;
+    color: var(--text-dim);
+  }
+
+  .games-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  .game-card {
+    background: #161127;
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 24px 20px 20px;
+    text-align: center;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .game-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.45);
+    border-color: rgba(255,255,255,0.18);
+  }
+  .game-card .g-icon {
+    font-size: 28px;
+    margin-bottom: 10px;
+  }
+  .game-card h4 {
+    margin: 0 0 6px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  .game-card p {
+    margin: 0 0 16px;
+    font-size: 12.5px;
+    color: var(--text-dim);
+    line-height: 1.4;
+  }
+  .btn-play-pink {
+    width: 100%;
+    padding: 11px;
+    border-radius: 12px;
+    background: linear-gradient(90deg, #a855f7, #ff5fd0);
+    border: none;
+    color: #fff;
+    font-weight: 700;
+    font-size: 13.5px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(255,95,208,0.4);
+    transition: all 0.18s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .btn-play-pink:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(255,95,208,0.55);
+  }
+
+  /* ================= EVENTS PAGE STYLES ================= */
+  .events-layout { display: grid; grid-template-columns: 1fr 260px; gap: 20px; align-items: start; }
+  .events-main { min-width: 0; }
+
+  /* Filter tabs row */
+  .events-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border: 1px solid var(--border); border-radius: 14px; overflow: hidden; margin-bottom: 20px; }
+  .events-tab { padding: 13px; text-align: center; font-size: 13px; font-weight: 600; color: var(--text-dim); cursor: pointer; background: #100d1e; border-right: 1px solid var(--border); transition: background 0.18s, color 0.18s; }
+  .events-tab:last-child { border-right: none; }
+  .events-tab.active { background: #19142e; color: #fff; }
+  .events-tab:hover:not(.active) { background: #161028; color: var(--text); }
+
+  /* Countdown banner */
+  .event-banner {
+    border-radius: 14px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, rgba(109,53,227,0.28), rgba(139,92,246,0.12));
+    border: 1px solid rgba(139,92,246,0.35);
+    position: relative;
+    overflow: hidden;
+  }
+  .event-banner::before { content: ''; position: absolute; inset: 0; background: radial-gradient(circle at 0% 50%, rgba(255,95,208,0.15), transparent 60%); pointer-events: none; }
+  .event-banner-icon { width: 34px; height: 34px; border-radius: 8px; background: rgba(255,95,208,0.2); display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; border: 1px solid rgba(255,95,208,0.3); }
+  .event-banner-meta { flex: 1; min-width: 0; }
+  .event-banner-meta b { display: block; font-size: 14px; font-weight: 700; color: #fff; font-family: 'Space Grotesk', sans-serif; }
+  .event-banner-meta span { font-size: 11.5px; color: var(--text-dim); }
+  .event-countdown { display: flex; gap: 10px; align-items: center; flex-shrink: 0; }
+  .countdown-unit { text-align: center; }
+  .countdown-unit b { display: block; font-size: 20px; font-weight: 700; font-family: 'Space Grotesk', sans-serif; color: #ff5fd0; line-height: 1; }
+  .countdown-unit span { font-size: 10px; color: var(--text-dim); text-transform: lowercase; }
+  .countdown-sep { color: var(--text-dim); font-size: 18px; margin-top: -6px; }
+  .event-banner-actions { color: var(--text-dim); cursor: pointer; font-size: 16px; transition: color 0.15s; }
+  .event-banner-actions:hover { color: #ff5fd0; }
+
+  /* Calendar */
+  .calendar-wrap { background: #100d1e; border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+  .calendar-header { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px; border-bottom: 1px solid var(--border); }
+  .calendar-header h3 { margin: 0; font-size: 15px; font-weight: 700; font-family: 'Space Grotesk', sans-serif; color: #fff; }
+  .cal-nav { width: 28px; height: 28px; border-radius: 8px; background: #19142e; border: 1px solid var(--border); color: var(--text-dim); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; transition: all 0.15s; }
+  .cal-nav:hover { background: #221945; color: #fff; }
+  .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); }
+  .cal-weekday { padding: 10px 6px; text-align: center; font-size: 11px; font-weight: 700; color: var(--text-dim); border-bottom: 1px solid var(--border); text-transform: uppercase; }
+  .cal-day { min-height: 90px; padding: 8px 10px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.15s; position: relative; display: flex; flex-direction: column; }
+  .cal-day:nth-child(7n) { border-right: none; }
+  .cal-day:hover { background: rgba(255,255,255,0.03); }
+  .cal-day.today { border: 2px solid var(--cyan); background: rgba(95,224,255,0.04); }
+  .cal-day.has-event { border: 2px solid rgba(139,92,246,0.6); background: rgba(109,53,227,0.08); }
+  .cal-day.empty { background: transparent; cursor: default; }
+  .cal-day.empty:hover { background: transparent; }
+  .cal-day-num { font-size: 13px; font-weight: 600; color: var(--text-dim); width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+  .cal-day.today .cal-day-num { background: var(--cyan); color: #0c0915; font-weight: 700; }
+  .cal-event-dot { margin-top: 4px; font-size: 10px; background: rgba(255,95,208,0.18); border-left: 2px solid #ff5fd0; padding: 2px 5px; border-radius: 3px; color: #ff5fd0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+
+  /* Upcoming sidebar */
+  .upcoming-box { background: #100d1e; border: 1px solid var(--border); border-radius: 16px; padding: 18px; }
+  .upcoming-box .section-label { margin-bottom: 14px; }
+  .upcoming-item { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; background: #19142e; border: 1px solid var(--border); cursor: pointer; transition: all 0.18s ease; margin-bottom: 8px; }
+  .upcoming-item:hover { background: #221945; border-color: #8146f2; }
+  .upcoming-item .ev-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; background: rgba(255,95,208,0.15); border: 1px solid rgba(255,95,208,0.25); }
+  .upcoming-item .ev-meta { flex: 1; min-width: 0; }
+  .upcoming-item .ev-meta b { font-size: 13px; font-weight: 700; color: #fff; display: block; }
+  .upcoming-item .ev-meta span { font-size: 11px; color: var(--text-dim); display: block; margin-top: 2px; }
+  .upcoming-item .ev-del { color: var(--text-dim); font-size: 14px; cursor: pointer; }
+  .upcoming-item .ev-del:hover { color: #ff5555; }
+
+  /* Floating nuevo evento btn */
+  .fab-btn {
+    position: fixed; bottom: 28px; right: 28px;
+    background: linear-gradient(135deg, #a855f7, #ff5fd0);
+    border: none; color: #fff; font-size: 13.5px; font-weight: 700;
+    padding: 13px 22px; border-radius: 28px; cursor: pointer;
+    box-shadow: 0 6px 24px rgba(255,95,208,0.5);
+    display: none; align-items: center; gap: 8px;
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    z-index: 9999;
+  }
+  .fab-btn.visible { display: flex; }
+  .fab-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(255,95,208,0.65); }
+
+  /* Event form modal */
+  .ev-modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.65); backdrop-filter: blur(4px); z-index: 10000; display: flex; align-items: center; justify-content: center; }
+  .ev-modal { background: #16112b; border: 1px solid var(--border); border-radius: 20px; padding: 28px; width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.6); }
+  .ev-modal h3 { margin: 0 0 20px; font-size: 18px; font-weight: 700; font-family: 'Space Grotesk', sans-serif; }
+  .ev-modal-close { float: right; cursor: pointer; color: var(--text-dim); font-size: 20px; line-height: 1; transition: color 0.15s; }
+  .ev-modal-close:hover { color: #ff5555; }
+
+  /* ================= WEATHER PAGE STYLES ================= */
+  .weather-center { max-width: 580px; margin: 0 auto; }
+  .weather-search-row { display: flex; gap: 10px; margin-bottom: 12px; }
+  .weather-input { flex: 1; background: #181329; border: 1px solid var(--border); border-radius: 10px; padding: 11px 16px; color: var(--text); font-size: 14px; outline: none; transition: border-color 0.2s; }
+  .weather-input:focus { border-color: var(--purple-light); box-shadow: 0 0 0 3px rgba(139,92,246,0.2); }
+  .weather-search-btn { padding: 11px 22px; border-radius: 10px; background: var(--purple); border: none; color: #fff; font-weight: 700; font-size: 13.5px; cursor: pointer; box-shadow: 0 4px 14px rgba(109,53,227,0.4); transition: all 0.18s; white-space: nowrap; }
+  .weather-search-btn:hover { background: #7d40f0; transform: translateY(-1px); }
+  .weather-loc-btn { width: 100%; padding: 11px; border-radius: 10px; background: linear-gradient(90deg, #a855f7, #ff5fd0); border: none; color: #fff; font-weight: 600; font-size: 13.5px; cursor: pointer; margin-bottom: 18px; box-shadow: 0 4px 14px rgba(255,95,208,0.35); transition: all 0.18s; }
+  .weather-loc-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(255,95,208,0.5); }
+  .weather-error { text-align: center; color: var(--text-dim); font-size: 13.5px; margin-top: 8px; }
+  .weather-card { background: linear-gradient(135deg, #16112b, #1c1535); border: 1px solid var(--border); border-radius: 20px; padding: 28px 28px 24px; animation: fadeUp .35s ease; }
+  .weather-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 22px; }
+  .weather-city { font-size: 22px; font-weight: 700; font-family: 'Space Grotesk', sans-serif; color: #fff; margin: 0 0 4px; }
+  .weather-date { font-size: 12.5px; color: var(--text-dim); }
+  .weather-temp-block { text-align: right; }
+  .weather-temp { font-size: 52px; font-weight: 700; font-family: 'Space Grotesk', sans-serif; color: #fff; line-height: 1; }
+  .weather-icon { font-size: 42px; display: block; text-align: right; }
+  .weather-desc { font-size: 14px; color: var(--text-dim); text-align: right; margin-top: 4px; text-transform: capitalize; }
+  .weather-divider { border: none; border-top: 1px solid var(--border); margin: 18px 0; }
+  .weather-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .w-stat { text-align: center; }
+  .w-stat .w-val { font-size: 16px; font-weight: 700; font-family: 'Space Grotesk', sans-serif; color: #fff; display: block; }
+  .w-stat .w-lbl { font-size: 11px; color: var(--text-dim); margin-top: 3px; display: block; }
+  .weather-forecast { margin-top: 20px; }
+  .forecast-title { font-size: 11px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 12px; }
+  .forecast-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+  .forecast-day { background: #18132b; border: 1px solid var(--border); border-radius: 12px; padding: 12px 8px; text-align: center; }
+  .forecast-day .f-day { font-size: 11.5px; color: var(--text-dim); margin-bottom: 6px; }
+  .forecast-day .f-icon { font-size: 20px; margin-bottom: 6px; }
+  .forecast-day .f-temp { font-size: 13px; font-weight: 700; color: #fff; }
+  .weather-loading { text-align: center; padding: 40px; }
+  .weather-spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--purple-light); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 12px; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="logo-box">
+      <span>Mini AmigixV</span>
+    </div>
+    
+    <div class="nav" id="navList"></div>
+
+    <div class="sidebar-bottom">
+      <span title="Información">&#9432;</span>
+      <span title="Configuración">&#9881;</span>
+    </div>
+  </div>
+
+  <!-- MAIN AREA -->
+  <div class="main">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="breadcrumb">
+        <b>MiniAmigixV</b> <span id="crumbPage">/ Inicio</span>
+      </div>
+      <div class="search-wrap">
+        <input class="search" placeholder="Buscar...">
+      </div>
+      <div class="top-icons">
+        <span title="Chat">&#128172;</span>
+        <span title="Notificaciones">&#128276;</span>
+        <span title="Modo Oscuro">&#9789;</span>
+        <div class="avatar">M</div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content" id="pageRoot"></div>
+  </div>
+</div>
+
+<script>
+/* NAV ITEMS MATCHING THE SCREENSHOT EXACTLY */
+const NAV_ITEMS = [
+  {id:'home', icon:'&#8962;', label:'Inicio'},
+  {id:'chat', icon:'&#9679;', label:'Chat IA'},
+  {id:'music', icon:'&#9835;', label:'Música'},
+  {id:'games', icon:'&#9814;', label:'Juegos'},
+  {id:'events', icon:'&#128197;', label:'Eventos'},
+  {id:'weather', icon:'&#9728;', label:'Clima'},
+  {id:'translate', icon:'&#8644;', label:'Traductor'},
+  {id:'fun', icon:'&#9835;', label:'Entretenimiento'},
+  {id:'blog', icon:'&#9998;', label:'Blog'},
+  {id:'support', icon:'&#9881;', label:'Soporte'},
+];
+
+let currentPage = 'home';
+let chatHistorial = [];
+
+/* MUSIC STATE */
+let musicState = {
+  library: [
+    {id: 1, name: 'Track de ejemplo', artist: 'Artista desconocido', url: null, fav: false}
+  ],
+  current: null,
+  playing: false,
+  progress: 0,
+  statsTime: 0,
+  downloads: 0
+};
+
+/* GAMES STATE */
+let gameStats = { jugadas: 1, mejor: 0, hoy: 1 };
+
+const GAMES_LIST = [
+  {id:'ttt', icon:'❌', name:'3 en Raya', desc:'El clásico juego de tres en raya contra la IA.'},
+  {id:'riddle', icon:'❓', name:'Adivinanzas', desc:'Pon a prueba tu lógica.'},
+  {id:'memory', icon:'🃏', name:'Memoria', desc:'Encuentra los pares idénticos.'},
+  {id:'quiz', icon:'🏆', name:'Quiz Master', desc:'¿Qué tanto sabes de todo?'},
+  {id:'reaction', icon:'⚡', name:'Reflejos', desc:'Mide tu tiempo de reacción.'},
+  {id:'breath', icon:'🌬️', name:'Respiración', desc:'Sesión guiada para reducir el estrés.'},
+];
+
+function renderNav(){
+  const el = document.getElementById('navList');
+  el.innerHTML = NAV_ITEMS.map(n => `
+    <div class="nav-item ${currentPage===n.id?'active':''}" onclick="navigateTo('${n.id}')">
+      <span class="ic">${n.icon}</span>${n.label}
+    </div>`).join('') + `
+    <div class="nav-item logout" onclick="alert('Sesión cerrada')">
+      <span class="ic">&#10132;</span>Cerrar Sesión
+    </div>`;
+}
+
+function navigateTo(page){
+  currentPage = page;
+  const item = NAV_ITEMS.find(n=>n.id===page);
+  document.getElementById('crumbPage').textContent = '/ ' + (item ? item.label : 'Inicio');
+  renderNav();
+  renderPage();
+}
+
+function renderPage(){
+  const root = document.getElementById('pageRoot');
+  if(currentPage==='home') root.innerHTML = renderHome();
+  else if(currentPage==='chat') root.innerHTML = renderChat();
+  else if(currentPage==='music') root.innerHTML = renderMusic();
+  else if(currentPage==='games') root.innerHTML = renderGames();
+  else if(currentPage==='events') root.innerHTML = renderEvents();
+  else if(currentPage==='weather') root.innerHTML = renderWeather();
+  else root.innerHTML = renderPlaceholderModule(currentPage);
+}
+
+/* HOME DASHBOARD */
+function renderHome(){
+  return `
+  <div class="fadein">
+    <!-- HERO CARD -->
+    <div class="hero-card">
+      <h1>Hola, <u style="text-decoration-color:#5fe0ff;">@maria45889</u></h1>
+      <p>Tu espacio personal con inteligencia artificial, música, eventos y mucho más.</p>
+      <div class="hero-actions">
+        <button class="hero-btn primary" onclick="navigateTo('chat')">&#128172; Hablar con la IA</button>
+        <button class="hero-btn ghost" onclick="navigateTo('support')">Ver tutoriales →</button>
+      </div>
+      
+      <!-- 3D ROBOT MASCOT SVG -->
+      <svg class="hero-mascot-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="botGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#c084fc"/>
+            <stop offset="50%" stop-color="#818cf8"/>
+            <stop offset="100%" stop-color="#38bdf8"/>
+          </linearGradient>
+          <linearGradient id="eyeGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#5fe0ff"/>
+            <stop offset="100%" stop-color="#0284c7"/>
+          </linearGradient>
+        </defs>
+        <rect x="47" y="12" width="6" height="16" rx="3" fill="url(#botGrad)"/>
+        <circle cx="50" cy="10" r="5" fill="#ff5fd0"/>
+        <circle cx="50" cy="10" r="2.5" fill="#fff"/>
+        <rect x="22" y="26" width="56" height="48" rx="16" fill="url(#botGrad)"/>
+        <rect x="14" y="38" width="8" height="24" rx="4" fill="#6d35e3"/>
+        <rect x="78" y="38" width="8" height="24" rx="4" fill="#6d35e3"/>
+        <rect x="28" y="34" width="44" height="32" rx="10" fill="#0c0915"/>
+        <rect x="34" y="42" width="12" height="14" rx="4" fill="url(#eyeGrad)"/>
+        <rect x="54" y="42" width="12" height="14" rx="4" fill="url(#eyeGrad)"/>
+        <circle cx="38" cy="46" r="2" fill="#fff"/>
+        <circle cx="58" cy="46" r="2" fill="#fff"/>
+        <rect x="42" y="58" width="16" height="3" rx="1.5" fill="#5fe0ff"/>
+      </svg>
+    </div>
+
+    <!-- FEATURE GRID (2 COLUMNS × 3 ROWS) -->
+    <div class="feature-grid">
+      <div class="feature-card card-chat" onclick="navigateTo('chat')">
+        <div class="f-icon">&#128172;</div>
+        <div>
+          <h3>Chat IA</h3>
+          <p>Asistente virtual para resolver dudas y tareas</p>
+        </div>
+      </div>
+
+      <div class="feature-card card-music" onclick="navigateTo('music')">
+        <div class="f-icon">&#127911;</div>
+        <div>
+          <h3>Música</h3>
+          <p>Reproductor con tu biblioteca personal</p>
+        </div>
+      </div>
+
+      <div class="feature-card card-games" onclick="navigateTo('games')">
+        <div class="f-icon">&#127918;</div>
+        <div>
+          <h3>Juegos</h3>
+          <p>Entretenimiento educativo y desafíos</p>
+        </div>
+      </div>
+
+      <div class="feature-card card-events" onclick="navigateTo('events')">
+        <div class="f-icon">&#128197;</div>
+        <div>
+          <h3>Eventos</h3>
+          <p>Organiza y visualiza tus compromisos</p>
+        </div>
+      </div>
+
+      <div class="feature-card card-weather" onclick="navigateTo('weather')">
+        <div class="f-icon">&#9728;</div>
+        <div>
+          <h3>Clima</h3>
+          <p>Pronóstico en tiempo real de tu ciudad</p>
+        </div>
+      </div>
+
+      <div class="feature-card card-translate" onclick="navigateTo('translate')">
+        <div class="f-icon">&#127760;</div>
+        <div>
+          <h3>Traductor</h3>
+          <p>Traducción instantánea entre idiomas</p>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* CHAT PAGE INTERACTION */
+function renderChat(){
+  return `
+  <div class="chat-page-header fadein">
+    <h1>Chat IA</h1>
+    <p>Conversa con MiniAmigixV y resuelve tus dudas al instante.</p>
+  </div>
+
+  <div class="chat-shell fadein">
+    <!-- LEFT PANEL: CHATS LIST -->
+    <div class="chat-list">
+      <div class="chat-list-head">
+        <b>Chats</b>
+        <button class="new-chat-btn" onclick="chatHistorial=[];renderPage();">+ Nuevo Chat</button>
+      </div>
+      <input class="chat-search" placeholder="Buscar conversación...">
+      <div class="chat-entry">
+        <b>Chat Principal</b>
+        <span id="chatPreview">${chatHistorial.length? chatHistorial[chatHistorial.length-1].content.slice(0,24)+'...' : 'Sin mensajes'}</span>
+      </div>
+    </div>
+
+    <!-- RIGHT PANEL: CHAT MAIN -->
+    <div class="chat-main">
+      <div class="chat-main-top">
+        <div class="chat-title-path"><span style="color:var(--text-dim);">Chat /</span> <b>Chat Principal</b></div>
+        <div class="ai-pill"><span class="dot"></span>MiniAmigixV AI</div>
+      </div>
+
+      <div class="messages" id="messages">
+        ${chatHistorial.length===0 ? `
+        <div class="empty-state">
+          <div class="bot-avatar">
+            <svg width="34" height="34" viewBox="0 0 100 100" fill="none">
+              <rect x="22" y="26" width="56" height="48" rx="14" fill="#a855f7"/>
+              <rect x="47" y="12" width="6" height="16" rx="3" fill="#a855f7"/>
+              <circle cx="50" cy="10" r="5" fill="#ff5fd0"/>
+              <rect x="28" y="34" width="44" height="32" rx="10" fill="#0c0915"/>
+              <rect x="34" y="42" width="12" height="14" rx="4" fill="#5fe0ff"/>
+              <rect x="54" y="42" width="12" height="14" rx="4" fill="#5fe0ff"/>
+              <circle cx="38" cy="46" r="2" fill="#fff"/>
+              <circle cx="58" cy="46" r="2" fill="#fff"/>
+              <rect x="42" y="58" width="16" height="3" rx="1.5" fill="#5fe0ff"/>
+            </svg>
+          </div>
+
+          <h2>¿En qué puedo <b>ayudarte hoy</b>?</h2>
+          <p class="sub-lead">Puedo ayudarte con:</p>
+
+          <div class="chips-group">
+            <div class="chips-row">
+              <div class="chip" onclick="sendPrompt('Ayúdame a resolver una duda')"><span class="chip-ic">💬</span> Resolver dudas</div>
+              <div class="chip" onclick="sendPrompt('Recomiéndame música según mi estado de ánimo')"><span class="chip-ic">🎵</span> Recomendar música</div>
+              <div class="chip" onclick="sendPrompt('¿Cómo está el clima hoy?')"><span class="chip-ic">☀️</span> Consultar el clima</div>
+            </div>
+            <div class="chips-row">
+              <div class="chip" onclick="sendPrompt('Ayúdame a organizar un evento')"><span class="chip-ic">📅</span> Organizar eventos</div>
+              <div class="chip" onclick="sendPrompt('Traduce este texto al inglés')"><span class="chip-ic">🌐</span> Traducir textos</div>
+            </div>
+          </div>
+
+          <hr class="chat-divider">
+
+          <div class="quick-grid">
+            <div class="quick-card selected" onclick="sendPrompt('Resume este texto por mí')">
+              <div class="q-icon">📄</div>
+              <span>Resume un texto</span>
+            </div>
+            <div class="quick-card" onclick="sendPrompt('Ayúdame a estudiar para un examen')">
+              <div class="q-icon">🎓</div>
+              <span>Ayúdame a estudiar</span>
+            </div>
+            <div class="quick-card" onclick="sendPrompt('Describe una imagen creativa')">
+              <div class="q-icon">🎨</div>
+              <span>Crear una imagen</span>
+            </div>
+            <div class="quick-card" onclick="sendPrompt('Explícame qué hace este código')">
+              <div class="q-icon">💻</div>
+              <span>Explicar código</span>
+            </div>
+          </div>
+        </div>` : renderChatMessages()}
+      </div>
+
+      <div class="input-bar">
+        <span class="bar-icon" title="Emoji">&#128522;</span>
+        <span class="bar-icon" title="Adjuntar">&#128206;</span>
+        <div class="input-wrap">
+          <input id="msgInput" placeholder="Escribe un mensaje..." onkeydown="if(event.key==='Enter')sendMessage()">
+        </div>
+        <span class="bar-icon" title="Micrófono">&#127908;</span>
+        <button class="send-btn" onclick="sendMessage()" title="Enviar">&#10148;</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderChatMessages(){
+  return chatHistorial.map(m=>`
+    <div class="msg-row ${m.role==='user'?'user':'bot'}">
+      <div class="msg-avatar ${m.role==='user'?'user':'bot'}">${m.role==='user'?'M':'🤖'}</div>
+      <div class="bubble">${m.content}</div>
+    </div>`).join('');
+}
+
+function sendPrompt(text){
+  document.getElementById('msgInput').value = text;
+  sendMessage();
+}
+
+function sendMessage(){
+  const input = document.getElementById('msgInput');
+  const text = input.value.trim();
+  if(!text) return;
+  chatHistorial.push({role:'user', content:text});
+  input.value = '';
+  renderPage();
+  setTimeout(()=>{
+    chatHistorial.push({role:'assistant', content:'¡Hola! Soy MiniAmigixV AI. He recibido tu mensaje: "' + text + '". ¿Deseas que te ayude con más detalles?'});
+    renderPage();
+    const msgs = document.getElementById('messages');
+    if(msgs) msgs.scrollTop = msgs.scrollHeight;
+  }, 600);
+}
+
+/* MUSIC PAGE INTERACTION */
+function renderMusic(){
+  const m = musicState;
+  const cur = m.current || (m.library.length > 0 ? m.library[0] : null);
+  return `
+  <div class="music-page-header fadein">
+    <h1>Música</h1>
+    <p>Tu banda sonora personal.</p>
+  </div>
+
+  <div class="music-layout fadein">
+    <div class="music-main-col">
+      <div class="card-box player-card">
+        <div class="player-row">
+          <div class="player-art ${m.playing?'spin':''}">♫</div>
+          <div class="player-info">
+            <h3>${cur ? cur.name : 'Track de ejemplo'}</h3>
+            <p>${cur ? (cur.artist || 'Artista desconocido') : 'Artista desconocido'}</p>
+          </div>
+        </div>
+
+        <div class="progress-bar-wrap" onclick="seekTrack(event)">
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width:${m.progress}%;"></div>
+          </div>
+        </div>
+        <div class="time-row">
+          <span id="timeCur">${fmtTime(getAudioEl() ? getAudioEl().currentTime : 0)}</span>
+          <span id="timeDur">${fmtTime(getAudioEl() ? (getAudioEl().duration||0) : 0)}</span>
+        </div>
+
+        <div class="player-controls">
+          <button class="ctrl-btn" onclick="prevTrack()" title="Anterior">⏮</button>
+          <button class="ctrl-btn play-btn-main" id="playBtn" onclick="togglePlay()" title="Reproducir">${m.playing?'❚❚':'▶'}</button>
+          <button class="ctrl-btn" onclick="nextTrack()" title="Siguiente">⏭</button>
+        </div>
+        <audio id="audioEl" style="display:none;" onended="onTrackEnded()" ontimeupdate="onTimeUpdate()"></audio>
+      </div>
+
+      <div class="card-box" style="margin-bottom:20px;">
+        <div class="section-label">AÑADIR PISTA (SUBE UN ARCHIVO DE AUDIO DE TU EQUIPO)</div>
+        <div class="form-field">
+          <label>Nombre de la canción</label>
+          <input id="trackName" placeholder="Ej. Mi canción favorita">
+        </div>
+        <div class="form-field">
+          <label>Artista (opcional)</label>
+          <input id="trackArtist" placeholder="Ej. Artista desconocido">
+        </div>
+        <div class="form-field">
+          <label>Archivo de audio</label>
+          <input id="trackFile" type="file" accept="audio/*" class="file-input-style">
+        </div>
+        <button class="btn-pink-gradient" onclick="addTrack()">+ Añadir canción</button>
+      </div>
+
+      <div class="card-box">
+        <div class="section-label">TU BIBLIOTECA</div>
+        <div id="libraryList">${renderLibraryList()}</div>
+      </div>
+    </div>
+
+    <div class="music-side-col">
+      <div class="card-box" style="margin-bottom:20px;">
+        <div class="section-label">FAVORITAS</div>
+        <div id="favList">${renderFavList()}</div>
+      </div>
+
+      <div class="card-box">
+        <div class="section-label">TUS ESTADÍSTICAS</div>
+        <div class="stat-mini-grid">
+          <div class="stat-box">
+            <b>${m.library.length}</b>
+            <span>Canciones</span>
+          </div>
+          <div class="stat-box">
+            <b>${fmtTime(m.statsTime)}</b>
+            <span>Tiempo</span>
+          </div>
+          <div class="stat-box">
+            <b>${m.library.filter(t=>t.fav).length}</b>
+            <span>Favoritas</span>
+          </div>
+          <div class="stat-box">
+            <b>${m.downloads}</b>
+            <span>Descargas</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function getAudioEl(){ return document.getElementById('audioEl'); }
+function fmtTime(sec){ sec=Math.max(0,Math.floor(sec||0)); const m=Math.floor(sec/60); const s=sec%60; return m+':'+String(s).padStart(2,'0'); }
+
+function renderLibraryList(){
+  const m = musicState;
+  if(m.library.length===0) return '<p style="color:var(--text-dim);font-size:12px;">Aún no has añadido canciones.</p>';
+  return m.library.map(t=>`
+    <div class="lib-item ${m.current && m.current.id===t.id ? 'active':''}" onclick="playTrackById(${t.id})">
+      <div class="lib-art">♫</div>
+      <div class="lib-meta"><b>${t.name}</b><span>${t.artist||'Artista desconocido'}</span></div>
+      <div class="lib-actions" onclick="event.stopPropagation()">
+        <span onclick="toggleFav(${t.id})">${t.fav?'❤':'♡'}</span>
+        <span onclick="removeTrack(${t.id})">&#128465;</span>
+      </div>
+    </div>`).join('');
+}
+
+function renderFavList(){
+  const favs = musicState.library.filter(t=>t.fav);
+  if(favs.length===0) return '<p style="color:var(--text-dim);font-size:12px;">Añade canciones a favoritas.</p>';
+  return favs.map(t=>`<div class="lib-item" onclick="playTrackById(${t.id})"><div class="lib-art">❤</div><div class="lib-meta"><b>${t.name}</b><span>${t.artist||''}</span></div></div>`).join('');
+}
+
+function addTrack(){
+  const name = document.getElementById('trackName').value.trim();
+  const artist = document.getElementById('trackArtist').value.trim();
+  const fileInput = document.getElementById('trackFile');
+  if(!name || !fileInput.files[0]){ alert('Ponle un nombre y elige un archivo de audio.'); return; }
+  const url = URL.createObjectURL(fileInput.files[0]);
+  const id = Date.now();
+  musicState.library.push({id, name, artist, url, fav:false});
+  renderPage();
+}
+
+function removeTrack(id){
+  musicState.library = musicState.library.filter(t=>t.id!==id);
+  if(musicState.current && musicState.current.id===id){ musicState.current=null; musicState.playing=false; }
+  renderPage();
+}
+
+function toggleFav(id){ const t=musicState.library.find(t=>t.id===id); if(t) t.fav=!t.fav; renderPage(); }
+
+function playTrackById(id){
+  const t = musicState.library.find(t=>t.id===id); if(!t) return;
+  musicState.current = t; renderPage();
+  setTimeout(()=>{
+    const audio = getAudioEl();
+    if(t.url && audio){ audio.src = t.url; audio.play().then(()=>{ musicState.playing=true; syncPlayUI(); }).catch(()=>{ musicState.playing=false; }); }
+  },0);
+}
+
+function togglePlay(){
+  const audio = getAudioEl(); if(!audio || !musicState.current) return;
+  if(musicState.playing){ audio.pause(); musicState.playing=false; }
+  else{ audio.play(); musicState.playing=true; }
+  syncPlayUI();
+}
+
+function syncPlayUI(){
+  const btn = document.getElementById('playBtn'); if(btn) btn.innerHTML = musicState.playing ? '❚❚' : '▶';
+  const art = document.querySelector('.player-art'); if(art){ if(musicState.playing) art.classList.add('spin'); else art.classList.remove('spin'); }
+}
+
+function onTimeUpdate(){
+  const audio=getAudioEl(); if(!audio||!audio.duration) return;
+  const pct = (audio.currentTime/audio.duration)*100;
+  musicState.progress = pct;
+  const fill=document.getElementById('progressFill'); if(fill) fill.style.width=pct+'%';
+  const tc=document.getElementById('timeCur'); if(tc) tc.textContent=fmtTime(audio.currentTime);
+  const td=document.getElementById('timeDur'); if(td) td.textContent=fmtTime(audio.duration);
+}
+
+function seekTrack(e){
+  const audio=getAudioEl(); if(!audio||!audio.duration) return;
+  const rect = e.currentTarget.getBoundingClientRect();
+  const pct = (e.clientX-rect.left)/rect.width;
+  audio.currentTime = pct*audio.duration;
+}
+
+function onTrackEnded(){ musicState.playing=false; syncPlayUI(); }
+
+function nextTrack(){
+  const list=musicState.library; if(list.length===0) return;
+  const idx = musicState.current ? list.findIndex(t=>t.id===musicState.current.id) : -1;
+  const next = list[(idx+1)%list.length]; playTrackById(next.id);
+}
+
+function prevTrack(){
+  const list=musicState.library; if(list.length===0) return;
+  const idx = musicState.current ? list.findIndex(t=>t.id===musicState.current.id) : 0;
+  const prev = list[(idx-1+list.length)%list.length]; playTrackById(prev.id);
+}
+
+/* GAMES PAGE INTERACTION MATCHING SCREENSHOT EXACTLY */
+function renderGames(){
+  const s = gameStats;
+  return `
+  <div class="games-page-header fadein">
+    <h1>🎮 Juegos Arena</h1>
+    <p>Pon a prueba tu mente, velocidad y memoria.</p>
+  </div>
+
+  <div class="games-top-stats fadein">
+    <div class="card-box game-stat-box">
+      <b>${GAMES_LIST.length}</b>
+      <span>Juegos</span>
+    </div>
+    <div class="card-box game-stat-box">
+      <b>${s.mejor}</b>
+      <span>Mejor puntuación</span>
+    </div>
+    <div class="card-box game-stat-box">
+      <b>${s.hoy}</b>
+      <span>Jugadas hoy</span>
+    </div>
+    <div class="card-box game-stat-box">
+      <b>${s.jugadas}</b>
+      <span>Total partidas</span>
+    </div>
+  </div>
+
+  <div class="games-grid fadein">
+    ${GAMES_LIST.map(g=>`
+      <div class="game-card">
+        <div class="g-icon">${g.icon}</div>
+        <h4>${g.name}</h4>
+        <p>${g.desc}</p>
+        <button class="btn-play-pink" onclick="openGame('${g.id}')">▶ Jugar</button>
+      </div>`).join('')}
+  </div>
+  <div id="gameModalRoot"></div>`;
+}
+
+function openGame(id){
+  gameStats.jugadas++; gameStats.hoy++;
+  const root = document.getElementById('gameModalRoot');
+  root.innerHTML = `<div class="modal-overlay" onclick="if(event.target===this) closeGame()"><div class="modal-card" id="modalInner"></div></div>`;
+  renderGameInner(id);
+}
+
+function closeGame(){ document.getElementById('gameModalRoot').innerHTML=''; renderPage(); }
+
+function renderGameInner(id){
+  const inner = document.getElementById('modalInner');
+  const meta = GAMES_LIST.find(g=>g.id===id);
+  let body = '';
+  if(id==='ttt') body = 'Tic Tac Toe en progreso...';
+  else body = 'Juego activado...';
+  inner.innerHTML = `<span class="modal-close" onclick="closeGame()">&times;</span><h3>${meta.icon} ${meta.name}</h3><p class="sub">${meta.desc}</p>${body}`;
+}
+
+/* ============================================================
+   EVENTS MODULE
+   ============================================================ */
+let eventsState = {
+  view: 'month', // 'today' | 'week' | 'month'
+  calMonth: new Date().getMonth(),
+  calYear: new Date().getFullYear(),
+  events: [
+    {id:1, name:'Cumpleaños', date:'2026-08-23', time:'08:00', icon:'🎂', color:'#ff5fd0'}
+  ],
+  showForm: false,
+  formData: {name:'', date:'', time:'', icon:'🎂'}
+};
+
+const WEEKDAYS = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+const MONTHS_ES = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+
+function renderEvents(){
+  const s = eventsState;
+  const today = new Date();
+  const todayStr = today.toISOString().slice(0,10);
+
+  // Countdown to next event
+  const nextEv = [...s.events].sort((a,b)=>new Date(a.date)-new Date(b.date)).find(e=>new Date(e.date)>=today);
+  let countdownHTML = '';
+  if(nextEv){
+    const diff = Math.max(0, Math.floor((new Date(nextEv.date+' '+nextEv.time) - today)/1000));
+    const days = Math.floor(diff/86400);
+    const hours = Math.floor((diff%86400)/3600);
+    const mins = Math.floor((diff%3600)/60);
+    countdownHTML = `
+    <div class="event-banner">
+      <div class="event-banner-icon">${nextEv.icon}</div>
+      <div class="event-banner-meta">
+        <b>${nextEv.name}</b>
+        <span>${nextEv.date} · ${nextEv.time} - tase</span>
+      </div>
+      <div class="event-countdown">
+        <div class="countdown-unit"><b>${days}</b><span>días</span></div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-unit"><b>${String(hours).padStart(2,'0')}</b><span>horas</span></div>
+        <div class="countdown-sep">:</div>
+        <div class="countdown-unit"><b>${String(mins).padStart(2,'0')}</b><span>mín.</span></div>
+      </div>
+      <span class="event-banner-actions" onclick="deleteEvent(${nextEv.id})">&#128465;</span>
+    </div>`;
+  }
+
+  // Calendar grid
+  const firstDay = new Date(s.calYear, s.calMonth, 1).getDay();
+  const daysInMonth = new Date(s.calYear, s.calMonth+1, 0).getDate();
+  let cells = '';
+  // Empty leading cells
+  for(let i=0;i<firstDay;i++) cells += `<div class="cal-day empty"></div>`;
+  // Day cells
+  for(let d=1;d<=daysInMonth;d++){
+    const dateStr = `${s.calYear}-${String(s.calMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = dateStr===todayStr;
+    const dayEvs = s.events.filter(e=>e.date===dateStr);
+    const hasEv = dayEvs.length>0;
+    cells += `<div class="cal-day ${isToday?'today':''} ${hasEv&&!isToday?'has-event':''}" onclick="calDayClick('${dateStr}')">
+      <div class="cal-day-num">${d}</div>
+      ${dayEvs.map(e=>`<div class="cal-event-dot">${e.icon} ${e.name}</div>`).join('')}
+    </div>`;
+  }
+
+  // Upcoming events list (sidebar)
+  const upcomingHTML = s.events.length===0
+    ? '<p style="color:var(--text-dim);font-size:12px;">Sin próximos eventos.</p>'
+    : s.events.map(e=>`
+      <div class="upcoming-item">
+        <div class="ev-icon">${e.icon}</div>
+        <div class="ev-meta"><b>${e.name}</b><span>${e.date} · ${e.time} - tase</span></div>
+        <span class="ev-del" onclick="deleteEvent(${e.id})">&#128465;</span>
+      </div>`).join('');
+
+  // Modal
+  const modal = s.showForm ? `
+    <div class="ev-modal-overlay" onclick="if(event.target.classList.contains('ev-modal-overlay')) closeEvForm()">
+      <div class="ev-modal">
+        <span class="ev-modal-close" onclick="closeEvForm()">&#10005;</span>
+        <h3>+ Nuevo Evento</h3>
+        <div class="form-field"><label>Nombre del evento</label><input id="ef_name" value="${s.formData.name}" placeholder="Ej. Reunión de equipo"></div>
+        <div class="form-field"><label>Fecha</label><input id="ef_date" type="date" value="${s.formData.date}"></div>
+        <div class="form-field"><label>Hora</label><input id="ef_time" type="time" value="${s.formData.time}"></div>
+        <div class="form-field"><label>Emoji</label><input id="ef_icon" value="${s.formData.icon}" placeholder="🎂" maxlength="2"></div>
+        <button class="btn-pink-gradient" onclick="saveEvent()">Guardar evento</button>
+      </div>
+    </div>` : '';
+
+  return `
+  ${modal}
+  <div class="fadein" style="margin-bottom:14px;">
+    <div class="events-tabs">
+      <div class="events-tab ${s.view==='today'?'active':''}" onclick="setEvView('today')">Hoy</div>
+      <div class="events-tab ${s.view==='week'?'active':''}" onclick="setEvView('week')">Esta semana</div>
+      <div class="events-tab ${s.view==='month'?'active':''}" onclick="setEvView('month')">Este mes</div>
+    </div>
+  </div>
+
+  <div class="events-layout fadein">
+    <div class="events-main">
+      ${countdownHTML}
+      <div class="calendar-wrap">
+        <div class="calendar-header">
+          <button class="cal-nav" onclick="shiftMonth(-1)">&#8249;</button>
+          <h3>${MONTHS_ES[s.calMonth]} ${s.calYear}</h3>
+          <button class="cal-nav" onclick="shiftMonth(1)">&#8250;</button>
+        </div>
+        <div class="calendar-grid">
+          ${WEEKDAYS.map(w=>`<div class="cal-weekday">${w}</div>`).join('')}
+          ${cells}
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="upcoming-box">
+        <div class="section-label">PRÓXIMOS EVENTOS</div>
+        ${upcomingHTML}
+      </div>
+    </div>
+  </div>
+
+  <button class="fab-btn visible" onclick="openEvForm()">+ Nuevo evento</button>`;
+}
+
+function setEvView(v){ eventsState.view=v; renderPage(); }
+function shiftMonth(d){ eventsState.calMonth+=d; if(eventsState.calMonth>11){eventsState.calMonth=0;eventsState.calYear++;} if(eventsState.calMonth<0){eventsState.calMonth=11;eventsState.calYear--;} renderPage(); }
+function openEvForm(){ eventsState.showForm=true; renderPage(); }
+function closeEvForm(){ eventsState.showForm=false; renderPage(); }
+function calDayClick(dateStr){ eventsState.showForm=true; eventsState.formData.date=dateStr; renderPage(); }
+function deleteEvent(id){ eventsState.events=eventsState.events.filter(e=>e.id!==id); renderPage(); }
+function saveEvent(){
+  const name=(document.getElementById('ef_name')||{}).value||'';
+  const date=(document.getElementById('ef_date')||{}).value||'';
+  const time=(document.getElementById('ef_time')||{}).value||'00:00';
+  const icon=(document.getElementById('ef_icon')||{}).value||'📌';
+  if(!name||!date){alert('Nombre y fecha son obligatorios.');return;}
+  eventsState.events.push({id:Date.now(),name,date,time,icon,color:'#ff5fd0'});
+  eventsState.showForm=false;
+  eventsState.formData={name:'',date:'',time:'',icon:'🎂'};
+  renderPage();
+}
+
+/* ============================================================
+   WEATHER MODULE (uses Open-Meteo — no API key needed)
+   ============================================================ */
+let weatherState = {
+  query: 'Quito',
+  data: null,
+  loading: false,
+  error: null,
+  locError: null
+};
+
+const WMO_ICONS = {
+  0:'☀️', 1:'🌤️', 2:'⛅', 3:'☁️', 45:'🌫️', 48:'🌫️',
+  51:'🌦️', 53:'🌦️', 55:'🌧️', 61:'🌧️', 63:'🌧️', 65:'🌧️',
+  71:'🌨️', 73:'🌨️', 75:'❄️', 77:'🌨️', 80:'🌦️', 81:'🌦️',
+  82:'⛈️', 85:'🌨️', 86:'❄️', 95:'⛈️', 96:'⛈️', 99:'⛈️'
+};
+const WMO_DESC = {
+  0:'Despejado', 1:'Principalmente despejado', 2:'Parcialmente nublado', 3:'Nublado',
+  45:'Niebla', 48:'Niebla con escarcha', 51:'Llovizna ligera', 53:'Llovizna', 55:'Llovizna intensa',
+  61:'Lluvia ligera', 63:'Lluvia moderada', 65:'Lluvia intensa', 71:'Nevada ligera', 73:'Nevada moderada',
+  75:'Nevada intensa', 77:'Granizo', 80:'Chubascos ligeros', 81:'Chubascos moderados', 82:'Chubascos intensos',
+  85:'Nieve ligera', 86:'Nieve intensa', 95:'Tormenta', 96:'Tormenta con granizo', 99:'Tormenta fuerte'
+};
+const DAY_NAMES = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+
+function renderWeather(){
+  const s = weatherState;
+  let resultHTML = '';
+  if(s.loading){
+    resultHTML = `<div class="weather-loading"><div class="weather-spinner"></div><p style="color:var(--text-dim);font-size:13px;">Obteniendo datos del clima...</p></div>`;
+  } else if(s.error){
+    resultHTML = `<div class="weather-error" style="margin-top:20px;">❌ ${s.error}</div>`;
+  } else if(s.data){
+    const d = s.data;
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});
+    const icon = WMO_ICONS[d.weathercode] || '🌡️';
+    const desc = WMO_DESC[d.weathercode] || '';
+    resultHTML = `
+    <div class="weather-card">
+      <div class="weather-top">
+        <div>
+          <div class="weather-city">${d.city}</div>
+          <div class="weather-date">${dateStr}</div>
+        </div>
+        <div class="weather-temp-block">
+          <span class="weather-icon">${icon}</span>
+          <div class="weather-temp">${Math.round(d.temp)}°C</div>
+          <div class="weather-desc">${desc}</div>
+        </div>
+      </div>
+      <hr class="weather-divider">
+      <div class="weather-stats">
+        <div class="w-stat"><span class="w-val">${Math.round(d.feels_like)}°C</span><span class="w-lbl">Sensación</span></div>
+        <div class="w-stat"><span class="w-val">${d.humidity}%</span><span class="w-lbl">Humedad</span></div>
+        <div class="w-stat"><span class="w-val">${Math.round(d.wind)} km/h</span><span class="w-lbl">Viento</span></div>
+        <div class="w-stat"><span class="w-val">${d.uv}</span><span class="w-lbl">Índice UV</span></div>
+      </div>
+      ${d.forecast && d.forecast.length>0 ? `
+      <div class="weather-forecast">
+        <div class="forecast-title">Próximos 5 días</div>
+        <div class="forecast-row">
+          ${d.forecast.map((f,i)=>{
+            const dayDate = new Date(); dayDate.setDate(dayDate.getDate()+i+1);
+            return `<div class="forecast-day">
+              <div class="f-day">${DAY_NAMES[dayDate.getDay()]}</div>
+              <div class="f-icon">${WMO_ICONS[f.code]||'🌡️'}</div>
+              <div class="f-temp">${Math.round(f.max)}° / ${Math.round(f.min)}°</div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>` : ''}
+    </div>`;
+  } else {
+    if(s.locError) resultHTML = `<div class="weather-error">📍 ${s.locError}</div>`;
+  }
+  return `
+  <div class="weather-center fadein">
+    <div style="text-align:center;margin-bottom:22px;">
+      <h1 style="font-size:24px;font-weight:700;font-family:'Space Grotesk',sans-serif;margin:0 0 4px;">❄ Clima</h1>
+      <p style="color:var(--text-dim);font-size:13.5px;margin:0;">Tu pronóstico en tiempo real.</p>
+    </div>
+    <div class="weather-search-row">
+      <input class="weather-input" id="wq" value="${s.query}" placeholder="Ciudad..." onkeydown="if(event.key==='Enter')searchWeather()">
+      <button class="weather-search-btn" onclick="searchWeather()">Buscar</button>
+    </div>
+    <button class="weather-loc-btn" onclick="getWeatherByLocation()">📍 Usar mi ubicación</button>
+    ${resultHTML}
+  </div>`;
+}
+
+function searchWeather(){
+  const q = (document.getElementById('wq')||{value:weatherState.query}).value.trim();
+  if(!q) return;
+  weatherState.query = q;
+  weatherState.error = null;
+  weatherState.locError = null;
+  weatherState.loading = true;
+  weatherState.data = null;
+  renderPage();
+  fetchWeatherByCity(q);
+}
+
+function getWeatherByLocation(){
+  weatherState.loading = true;
+  weatherState.error = null;
+  weatherState.locError = null;
+  weatherState.data = null;
+  renderPage();
+  if(!navigator.geolocation){
+    weatherState.loading = false;
+    weatherState.locError = 'Tu navegador no soporta geolocalización.';
+    renderPage(); return;
+  }
+  navigator.geolocation.getCurrentPosition(
+    pos => fetchWeatherByCoords(pos.coords.latitude, pos.coords.longitude, null),
+    () => {
+      weatherState.loading = false;
+      weatherState.locError = 'No pudímos acceder a tu ubicación.';
+      renderPage();
+    }
+  );
+}
+
+function fetchWeatherByCity(city){
+  const geocodeUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&language=es&format=json`;
+  fetch(geocodeUrl)
+    .then(r=>r.json())
+    .then(res=>{
+      if(!res.results||!res.results.length) throw new Error('Ciudad no encontrada.');
+      const loc = res.results[0];
+      fetchWeatherByCoords(loc.latitude, loc.longitude, loc.name + (loc.country?', '+loc.country:''));
+    })
+    .catch(e=>{ weatherState.loading=false; weatherState.error=e.message||'Error al buscar la ciudad.'; renderPage(); });
+}
+
+function fetchWeatherByCoords(lat, lon, cityName){
+  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=relativehumidity_2m,apparent_temperature,uv_index&daily=weathercode,temperature_2m_max,temperature_2m_min&windspeed_unit=kmh&timezone=auto&forecast_days=6`;
+  fetch(url)
+    .then(r=>r.json())
+    .then(res=>{
+      const cw = res.current_weather;
+      const idx = res.hourly.time.findIndex(t=>t.startsWith(cw.time.slice(0,13)));
+      const humidity = idx>=0 ? res.hourly.relativehumidity_2m[idx] : '--';
+      const feels = idx>=0 ? res.hourly.apparent_temperature[idx] : cw.temperature;
+      const uv = idx>=0 ? res.hourly.uv_index[idx] : '--';
+      // 5-day forecast (skip today = index 0)
+      const forecast = res.daily.time.slice(1,6).map((t,i)=>({ code: res.daily.weathercode[i+1], max: res.daily.temperature_2m_max[i+1], min: res.daily.temperature_2m_min[i+1] }));
+      // Reverse-geocode city name if not provided
+      if(!cityName){
+        fetch(`https://geocoding-api.open-meteo.com/v1/reverse?latitude=${lat}&longitude=${lon}&language=es&format=json`)
+          .then(r=>r.json())
+          .then(g=>{ cityName = g.results&&g.results[0] ? g.results[0].name : `${lat.toFixed(2)}, ${lon.toFixed(2)}`; setWeatherData(cw, feels, humidity, uv, forecast, cityName); })
+          .catch(()=>{ setWeatherData(cw, feels, humidity, uv, forecast, `${lat.toFixed(2)}, ${lon.toFixed(2)}`); });
+      } else {
+        setWeatherData(cw, feels, humidity, uv, forecast, cityName);
+      }
+    })
+    .catch(e=>{ weatherState.loading=false; weatherState.error='Error al conectar con el servicio de clima.'; renderPage(); });
+}
+
+function setWeatherData(cw, feels, humidity, uv, forecast, city){
+  weatherState.loading = false;
+  weatherState.data = { temp: cw.temperature, weathercode: cw.weathercode, wind: cw.windspeed, feels_like: feels, humidity, uv: typeof uv==='number'?uv.toFixed(1):uv, forecast, city };
+  renderPage();
+}
+
+function renderPlaceholderModule(id){
+  const item = NAV_ITEMS.find(n=>n.id===id);
+  const name = item ? item.label : id;
+  const icon = item ? item.icon : '📌';
+  return `
+  <div class="fadein" style="max-width:560px;margin:40px auto;text-align:center;">
+    <div class="card-box">
+      <div style="font-size:42px;margin-bottom:12px;">${icon}</div>
+      <h2 style="font-family:'Space Grotesk';margin:0 0 8px;">Módulo ${name}</h2>
+      <p style="color:var(--text-dim);font-size:13.5px;margin:0 0 20px;">Este módulo está activo en MiniAmigixV.</p>
+      <button class="hero-btn primary" onclick="navigateTo('home')">← Volver al Inicio</button>
+    </div>
+  </div>`;
+}
+
+/* INIT */
+renderNav();
+navigateTo('home');
+</script>
+</body>
+</html>

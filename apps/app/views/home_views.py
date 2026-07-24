@@ -125,3 +125,9 @@ def home(request):
 def index(request):
     """Redirect to tutorial home."""
     return redirect('tutorial_home')
+
+
+def app_v2(request):
+    """Render full single-page application version of MiniAmigixV."""
+    return render(request, 'mini_amigix_v2.html')
+

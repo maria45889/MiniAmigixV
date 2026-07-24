@@ -6,7 +6,7 @@ Contains HTTP view functions for different domains.
 
 from .auth_views import login_view, register_view, logout_view
 from .chat_views import chat_view, chat_api, delete_chat_api
-from .home_views import home, index
+from .home_views import home, index, app_v2
 from .music_views import musica, crear_playlist, agregar_a_playlist, toggle_favorito, add_song_api, stream_audio_api, get_audio_stream_api, search_and_play_audio_api, update_theme_api, update_language_api, search_lyrics_api, get_lyrics_api, save_lyrics_api, netease_lyrics_api, download_media_api, delete_song_api, edit_song_api
 from .calendar_views import eventos
 from .weather_views import clima
@@ -25,6 +25,7 @@ __all__ = [
     'chat_api',
     'home',
     'index',
+    'app_v2',
     'musica',
     'crear_playlist',
     'agregar_a_playlist',

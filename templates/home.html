@@ -1,218 +1,111 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Inicio{% endblock %}
+{% block title %}Inicio - MiniAmigixV{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/bento-home.css' %}?v=1">
+<link rel="stylesheet" href="{% static 'css/pages/bento-home.css' %}?v=5">
 {% endblock %}
 
 {% block content %}
-<div class="home-bento-wrapper">
+<div class="home-dashboard-wrapper fadein">
 
-    <!-- === HERO === -->
-    <div class="hero-bento">
-        <div class="hero-bg-orbs">
-            <div class="orb orb-1"></div>
-            <div class="orb orb-2"></div>
-            <div class="orb orb-3"></div>
-        </div>
-
-        <!-- Left: Text Content -->
-        <div class="hero-left">
-            <div class="hero-eyebrow">
-                <span class="eyebrow-dot"></span>
-                <span>Plataforma activa</span>
-            </div>
-            <h1 class="hero-display">
-                Hola,<br>
-                <span class="hero-name">@{{ user.username }}</span>
-            </h1>
-            <p class="hero-tagline">Tu espacio personal con inteligencia artificial, música, eventos y mucho más.</p>
-            <div class="hero-actions">
-                <a href="{% url 'chat' %}" class="btn-primary-hero">
-                    <i class="ti ti-message-chatbot"></i>
-                    Hablar con la IA
-                </a>
-                <a href="{% url 'tutorial_home' %}" class="btn-ghost-hero">
-                    Ver tutoriales
-                    <i class="ti ti-arrow-right"></i>
-                </a>
-            </div>
-        </div>
-
-        <!-- Right: Robot + KPIs -->
-        <div class="hero-right">
-            <div class="hero-robot-card">
-                <div class="robot-glow"></div>
-                <div class="robot-emoji">🤖</div>
-                <div class="robot-label">MiniAmigix</div>
-                <div class="robot-status">
-                    <span class="status-dot"></span>
-                    <span>En línea</span>
-                </div>
-            </div>
-
-            <div class="hero-mini-stats">
-                <div class="mini-stat">
-                    <span class="mini-stat-icon">💬</span>
-                    <span class="mini-stat-val">{{ stats_chats }}</span>
-                    <span class="mini-stat-lbl">Chats</span>
-                </div>
-                <div class="mini-stat">
-                    <span class="mini-stat-icon">🎵</span>
-                    <span class="mini-stat-val">{{ stats_canciones }}</span>
-                    <span class="mini-stat-lbl">Canciones</span>
-                </div>
-                <div class="mini-stat">
-                    <span class="mini-stat-icon">📅</span>
-                    <span class="mini-stat-val">{{ stats_eventos }}</span>
-                    <span class="mini-stat-lbl">Eventos</span>
-                </div>
-                <div class="mini-stat">
-                    <span class="mini-stat-icon">🌦</span>
-                    <span class="mini-stat-val">{{ clima_temp }}°</span>
-                    <span class="mini-stat-lbl">Clima</span>
-                </div>
-            </div>
-        </div>
+  <!-- HERO CARD -->
+  <div class="hero-card">
+    <h1>Hola, <u style="text-decoration-color:#5fe0ff;">@{{ user.username|default:"maria45889" }}</u></h1>
+    <p>Tu espacio personal con inteligencia artificial, música, eventos y mucho más.</p>
+    <div class="hero-actions">
+      <a href="{% url 'chat' %}" class="hero-btn primary">💬 Hablar con la IA</a>
+      <a href="{% url 'tutorial_home' %}" class="hero-btn ghost">Ver tutoriales →</a>
     </div>
+    
+    <!-- 3D ROBOT MASCOT SVG -->
+    <svg class="hero-mascot-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="botGrad" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#c084fc"/>
+          <stop offset="50%" stop-color="#818cf8"/>
+          <stop offset="100%" stop-color="#38bdf8"/>
+        </linearGradient>
+        <linearGradient id="eyeGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#5fe0ff"/>
+          <stop offset="100%" stop-color="#0284c7"/>
+        </linearGradient>
+      </defs>
+      <!-- Antenna -->
+      <rect x="47" y="12" width="6" height="16" rx="3" fill="url(#botGrad)"/>
+      <circle cx="50" cy="10" r="5" fill="#ff5fd0"/>
+      <circle cx="50" cy="10" r="2.5" fill="#fff"/>
+      <!-- Head -->
+      <rect x="22" y="26" width="56" height="48" rx="16" fill="url(#botGrad)"/>
+      <!-- Ears -->
+      <rect x="14" y="38" width="8" height="24" rx="4" fill="#6d35e3"/>
+      <rect x="78" y="38" width="8" height="24" rx="4" fill="#6d35e3"/>
+      <!-- Face Screen -->
+      <rect x="28" y="34" width="44" height="32" rx="10" fill="#0c0915"/>
+      <!-- Eyes -->
+      <rect x="34" y="42" width="12" height="14" rx="4" fill="url(#eyeGrad)"/>
+      <rect x="54" y="42" width="12" height="14" rx="4" fill="url(#eyeGrad)"/>
+      <circle cx="38" cy="46" r="2" fill="#fff"/>
+      <circle cx="58" cy="46" r="2" fill="#fff"/>
+      <!-- Mouth -->
+      <rect x="42" y="58" width="16" height="3" rx="1.5" fill="#5fe0ff"/>
+    </svg>
+  </div>
 
-    <!-- === BENTO GRID === -->
-    <div class="bento-grid">
+  <!-- FEATURE GRID (2 COLUMNS × 3 ROWS) -->
+  <div class="feature-grid">
+    <!-- Row 1 -->
+    <a href="{% url 'chat' %}" class="feature-card card-chat">
+      <div class="f-icon">💬</div>
+      <div>
+        <h3>Chat IA</h3>
+        <p>Asistente virtual para resolver dudas y tareas</p>
+      </div>
+    </a>
 
-        <!-- Frase del día — grande -->
-        <div class="bento-cell quote-cell">
-            <div class="bento-noise"></div>
-            <div class="quote-marks">"</div>
-            <p class="bento-quote-text">{{ frase_texto }}</p>
-            <span class="bento-quote-author">— {{ frase_autor }}</span>
-            <div class="quote-shimmer"></div>
-        </div>
+    <a href="{% url 'musica' %}" class="feature-card card-music">
+      <div class="f-icon">🎧</div>
+      <div>
+        <h3>Música</h3>
+        <p>Reproductor con tu biblioteca personal</p>
+      </div>
+    </a>
 
-        <!-- Chat IA -->
-        <a href="{% url 'chat' %}" class="bento-cell module-cell chat-cell">
-            <div class="bento-noise"></div>
-            <div class="module-icon-wrap"><i class="ti ti-message-chatbot"></i></div>
-            <h3>Chat IA</h3>
-            <p>Asistente virtual para resolver dudas y tareas</p>
-            <div class="cell-arrow"><i class="ti ti-arrow-up-right"></i></div>
-            <div class="cell-glow"></div>
-        </a>
+    <!-- Row 2 -->
+    <a href="{% url 'juegos' %}" class="feature-card card-games">
+      <div class="f-icon">🎮</div>
+      <div>
+        <h3>Juegos</h3>
+        <p>Entretenimiento educativo y desafíos</p>
+      </div>
+    </a>
 
-        <!-- Música -->
-        <a href="{% url 'musica' %}" class="bento-cell module-cell music-cell">
-            <div class="bento-noise"></div>
-            <div class="module-icon-wrap"><i class="ti ti-headphones"></i></div>
-            <h3>Música</h3>
-            <p>Reproductor con YouTube y biblioteca personal</p>
-            <div class="cell-arrow"><i class="ti ti-arrow-up-right"></i></div>
-            <div class="cell-glow"></div>
-        </a>
+    <a href="{% url 'eventos' %}" class="feature-card card-events">
+      <div class="f-icon">📅</div>
+      <div>
+        <h3>Eventos</h3>
+        <p>Organiza y visualiza tus compromisos</p>
+      </div>
+    </a>
 
-        <!-- Juegos — tall -->
-        <a href="{% url 'juegos' %}" class="bento-cell module-cell games-cell">
-            <div class="bento-noise"></div>
-            <div class="module-icon-wrap"><i class="ti ti-device-gamepad-2"></i></div>
-            <h3>Juegos</h3>
-            <p>Entretenimiento educativo y desafíos</p>
-            <div class="cell-arrow"><i class="ti ti-arrow-up-right"></i></div>
-            <div class="cell-glow"></div>
-        </a>
+    <!-- Row 3 -->
+    <a href="{% url 'clima' %}" class="feature-card card-weather">
+      <div class="f-icon">☀️</div>
+      <div>
+        <h3>Clima</h3>
+        <p>Pronóstico en tiempo real de tu ciudad</p>
+      </div>
+    </a>
 
-        <!-- Estudio -->
-        <a href="{% url 'estudio' %}" class="bento-cell module-cell study-cell">
-            <div class="bento-noise"></div>
-            <div class="module-icon-wrap"><i class="ti ti-book-2"></i></div>
-            <h3>Estudio</h3>
-            <p>Herramientas Pomodoro y recursos académicos</p>
-            <div class="cell-arrow"><i class="ti ti-arrow-up-right"></i></div>
-            <div class="cell-glow"></div>
-        </a>
-
-        <!-- Clima -->
-        <a href="{% url 'clima' %}" class="bento-cell module-cell weather-cell">
-            <div class="bento-noise"></div>
-            <div class="weather-big-icon">{{ clima_icon }}</div>
-            <div class="weather-temp">{{ clima_temp }}°C</div>
-            <div class="weather-desc">{{ clima_desc }}</div>
-            <div class="module-icon-wrap mini"><i class="ti ti-cloud-sun"></i></div>
-            <div class="cell-glow"></div>
-        </a>
-
-        <!-- Traductor -->
-        <a href="{% url 'traductor' %}" class="bento-cell module-cell translator-cell">
-            <div class="bento-noise"></div>
-            <div class="module-icon-wrap"><i class="ti ti-world-www"></i></div>
-            <h3>Traductor</h3>
-            <p>Traducción instantánea entre idiomas</p>
-            <div class="cell-arrow"><i class="ti ti-arrow-up-right"></i></div>
-            <div class="cell-glow"></div>
-        </a>
-
-        <!-- Actividad Reciente — wide -->
-        <div class="bento-cell activity-cell">
-            <div class="bento-noise"></div>
-            <h3 class="cell-heading"><i class="ti ti-history"></i> Actividad Reciente</h3>
-            <div class="activity-mini-list">
-                {% for act in actividad_reciente %}
-                <div class="activity-row">
-                    <div class="activity-chip-icon {{ act.bg }}"><i class="{{ act.icono }}"></i></div>
-                    <span class="activity-row-name">{{ act.nombre }}</span>
-                    <span class="activity-row-time">{{ act.tiempo }}</span>
-                    <div class="activity-check"><i class="ti ti-circle-check-filled"></i></div>
-                </div>
-                {% empty %}
-                <div class="activity-row" style="justify-content: center; color: rgba(255,255,255,0.4);">
-                    <span>No hay actividad reciente</span>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-
-        <!-- Tutorial CTA -->
-        <a href="{% url 'tutorial_home' %}" class="bento-cell tutorial-cta-cell">
-            <div class="bento-noise"></div>
-            <div class="tutorial-cta-bg">📚</div>
-            <div class="tutorial-cta-content">
-                <span class="cta-eyebrow">¿Primera vez?</span>
-                <h3>Explora los Tutoriales</h3>
-                <p>Aprende a usar todas las funciones de MiniAmigixV en minutos</p>
-                <span class="cta-btn">Comenzar ahora <i class="ti ti-arrow-right"></i></span>
-            </div>
-            <div class="cell-glow"></div>
-        </a>
-
-    </div>
-
-    <!-- Footer minimal -->
-    <footer class="bento-footer">
-        <span class="footer-brand">MiniAmigixV</span>
-        <span class="footer-right">Versión 1.0 &nbsp;·&nbsp; © 2026</span>
-    </footer>
+    <a href="{% url 'traductor' %}" class="feature-card card-translate">
+      <div class="f-icon">🌐</div>
+      <div>
+        <h3>Traductor</h3>
+        <p>Traducción instantánea entre idiomas</p>
+      </div>
+    </a>
+  </div>
 
 </div>
-
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    // PWA install button
-    let deferredPrompt;
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
-        const btn = document.getElementById('pwa-install-hero');
-        if (btn) btn.style.display = 'inline-flex';
-    });
-
-    const pwaBtn = document.getElementById('pwa-install-hero');
-    if (pwaBtn) {
-        pwaBtn.addEventListener('click', () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
-            }
-        });
-    }
-});
-</script>
 {% endblock %}

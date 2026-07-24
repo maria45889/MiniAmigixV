@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MiniAmigixV — Todo junto</title>
+<style>
+  :root{
+    --bg:#0b0b14; --panel:#13131f; --panel2:#151521; --border:rgba(255,255,255,0.07);
+    --text:#f4f4f8; --dim:#9494ab;
+    --purple:#7c3aed; --purple2:#a855f7; --cyan:#22d3ee;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); font-family:'Segoe UI',system-ui,sans-serif; color:var(--text); padding:36px;}
+  h1{font-size:22px; margin:0 0 4px;}
+  h2.section{font-size:16px; margin:48px 0 4px; color:var(--text);}
+  .sub{color:var(--dim); font-size:13px; margin-bottom:8px;}
+
+  /* ---- dashboard ---- */
+  .grid{
+    display:grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: 150px;
+    gap:16px; max-width:1200px; margin-top:20px;
+  }
+  .card{ border-radius:16px; padding:20px; border:1px solid var(--border);
+    display:flex; flex-direction:column; justify-content:flex-end; position:relative; overflow:hidden;
+    text-decoration:none; color:inherit; transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;}
+  .card:hover{ transform: translateY(-4px); box-shadow:0 12px 30px rgba(0,0,0,0.4); border-color:rgba(255,255,255,0.2); }
+  .card .icon{width:36px;height:36px;border-radius:10px;background:rgba(255,255,255,0.12);
+    display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:auto;}
+  .card h3{margin:0 0 4px; font-size:16px;}
+  .card p{margin:0; font-size:12px; color:rgba(255,255,255,0.75);}
+
+  .hero{ grid-column: span 4; grid-row: span 2;
+    background: linear-gradient(135deg, #2b1454, #4c1d95 40%, #1e1b3a);
+    display:flex; align-items:center; justify-content:space-between; padding:32px 40px;}
+  .hero:hover{ transform: none; box-shadow: none; border-color: var(--border); }
+  .hero-left .tag{display:inline-flex; align-items:center; gap:6px; background:rgba(34,197,94,0.15);
+    color:#4ade80; font-size:11px; padding:4px 10px; border-radius:20px; margin-bottom:14px;}
+  .hero-left h1{font-size:32px; margin:0;}
+  .hero-left .accent{color:var(--cyan);}
+  .hero-left p{color:var(--dim); max-width:340px; margin:10px 0 20px; font-size:14px;}
+  .btns{display:flex; gap:12px;}
+  .btn-primary{background:linear-gradient(90deg, var(--purple), var(--purple2)); color:white; border:none;
+    padding:11px 20px; border-radius:10px; font-weight:600; font-size:13px; cursor:pointer;
+    box-shadow:0 4px 20px rgba(124,58,237,0.5); text-decoration:none; display:inline-flex; align-items:center; gap:6px;}
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 6px 24px rgba(124,58,237,0.7); }
+  .btn-secondary{background:rgba(255,255,255,0.06); color:white; border:1px solid var(--border);
+    padding:11px 18px; border-radius:10px; font-size:13px; cursor:pointer; text-decoration:none; display:inline-flex; align-items:center; gap:6px;}
+  .btn-secondary:hover{ background:rgba(255,255,255,0.1); }
+  .hero-right{display:flex; flex-direction:column; align-items:center; gap:16px;}
+  .mascot-badge{background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:16px;
+    padding:16px 24px; display:flex; flex-direction:column; align-items:center; gap:8px;}
+  .stats-row{display:flex; gap:10px;}
+  .stat{background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:12px;
+    padding:10px 16px; text-align:center; min-width:64px;}
+  .stat b{display:block; font-size:16px;}
+  .stat span{font-size:10px; color:var(--dim);}
+
+  .chatia{ grid-column: span 2; background:linear-gradient(135deg,#2a1150,#1a0f33); }
+  .musica{ grid-column: span 2; background:linear-gradient(135deg,#1e3a8a,#0f1f4d); }
+  .juegos{ grid-column: span 2; background:linear-gradient(135deg,#064e3b,#022c22); }
+  .estudio{ grid-column: span 2; background:linear-gradient(135deg,#78350f,#3a1a03); }
+  .clima{ grid-column: span 2; background:linear-gradient(135deg,#0e7490,#083344); }
+  .traductor{ grid-column: span 2; background:linear-gradient(135deg,#134e4a,#062421); }
+
+  /* ---- mascotas ---- */
+  .row{display:flex; gap:22px; flex-wrap:wrap; max-width:1200px; margin-top:16px;}
+  .mcard{background:var(--panel2); border:1px solid var(--border); border-radius:20px;
+    padding:26px; width:260px; text-align:center; transition: transform 0.25s ease, border-color 0.25s ease;}
+  .mcard:hover{ transform: translateY(-4px); }
+  .mcard.selected{border-color:var(--cyan); box-shadow:0 0 0 1px var(--cyan);}
+  .mcard svg{margin-bottom:10px;}
+  .mcard h3{font-size:16px; margin:6px 0 4px;}
+  .mcard p{font-size:12px; color:var(--dim); line-height:1.5;}
+  .tag2{display:inline-block; font-size:10px; padding:3px 10px; border-radius:20px;
+    background:rgba(255,255,255,0.08); color:var(--dim); margin-bottom:10px;}
+  .tag2.picked{background:rgba(34,211,238,0.15); color:var(--cyan);}
+
+  @media (max-width: 992px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+    .hero { grid-column: span 2; flex-direction: column; gap: 24px; text-align: center; }
+    .hero-left p { margin-left: auto; margin-right: auto; }
+    .btns { justify-content: center; }
+    .chatia, .musica, .juegos, .estudio, .clima, .traductor { grid-column: span 2; }
+  }
+
+  @media (max-width: 600px) {
+    body { padding: 16px; }
+    .grid { grid-template-columns: 1fr; }
+    .hero { grid-column: span 1; padding: 24px 20px; }
+    .stats-row { flex-wrap: wrap; justify-content: center; }
+    .chatia, .musica, .juegos, .estudio, .clima, .traductor { grid-column: span 1; }
+    .row { justify-content: center; }
+    .mcard { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+  <h1>MiniAmigixV — Rediseño completo</h1>
+  <div class="sub">Dashboard con grilla pareja + mascota "Mixi" en el header, y abajo las 3 alternativas de mascota para comparar.</div>
+
+  <div class="grid">
+    <div class="card hero">
+      <div class="hero-left">
+        <div class="tag">● PLATAFORMA ACTIVA</div>
+        <h1>Hola, <span class="accent">@maria45889</span></h1>
+        <p>Tu espacio personal con inteligencia artificial, música, eventos y mucho más.</p>
+        <div class="btns">
+          <a href="/chat/" class="btn-primary">💬 Hablar con la IA</a>
+          <a href="/tutorial/" class="btn-secondary">Ver tutoriales →</a>
+        </div>
+      </div>
+      <div class="hero-right">
+        <div class="mascot-badge">
+          <svg width="72" height="72" viewBox="0 0 100 100">
+            <defs>
+              <linearGradient id="mg1" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stop-color="#a855f7"/>
+                <stop offset="100%" stop-color="#22d3ee"/>
+              </linearGradient>
+            </defs>
+            <rect x="28" y="32" width="44" height="38" rx="14" fill="url(#mg1)"/>
+            <rect x="44" y="16" width="12" height="18" rx="6" fill="url(#mg1)"/>
+            <circle cx="50" cy="12" r="5" fill="#22d3ee"/>
+            <circle cx="39" cy="50" r="6" fill="#0b0b14"/>
+            <circle cx="61" cy="50" r="6" fill="#0b0b14"/>
+            <circle cx="39" cy="50" r="2.4" fill="#22d3ee"/>
+            <circle cx="61" cy="50" r="2.4" fill="#22d3ee"/>
+            <rect x="41" y="60" width="18" height="4" rx="2" fill="#0b0b14"/>
+            <rect x="14" y="42" width="8" height="18" rx="4" fill="url(#mg1)"/>
+            <rect x="78" y="42" width="8" height="18" rx="4" fill="url(#mg1)"/>
+          </svg>
+          <div style="font-size:12px; font-weight:600;">Mixi</div>
+          <div style="font-size:10px; color:#4ade80;">● En línea</div>
+        </div>
+        <div class="stats-row">
+          <div class="stat"><b>1</b><span>CHATS</span></div>
+          <div class="stat"><b>4</b><span>CANCIONES</span></div>
+          <div class="stat"><b>3</b><span>EVENTOS</span></div>
+          <div class="stat"><b>23°</b><span>CLIMA</span></div>
+        </div>
+      </div>
+    </div>
+
+    <a href="/chat/" class="card chatia"><div class="icon">💬</div><h3>Chat IA</h3><p>Asistente virtual para resolver dudas y tareas</p></a>
+    <a href="/musica/" class="card musica"><div class="icon">🎧</div><h3>Música</h3><p>Reproductor con YouTube y biblioteca personal</p></a>
+    <a href="/juegos/" class="card juegos"><div class="icon">🎮</div><h3>Juegos</h3><p>Entretenimiento educativo y desafíos</p></a>
+    <a href="/estudio/" class="card estudio"><div class="icon">📚</div><h3>Estudio</h3><p>Herramientas Pomodoro y recursos académicos</p></a>
+    <a href="/clima/" class="card clima"><div class="icon">⛅</div><h3>23°C — Parcialmente nublado</h3><p>Máx 26° · Mín 18° · Humedad 62% · Viento 8km/h</p></a>
+    <a href="/traductor/" class="card traductor"><div class="icon">🌐</div><h3>Traductor</h3><p>Traducción instantánea entre idiomas</p></a>
+  </div>
+
+  <h2 class="section">Opciones de mascota</h2>
+  <div class="sub">La primera (Mixi) es la que ya está puesta en el dashboard de arriba. Las otras dos son alternativas.</div>
+
+  <div class="row">
+
+    <div class="mcard selected">
+      <span class="tag2 picked">EN USO ARRIBA</span>
+      <svg width="120" height="120" viewBox="0 0 100 100">
+        <defs>
+          <linearGradient id="mg2" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#a855f7"/>
+            <stop offset="100%" stop-color="#22d3ee"/>
+          </linearGradient>
+        </defs>
+        <rect x="28" y="32" width="44" height="38" rx="14" fill="url(#mg2)"/>
+        <rect x="44" y="16" width="12" height="18" rx="6" fill="url(#mg2)"/>
+        <circle cx="50" cy="12" r="5" fill="#22d3ee"/>
+        <circle cx="39" cy="50" r="6" fill="#0b0b14"/>
+        <circle cx="61" cy="50" r="6" fill="#0b0b14"/>
+        <circle cx="39" cy="50" r="2.4" fill="#22d3ee"/>
+        <circle cx="61" cy="50" r="2.4" fill="#22d3ee"/>
+        <rect x="41" y="60" width="18" height="4" rx="2" fill="#0b0b14"/>
+        <rect x="14" y="42" width="8" height="18" rx="4" fill="url(#mg2)"/>
+        <rect x="78" y="42" width="8" height="18" rx="4" fill="url(#mg2)"/>
+      </svg>
+      <h3>Mixi (robot)</h3>
+      <p>Gradiente morado-cian, igual a los acentos del dashboard. Conecta con "Chat IA".</p>
+    </div>
+
+    <div class="mcard">
+      <span class="tag2">ALTERNATIVA</span>
+      <svg width="120" height="120" viewBox="0 0 100 100">
+        <defs>
+          <linearGradient id="g1" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#f472b6"/>
+            <stop offset="100%" stop-color="#818cf8"/>
+          </linearGradient>
+        </defs>
+        <path d="M50 8 L58 42 L92 50 L58 58 L50 92 L42 58 L8 50 L42 42 Z" fill="url(#g1)"/>
+        <circle cx="38" cy="44" r="3.2" fill="#0b0b14"/>
+        <circle cx="62" cy="44" r="3.2" fill="#0b0b14"/>
+        <path d="M40 58 Q50 66 60 58" stroke="#0b0b14" stroke-width="3" fill="none" stroke-linecap="round"/>
+      </svg>
+      <h3>Chispa</h3>
+      <p>Estrella rosa-violeta, representa ideas e inteligencia. Look más lúdico.</p>
+    </div>
+
+    <div class="mcard">
+      <span class="tag2">ALTERNATIVA</span>
+      <svg width="120" height="120" viewBox="0 0 100 100">
+        <defs>
+          <linearGradient id="g3" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#fbbf24"/>
+            <stop offset="100%" stop-color="#f97316"/>
+          </linearGradient>
+        </defs>
+        <ellipse cx="50" cy="58" rx="30" ry="26" fill="url(#g3)"/>
+        <circle cx="50" cy="30" r="20" fill="url(#g3)"/>
+        <path d="M50 30 L70 26 L50 40 Z" fill="#0b0b14" opacity="0.85"/>
+        <circle cx="42" cy="26" r="4" fill="#0b0b14"/>
+        <circle cx="58" cy="26" r="4" fill="#0b0b14"/>
+        <path d="M20 60 Q6 55 12 40" stroke="url(#g3)" stroke-width="8" fill="none" stroke-linecap="round"/>
+        <path d="M80 60 Q94 55 88 40" stroke="url(#g3)" stroke-width="8" fill="none" stroke-linecap="round"/>
+      </svg>
+      <h3>Kiwi</h3>
+      <p>El pajarito original, reinterpretado en amarillo-naranja y más geométrico.</p>
+    </div>
+
+  </div>
+
+</body>
+</html>
