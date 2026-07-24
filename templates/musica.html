@@ -8,6 +8,32 @@
 <link rel="stylesheet" href="{% static 'css/pages/musica.css' %}?v=40">
 {% endblock %}
 
+<script>
+// Immediate error suppression before any other scripts load
+(function() {
+  const originalError = console.error;
+  console.error = function(...args) {
+    const message = args[0] || '';
+    const messageStr = typeof message === 'string' ? message : JSON.stringify(message);
+    if (messageStr.includes('postMessage') && (messageStr.includes('target origin') || messageStr.includes('DOMWindow'))) {
+      return;
+    }
+    originalError.apply(console, args);
+  };
+
+  window.addEventListener('error', function(event) {
+    if (event && event.message) {
+      const messageStr = typeof event.message === 'string' ? event.message : String(event.message);
+      if (messageStr.includes('postMessage') && (messageStr.includes('target origin') || messageStr.includes('DOMWindow'))) {
+        event.preventDefault();
+        event.stopPropagation();
+        return false;
+      }
+    }
+  }, true);
+})();
+</script>
+
 {% block content %}
 <div class="musica-page-wrapper fadein">
   {% csrf_token %}
@@ -331,6 +357,41 @@
      SCRIPTS
 ════════════════════════════════════ -->
 <script>
+// ─────────────────────────────────────────
+// SUPPRESS YOUTUBE POSTMESSAGE ERRORS ON LOCALHOST
+// ─────────────────────────────────────────
+(function() {
+  const originalError = console.error;
+  console.error = function(...args) {
+    const message = args[0] || '';
+    const messageStr = typeof message === 'string' ? message : JSON.stringify(message);
+    if (messageStr.includes('postMessage') && (messageStr.includes('target origin') || messageStr.includes('DOMWindow'))) {
+      return; // Ignore YouTube origin warnings on localhost
+    }
+    originalError.apply(console, args);
+  };
+
+  window.addEventListener('error', function(event) {
+    if (event && event.message) {
+      const messageStr = typeof event.message === 'string' ? event.message : String(event.message);
+      if (messageStr.includes('postMessage') && (messageStr.includes('target origin') || messageStr.includes('DOMWindow'))) {
+        event.preventDefault();
+        event.stopPropagation();
+        return false;
+      }
+    }
+  }, true);
+
+  window.addEventListener('unhandledrejection', function(event) {
+    if (event.reason) {
+      const reasonStr = typeof event.reason === 'string' ? event.reason : String(event.reason);
+      if (reasonStr.includes('postMessage') && (reasonStr.includes('target origin') || reasonStr.includes('DOMWindow'))) {
+        event.preventDefault();
+      }
+    }
+  });
+})();
+
 // ─────────────────────────────────────────
 // STATE
 // ─────────────────────────────────────────
@@ -826,11 +887,12 @@ function loadYouTubeVideo(ytId, title, retries) {
         height: '100%',
         width: '100%',
         videoId: ytId,
-        playerVars: { 
-          'autoplay': 1, 
-          'rel': 0, 
-          'modestbranding': 1, 
-          'playsinline': 1
+        playerVars: {
+          'autoplay': 1,
+          'rel': 0,
+          'modestbranding': 1,
+          'playsinline': 1,
+          'origin': window.location.origin
         },
 
 
@@ -856,7 +918,17 @@ function loadYouTubeVideo(ytId, title, retries) {
           },
           'onError': function(event) {
             console.warn('YT Player error', event.data);
-            playViaStreamEndpoint(currentYoutubeId || ytId, currentSongTitle, currentSongArtist);
+            // Error 150: This video is not embeddable
+            // Error 100: Video not found
+            // Error 101/150: Embed not allowed
+            if (event.data === 150 || event.data === 100 || event.data === 101) {
+              showAudioError('Este video de YouTube no puede reproducirse debido a restricciones del propietario. Intenta con otra canción.');
+              setLoadingState(false);
+              setPlayingState(false);
+            } else {
+              // For other errors, try streaming fallback
+              playViaStreamEndpoint(currentYoutubeId || ytId, currentSongTitle, currentSongArtist);
+            }
           }
         }
       });

@@ -8,6 +8,32 @@
 <link rel="stylesheet" href="{% static 'css/pages/juegos.css' %}?v=40">
 {% endblock %}
 
+<script>
+// Immediate error suppression before any other scripts load
+(function() {
+  const originalError = console.error;
+  console.error = function(...args) {
+    const message = args[0] || '';
+    const messageStr = typeof message === 'string' ? message : JSON.stringify(message);
+    if (messageStr.includes('postMessage') && (messageStr.includes('target origin') || messageStr.includes('DOMWindow'))) {
+      return;
+    }
+    originalError.apply(console, args);
+  };
+
+  window.addEventListener('error', function(event) {
+    if (event && event.message) {
+      const messageStr = typeof event.message === 'string' ? event.message : String(event.message);
+      if (messageStr.includes('postMessage') && (messageStr.includes('target origin') || messageStr.includes('DOMWindow'))) {
+        event.preventDefault();
+        event.stopPropagation();
+        return false;
+      }
+    }
+  }, true);
+})();
+</script>
+
 {% block content %}
 <div class="games-page-container fadein">
   {% csrf_token %}

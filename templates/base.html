@@ -441,6 +441,16 @@
             }
         }, true); // Use capture phase
 
+        // Capturar promesas rechazadas no manejadas (incluye errores de YouTube)
+        window.addEventListener('unhandledrejection', function(event) {
+            if (event.reason) {
+                const reasonStr = typeof event.reason === 'string' ? event.reason : String(event.reason);
+                if (reasonStr.includes('postMessage') && (reasonStr.includes('target origin') || reasonStr.includes('DOMWindow'))) {
+                    event.preventDefault();
+                }
+            }
+        });
+
         // Cargar YouTube IFrame API para el mini player una sola vez
         if (!window.YT && !document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
             var tag = document.createElement('script');
@@ -496,13 +506,13 @@
                 height: '200',
                 width: '100%',
                 videoId: youtubeId,
-                host: 'https://www.youtube.com',
                 playerVars: {
                     'autoplay': 1,
                     'mute': 1,       // MUTED — main iframe handles audio
                     'rel': 0,
                     'modestbranding': 1,
-                    'playsinline': 1
+                    'playsinline': 1,
+                    'origin': window.location.origin
                 },
 
                 events: {
