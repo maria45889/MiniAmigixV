@@ -19,7 +19,7 @@ class SecurityHeadersMiddleware:
             "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://unpkg.com https://www.google.com https://www.youtube.com https://www.gstatic.com; "
             "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; "
             "font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; "
-            "img-src 'self' data: https:; "
+            "img-src 'self' data: blob: https:; "
             "media-src 'self' blob: https://*.googlevideo.com https://*.youtube.com; "
             "connect-src 'self' http://127.0.0.1:8000 http://localhost:8000 https://api.openai.com https://www.googleapis.com https://*.openweathermap.org https://unpkg.com https://cdn.jsdelivr.net https://lrclib.net https://*.googlevideo.com https://www.youtube.com https://youtubei.googleapis.com; "
             "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com https://www.google.com https://accounts.google.com; "
@@ -38,7 +38,7 @@ class SecurityHeadersMiddleware:
         
         # Permissions-Policy
         response['Permissions-Policy'] = (
-            'microphone=(), camera=(), '
+            'microphone=(self), camera=(self), '
             'payment=(), usb=(), magnetometer=(), gyroscope=()'
         )
         

@@ -18,6 +18,8 @@ urlpatterns = [
 
     path('api/chat/', views.chat_api, name='chat_api'),
 
+    path('api/crear-chat/', views.crear_chat_api, name='crear_chat_api'),
+
     path('musica/', views.musica, name='musica'),
 
     path('api/add-song/', views.add_song_api, name='add_song_api'),

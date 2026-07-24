@@ -206,3 +206,44 @@ class UserAchievement(models.Model):
         ordering = ['-fecha_desbloqueado']
         verbose_name = 'Logro de Usuario'
         verbose_name_plural = 'Logros de Usuarios'
+
+
+class ArcadeProfile(models.Model):
+    """Stores the arcade/game stats for each user."""
+    usuario = models.OneToOneField(User, on_delete=models.CASCADE, related_name='arcade_profile')
+    xp = models.IntegerField(default=0)
+    monedas = models.IntegerField(default=0)
+    partidas_ganadas = models.IntegerField(default=0)
+    racha_dias = models.IntegerField(default=0)
+    ultima_partida = models.DateField(null=True, blank=True)
+
+    @property
+    def nivel(self):
+        if self.xp < 500: return 1
+        if self.xp < 1200: return 2
+        if self.xp < 2500: return 3
+        if self.xp < 5000: return 4
+        return 5
+
+    def add_xp(self, amount, coins=10):
+        from django.utils import timezone
+        import datetime
+        today = timezone.now().date()
+        self.xp += amount
+        self.monedas += coins
+        self.partidas_ganadas += 1
+        if self.ultima_partida == today - datetime.timedelta(days=1):
+            self.racha_dias += 1
+        elif self.ultima_partida != today:
+            self.racha_dias = 1
+        self.ultima_partida = today
+        self.save()
+
+    def __str__(self):
+        return f"{self.usuario.username} | XP:{self.xp} 🪙{self.monedas}"
+
+    class Meta:
+        app_label = 'app'
+        verbose_name = 'Perfil Arcade'
+        verbose_name_plural = 'Perfiles Arcade'
+

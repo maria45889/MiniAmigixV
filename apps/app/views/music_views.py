@@ -474,12 +474,13 @@ def save_lyrics_api(request, song_id):
 @require_http_methods(["GET", "POST"])
 @csrf_exempt
 def netease_lyrics_api(request):
-    """Get lyrics from Netease API."""
+    """Get lyrics from LRCLIB API."""
     if not request.user.is_authenticated:
         return JsonResponse({'error': 'No autenticado'}, status=401)
     
     try:
         import json
+        from urllib.parse import urlencode
         data = json.loads(request.body) if request.content_type == 'application/json' else {}
         song = request.GET.get('song', data.get('song', '')).strip()
         artist = request.GET.get('artist', data.get('artist', '')).strip()
@@ -487,41 +488,61 @@ def netease_lyrics_api(request):
         if not song:
             return JsonResponse({'error': 'song es requerido'}, status=400)
         
-        # Search for lyrics using LRCLIB as fallback
-        import requests
+        import requests as req_lib
         from requests.exceptions import Timeout, RequestException
         
-        # Build query - if artist is empty, just search by song
-        query = f'{artist} {song}'.strip() if artist else song
+        headers = {'User-Agent': 'MiniAmigixV/1.0 (music player)'}
+        
+        # --- Strategy 1: Structured search (most accurate) ---
+        structured_params = {'track_name': song}
+        if artist:
+            structured_params['artist_name'] = artist
         
         try:
-            response = requests.get(f'https://lrclib.net/api/search?q={query}', timeout=15)
-        except Timeout:
-            return JsonResponse({'success': False, 'error': 'Timeout al buscar letras. Intenta nuevamente.'})
-        except RequestException as e:
-            return JsonResponse({'success': False, 'error': f'Error de conexión: {str(e)}'})
+            r1 = req_lib.get(
+                'https://lrclib.net/api/search',
+                params=structured_params,
+                headers=headers,
+                timeout=8
+            )
+            if r1.status_code == 200:
+                results = r1.json()
+                if results:
+                    synced_match = next((r for r in results if r.get('syncedLyrics')), None)
+                    best = synced_match or results[0]
+                    return JsonResponse({
+                        'success': True,
+                        'syncedLyrics': best.get('syncedLyrics'),
+                        'plainLyrics': best.get('plainLyrics')
+                    })
+        except (Timeout, RequestException):
+            pass  # fall through to strategy 2
         
-        if response.status_code == 200:
-            results = response.json()
-            if results and len(results) > 0:
-                # Prioritize synced lyrics
-                synced_match = next((r for r in results if r.get('syncedLyrics')), None)
-                if synced_match:
+        # --- Strategy 2: General keyword search ---
+        query = f'{artist} {song}'.strip() if artist else song
+        try:
+            r2 = req_lib.get(
+                'https://lrclib.net/api/search',
+                params={'q': query},
+                headers=headers,
+                timeout=8
+            )
+            if r2.status_code == 200:
+                results = r2.json()
+                if results:
+                    synced_match = next((r for r in results if r.get('syncedLyrics')), None)
+                    best = synced_match or results[0]
                     return JsonResponse({
                         'success': True,
-                        'syncedLyrics': synced_match.get('syncedLyrics'),
-                        'plainLyrics': synced_match.get('plainLyrics')
+                        'syncedLyrics': best.get('syncedLyrics'),
+                        'plainLyrics': best.get('plainLyrics')
                     })
-                else:
-                    return JsonResponse({
-                        'success': True,
-                        'syncedLyrics': None,
-                        'plainLyrics': results[0].get('plainLyrics')
-                    })
-            else:
-                return JsonResponse({'success': False, 'error': 'No se encontraron letras para esta canción'})
-        else:
-            return JsonResponse({'success': False, 'error': 'Error al buscar letras'})
+        except Timeout:
+            return JsonResponse({'success': False, 'error': 'Timeout al buscar letra. Intenta nuevamente.'})
+        except RequestException as e:
+            return JsonResponse({'success': False, 'error': f'Error de conexion: {str(e)}'})
+        
+        return JsonResponse({'success': False, 'error': 'No se encontro letra para esta cancion'})
         
     except Exception as e:
         LogHelper.log_error(logger, f"Error en netease_lyrics_api: {str(e)}", exc_info=True)

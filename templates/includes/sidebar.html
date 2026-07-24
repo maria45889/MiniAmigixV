@@ -55,7 +55,7 @@
     <a href="{% url 'perfil' %}" class="nav-item {% if request.resolver_match.url_name == 'perfil' %}active{% endif %}">
       <i class="ti ti-user"></i> <span>Mi Perfil</span>
     </a>
-    <a href="{% url 'notificaciones_lista' %}" class="nav-item {% if request.resolver_match.url_name == 'notificaciones_lista' %}active{% endif %}">
+    <a href="{% url 'lista_notificaciones' %}" class="nav-item {% if request.resolver_match.url_name == 'lista_notificaciones' %}active{% endif %}">
       <i class="ti ti-bell"></i> <span>Notificaciones</span>
     </a>
     <a href="{% url 'soporte' %}" class="nav-item {% if request.resolver_match.url_name == 'soporte' %}active{% endif %}">

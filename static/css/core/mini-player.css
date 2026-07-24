@@ -1,153 +1,258 @@
-/* Mini Player Styles */
+/* ═══════════════════════════════════════════
+   MINI PLAYER — Glassmorphism Premium
+═══════════════════════════════════════════ */
 
-/* Global Mini Player Flotante */
+/* ── Float Button (🎵) ── */
 .music-float-btn {
-    display: none;
+  display: none; /* shown via JS when song plays */
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  width: 52px;
+  height: 52px;
+  background: linear-gradient(135deg, #7c3aed, #06b6d4);
+  border-radius: 50%;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 9998;
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.5);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  user-select: none;
+}
+
+.music-float-btn:hover {
+  transform: scale(1.1);
+  box-shadow: 0 6px 28px rgba(124, 58, 237, 0.7);
 }
 
 .music-float-btn span {
-    font-size: 20px;
+  font-size: 22px;
+  line-height: 1;
 }
 
-.mini-player-info-text {
-    min-width: 0;
-    flex: 1;
+.music-float-btn.spinning span {
+  animation: spin 2s linear infinite;
+  display: inline-block;
 }
 
-/* Floating Mini Player */
+/* ── Floating Mini Player Panel ── */
 .floating-mini-player {
-    display: none;
+  display: none; /* shown via JS */
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  width: 320px;
+  z-index: 9999;
+  border-radius: 20px;
+  background: rgba(15, 10, 35, 0.88);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(124, 58, 237, 0.35);
+  box-shadow:
+    0 8px 40px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255,255,255,0.04),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(.34,1.56,.64,1), opacity 0.2s ease;
+  animation: miniPlayerSlideIn 0.35s cubic-bezier(.34,1.56,.64,1);
 }
 
+@keyframes miniPlayerSlideIn {
+  from { opacity: 0; transform: translateY(40px) scale(0.9); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ── Header: song info + collapse ── */
 .mini-player-header {
-    cursor: move;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 14px 10px;
+  cursor: move;
+  background: linear-gradient(90deg, rgba(124,58,237,0.18), rgba(6,182,212,0.10));
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  user-select: none;
 }
 
 .mini-player-song-info {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-width: 0;
-    flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  flex: 1;
 }
 
+/* Spinning vinyl disc */
 .mini-player-vinyl {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #1e1e2e, #2d2d3d);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: conic-gradient(#7c3aed 0%, #06b6d4 50%, #7c3aed 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.mini-player-vinyl::after {
+  content: '';
+  width: 12px;
+  height: 12px;
+  background: rgba(15,10,35,0.9);
+  border-radius: 50%;
+  position: absolute;
 }
 
 .mini-player-vinyl.spinning {
-    animation: spin 3s linear infinite;
+  animation: spin 3s linear infinite;
 }
 
 @keyframes spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.mini-player-info-text {
+  min-width: 0;
+  flex: 1;
 }
 
 .mini-player-title {
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: var(--text-main);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  font-size: 13px;
+  font-weight: 700;
+  color: #f1f0ff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.01em;
 }
 
 .mini-player-artist {
-    font-size: 0.8rem;
-    color: var(--text-muted);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  font-size: 11px;
+  color: rgba(200,190,255,0.65);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 1px;
 }
 
 .mini-player-header-btns {
-    display: flex;
-    gap: 8px;
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
 }
 
-.btn-mini {
-    padding: 6px 10px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 8px;
-    color: var(--text-main);
-    cursor: pointer;
-    font-size: 0.9rem;
-    transition: all 0.2s ease;
-}
-
-.btn-mini:hover {
-    background: rgba(255, 255, 255, 0.15);
-    transform: scale(1.05);
-}
-
+/* ── Body ── */
 .mini-player-body {
-    padding: 12px;
+  padding: 10px 12px 14px;
 }
 
-.mini-player-video-container {
-    display: none;
-    width: 100%;
-    height: 180px;
-    background: #000;
-    margin-bottom: 10px;
-    border-radius: 8px;
-    overflow: hidden;
-    position: relative;
-    z-index: 0;
+/* Embedded YouTube video */
+#mini-player-video-container {
+  display: none;
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  margin-bottom: 10px;
 }
 
+#mini-youtube-iframe,
+#mini-youtube-iframe iframe {
+  width: 100% !important;
+  height: 180px !important;
+  border: none;
+}
+
+/* ── Progress bar ── */
 .mini-player-progress {
-    width: 100%;
-    height: 4px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 2px;
-    margin-bottom: 12px;
-    overflow: hidden;
+  width: 100%;
+  height: 3px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  cursor: pointer;
 }
 
 .mini-player-progress-bar {
-    height: 100%;
-    background: linear-gradient(90deg, #7c3aed, #06b6d4);
-    border-radius: 2px;
-    width: 0%;
-    transition: width 0.1s linear;
+  height: 100%;
+  background: linear-gradient(90deg, #7c3aed, #06b6d4);
+  border-radius: 2px;
+  width: 0%;
+  transition: width 0.15s linear;
 }
 
+/* ── Controls ── */
 .mini-player-controls {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
 }
 
-.mini-player-controls .btn-mini {
-    padding: 8px 12px;
-    font-size: 1.1rem;
+.btn-mini {
+  padding: 7px 11px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  color: #e0d8ff;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.18s ease;
+  line-height: 1;
 }
 
-.mini-player-controls .btn-mini.play {
-    background: linear-gradient(135deg, #7c3aed, #06b6d4);
-    border-color: transparent;
+.btn-mini:hover {
+  background: rgba(124,58,237,0.25);
+  border-color: rgba(124,58,237,0.5);
+  transform: scale(1.08);
 }
 
-/* Light mode adaptations */
-body.light .mini-player-vinyl {
-    background: linear-gradient(135deg, #e0e0e0, #f0f0f0);
+.btn-mini:active {
+  transform: scale(0.96);
 }
 
+.btn-mini.play {
+  background: linear-gradient(135deg, #7c3aed, #06b6d4);
+  border-color: transparent;
+  padding: 8px 16px;
+  font-size: 16px;
+  box-shadow: 0 2px 14px rgba(124,58,237,0.45);
+}
+
+.btn-mini.play:hover {
+  background: linear-gradient(135deg, #8b5cf6, #22d3ee);
+  box-shadow: 0 4px 20px rgba(124,58,237,0.6);
+}
+
+.minimize-btn {
+  font-size: 18px;
+  padding: 4px 9px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* ── Light mode ── */
+body.light .floating-mini-player {
+  background: rgba(245, 243, 255, 0.92);
+  border-color: rgba(124,58,237,0.25);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.15);
+}
+
+body.light .mini-player-title  { color: #1e1035; }
+body.light .mini-player-artist { color: rgba(60,40,120,0.6); }
 body.light .btn-mini {
-    background: rgba(0, 0, 0, 0.05);
-    border-color: rgba(0, 0, 0, 0.1);
+  background: rgba(124,58,237,0.08);
+  border-color: rgba(124,58,237,0.2);
+  color: #4c1d95;
 }
-
 body.light .btn-mini:hover {
-    background: rgba(0, 0, 0, 0.08);
+  background: rgba(124,58,237,0.18);
+}
+body.light .music-float-btn {
+  box-shadow: 0 4px 20px rgba(124,58,237,0.3);
 }

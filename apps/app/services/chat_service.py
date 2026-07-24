@@ -64,13 +64,13 @@ class ChatService:
     def get_events_context(user) -> str:
         """Get formatted context of upcoming events."""
         eventos_proximos = []
-        from datetime import date, timedelta
-        hoy = date.today()
-        fecha_limite = hoy + timedelta(days=EVENT_CONFIG['upcoming_days'])
+        from django.utils import timezone
+        hoy = timezone.now().date()
         eventos = CalendarSelector.get_upcoming_events(EVENT_CONFIG['upcoming_days'])
         
         for evento in eventos:
-            dias_restantes = (evento.fecha - hoy).days
+            evento_fecha = evento.fecha.date() if hasattr(evento.fecha, 'date') else evento.fecha
+            dias_restantes = (evento_fecha - hoy).days
             if dias_restantes == 0:
                 texto_dias = "hoy"
             elif dias_restantes == 1:

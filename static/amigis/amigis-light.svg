@@ -1,140 +1,188 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 180" width="160" height="180">
   <defs>
-    <clipPath id="body-clip">
-      <ellipse cx="60" cy="70" rx="35" ry="28" />
-    </clipPath>
-    <linearGradient id="bodyGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#FFE44D;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#FFD700;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient id="bodyGradientOrange" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#FFB347;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#FF8C00;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient id="bodyGradientWhite" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#F0F0F0;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient id="bodyGradientPink" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#FFB6C1;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#FF69B4;stop-opacity:1" />
-    </linearGradient>
-    <linearGradient id="beakGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" style="stop-color:#FF8C5A;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#FF6B35;stop-opacity:1" />
-    </linearGradient>
-    <filter id="glow">
-      <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
-      <feMerge>
-        <feMergeNode in="coloredBlur"/>
-        <feMergeNode in="SourceGraphic"/>
-      </feMerge>
+    <!-- Gradientes cuerpo modo claro -->
+    <radialGradient id="bodyGrad" cx="45%" cy="35%" r="65%">
+      <stop offset="0%" stop-color="#FFE97A"/>
+      <stop offset="60%" stop-color="#FFD100"/>
+      <stop offset="100%" stop-color="#E8A000"/>
+    </radialGradient>
+    <radialGradient id="headGrad" cx="40%" cy="30%" r="65%">
+      <stop offset="0%" stop-color="#FFF088"/>
+      <stop offset="60%" stop-color="#FFD100"/>
+      <stop offset="100%" stop-color="#E8A000"/>
+    </radialGradient>
+    <radialGradient id="bellyGrad" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#FFFBEA"/>
+      <stop offset="100%" stop-color="#FFF2B0"/>
+    </radialGradient>
+    <radialGradient id="wingGrad" cx="40%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#FFE550"/>
+      <stop offset="100%" stop-color="#DDA000"/>
+    </radialGradient>
+    <radialGradient id="beakGrad" cx="40%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#FF9C50"/>
+      <stop offset="100%" stop-color="#E85D00"/>
+    </radialGradient>
+    <radialGradient id="footGrad" cx="40%" cy="30%" r="60%">
+      <stop offset="0%" stop-color="#FF8C42"/>
+      <stop offset="100%" stop-color="#D45200"/>
+    </radialGradient>
+    <!-- Glow para laptop modo claro -->
+    <filter id="glowPurple" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="1.5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
     </filter>
+    <!-- Sombra suave -->
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#E8A00025"/>
+    </filter>
+    <!-- Blush cheeks -->
+    <radialGradient id="blushGrad" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FF9ABF" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#FF9ABF" stop-opacity="0"/>
+    </radialGradient>
+    <!-- Laptop screen modo claro -->
+    <linearGradient id="screenGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F0F4FF"/>
+      <stop offset="100%" stop-color="#E0E8FF"/>
+    </linearGradient>
+    <!-- Headband modo claro -->
+    <linearGradient id="headbandGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#7C3AED"/>
+      <stop offset="50%" stop-color="#06B6D4"/>
+      <stop offset="100%" stop-color="#7C3AED"/>
+    </linearGradient>
   </defs>
 
+  <!-- Sombra suave -->
+  <ellipse cx="80" cy="168" rx="38" ry="8" fill="#00000018"/>
+
   <!-- Cola -->
-  <g id="tail">
-    <ellipse cx="30" cy="75" rx="10" ry="15" fill="#E6B800" transform="rotate(-30 30 75)" />
-  </g>
+  <ellipse cx="25" cy="110" rx="14" ry="10" fill="#E8B000" transform="rotate(-40 25 110)"/>
 
-  <!-- Cuerpo del patito -->
-  <g id="body">
-    <ellipse cx="60" cy="70" rx="35" ry="28" fill="url(#bodyGradient)" />
-  </g>
+  <!-- Cuerpo -->
+  <ellipse cx="80" cy="120" rx="46" ry="40" fill="url(#bodyGrad)" filter="url(#softShadow)"/>
 
+  <!-- Barriga más clara -->
+  <ellipse cx="80" cy="125" rx="28" ry="24" fill="url(#bellyGrad)"/>
 
-  <!-- Camiseta (oculta por defecto) -->
-  <g id="shirt" class="clothing-item" data-type="shirt" style="display: none;">
-    <rect x="35" y="60" width="50" height="25" rx="5" fill="#FFFFFF" />
-    <text x="60" y="77" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#333" text-anchor="middle">Amigis</text>
-  </g>
+  <!-- Ala izquierda -->
+  <ellipse cx="36" cy="115" rx="14" ry="22" fill="url(#wingGrad)" transform="rotate(-18 36 115)"/>
 
-  <!-- Cabeza del patito -->
-  <g id="head">
-    <circle cx="60" cy="38" r="25" fill="url(#bodyGradient)" />
+  <!-- Ala derecha -->
+  <ellipse cx="124" cy="115" rx="14" ry="22" fill="url(#wingGrad)" transform="rotate(18 124 115)"/>
+
+  <!-- Cuello -->
+  <ellipse cx="80" cy="88" rx="22" ry="10" fill="url(#bodyGrad)"/>
+
+  <!-- Cabeza -->
+  <circle cx="80" cy="65" r="34" fill="url(#headGrad)" filter="url(#softShadow)"/>
+
+  <!-- Vincha/headband de colores -->
+  <g id="headband">
+    <rect x="48" y="37" width="64" height="9" rx="4.5" fill="url(#headbandGrad)" opacity="0.90"/>
+    <circle cx="62" cy="41.5" r="2.5" fill="white" opacity="0.4"/>
+    <circle cx="80" cy="41.5" r="2.5" fill="white" opacity="0.4"/>
+    <circle cx="98" cy="41.5" r="2.5" fill="white" opacity="0.4"/>
   </g>
 
   <!-- Ojo izquierdo -->
   <g id="left-eye">
-    <circle cx="50" cy="33" r="7" fill="white" />
-    <circle cx="50" cy="33" r="3.5" fill="#333" />
-    <circle cx="51" cy="31" r="1.5" fill="white" />
+    <circle cx="65" cy="60" r="10" fill="white" stroke="#E0D8A0" stroke-width="0.5"/>
+    <circle cx="66" cy="61" r="6" fill="#2D2D50"/>
+    <circle cx="64" cy="59" r="2.5" fill="#5B5BFF"/>
+    <circle cx="62" cy="57" r="2" fill="white"/>
+    <circle cx="67" cy="63" r="1" fill="white" opacity="0.6"/>
   </g>
 
   <!-- Ojo derecho -->
   <g id="right-eye">
-    <circle cx="70" cy="33" r="7" fill="white" />
-    <circle cx="70" cy="33" r="3.5" fill="#333" />
-    <circle cx="71" cy="31" r="1.5" fill="white" />
+    <circle cx="95" cy="60" r="10" fill="white" stroke="#E0D8A0" stroke-width="0.5"/>
+    <circle cx="96" cy="61" r="6" fill="#2D2D50"/>
+    <circle cx="94" cy="59" r="2.5" fill="#5B5BFF"/>
+    <circle cx="92" cy="57" r="2" fill="white"/>
+    <circle cx="97" cy="63" r="1" fill="white" opacity="0.6"/>
   </g>
 
   <!-- Pico -->
   <g id="beak">
-    <ellipse cx="60" cy="45" rx="9" ry="6" fill="url(#beakGradient)" />
-    <ellipse cx="60" cy="43" rx="4" ry="2" fill="#FF8C5A" />
+    <ellipse cx="80" cy="76" rx="12" ry="8" fill="url(#beakGrad)"/>
+    <path d="M70 76 Q80 80 90 76" stroke="#D45200" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <ellipse cx="76" cy="73" rx="1.5" ry="1" fill="#C44800" opacity="0.6"/>
+    <ellipse cx="84" cy="73" rx="1.5" ry="1" fill="#C44800" opacity="0.6"/>
+    <ellipse cx="78" cy="71" rx="5" ry="2.5" fill="white" opacity="0.25"/>
   </g>
 
-  <!-- Mejilla izquierda -->
-  <g id="left-cheek">
-    <circle cx="42" cy="42" r="5" fill="rgba(255,150,150,0.6)" />
-  </g>
+  <!-- Mejillas -->
+  <circle cx="52" cy="70" r="9" fill="url(#blushGrad)"/>
+  <circle cx="108" cy="70" r="9" fill="url(#blushGrad)"/>
 
-  <!-- Mejilla derecha -->
-  <g id="right-cheek">
-    <circle cx="78" cy="42" r="5" fill="rgba(255,150,150,0.6)" />
-  </g>
-
-  <!-- Accesorios -->
-  <!-- Gafas (ocultas por defecto) -->
-  <g id="accessory-glasses" class="accessory-item" style="display: none;">
-    <circle cx="50" cy="33" r="10" fill="none" stroke="#333" stroke-width="2" />
-    <circle cx="70" cy="33" r="10" fill="none" stroke="#333" stroke-width="2" />
-    <line x1="60" y1="33" x2="60" y2="33" stroke="#333" stroke-width="2" />
-    <line x1="40" y1="33" x2="30" y2="30" stroke="#333" stroke-width="2" />
-    <line x1="80" y1="33" x2="90" y2="30" stroke="#333" stroke-width="2" />
-  </g>
-
-  <!-- Gorra (visible por defecto) -->
-  <g id="accessory-hat" class="accessory-item">
-    <ellipse cx="60" cy="20" rx="20" ry="8" fill="#333" />
-    <rect x="40" y="12" width="40" height="10" rx="3" fill="#333" />
-    <ellipse cx="60" cy="22" rx="25" ry="5" fill="#444" />
-  </g>
-
-  <!-- Lazo (oculto por defecto) -->
-  <g id="accessory-bow" class="accessory-item" style="display: none;">
-    <ellipse cx="60" cy="15" rx="8" ry="5" fill="#FF69B4" transform="rotate(-30 60 15)" />
-    <ellipse cx="60" cy="15" rx="8" ry="5" fill="#FF69B4" transform="rotate(30 60 15)" />
-    <circle cx="60" cy="15" r="3" fill="#FF1493" />
-  </g>
-
-  <!-- Ala izquierda -->
-  <g id="left-wing">
-    <ellipse cx="28" cy="65" rx="12" ry="18" fill="#E6B800" transform="rotate(-20 28 65)" />
-  </g>
-
-  <!-- Ala derecha -->
-  <g id="right-wing">
-    <ellipse cx="92" cy="65" rx="12" ry="18" fill="#E6B800" transform="rotate(20 92 65)" />
+  <!-- Laptop en el ala derecha -->
+  <g id="laptop">
+    <!-- Pantalla laptop -->
+    <rect x="93" y="100" width="38" height="28" rx="4" fill="url(#screenGrad)" stroke="#C0CCE8" stroke-width="1.5"/>
+    <!-- Reflejo pantalla -->
+    <rect x="93" y="100" width="38" height="5" rx="4" fill="white" opacity="0.5"/>
+    <!-- Barra de título -->
+    <rect x="93" y="100" width="38" height="6" rx="4" fill="#E8EEFF" opacity="0.9"/>
+    <circle cx="97" cy="103" r="1.5" fill="#FF6B6B"/>
+    <circle cx="101" cy="103" r="1.5" fill="#FFD060"/>
+    <circle cx="105" cy="103" r="1.5" fill="#60E080"/>
+    <!-- Código en pantalla -->
+    <text x="112" y="113" font-family="'Courier New', monospace" font-size="5" fill="#7C3AED" text-anchor="middle" filter="url(#glowPurple)">&lt;MV/&gt;</text>
+    <rect x="97" y="116" width="12" height="1.5" rx="1" fill="#7C3AED" opacity="0.7"/>
+    <rect x="97" y="119" width="18" height="1.5" rx="1" fill="#06B6D4" opacity="0.6"/>
+    <rect x="97" y="122" width="10" height="1.5" rx="1" fill="#EC4899" opacity="0.7"/>
+    <rect x="111" y="119" width="8" height="1.5" rx="1" fill="#10B981" opacity="0.6"/>
+    <!-- Base/teclado -->
+    <rect x="90" y="128" width="44" height="5" rx="2.5" fill="#D0D8EE" stroke="#C0CCE8" stroke-width="1"/>
+    <!-- Touchpad -->
+    <rect x="106" y="130" width="12" height="2" rx="1" fill="#B0BCDE"/>
   </g>
 
   <!-- Patita izquierda -->
   <g id="left-foot">
-    <ellipse cx="48" cy="95" rx="9" ry="5" fill="#FF6B35" />
+    <ellipse cx="62" cy="157" rx="14" ry="7" fill="url(#footGrad)"/>
+    <ellipse cx="52" cy="158" rx="5" ry="4" fill="url(#footGrad)" transform="rotate(-15 52 158)"/>
+    <ellipse cx="62" cy="160" rx="5" ry="4" fill="url(#footGrad)"/>
+    <ellipse cx="72" cy="158" rx="5" ry="4" fill="url(#footGrad)" transform="rotate(15 72 158)"/>
   </g>
 
   <!-- Patita derecha -->
   <g id="right-foot">
-    <ellipse cx="72" cy="95" rx="9" ry="5" fill="#FF6B35" />
+    <ellipse cx="98" cy="157" rx="14" ry="7" fill="url(#footGrad)"/>
+    <ellipse cx="88" cy="158" rx="5" ry="4" fill="url(#footGrad)" transform="rotate(-15 88 158)"/>
+    <ellipse cx="98" cy="160" rx="5" ry="4" fill="url(#footGrad)"/>
+    <ellipse cx="108" cy="158" rx="5" ry="4" fill="url(#footGrad)" transform="rotate(15 108 158)"/>
   </g>
 
-  <!-- Laptop -->
-  <g id="laptop">
-    <!-- Pantalla -->
-    <rect x="75" y="55" width="25" height="18" rx="2" fill="#F5F5F5" stroke="#DDD" stroke-width="1" />
-    <!-- Logo MiniAmigixV en pantalla -->
-    <text x="87.5" y="66" font-family="Arial, sans-serif" font-size="6" fill="#666" text-anchor="middle">MV</text>
-    <!-- Base del teclado -->
-    <rect x="72" y="73" width="31" height="3" rx="1" fill="#E0E0E0" />
+  <!-- Camiseta (oculta por defecto) -->
+  <g id="shirt" class="clothing-item" data-type="shirt" style="display: none;">
+    <rect x="50" y="100" width="60" height="28" rx="6" fill="#F5F5F5" stroke="#DDD" stroke-width="1"/>
+    <text x="80" y="119" font-family="Arial, sans-serif" font-size="10" font-weight="bold" fill="#444" text-anchor="middle">Amigis</text>
+  </g>
+
+  <!-- Gafas (ocultas por defecto) -->
+  <g id="accessory-glasses" class="accessory-item" style="display: none;">
+    <circle cx="65" cy="60" r="12" fill="none" stroke="#7C3AED" stroke-width="2" filter="url(#glowPurple)"/>
+    <circle cx="95" cy="60" r="12" fill="none" stroke="#7C3AED" stroke-width="2" filter="url(#glowPurple)"/>
+    <line x1="77" y1="60" x2="83" y2="60" stroke="#7C3AED" stroke-width="2"/>
+    <line x1="53" y1="60" x2="46" y2="57" stroke="#7C3AED" stroke-width="2"/>
+    <line x1="107" y1="60" x2="114" y2="57" stroke="#7C3AED" stroke-width="2"/>
+  </g>
+
+  <!-- Gorra (visible por defecto) -->
+  <g id="accessory-hat" class="accessory-item">
+    <ellipse cx="80" cy="34" rx="30" ry="7" fill="#2D2D50"/>
+    <rect x="52" y="15" width="56" height="20" rx="5" fill="#2D2D50"/>
+    <ellipse cx="80" cy="36" rx="36" ry="7" fill="#3D3D60"/>
+    <text x="80" y="28" font-family="Arial, sans-serif" font-size="8" font-weight="bold" fill="#7C3AED" text-anchor="middle">MV</text>
+  </g>
+
+  <!-- Lazo (oculto por defecto) -->
+  <g id="accessory-bow" class="accessory-item" style="display: none;">
+    <ellipse cx="80" cy="20" rx="10" ry="6" fill="#EC4899" transform="rotate(-30 80 20)"/>
+    <ellipse cx="80" cy="20" rx="10" ry="6" fill="#EC4899" transform="rotate(30 80 20)"/>
+    <circle cx="80" cy="20" r="4" fill="#F472B6"/>
   </g>
 </svg>

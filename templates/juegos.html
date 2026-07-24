@@ -289,7 +289,7 @@ function openGame(gameType) {
     initTicTacToe(view);
   } else if (gameType === 'snake') {
     title.textContent = "Snake Arcade 🐍";
-    speech.textContent = "¡Usa las flechas del teclado para mover la serpiente!";
+    speech.textContent = "¡Usa las flechas del teclado o los botones para dirigir la serpiente!";
     initSnakeGame(view);
   } else if (gameType === 'memory') {
     title.textContent = "Juego de Memoria 🧠";
@@ -299,29 +299,67 @@ function openGame(gameType) {
     title.textContent = "Adivina el Número 🎯";
     speech.textContent = "Pensé un número entre 1 y 100. ¿Cuál crees que es?";
     initGuessNumGame(view);
+  } else if (gameType === 'sudoku') {
+    title.textContent = "Sudoku Challenge 🧮";
+    speech.textContent = "¡Rellena los números del 1 al 4 sin repetir en filas, columnas ni bloques!";
+    initSudokuGame(view);
+  } else if (gameType === 'puzzle') {
+    title.textContent = "Rompecabezas Deslizante 🧩";
+    speech.textContent = "¡Haz clic en las piezas contiguas al espacio vacío para ordenarlas del 1 al 8!";
+    initSlidePuzzleGame(view);
+  } else if (gameType === 'trivia_animal') {
+    title.textContent = "Adivina el Animal 🦆";
+    speech.textContent = "¡Lee las pistas de Amigis y adivina de qué animal se trata!";
+    initAnimalGame(view);
+  } else if (gameType === 'trivia_geo') {
+    title.textContent = "Capitales del Mundo 🌍";
+    speech.textContent = "¡Demuestra tus conocimientos de geografía adivinando las capitales!";
+    initGeoGame(view);
+  } else if (gameType === 'trivia_code') {
+    title.textContent = "Retos de Programación 💻";
+    speech.textContent = "¡Resuelve estos desafíos de código en Python y JavaScript!";
+    initCodeGame(view);
+  } else if (gameType === 'trivia_char') {
+    title.textContent = "Adivina el Personaje 🎭";
+    speech.textContent = "¡Piensa en un personaje y responde mis preguntas!";
+    initAkinatorGame(view);
   } else {
-    title.textContent = "Trivia con IA 🤖";
-    speech.textContent = "¡Responde a las preguntas para ganar XP y Monedas!";
-    initTriviaGame(view, gameType);
+    title.textContent = "Trivia Educativa ❓";
+    speech.textContent = "¡Demuestra tus conocimientos en este test de cultura general!";
+    initTriviaGame(view, 'trivia');
   }
 }
 
 function closeGameArena() {
+  if (snakeInterval) clearInterval(snakeInterval);
+  window.onkeydown = null;
   document.getElementById('game-arena-modal').classList.remove('open');
 }
 
 /* ── GAME 1: TIC TAC TOE ── */
+var tttWins = 0, tttLosses = 0, tttDraws = 0, tttGameOver = false;
+
 function initTicTacToe(container) {
+  tttGameOver = false;
   let board = ['', '', '', '', '', '', '', '', ''];
   container.innerHTML = `
-    <div class="ttt-grid">
-      ${board.map((cell, i) => `<div class="ttt-cell" onclick="makeMoveTTT(${i})"></div>`).join('')}
+    <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
+      <div style="display:flex; justify-content:space-around; width:100%; max-width:320px; padding:6px 12px; background:rgba(255,255,255,0.06); border-radius:10px; font-weight:bold; font-size:13px;">
+        <span style="color:#c084fc;">❌ Tú: <span id="ttt-wins">${tttWins}</span></span>
+        <span style="color:#06b6d4;">⭕ Amigis: <span id="ttt-losses">${tttLosses}</span></span>
+        <span style="color:var(--g-text-dim);">🤝 Empates: <span id="ttt-draws">${tttDraws}</span></span>
+      </div>
+
+      <div class="ttt-grid">
+        ${board.map((cell, i) => `<div class="ttt-cell" onclick="makeMoveTTT(${i})"></div>`).join('')}
+      </div>
+      <button class="btn-play-game" style="margin-top: 8px;" onclick="initTicTacToe(document.getElementById('arena-game-view'))">Reiniciar Partido 🔄</button>
     </div>
-    <button class="btn-play-game" style="margin-top: 16px;" onclick="initTicTacToe(document.getElementById('arena-game-view'))">Reiniciar Partido</button>
   `;
 }
 
 function makeMoveTTT(idx) {
+  if (tttGameOver) return;
   const cells = document.querySelectorAll('.ttt-cell');
   if (cells[idx].textContent !== '') return;
 
@@ -329,23 +367,46 @@ function makeMoveTTT(idx) {
   cells[idx].style.color = '#c084fc';
 
   if (checkWinnerTTT('❌')) {
-    rewardPlayer("🎉 ¡Felicidades, le ganaste a Amigis!", 50);
+    tttWins++;
+    tttGameOver = true;
+    document.getElementById('ttt-wins').textContent = tttWins;
+    rewardPlayer("🎉 ¡Felicidades! Le ganaste a Amigis en Tres en Raya.", 50);
+    return;
+  }
+
+  // Check draw
+  const emptyIndices = [];
+  cells.forEach((c, i) => { if (c.textContent === '') emptyIndices.push(i); });
+  if (emptyIndices.length === 0) {
+    tttDraws++;
+    tttGameOver = true;
+    document.getElementById('ttt-draws').textContent = tttDraws;
+    document.getElementById('arena-amigis-speech').textContent = "🤝 ¡Empate! Gran juego.";
     return;
   }
 
   // AI moves
   setTimeout(() => {
-    const emptyIndices = [];
-    cells.forEach((c, i) => { if (c.textContent === '') emptyIndices.push(i); });
-    if (emptyIndices.length > 0) {
-      const randIndex = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+    if (tttGameOver) return;
+    const currentEmpty = [];
+    cells.forEach((c, i) => { if (c.textContent === '') currentEmpty.push(i); });
+    if (currentEmpty.length > 0) {
+      const randIndex = currentEmpty[Math.floor(Math.random() * currentEmpty.length)];
       cells[randIndex].textContent = '⭕';
       cells[randIndex].style.color = '#06b6d4';
       if (checkWinnerTTT('⭕')) {
-        document.getElementById('arena-amigis-speech').textContent = "😅 ¡Esta vez gané yo! ¡Buen intento!";
+        tttLosses++;
+        tttGameOver = true;
+        document.getElementById('ttt-losses').textContent = tttLosses;
+        document.getElementById('arena-amigis-speech').textContent = "😅 ¡Punto para Amigis! ¡Sigue intentándolo!";
+      } else if (currentEmpty.length === 1) {
+        tttDraws++;
+        tttGameOver = true;
+        document.getElementById('ttt-draws').textContent = tttDraws;
+        document.getElementById('arena-amigis-speech').textContent = "🤝 ¡Empate bien jugado!";
       }
     }
-  }, 400);
+  }, 350);
 }
 
 function checkWinnerTTT(p) {
@@ -355,15 +416,27 @@ function checkWinnerTTT(p) {
 }
 
 /* ── GAME 2: MEMORY ── */
+var memMoves = 0, memPairs = 0, memBest = Infinity;
+
 function initMemoryGame(container) {
   const emojis = ['🦆', '🚀', '⭐', '🎵', '🦆', '🚀', '⭐', '🎵'];
   const shuffled = emojis.sort(() => 0.5 - Math.random());
   let flipped = [];
-  let matchedCount = 0;
+  memMoves = 0;
+  memPairs = 0;
 
   container.innerHTML = `
-    <div class="memory-grid">
-      ${shuffled.map((e, i) => `<div class="memory-card-cell" data-emoji="${e}" onclick="flipMemCard(this)">❓</div>`).join('')}
+    <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
+      <div style="display:flex; justify-content:space-around; width:100%; max-width:320px; padding:6px 12px; background:rgba(255,255,255,0.06); border-radius:10px; font-weight:bold; font-size:13px;">
+        <span style="color:#c084fc;">Movimientos: <span id="mem-moves">0</span></span>
+        <span style="color:#06b6d4;">Pares: <span id="mem-pairs">0</span>/4</span>
+        <span style="color:#facc15;">Récord: <span id="mem-best">${memBest === Infinity ? '--' : memBest}</span></span>
+      </div>
+
+      <div class="memory-grid">
+        ${shuffled.map((e, i) => `<div class="memory-card-cell" data-emoji="${e}" onclick="flipMemCard(this)">❓</div>`).join('')}
+      </div>
+      <button class="btn-play-game" style="margin-top: 4px;" onclick="initMemoryGame(document.getElementById('arena-game-view'))">Reiniciar Tablero 🔄</button>
     </div>
   `;
 
@@ -374,68 +447,269 @@ function initMemoryGame(container) {
     flipped.push(cell);
 
     if (flipped.length === 2) {
+      memMoves++;
+      document.getElementById('mem-moves').textContent = memMoves;
+
       if (flipped[0].dataset.emoji === flipped[1].dataset.emoji) {
-        matchedCount += 2;
+        memPairs++;
+        document.getElementById('mem-pairs').textContent = memPairs;
         flipped = [];
-        if (matchedCount === 8) {
-          rewardPlayer("🧠 ¡Memoria perfecta! Encontraste todos los pares.", 60);
+        if (memPairs === 4) {
+          if (memMoves < memBest) {
+            memBest = memMoves;
+            document.getElementById('mem-best').textContent = memBest;
+          }
+          rewardPlayer("🧠 ¡Memoria perfecta! Completaste el tablero en " + memMoves + " movimientos.", 60);
         }
       } else {
         setTimeout(() => {
           flipped.forEach(c => { c.classList.remove('flipped'); c.textContent = '❓'; });
           flipped = [];
-        }, 800);
+        }, 700);
       }
     }
   };
 }
 
 /* ── GAME 3: SNAKE ── */
+var snakeInterval = null;
+var snake = [], snakeDir = 'RIGHT', nextSnakeDir = 'RIGHT', snakeFood = {}, snakeScore = 0, snakeHighScore = 0;
+
 function initSnakeGame(container) {
+  if (snakeInterval) clearInterval(snakeInterval);
+  
   container.innerHTML = `
-    <canvas id="snake-canvas" width="300" height="240"></canvas>
-    <p style="font-size: 11px; color: var(--g-text-dim); margin-top: 8px;">Usa las flechas de tu teclado para dirigir la serpiente</p>
+    <div style="display:flex; flex-direction:column; align-items:center; gap:8px;">
+      <div style="display:flex; justify-content:space-between; width:300px; font-weight:bold; font-size:13px; color:#c084fc;">
+        <span>Puntos: <span id="snake-score">0</span></span>
+        <span>Récord: <span id="snake-high">${snakeHighScore}</span></span>
+      </div>
+      
+      <div style="position:relative; width:300px; height:240px; border-radius:12px; overflow:hidden; background:#0f0f1b; border:1px solid rgba(255,255,255,0.15);">
+        <canvas id="snake-canvas" width="300" height="240" style="display:block;"></canvas>
+        
+        <div id="snake-overlay" style="position:absolute; inset:0; background:rgba(0,0,0,0.8); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; backdrop-filter:blur(3px);">
+          <span style="font-size:36px;">🐍</span>
+          <h4 id="snake-over-text" style="color:#fff; margin:0; font-size:16px; text-align:center;">¡Snake Arcade!</h4>
+          <button class="btn-play-game" onclick="startSnakeGame()">Iniciar Juego ▶</button>
+        </div>
+      </div>
+
+      <!-- Controls for mobile / click -->
+      <div style="display:grid; grid-template-columns: repeat(3, 42px); grid-template-rows: repeat(2, 34px); gap:4px; margin-top:4px;">
+        <div></div>
+        <button class="g-header-btn" style="padding:0; justify-content:center; font-size:16px;" onclick="changeSnakeDir('UP')">⬆️</button>
+        <div></div>
+        <button class="g-header-btn" style="padding:0; justify-content:center; font-size:16px;" onclick="changeSnakeDir('LEFT')">⬅️</button>
+        <button class="g-header-btn" style="padding:0; justify-content:center; font-size:16px;" onclick="changeSnakeDir('DOWN')">⬇️</button>
+        <button class="g-header-btn" style="padding:0; justify-content:center; font-size:16px;" onclick="changeSnakeDir('RIGHT')">➡️</button>
+      </div>
+    </div>
   `;
+  
+  var canvas = document.getElementById('snake-canvas');
+  if (canvas) {
+    var ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#0f0f1b';
+    ctx.fillRect(0, 0, 300, 240);
+  }
 }
 
+function startSnakeGame() {
+  var overlay = document.getElementById('snake-overlay');
+  if (overlay) overlay.style.display = 'none';
+  
+  var canvas = document.getElementById('snake-canvas');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  
+  var gridSize = 15;
+  var cols = 20; // 300 / 15
+  var rows = 16; // 240 / 15
+
+  snake = [
+    {x: 10, y: 8},
+    {x: 9, y: 8},
+    {x: 8, y: 8}
+  ];
+  snakeDir = 'RIGHT';
+  nextSnakeDir = 'RIGHT';
+  snakeScore = 0;
+  var scoreEl = document.getElementById('snake-score');
+  if (scoreEl) scoreEl.textContent = '0';
+  
+  function placeFood() {
+    snakeFood = {
+      x: Math.floor(Math.random() * cols),
+      y: Math.floor(Math.random() * rows)
+    };
+    for (var i = 0; i < snake.length; i++) {
+      if (snake[i].x === snakeFood.x && snake[i].y === snakeFood.y) {
+        placeFood();
+        break;
+      }
+    }
+  }
+  placeFood();
+
+  if (snakeInterval) clearInterval(snakeInterval);
+
+  window.onkeydown = function(e) {
+    if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') { e.preventDefault(); changeSnakeDir('UP'); }
+    else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') { e.preventDefault(); changeSnakeDir('DOWN'); }
+    else if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') { e.preventDefault(); changeSnakeDir('LEFT'); }
+    else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') { e.preventDefault(); changeSnakeDir('RIGHT'); }
+  };
+
+  snakeInterval = setInterval(function() {
+    snakeDir = nextSnakeDir;
+    var head = {x: snake[0].x, y: snake[0].y};
+    
+    if (snakeDir === 'UP') head.y--;
+    else if (snakeDir === 'DOWN') head.y++;
+    else if (snakeDir === 'LEFT') head.x--;
+    else if (snakeDir === 'RIGHT') head.x++;
+    
+    // Wall collision
+    if (head.x < 0 || head.x >= cols || head.y < 0 || head.y >= rows) {
+      gameOverSnake();
+      return;
+    }
+    
+    // Self collision
+    for (var i = 0; i < snake.length; i++) {
+      if (snake[i].x === head.x && snake[i].y === head.y) {
+        gameOverSnake();
+        return;
+      }
+    }
+    
+    snake.unshift(head);
+    
+    // Food collision
+    if (head.x === snakeFood.x && head.y === snakeFood.y) {
+      snakeScore += 10;
+      var sEl = document.getElementById('snake-score');
+      if (sEl) sEl.textContent = snakeScore;
+      if (snakeScore > snakeHighScore) {
+        snakeHighScore = snakeScore;
+        var hEl = document.getElementById('snake-high');
+        if (hEl) hEl.textContent = snakeHighScore;
+      }
+      placeFood();
+    } else {
+      snake.pop();
+    }
+    
+    // Clear background
+    ctx.fillStyle = '#0f0f1b';
+    ctx.fillRect(0, 0, 300, 240);
+    
+    // Draw food (apple)
+    ctx.fillStyle = '#f43f5e';
+    ctx.beginPath();
+    ctx.arc(snakeFood.x * gridSize + gridSize/2, snakeFood.y * gridSize + gridSize/2, gridSize/2 - 1, 0, Math.PI * 2);
+    ctx.fill();
+    
+    // Draw snake body
+    for (var j = 0; j < snake.length; j++) {
+      ctx.fillStyle = j === 0 ? '#a855f7' : '#c084fc';
+      ctx.fillRect(snake[j].x * gridSize + 1, snake[j].y * gridSize + 1, gridSize - 2, gridSize - 2);
+    }
+  }, 120);
+}
+
+function changeSnakeDir(dir) {
+  if (dir === 'UP' && snakeDir !== 'DOWN') nextSnakeDir = 'UP';
+  if (dir === 'DOWN' && snakeDir !== 'UP') nextSnakeDir = 'DOWN';
+  if (dir === 'LEFT' && snakeDir !== 'RIGHT') nextSnakeDir = 'LEFT';
+  if (dir === 'RIGHT' && snakeDir !== 'LEFT') nextSnakeDir = 'RIGHT';
+}
+
+function gameOverSnake() {
+  if (snakeInterval) clearInterval(snakeInterval);
+  var overlay = document.getElementById('snake-overlay');
+  var overText = document.getElementById('snake-over-text');
+  if (overText) overText.textContent = '¡Game Over! Puntos: ' + snakeScore;
+  if (overlay) overlay.style.display = 'flex';
+  
+  if (snakeScore >= 20) {
+    rewardPlayer('🎉 ¡Gran juego! Ganaste +' + snakeScore + ' XP', snakeScore);
+  }
+}
+
+
 /* ── GAME 4: GUESS NUMBER ── */
+var guessAttempts = 0, guessBest = Infinity;
+
 function initGuessNumGame(container) {
   const targetNum = Math.floor(Math.random() * 100) + 1;
+  guessAttempts = 0;
+
   container.innerHTML = `
-    <div style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
-      <input type="number" id="guess-input" placeholder="Ej. 42" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 10px; color: #fff; text-align: center; font-size: 18px; width: 120px; outline: none;">
+    <div style="display: flex; flex-direction: column; gap: 14px; align-items: center;">
+      <div style="display:flex; justify-content:space-around; width:100%; max-width:320px; padding:6px 12px; background:rgba(255,255,255,0.06); border-radius:10px; font-weight:bold; font-size:13px;">
+        <span style="color:#c084fc;">Intentos: <span id="guess-attempts">0</span></span>
+        <span style="color:#facc15;">Mejor Récord: <span id="guess-best">${guessBest === Infinity ? '--' : guessBest}</span></span>
+      </div>
+
+      <input type="number" id="guess-input" placeholder="Ej. 42" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; padding: 10px; color: #fff; text-align: center; font-size: 20px; width: 130px; outline: none;" onkeyup="if(event.key==='Enter') checkGuessNum(${targetNum})">
       <button class="btn-play-game" onclick="checkGuessNum(${targetNum})">Adivinar 🎯</button>
     </div>
   `;
 }
 
 function checkGuessNum(target) {
-  const val = parseInt(document.getElementById('guess-input').value);
+  const input = document.getElementById('guess-input');
+  const val = parseInt(input.value);
   const speech = document.getElementById('arena-amigis-speech');
   if (!val) return;
 
+  guessAttempts++;
+  var attEl = document.getElementById('guess-attempts');
+  if (attEl) attEl.textContent = guessAttempts;
+
   if (val === target) {
-    rewardPlayer(`🎯 ¡Correcto! El número era ${target}.`, 50);
+    if (guessAttempts < guessBest) {
+      guessBest = guessAttempts;
+      var bEl = document.getElementById('guess-best');
+      if (bEl) bEl.textContent = guessBest;
+    }
+    rewardPlayer(`🎯 ¡Correcto! El número era ${target}. Lo lograste en ${guessAttempts} intentos.`, 50);
   } else if (val < target) {
     speech.textContent = `💡 El número secreto es MAYOR que ${val}. ¡Inténtalo de nuevo!`;
+    input.value = '';
+    input.focus();
   } else {
     speech.textContent = `💡 El número secreto es MENOR que ${val}. ¡Inténtalo de nuevo!`;
+    input.value = '';
+    input.focus();
   }
 }
 
 /* ── GAME 5: TRIVIA ── */
+var triviaScore = 0, triviaCorrectCount = 0, triviaStreak = 0;
+
 function initTriviaGame(container, type) {
   const triviaData = [
     { q: "¿Cuál es la capital de Francia?", options: ["Madrid", "París", "Roma", "Berlín"], answer: 1 },
     { q: "¿Qué estructura de datos funciona como LIFO (Last In First Out)?", options: ["Cola", "Pila (Stack)", "Lista", "Árbol"], answer: 1 },
-    { q: "¿Cuál es el animal más grande del planeta?", options: ["Elefante", "Ballena Azul", "Jirafa", "Tiburón Ballena"], answer: 1 }
+    { q: "¿Cuál es el animal más grande del planeta?", options: ["Elefante", "Ballena Azul", "Jirafa", "Tiburón Ballena"], answer: 1 },
+    { q: "¿En qué lenguaje de programación se escribió Django?", options: ["Java", "Python", "C++", "JavaScript"], answer: 1 },
+    { q: "¿Cuál es el planeta más grande del sistema solar?", options: ["Marte", "Tierra", "Júpiter", "Saturno"], answer: 2 }
   ];
   const q = triviaData[Math.floor(Math.random() * triviaData.length)];
 
   container.innerHTML = `
-    <div style="text-align: center; max-width: 440px;">
-      <h3 style="font-size: 16px; margin-bottom: 16px;">${q.q}</h3>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+    <div style="display:flex; flex-direction:column; align-items:center; gap:12px; max-width:440px; margin:0 auto;">
+      <div style="display:flex; justify-content:space-around; width:100%; padding:6px 12px; background:rgba(255,255,255,0.06); border-radius:10px; font-weight:bold; font-size:13px;">
+        <span style="color:#c084fc;">Puntos: <span id="trivia-score">${triviaScore}</span></span>
+        <span style="color:#06b6d4;">Correctas: <span id="trivia-correct">${triviaCorrectCount}</span></span>
+        <span style="color:#f43f5e;">Racha 🔥: <span id="trivia-streak">${triviaStreak}</span></span>
+      </div>
+
+      <h3 style="font-size: 15px; margin: 4px 0 8px 0; text-align:center;">${q.q}</h3>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width:100%;">
         ${q.options.map((opt, i) => `<button class="g-header-btn" style="padding: 12px; justify-content: center;" onclick="answerTrivia(${i}, ${q.answer})">${opt}</button>`).join('')}
       </div>
     </div>
@@ -444,11 +718,306 @@ function initTriviaGame(container, type) {
 
 function answerTrivia(selected, correct) {
   if (selected === correct) {
-    rewardPlayer("🎉 ¡Respuesta Correcta! Ganaste +40 XP.", 40);
+    triviaCorrectCount++;
+    triviaStreak++;
+    triviaScore += 10 * triviaStreak;
+    rewardPlayer("🎉 ¡Respuesta Correcta! Racha: 🔥" + triviaStreak + " (+" + (10 * triviaStreak) + " Puntos).", 40);
   } else {
-    document.getElementById('arena-amigis-speech').textContent = "😅 ¡Cerca! La respuesta correcta era otra. ¡Sigue aprendiendo!";
+    triviaStreak = 0;
+    document.getElementById('arena-amigis-speech').textContent = "😅 ¡Cerca! La respuesta correcta no era esa. Se reinició la racha.";
+  }
+  // Load next question automatically
+  setTimeout(function() {
+    var view = document.getElementById('arena-game-view');
+    if (view) initTriviaGame(view, 'trivia');
+  }, 1200);
+}
+
+/* ── GAME 6: SUDOKU CHALLENGE ── */
+var sudokuSolvedCount = 0;
+function initSudokuGame(container) {
+  const puzzle = [1, 0, 3, 0,  0, 4, 0, 2,  2, 0, 4, 0,  0, 3, 0, 1];
+  const solution = [1, 2, 3, 4, 3, 4, 1, 2, 2, 1, 4, 3, 4, 3, 2, 1];
+  
+  container.innerHTML = `
+    <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
+      <div style="display:flex; justify-content:space-around; width:100%; max-width:300px; padding:6px 12px; background:rgba(255,255,255,0.06); border-radius:10px; font-weight:bold; font-size:13px;">
+        <span style="color:#f59e0b;">Sudokus Resueltos: <span id="sudoku-count">${sudokuSolvedCount}</span></span>
+        <span style="color:var(--g-text-dim);">Dificultad: 4x4 Mini</span>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(4, 52px); gap:6px; background:rgba(255,255,255,0.1); padding:8px; border-radius:12px;">
+        ${puzzle.map((val, i) => `
+          <input type="number" min="1" max="4" class="sudoku-cell" data-idx="${i}" value="${val !== 0 ? val : ''}" ${val !== 0 ? 'disabled style="background:rgba(255,255,255,0.15); color:#c084fc; font-weight:bold;"' : 'style="background:rgba(0,0,0,0.4); color:#fff;"'}
+          style="width:52px; height:52px; text-align:center; font-size:20px; border:1px solid rgba(255,255,255,0.2); border-radius:8px; outline:none;">
+        `).join('')}
+      </div>
+
+      <div style="display:flex; gap:10px;">
+        <button class="btn-play-game" onclick="checkSudoku([${solution.join(',')}])">Verificar ✔</button>
+        <button class="g-header-btn" style="padding:10px 16px;" onclick="initSudokuGame(document.getElementById('arena-game-view'))">Nuevo 🔄</button>
+      </div>
+    </div>
+  `;
+}
+
+function checkSudoku(solution) {
+  const inputs = document.querySelectorAll('.sudoku-cell');
+  let correct = true;
+  inputs.forEach((inp, i) => {
+    const val = parseInt(inp.value, 10);
+    if (val !== solution[i]) correct = false;
+  });
+
+  if (correct) {
+    sudokuSolvedCount++;
+    var el = document.getElementById('sudoku-count');
+    if (el) el.textContent = sudokuSolvedCount;
+    rewardPlayer("🎉 ¡Sudoku Resuelto Perfectamente! +50 XP", 50);
+  } else {
+    document.getElementById('arena-amigis-speech').textContent = "😅 Hay números incorrectos. ¡Revisa filas y columnas!";
   }
 }
+
+/* ── GAME 7: SLIDING PUZZLE ── */
+var puzzleMoves = 0, puzzleSolved = 0;
+var puzzleState = [1, 2, 3, 4, 5, 6, 7, 0, 8];
+
+function initSlidePuzzleGame(container) {
+  puzzleMoves = 0;
+  puzzleState = [1, 2, 3, 4, 5, 6, 7, 0, 8];
+  renderSlidePuzzle(container);
+}
+
+function renderSlidePuzzle(container) {
+  container.innerHTML = `
+    <div style="display:flex; flex-direction:column; align-items:center; gap:12px;">
+      <div style="display:flex; justify-content:space-around; width:100%; max-width:280px; padding:6px 12px; background:rgba(255,255,255,0.06); border-radius:10px; font-weight:bold; font-size:13px;">
+        <span style="color:#f43f5e;">Movimientos: <span id="puzzle-moves">${puzzleMoves}</span></span>
+        <span style="color:#38bdf8;">Completados: <span id="puzzle-count">${puzzleSolved}</span></span>
+      </div>
+
+      <div style="display:grid; grid-template-columns:repeat(3, 72px); gap:6px; background:rgba(255,255,255,0.1); padding:8px; border-radius:14px;">
+        ${puzzleState.map((val, i) => `
+          <button class="g-header-btn" style="width:72px; height:72px; font-size:24px; font-weight:bold; justify-content:center; border-radius:10px; ${val === 0 ? 'visibility:hidden;' : 'background:linear-gradient(135deg,#a855f7,#ec4899); color:#fff;'}" onclick="movePuzzleTile(${i})">
+            ${val !== 0 ? val : ''}
+          </button>
+        `).join('')}
+      </div>
+
+      <button class="btn-play-game" onclick="initSlidePuzzleGame(document.getElementById('arena-game-view'))">Mezclar 🔄</button>
+    </div>
+  `;
+}
+
+function movePuzzleTile(idx) {
+  const emptyIdx = puzzleState.indexOf(0);
+  const validMoves = [
+    [1, 3],       // 0
+    [0, 2, 4],    // 1
+    [1, 5],       // 2
+    [0, 4, 6],    // 3
+    [1, 3, 5, 7], // 4
+    [2, 4, 8],    // 5
+    [3, 7],       // 6
+    [4, 6, 8],    // 7
+    [5, 7]        // 8
+  ];
+
+  if (validMoves[emptyIdx].includes(idx)) {
+    puzzleState[emptyIdx] = puzzleState[idx];
+    puzzleState[idx] = 0;
+    puzzleMoves++;
+    renderSlidePuzzle(document.getElementById('arena-game-view'));
+
+    if (puzzleState.slice(0, 8).every((val, i) => val === i + 1)) {
+      puzzleSolved++;
+      rewardPlayer("🧩 ¡Rompecabezas Armado! Lo lograste en " + puzzleMoves + " movimientos.", 60);
+    }
+  }
+}
+
+/* ── GAME 8: ANIMAL QUIZ ── */
+var animalScore = 0;
+function initAnimalGame(container) {
+  const animals = [
+    { name: "León", hint: "👑 Es conocido como el rey de la selva y posee una gran melena.", options: ["Tigre", "León", "Guepardo", "Lobo"] },
+    { name: "Delfín", hint: "🐬 Es un mamífero acuático súper inteligente al que le encanta dar saltos.", options: ["Tiburón", "Delfín", "Pulpo", "Foca"] },
+    { name: "Águila", hint: "🦅 Ave de presa con vista formidable que habita en grandes alturas.", options: ["Búho", "Águila", "Halcón", "Cuervo"] }
+  ];
+  const item = animals[Math.floor(Math.random() * animals.length)];
+
+  container.innerHTML = `
+    <div style="display:flex; flex-direction:column; align-items:center; gap:12px; max-width:380px; margin:0 auto;">
+      <div style="display:flex; justify-content:space-around; width:100%; padding:6px 12px; background:rgba(255,255,255,0.06); border-radius:10px; font-weight:bold; font-size:13px;">
+        <span style="color:#38bdf8;">Puntos Animales: <span id="animal-score">${animalScore}</span></span>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.05); padding:16px; border-radius:12px; text-align:center; font-size:14px;">
+        ${item.hint}
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%;">
+        ${item.options.map(opt => `
+          <button class="g-header-btn" style="padding:12px; justify-content:center;" onclick="guessAnimal('${opt}', '${item.name}')">${opt}</button>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function guessAnimal(selected, correct) {
+  if (selected === correct) {
+    animalScore += 20;
+    rewardPlayer("🎉 ¡Acertaste! El animal era el " + correct + ". (+20 Puntos)", 30);
+  } else {
+    document.getElementById('arena-amigis-speech').textContent = "😅 ¡Casi! La respuesta correcta era " + correct + ".";
+  }
+  setTimeout(function() {
+    var view = document.getElementById('arena-game-view');
+    if (view) initAnimalGame(view);
+  }, 1300);
+}
+
+/* ── GAME 9: GEOGRAPHY CAPITALS ── */
+var geoScore = 0;
+function initGeoGame(container) {
+  const data = [
+    { country: "Japón 🇯🇵", capital: "Tokio", options: ["Pekín", "Tokio", "Seúl", "Bangkok"] },
+    { country: "Francia 🇫🇷", capital: "París", options: ["París", "Lyon", "Marsella", "Burdeos"] },
+    { country: "Brasil 🇧🇷", capital: "Brasilia", options: ["Río de Janeiro", "São Paulo", "Brasilia", "Salvador"] },
+    { country: "Ecuador 🇪🇨", capital: "Quito", options: ["Guayaquil", "Cuenca", "Quito", "Ambato"] },
+    { country: "Canadá 🇨🇦", capital: "Ottawa", options: ["Toronto", "Vancouver", "Montreal", "Ottawa"] }
+  ];
+  const item = data[Math.floor(Math.random() * data.length)];
+
+  container.innerHTML = `
+    <div style="display:flex; flex-direction:column; align-items:center; gap:12px; max-width:380px; margin:0 auto;">
+      <div style="display:flex; justify-content:space-around; width:100%; padding:6px 12px; background:rgba(255,255,255,0.06); border-radius:10px; font-weight:bold; font-size:13px;">
+        <span style="color:#10b981;">Puntos Geografía: <span id="geo-score">${geoScore}</span></span>
+      </div>
+
+      <h3 style="font-size:16px; margin:4px 0;">¿Cuál es la capital de ${item.country}?</h3>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%;">
+        ${item.options.map(opt => `
+          <button class="g-header-btn" style="padding:12px; justify-content:center;" onclick="answerGeo('${opt}', '${item.capital}')">${opt}</button>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function answerGeo(selected, correct) {
+  if (selected === correct) {
+    geoScore += 25;
+    rewardPlayer("🌍 ¡Geógrafo Experto! " + correct + " es la capital correcta.", 35);
+  } else {
+    document.getElementById('arena-amigis-speech').textContent = "😅 ¡Incorrecto! La capital era " + correct + ".";
+  }
+  setTimeout(function() {
+    var view = document.getElementById('arena-game-view');
+    if (view) initGeoGame(view);
+  }, 1300);
+}
+
+/* ── GAME 10: CODING CHALLENGES ── */
+var codeScore = 0;
+function initCodeGame(container) {
+  const challenges = [
+    { q: "En Python, ¿qué operador se usa para elevar a una potencia?", options: ["^", "**", "pow()", "//"], answer: 1 },
+    { q: "En JavaScript, ¿cuál palabra clave declara una variable reasignable de bloque?", options: ["var", "const", "let", "static"], answer: 2 },
+    { q: "¿Qué estructura de datos sigue el principio LIFO (Last-In, First-Out)?", options: ["Queue", "Stack (Pila)", "Array", "Set"], answer: 1 }
+  ];
+  const item = challenges[Math.floor(Math.random() * challenges.length)];
+
+  container.innerHTML = `
+    <div style="display:flex; flex-direction:column; align-items:center; gap:12px; max-width:400px; margin:0 auto;">
+      <div style="display:flex; justify-content:space-around; width:100%; padding:6px 12px; background:rgba(255,255,255,0.06); border-radius:10px; font-weight:bold; font-size:13px;">
+        <span style="color:#ec4899;">Puntos Dev: <span id="code-score">${codeScore}</span></span>
+      </div>
+
+      <h3 style="font-size:14px; margin:4px 0; text-align:center;">${item.q}</h3>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%;">
+        ${item.options.map((opt, i) => `
+          <button class="g-header-btn" style="padding:12px; justify-content:center; font-family:monospace;" onclick="answerCode(${i}, ${item.answer})">${opt}</button>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function answerCode(selected, correct) {
+  if (selected === correct) {
+    codeScore += 30;
+    rewardPlayer("💻 ¡Código Limpio! Respuesta correcta. (+30 XP)", 45);
+  } else {
+    document.getElementById('arena-amigis-speech').textContent = "😅 ¡Error de sintaxis! Revisa tu lógica.";
+  }
+  setTimeout(function() {
+    var view = document.getElementById('arena-game-view');
+    if (view) initCodeGame(view);
+  }, 1300);
+}
+
+/* ── GAME 11: AKINATOR GUESS CHARACTER ── */
+var akinatorStep = 0, akinatorAnswers = {};
+function initAkinatorGame(container) {
+  akinatorStep = 0;
+  akinatorAnswers = {};
+  showAkinatorQuestion(container);
+}
+
+function showAkinatorQuestion(container) {
+  const questions = [
+    { id: "human", q: "¿Tu personaje es un ser humano?" },
+    { id: "fictional", q: "¿Tu personaje proviene de una película o serie de animación?" },
+    { id: "powers", q: "¿Tiene superpoderes o habilidades mágicas?" },
+    { id: "hero", q: "¿Es considerado un héroe o el protagonista?" }
+  ];
+
+  if (akinatorStep < questions.length) {
+    const q = questions[akinatorStep];
+    container.innerHTML = `
+      <div style="display:flex; flex-direction:column; align-items:center; gap:16px; text-align:center;">
+        <span style="font-size:42px;">🎭</span>
+        <h3 style="font-size:16px; margin:0;">${q.q}</h3>
+        
+        <div style="display:flex; gap:12px;">
+          <button class="btn-play-game" style="padding:10px 24px;" onclick="answerAkinator('${q.id}', true)">Sí 👍</button>
+          <button class="g-header-btn" style="padding:10px 24px; justify-content:center;" onclick="answerAkinator('${q.id}', false)">No 👎</button>
+        </div>
+      </div>
+    `;
+  } else {
+    let guess = "Goku (Dragon Ball)";
+    if (!akinatorAnswers.fictional && akinatorAnswers.human) guess = "Elon Musk / Lionel Messi";
+    else if (akinatorAnswers.fictional && !akinatorAnswers.human) guess = "Bob Esponja / Mickey Mouse";
+    else if (akinatorAnswers.fictional && akinatorAnswers.powers && akinatorAnswers.hero) guess = "Spider-Man / Goku";
+    else if (akinatorAnswers.fictional && !akinatorAnswers.hero) guess = "Darth Vader / Thanos";
+
+    container.innerHTML = `
+      <div style="display:flex; flex-direction:column; align-items:center; gap:14px; text-align:center;">
+        <span style="font-size:48px;">🔮</span>
+        <h3 style="font-size:18px; color:#f59e0b; margin:0;">¡Pensé en tu personaje!</h3>
+        <p style="font-size:16px; font-weight:bold; color:#fff;">¿Estás pensando en: <span style="color:#c084fc;">${guess}</span>?</p>
+        
+        <div style="display:flex; gap:10px;">
+          <button class="btn-play-game" onclick="rewardPlayer('🎉 ¡Akinator-Amigis adivinó tu personaje!', 50)">¡Adivinaste! 🎯</button>
+          <button class="g-header-btn" style="padding:10px 16px;" onclick="initAkinatorGame(document.getElementById('arena-game-view'))">Jugar Otra Vez 🔄</button>
+        </div>
+      </div>
+    `;
+  }
+}
+
+function answerAkinator(id, val) {
+  akinatorAnswers[id] = val;
+  akinatorStep++;
+  showAkinatorQuestion(document.getElementById('arena-game-view'));
+}
+
 
 function rewardPlayer(msg, xpGain) {
   document.getElementById('arena-amigis-speech').textContent = msg;

@@ -144,6 +144,7 @@
                 </div>
                 {% if not msg.es_usuario %}
                 <div class="msg-actions-bar">
+                  <button class="msg-action-btn" onclick="speakText(this)" title="Escuchar mensaje"><i class="ti ti-volume"></i> Escuchar</button>
                   <button class="msg-action-btn" onclick="copyText(this)" title="Copiar"><i class="ti ti-copy"></i> Copiar</button>
                   <button class="msg-action-btn" onclick="regenerateMessage()" title="Regenerar"><i class="ti ti-refresh"></i> Regenerar</button>
                   <button class="msg-action-btn" onclick="toggleReaction(this, 'like')" title="Me gusta"><i class="ti ti-thumb-up"></i></button>
@@ -355,14 +356,43 @@ document.addEventListener('DOMContentLoaded', () => {
       document.getElementById('mic-icon').className = 'ti ti-microphone';
       document.getElementById('mic-btn').style.color = '';
     };
+    recognition.onerror = (event) => {
+      console.error('Error de micrófono:', event.error);
+      isRecording = false;
+      document.getElementById('mic-icon').className = 'ti ti-microphone';
+      document.getElementById('mic-btn').style.color = '';
+      if (event.error === 'not-allowed') {
+        alert('Por favor otorga permisos de micrófono en tu navegador para usar esta función.');
+      }
+    };
     recognition.onresult = (event) => {
       const text = Array.from(event.results).map(r => r[0].transcript).join('');
       userInput.value = text;
     };
   }
 
+  document.getElementById('new-chat-btn')?.addEventListener('click', createNewChat);
+
   updateDuckTheme();
 });
+
+async function createNewChat() {
+  try {
+    const res = await fetch('/api/crear-chat/', {
+      method: 'POST',
+      headers: { 'X-CSRFToken': getCookie('csrftoken') }
+    });
+    const data = await res.json();
+    if (data.status === 'success' && data.conversation_id) {
+      window.location.href = `?id=${data.conversation_id}`;
+    } else {
+      window.location.href = '{% url "chat" %}';
+    }
+  } catch (err) {
+    console.error('Error al crear nuevo chat:', err);
+    window.location.href = '{% url "chat" %}';
+  }
+}
 
 // Trigger file selector
 function triggerFileSelect() {
@@ -490,6 +520,7 @@ function appendBubble(text, isUser) {
       </div>
       ${!isUser ? `
       <div class="msg-actions-bar">
+        <button class="msg-action-btn" onclick="speakText(this)" title="Escuchar mensaje"><i class="ti ti-volume"></i> Escuchar</button>
         <button class="msg-action-btn" onclick="copyText(this)"><i class="ti ti-copy"></i> Copiar</button>
         <button class="msg-action-btn" onclick="regenerateMessage()"><i class="ti ti-refresh"></i> Regenerar</button>
         <button class="msg-action-btn" onclick="toggleReaction(this, 'like')"><i class="ti ti-thumb-up"></i></button>
@@ -504,6 +535,60 @@ function appendBubble(text, isUser) {
 
 function escapeHtml(str) {
   return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+let currentSpeakingBtn = null;
+
+function speakText(btn) {
+  if (!('speechSynthesis' in window)) {
+    alert('Tu navegador no soporta la lectura de texto a voz.');
+    return;
+  }
+
+  const bubble = btn.closest('.msg-content-box').querySelector('.msg-bubble');
+  if (!bubble) return;
+  const textToRead = bubble.textContent.trim();
+
+  if (currentSpeakingBtn === btn) {
+    if (window.speechSynthesis.speaking) {
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+        btn.innerHTML = '<i class="ti ti-player-pause"></i> Pausar';
+      } else {
+        window.speechSynthesis.pause();
+        btn.innerHTML = '<i class="ti ti-player-play"></i> Continuar';
+      }
+      return;
+    }
+  }
+
+  window.speechSynthesis.cancel();
+  if (currentSpeakingBtn && currentSpeakingBtn !== btn) {
+    currentSpeakingBtn.innerHTML = '<i class="ti ti-volume"></i> Escuchar';
+  }
+
+  const utterance = new SpeechSynthesisUtterance(textToRead);
+  utterance.lang = 'es-ES';
+  utterance.rate = 1.0;
+
+  const voices = window.speechSynthesis.getVoices();
+  const esVoice = voices.find(v => v.lang.startsWith('es'));
+  if (esVoice) utterance.voice = esVoice;
+
+  currentSpeakingBtn = btn;
+  btn.innerHTML = '<i class="ti ti-player-pause"></i> Pausar';
+
+  utterance.onend = () => {
+    btn.innerHTML = '<i class="ti ti-volume"></i> Escuchar';
+    currentSpeakingBtn = null;
+  };
+
+  utterance.onerror = () => {
+    btn.innerHTML = '<i class="ti ti-volume"></i> Escuchar';
+    currentSpeakingBtn = null;
+  };
+
+  window.speechSynthesis.speak(utterance);
 }
 
 function copyText(btn) {

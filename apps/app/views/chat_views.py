@@ -27,12 +27,18 @@ def chat_view(request):
     conversaciones_data = ChatSelector.get_all_by_user_with_last_message(request.user)
     conversaciones = [item['conversation'] for item in conversaciones_data]
 
-    # Get or create active conversation
-    active_conv = conversaciones[0] if conversaciones else None
+    # Get requested conversation by ID if provided
+    conv_id = request.GET.get('id')
+    active_conv = None
+    if conv_id:
+        active_conv = ChatSelector.get_by_user_and_id(request.user, conv_id)
+
     if not active_conv:
-        active_conv = ChatSelector.get_or_create_main(request.user)
-        conversaciones = [active_conv]
-        conversaciones_data = [{'conversation': active_conv, 'last_message': None}]
+        active_conv = conversaciones[0] if conversaciones else None
+        if not active_conv:
+            active_conv = ChatSelector.get_or_create_main(request.user)
+            conversaciones = [active_conv]
+            conversaciones_data = [{'conversation': active_conv, 'last_message': None}]
 
     mensajes = ChatSelector.get_all_messages(active_conv)
     active_id = active_conv.id
@@ -165,3 +171,25 @@ def delete_chat_api(request, chat_id):
     except Exception as e:
         LogHelper.log_error(logger, f"Error al eliminar chat: {str(e)}", exc_info=True)
         return JsonResponse({'status': 'error', 'error': str(e)}, status=500)
+
+
+@require_http_methods(["POST"])
+@csrf_exempt
+def crear_chat_api(request):
+    """Create a new chat conversation."""
+    if not request.user.is_authenticated:
+        return JsonResponse({'status': 'success', 'conversation_id': None})
+
+    try:
+        count = ChatSelector.count_by_user(request.user)
+        titulo = f"Chat #{count + 1}"
+        conversacion = ChatSelector.create_for_user(request.user, title=titulo)
+        return JsonResponse({
+            'status': 'success',
+            'conversation_id': conversacion.id,
+            'titulo': conversacion.titulo
+        })
+    except Exception as e:
+        LogHelper.log_error(logger, f"Error al crear chat: {str(e)}", exc_info=True)
+        return JsonResponse({'status': 'error', 'error': str(e)}, status=500)
+

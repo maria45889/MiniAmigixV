@@ -20,12 +20,14 @@ class CalendarService:
     @staticmethod
     def get_upcoming_events_text(user, days: int = 3, limit: int = 3) -> List[Dict]:
         """Get upcoming events formatted for display."""
-        hoy = date.today()
+        from django.utils import timezone
+        hoy = timezone.now().date()
         eventos_proximos = CalendarSelector.get_for_clock_widget(days, limit)
         eventos_texto = []
         
         for evento in eventos_proximos:
-            dias_restantes = (evento.fecha - hoy).days
+            evento_fecha = evento.fecha.date() if hasattr(evento.fecha, 'date') else evento.fecha
+            dias_restantes = (evento_fecha - hoy).days
             if dias_restantes == 0:
                 texto_dias = "hoy"
             elif dias_restantes == 1:
