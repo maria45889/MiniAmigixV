@@ -25,6 +25,8 @@
   padding: 10px 0 40px;
   font-family: 'Sora', system-ui, sans-serif;
   color: var(--e-text-bright);
+  overflow-y: auto;
+  max-height: none;
 }
 
 /* ── Header ── */
@@ -160,10 +162,13 @@
 /* ── Courses Grid ── */
 .courses-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
   margin-bottom: 28px;
+  max-height: none;
+  overflow: visible;
 }
+@media (max-width: 1200px) { .courses-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 900px) { .courses-grid { grid-template-columns: repeat(2, 1fr); } }
 @media (max-width: 600px) { .courses-grid { grid-template-columns: 1fr; } }
 
@@ -173,11 +178,11 @@
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--e-glass-border);
   border-radius: var(--e-radius);
-  padding: 22px;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 190px;
+  min-height: 160px;
   transition: all 0.25s ease;
   position: relative;
 }
