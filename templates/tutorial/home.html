@@ -12,9 +12,6 @@
 <div class="tu-page fadein">
   {% csrf_token %}
 
-  {# ────────────────────────────────────────────────────
-     HEADER BAR
-  ──────────────────────────────────────────────────── #}
   <div class="tu-header-bar">
     <div class="tu-header-title">
       <span style="font-size:26px;">🎓</span>
@@ -43,9 +40,6 @@
     </div>
   </div>
 
-  {# ────────────────────────────────────────────────────
-     AMIGIS TUTOR BANNER
-  ──────────────────────────────────────────────────── #}
   <div class="amigis-tutor-banner">
     <img src="{% static 'amigis/amigis-dark.svg' %}" class="amigis-tutor-duck"
          id="amigis-tutor-duck" alt="Amigis Tutor">
@@ -58,9 +52,6 @@
     </button>
   </div>
 
-  {# ────────────────────────────────────────────────────
-     LEVEL & XP BAR
-  ──────────────────────────────────────────────────── #}
   <div class="tu-level-bar-card">
     <div class="tu-level-badge" id="level-badge-icon">🥈</div>
     <div class="tu-level-info">
@@ -84,9 +75,6 @@
     </div>
   </div>
 
-  {# ────────────────────────────────────────────────────
-     STATS GRID
-  ──────────────────────────────────────────────────── #}
   <div class="tu-stats-grid">
     <div class="tu-stat-card">
       <div class="tu-stat-icon">📚</div>
@@ -115,9 +103,6 @@
     </div>
   </div>
 
-  {# ────────────────────────────────────────────────────
-     FEATURED TUTORIAL HERO CARD
-  ──────────────────────────────────────────────────── #}
   <div class="tu-featured-card">
     <div class="tu-featured-icon">🐍</div>
     <div class="tu-featured-info">
@@ -143,9 +128,6 @@
     </div>
   </div>
 
-  {# ────────────────────────────────────────────────────
-     CATEGORY CHIP ROW
-  ──────────────────────────────────────────────────── #}
   <div class="tu-category-bar" id="tu-category-bar">
     <div class="tu-cat-chip active"            onclick="filterCat('all',this)">📌 Todos</div>
     <div class="tu-cat-chip" data-cat="prog"   onclick="filterCat('prog',this)">💻 Programación</div>
@@ -159,12 +141,8 @@
     <div class="tu-cat-chip" data-cat="git"    onclick="filterCat('git',this)">⚙ Git &amp; GitHub</div>
   </div>
 
-  {# ────────────────────────────────────────────────────
-     MAIN SPLIT GRID
-  ──────────────────────────────────────────────────── #}
   <div class="tu-main-grid">
 
-    {# ── LEFT: Tutorial Cards ── #}
     <div class="tu-cards-grid" id="tu-cards-grid">
 
       <div class="tu-card" data-cat="prog" onclick="openTutorial('python-basico')">
@@ -253,10 +231,8 @@
 
     </div>
 
-    {# ── RIGHT: Side Panel ── #}
     <div class="tu-side-panel">
 
-      {# Learning Paths #}
       <div class="tu-panel-box" id="academy-section">
         <h3 class="tu-panel-title">
           <i class="ti ti-map-2" style="color:#c084fc;"></i> Rutas de Aprendizaje
@@ -308,7 +284,6 @@
         </div>
       </div>
 
-      {# Level System #}
       <div class="tu-panel-box">
         <h3 class="tu-panel-title">
           <i class="ti ti-crown" style="color:#f59e0b;"></i> Sistema de Niveles
@@ -332,7 +307,6 @@
         </div>
       </div>
 
-      {# Badges #}
       <div class="tu-panel-box" id="badges-panel">
         <h3 class="tu-panel-title">
           <i class="ti ti-medal" style="color:#f59e0b;"></i> Mis Insignias
@@ -366,12 +340,9 @@
       </div>
 
     </div>
-  </div>{# end main grid #}
-</div>{# end tu-page #}
+  </div>
+</div>
 
-{# ────────────────────────────────────────────────────
-   TUTORIAL DETAIL MODAL
-──────────────────────────────────────────────────── #}
 <div class="tu-modal-overlay" id="tu-detail-modal">
   <div class="tu-modal-box">
     <button class="tu-modal-close" onclick="closeTutorial()">✕</button>
@@ -382,7 +353,6 @@
     <div id="tu-modal-meta"
          style="font-size:12px;color:rgba(255,255,255,0.45);margin-bottom:18px;display:flex;gap:12px;flex-wrap:wrap;"></div>
 
-    {# TABS #}
     <div class="tu-tabs-row">
       <button class="tu-tab-btn active" onclick="showTab('video')">🎥 Video</button>
       <button class="tu-tab-btn" onclick="showTab('content')">📄 Contenido</button>
@@ -390,7 +360,6 @@
       <button class="tu-tab-btn" onclick="showTab('quiz')">📝 Evaluación</button>
     </div>
 
-    {# VIDEO TAB #}
     <div class="tu-tab-pane active" id="tab-video">
       <div style="background:#000;border-radius:16px;overflow:hidden;aspect-ratio:16/9;
                   display:flex;align-items:center;justify-content:center;
@@ -414,14 +383,12 @@
       </div>
     </div>
 
-    {# CONTENT TAB #}
     <div class="tu-tab-pane" id="tab-content">
       <div id="tu-modal-body"
            style="font-size:13.5px;line-height:1.75;color:rgba(255,255,255,0.78);">
       </div>
     </div>
 
-    {# CODE EDITOR TAB #}
     <div class="tu-tab-pane" id="tab-editor">
       <div class="tu-code-editor">
         <div class="tu-code-toolbar">
@@ -447,7 +414,6 @@ print(saludar("María José"))
       </div>
     </div>
 
-    {# QUIZ TAB #}
     <div class="tu-tab-pane" id="tab-quiz">
       <h3 style="font-size:16px;font-weight:700;margin:0 0 16px;color:#fff;">
         📝 Evaluación Final
@@ -473,7 +439,6 @@ print(saludar("María José"))
            font-size:15px;font-weight:700;padding:14px;border-radius:14px;"></div>
     </div>
 
-    {# Action Row #}
     <div style="display:flex;justify-content:space-between;align-items:center;
                 margin-top:22px;padding-top:16px;border-top:1px solid rgba(255,255,255,0.08);">
       <button class="tu-btn" onclick="completeTutorial()" style="gap:8px;">
@@ -484,9 +449,6 @@ print(saludar("María José"))
   </div>
 </div>
 
-{# ────────────────────────────────────────────────────
-   AMIGIS CHALLENGE MODAL
-──────────────────────────────────────────────────── #}
 <div class="tu-modal-overlay" id="challenge-modal">
   <div class="tu-modal-box" style="max-width:520px;">
     <button class="tu-modal-close" onclick="closeChallengeModal()">✕</button>
@@ -512,9 +474,6 @@ def solo_pares(lista):
   </div>
 </div>
 
-{# ────────────────────────────────────────────────────
-   SCRIPT
-──────────────────────────────────────────────────── #}
 <script>
 let currentTutorial = null;
 let quizAnswered     = false;

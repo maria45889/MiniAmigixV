@@ -34,6 +34,9 @@ class Evento(models.Model):
     def __str__(self):
         return f"{self.titulo} - {self.usuario.username}"
 
+    class Meta:
+        ordering = ['fecha']
+
     def get_categoria_emoji(self):
         return dict(CategoriaEvento.choices).get(self.categoria, '').split(' ')[0] if self.categoria else '📌'
 

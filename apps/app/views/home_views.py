@@ -69,7 +69,7 @@ def home(request):
         # Actividad reciente del usuario
         from apps.app.models import ConversacionChat
         from apps.app.models import Cancion
-        from eventos.models import Evento
+        from apps.eventos.models import Evento
         from django.utils import timezone
         from datetime import timedelta
         

@@ -24,7 +24,7 @@ def user_theme(request):
     
     if request.user.is_authenticated:
         try:
-            from perfil.models import Perfil
+            from apps.perfil.models import Perfil
             perfil = Perfil.objects.get(usuario=request.user)
             perfil_tema = perfil.tema or 'dark'
             perfil_idioma = perfil.idioma or 'es'

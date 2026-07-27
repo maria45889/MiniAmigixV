@@ -1,6 +1,6 @@
 from apps.mongodb.models import ChatMessageMongo, NotificacionMongo, LogActividadMongo, AnaliticaMongo, EventoInteraccionMongo
 from apps.app.models import MensajeChat
-from notificaciones.models import Notificacion
+from apps.notificaciones.models import Notificacion
 from datetime import datetime
 
 class DualDatabaseService:

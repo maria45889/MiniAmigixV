@@ -21,11 +21,11 @@ def panel_admin(request):
     """Render admin panel dashboard with statistics."""
     from django.db.models import Count, Q, Avg
     from apps.app.models import ConversacionChat, Cancion, Playlist
-    from eventos.models import Evento
-    from notificaciones.models import Notificacion
-    from soporte.models import TicketSoporte
+    from apps.eventos.models import Evento
+    from apps.notificaciones.models import Notificacion
+    from apps.soporte.models import TicketSoporte
     from apps.blog.models import Post, Category, Comment
-    from sugerencias.models import Sugerencia, Visitante
+    from apps.sugerencias.models import Sugerencia, Visitante
     
     # Calculate dates for filtering
     today = timezone.now().date()
@@ -179,11 +179,11 @@ def admin_stats_api(request):
     try:
         from django.db.models import Count, Q, Avg
         from apps.app.models import ConversacionChat, Cancion, Playlist
-        from eventos.models import Evento
-        from notificaciones.models import Notificacion
-        from soporte.models import TicketSoporte
+        from apps.eventos.models import Evento
+        from apps.notificaciones.models import Notificacion
+        from apps.soporte.models import TicketSoporte
         from apps.blog.models import Post, Category, Comment
-        from sugerencias.models import Sugerencia, Visitante
+        from apps.sugerencias.models import Sugerencia, Visitante
         from django.utils import timezone
         from datetime import timedelta
         

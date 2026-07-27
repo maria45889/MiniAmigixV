@@ -4,7 +4,7 @@ Calendar selector.
 Database queries for calendar operations.
 """
 
-from eventos.models import Evento
+from apps.eventos.models import Evento
 
 
 class CalendarSelector:

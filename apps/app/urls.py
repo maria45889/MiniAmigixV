@@ -63,7 +63,7 @@ urlpatterns = [
     path('api/guardar-puntuacion/', views.guardar_puntuacion, name='guardar_puntuacion'),
 
 
-    path('traductor/', include('traductor.urls')),
+    path('traductor/', include('apps.traductor.urls')),
 
     path('entretenimiento/', views.entretenimiento, name='entretenimiento'),
 
@@ -87,23 +87,23 @@ urlpatterns = [
 
     path('panel-admin/exportar-excel/', views.exportar_reporte_excel, name='exportar_reporte_excel'),
 
-    path('estudio/', include('estudio.urls')),
+    path('estudio/', include('apps.estudio.urls')),
 
-    path('eventos/', include('eventos.urls')),
+    path('eventos/', include('apps.eventos.urls')),
 
     path('ir/eventos/', views.eventos, name='eventos'),
 
-    path('soporte/', include('soporte.urls')),
+    path('soporte/', include('apps.soporte.urls')),
 
-    path('configuracion/', include('configuracion.urls')),
+    path('configuracion/', include('apps.configuracion.urls')),
 
-    path('perfil/', include('perfil.urls')),
+    path('perfil/', include('apps.perfil.urls')),
 
-    path('notificaciones/', include('notificaciones.urls')),
+    path('notificaciones/', include('apps.notificaciones.urls')),
 
-    path('sugerencias/', include('sugerencias.urls')),
+    path('sugerencias/', include('apps.sugerencias.urls')),
 
-    path('tutorial/', include('tutorial.urls')),
+    path('tutorial/', include('apps.tutorial.urls')),
 
 ]
 

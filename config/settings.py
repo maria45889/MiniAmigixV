@@ -22,19 +22,8 @@ load_dotenv(os.path.join(Path(__file__).resolve().parent.parent, '.env'), overri
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Add apps directory to Python path
-sys.path.insert(0, str(BASE_DIR / 'apps'))
-
-# Add apps/app/ subdirectories to Python path for folder-based structure
-sys.path.insert(0, str(BASE_DIR / 'apps' / 'app' / 'services'))
-sys.path.insert(0, str(BASE_DIR / 'apps' / 'app' / 'selectors'))
-sys.path.insert(0, str(BASE_DIR / 'apps' / 'app' / 'api'))
-sys.path.insert(0, str(BASE_DIR / 'apps' / 'app' / 'constants'))
-sys.path.insert(0, str(BASE_DIR / 'apps' / 'app' / 'prompts'))
-sys.path.insert(0, str(BASE_DIR / 'apps' / 'app' / 'repositories'))
-sys.path.insert(0, str(BASE_DIR / 'apps' / 'app' / 'serializers'))
-sys.path.insert(0, str(BASE_DIR / 'apps' / 'app' / 'forms'))
-sys.path.insert(0, str(BASE_DIR / 'apps' / 'app' / 'views'))
+# Add project root to Python path for imports
+sys.path.insert(0, str(BASE_DIR))
 
 HAS_DJANGO_RATELIMIT = find_spec('django_ratelimit') is not None
 HAS_CORSHEADERS = find_spec('corsheaders') is not None
@@ -106,17 +95,17 @@ INSTALLED_APPS = [
     # MongoDB App - Temporalmente deshabilitado
     # 'mongodb',
     # Project Apps
-    'app.apps.AppConfig',
-    'configuracion',
-    'eventos.apps.EventosConfig',
-    'notificaciones',
-    'perfil',
-    'sugerencias',
-    'soporte',
-    'tutorial',
-    'estudio',
+    'apps.app.apps.AppConfig',
+    'apps.configuracion',
+    'apps.eventos',
+    'apps.notificaciones',
+    'apps.perfil',
+    'apps.sugerencias',
+    'apps.soporte',
+    'apps.tutorial',
+    'apps.estudio',
     'apps.clima',
-    'traductor',
+    'apps.traductor',
     'apps.blog.apps.BlogConfig',
     'rest_framework',
     'rest_framework_simplejwt',
@@ -159,8 +148,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'notificaciones.context_processors.notificaciones_sin_leer',
-                'perfil.context_processors.perfil_settings',
+                'apps.notificaciones.context_processors.notificaciones_sin_leer',
+                'apps.perfil.context_processors.perfil_settings',
                 'config.context_processors.site_url',
                 'config.context_processors.user_theme',
                 'config.context_processors.is_admin_user',

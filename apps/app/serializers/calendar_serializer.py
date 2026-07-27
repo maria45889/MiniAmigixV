@@ -3,7 +3,7 @@ Calendar serializers.
 """
 
 from rest_framework import serializers
-from eventos.models import Evento
+from apps.eventos.models import Evento
 
 
 class EventSerializer(serializers.ModelSerializer):

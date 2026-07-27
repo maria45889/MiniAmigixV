@@ -11,7 +11,6 @@ import requests
 
 logger = logging.getLogger(__name__)
 
-@login_required
 def traductor_view(request):
     """Vista principal del módulo traductor"""
     return render(request, 'traductor/traductor.html')

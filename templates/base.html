@@ -125,6 +125,8 @@
         }
 
         // Registrar Service Worker para PWA
+        // Temporalmente deshabilitado para evitar caché durante desarrollo
+        /*
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', function() {
                 navigator.serviceWorker.register('/static/js/service-worker.js')
@@ -137,6 +139,7 @@
                     });
             });
         }
+        */
 
         // Botón de instalación PWA
         let deferredPrompt;
@@ -511,8 +514,7 @@
                     'mute': 1,       // MUTED — main iframe handles audio
                     'rel': 0,
                     'modestbranding': 1,
-                    'playsinline': 1,
-                    'origin': window.location.origin
+                    'playsinline': 1
                 },
 
                 events: {

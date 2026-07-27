@@ -6,7 +6,7 @@ from django.template.loader import render_to_string
 from django.utils import timezone
 from django.http import JsonResponse
 from .models import TicketSoporte
-from notificaciones.models import Notificacion
+from apps.notificaciones.models import Notificacion
 import logging
 
 def lista_tickets(request):

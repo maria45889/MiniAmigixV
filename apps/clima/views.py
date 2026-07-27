@@ -62,7 +62,8 @@ def _get_city_from_coordinates(lat, lon, fallback_name=None):
 
 def clima_view(request):
     """Vista principal del módulo clima"""
-    return render(request, 'clima/clima.html')
+    ciudad_actual = request.GET.get('ciudad', 'Quito')
+    return render(request, 'clima/clima.html', {'ciudad_actual': ciudad_actual})
 
 @csrf_exempt
 def obtener_clima(request):

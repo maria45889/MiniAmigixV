@@ -45,7 +45,7 @@ class UserService:
     def update_theme(user, theme):
         """Update user theme preference."""
         try:
-            from perfil.models import Perfil
+            from apps.perfil.models import Perfil
             perfil, created = Perfil.objects.get_or_create(usuario=user)
             perfil.tema = theme
             perfil.save()

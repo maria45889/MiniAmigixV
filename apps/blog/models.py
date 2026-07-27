@@ -12,7 +12,6 @@ class Category(models.Model):
         return f"{self.icono} {self.nombre}"
 
     class Meta:
-        app_label = 'blog'
         ordering = ['nombre']
         verbose_name = 'Categoría'
         verbose_name_plural = 'Categorías'
@@ -45,7 +44,6 @@ class Post(models.Model):
         return f"{self.titulo} - {self.usuario.username}"
 
     class Meta:
-        app_label = 'blog'
         ordering = ['-fijado', '-fecha_publicacion']
         verbose_name = 'Publicación de Blog'
         verbose_name_plural = 'Publicaciones de Blog'
@@ -63,7 +61,6 @@ class Comment(models.Model):
         return f"Comentario de {self.usuario.username} en {self.post.titulo}"
 
     class Meta:
-        app_label = 'blog'
         ordering = ['fecha_creacion']
         verbose_name = 'Comentario'
         verbose_name_plural = 'Comentarios'

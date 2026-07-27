@@ -8,7 +8,7 @@ if sys.platform.startswith('win'):
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
-from soporte.models import TicketSoporte
+from apps.soporte.models import TicketSoporte
 
 print(f"Total tickets: {TicketSoporte.objects.count()}")
 for t in TicketSoporte.objects.all().order_by('-fecha_creacion'):

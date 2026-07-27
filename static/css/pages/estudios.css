@@ -178,11 +178,11 @@
   -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--e-glass-border);
   border-radius: var(--e-radius);
-  padding: 16px;
+  padding: 22px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 160px;
+  min-height: 190px;
   transition: all 0.25s ease;
   position: relative;
 }

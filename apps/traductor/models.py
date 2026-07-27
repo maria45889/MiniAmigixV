@@ -18,6 +18,7 @@ class TranslationCache(models.Model):
         return f"{self.idioma_origen} -> {self.idioma_destino}: {self.texto_original[:50]}..."
     
     class Meta:
+        app_label = 'apps.traductor'
         ordering = ['-fecha_consulta']
         verbose_name = 'Caché de Traducción'
         verbose_name_plural = 'Cachés de Traducción'

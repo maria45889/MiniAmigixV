@@ -30,11 +30,17 @@ urlpatterns = [
     # Clima
     path('clima/', include('apps.clima.urls')),
     
+    # Traductor
+    path('traductor/', include('apps.traductor.urls')),
+    
+    # Eventos
+    path('eventos/', include('apps.eventos.urls')),
+    
     # Tutorial
-    path('tutorial/', include('tutorial.urls')),
+    path('tutorial/', include('apps.tutorial.urls')),
     
     # Estudio
-    path('estudio/', include('estudio.urls')),
+    path('estudio/', include('apps.estudio.urls')),
     
     # Main Application
     path('', include('apps.app.urls')),

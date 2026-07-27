@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from .models import Evento, CategoriaEvento
 from django.utils import timezone
 from django.contrib.auth.decorators import login_required
-from notificaciones.models import Notificacion
+from apps.notificaciones.models import Notificacion
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 from django.template.loader import render_to_string

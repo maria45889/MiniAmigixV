@@ -12,9 +12,6 @@
 <div class="ev-page fadein">
   {% csrf_token %}
 
-  {# ─────────────────────────────────────────────────────
-     HEADER BAR
-  ───────────────────────────────────────────────────── #}
   <div class="ev-header-bar">
     <div class="ev-header-title">
       <span style="font-size:26px;">📅</span>
@@ -45,9 +42,6 @@
     </div>
   </div>
 
-  {# ─────────────────────────────────────────────────────
-     AMIGIS AGENDA BANNER
-  ───────────────────────────────────────────────────── #}
   <div class="amigis-agenda-banner" id="amigis-agenda-banner">
     <img src="{% static 'amigis/amigis-dark.svg' %}" class="amigis-agenda-duck"
          id="amigis-agenda-duck" alt="Amigis Agenda">
@@ -57,9 +51,6 @@
     </div>
   </div>
 
-  {# ─────────────────────────────────────────────────────
-     STATS GRID
-  ───────────────────────────────────────────────────── #}
   <div class="ev-stats-grid">
     <div class="ev-stat-card">
       <div class="ev-stat-icon">📅</div>
@@ -83,12 +74,8 @@
     </div>
   </div>
 
-  {# ─────────────────────────────────────────────────────
-     MAIN GRID
-  ───────────────────────────────────────────────────── #}
   <div class="ev-main-grid">
 
-    {# ── LEFT: Calendar Panel ── #}
     <div>
       <div class="ev-calendar-panel">
 
@@ -147,7 +134,6 @@
       </div>
     </div>
 
-    {# ── RIGHT: Upcoming + Reminders ── #}
     <div class="ev-right-col">
 
       <!-- Upcoming Events -->
@@ -203,13 +189,10 @@
         </div>
       </div>
 
-    </div>{# end right col #}
-  </div>{# end main grid #}
-</div>{# end ev-page #}
+    </div>
+  </div>
+</div>
 
-{# ─────────────────────────────────────────────────────
-   CREATE EVENT MODAL
-───────────────────────────────────────────────────── #}
 <div class="ev-modal-overlay" id="create-modal">
   <div class="ev-modal-box">
     <button class="ev-modal-close" onclick="closeCreateModal()">✕</button>
@@ -289,9 +272,6 @@
   </div>
 </div>
 
-{# ─────────────────────────────────────────────────────
-   EVENT DETAIL MODAL
-───────────────────────────────────────────────────── #}
 <div class="ev-detail-modal-overlay" id="detail-modal">
   <div class="ev-detail-box">
     <button class="ev-modal-close" onclick="closeDetailModal()">✕</button>
@@ -299,9 +279,6 @@
   </div>
 </div>
 
-{# ─────────────────────────────────────────────────────
-   SCRIPT
-───────────────────────────────────────────────────── #}
 <script>
 /* ── State ── */
 const amigisImgEl = document.getElementById('amigis-agenda-duck');

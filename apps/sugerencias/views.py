@@ -5,7 +5,7 @@ from django.conf import settings
 from django.template.loader import render_to_string
 from django.utils import timezone
 from .models import Sugerencia
-from notificaciones.models import Notificacion
+from apps.notificaciones.models import Notificacion
 import logging
 
 @login_required

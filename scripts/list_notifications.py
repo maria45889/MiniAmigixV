@@ -9,7 +9,7 @@ if sys.platform.startswith('win'):
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
-from notificaciones.models import Notificacion
+from apps.notificaciones.models import Notificacion
 from django.contrib.auth.models import User
 
 print(f"Total users: {User.objects.count()}")

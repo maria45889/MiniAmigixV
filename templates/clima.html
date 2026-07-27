@@ -5,13 +5,10 @@
 {% block nav_title %}Clima{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/clima.css' %}?v=40">
+<link rel="stylesheet" href="{% static 'css/pages/clima-modern.css' %}?v=1">
 {% endblock %}
 
 {% block content %}
-
-<!-- ░░ DYNAMIC WEATHER CANVAS BACKGROUND ░░ -->
-<canvas id="weather-canvas-bg"></canvas>
 
 <div class="clima-page-container fadein">
   {% csrf_token %}
@@ -65,233 +62,208 @@
   </div>
 
   <!-- ════════════════════════════════════
-       MAIN GRID
+       MAIN LAYOUT - MAP CENTERED
   ════════════════════════════════════ -->
-  <div class="clima-main-grid">
+  <div class="clima-modern-layout">
 
-    <!-- ── LEFT COLUMN ── -->
-    <div class="clima-left-column">
-
-      <!-- CURRENT WEATHER HERO CARD -->
-      <div class="current-weather-card" id="current-weather-hero">
-        <div class="cw-hero-flex">
-
-          <div>
-            <div class="cw-city-name" id="city-display-name">
-              📍 {{ datos_clima.name|default:"Quito, Ecuador" }}
-            </div>
-            <div class="cw-main-temp" id="temp-display">
-              {{ datos_clima.main.temp|default:"22"|floatformat:0 }}°C
-            </div>
-            <div class="cw-condition-text" id="condition-display">
-              ☀️ {{ datos_clima.weather.0.description|default:"Soleado y despejado" }}
-            </div>
-            <div style="font-size: 12px; color: var(--w-text-dim); margin-top: 6px;" id="feels-like-display">
-              Sensación térmica: {{ datos_clima.main.feels_like|default:"24"|floatformat:0 }}°C
+    <!-- ── MAP HERO SECTION (60-70% of space) ── -->
+    <div class="map-hero-section">
+      <div class="map-container" id="weather-map">
+        <!-- Map placeholder - will be replaced with actual map -->
+        <div class="map-placeholder">
+          <div class="map-bg-animation"></div>
+          <div class="city-marker" id="city-marker">
+            <div class="marker-pin">📍</div>
+            <div class="marker-label">
+              <div class="marker-city">{{ datos_clima.name|default:"Quito" }}</div>
+              <div class="marker-temp">{{ datos_clima.main.temp|default:"22"|floatformat:0 }}°C</div>
+              <div class="marker-condition">{{ datos_clima.weather.0.description|default:"Soleado" }}</div>
             </div>
           </div>
-
-          <!-- Icon -->
-          <div class="cw-icon-box" id="cw-weather-icon">
-            ☀️
-          </div>
-
+          <div class="map-weather-icon" id="map-weather-icon">☀️</div>
         </div>
-
-        <!-- Additional Metrics Grid -->
-        <div class="weather-metrics-grid">
-          <div class="metric-mini-card">
-            <div style="font-size: 16px;">💧</div>
-            <div class="mmc-val" id="val-humidity">{{ datos_clima.main.humidity|default:"65" }}%</div>
-            <div class="mmc-lbl">Humedad</div>
-          </div>
-
-          <div class="metric-mini-card">
-            <div style="font-size: 16px;">💨</div>
-            <div class="mmc-val" id="val-wind">{{ datos_clima.wind.speed|default:"12" }} km/h</div>
-            <div class="mmc-lbl">Viento</div>
-          </div>
-
-          <div class="metric-mini-card">
-            <div style="font-size: 16px;">🌡</div>
-            <div class="mmc-val" id="val-pressure">{{ datos_clima.main.pressure|default:"1014" }} hPa</div>
-            <div class="mmc-lbl">Presión</div>
-          </div>
-
-          <div class="metric-mini-card">
-            <div style="font-size: 16px;">👁</div>
-            <div class="mmc-val" id="val-visibility">10 km</div>
-            <div class="mmc-lbl">Visibilidad</div>
-          </div>
-
-          <div class="metric-mini-card">
-            <div style="font-size: 16px;">🌅</div>
-            <div class="mmc-val">06:12</div>
-            <div class="mmc-lbl">Amanecer</div>
-          </div>
-
-          <div class="metric-mini-card">
-            <div style="font-size: 16px;">🌇</div>
-            <div class="mmc-val">18:25</div>
-            <div class="mmc-lbl">Atardecer</div>
+        
+        <!-- Amigis Bubble -->
+        <div class="amigis-map-bubble">
+          <div class="amigis-avatar">🐥</div>
+          <div class="amigis-speech">
+            <p id="amigis-map-text">Hoy hace {{ datos_clima.main.temp|default:"22"|floatformat:0 }}°C. No necesitas paraguas. 😊</p>
           </div>
         </div>
       </div>
 
-      <!-- 📅 7-DAY FORECAST -->
-      <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; margin: 0 0 12px; color: #fff; display: flex; align-items: center; gap: 8px;">
-        <i class="ti ti-calendar"></i> Pronóstico de 7 Días
-      </h3>
-
-      <div class="forecast-scroll-row">
-        <div class="forecast-day-card">
-          <div style="font-size: 12px; font-weight: 700;">Hoy</div>
-          <div style="font-size: 24px; margin: 6px 0;">☀️</div>
-          <div style="font-weight: 700; font-size: 14px;">22°</div>
-          <div style="font-size: 10px; color: var(--w-text-dim);">14°</div>
+      <!-- Weather Metrics Cards Below Map -->
+      <div class="metrics-grid">
+        <div class="metric-card">
+          <div class="metric-icon">🌡️</div>
+          <div class="metric-value">{{ datos_clima.main.temp|default:"22"|floatformat:0 }}°C</div>
+          <div class="metric-label">Temperatura</div>
         </div>
-
-        <div class="forecast-day-card">
-          <div style="font-size: 12px; font-weight: 700;">Mar</div>
-          <div style="font-size: 24px; margin: 6px 0;">🌤</div>
-          <div style="font-weight: 700; font-size: 14px;">20°</div>
-          <div style="font-size: 10px; color: var(--w-text-dim);">13°</div>
+        <div class="metric-card">
+          <div class="metric-icon">💧</div>
+          <div class="metric-value">{{ datos_clima.main.humidity|default:"65" }}%</div>
+          <div class="metric-label">Humedad</div>
         </div>
-
-        <div class="forecast-day-card">
-          <div style="font-size: 12px; font-weight: 700;">Mié</div>
-          <div style="font-size: 24px; margin: 6px 0;">🌧</div>
-          <div style="font-weight: 700; font-size: 14px;">18°</div>
-          <div style="font-size: 10px; color: var(--w-text-dim);">12°</div>
+        <div class="metric-card">
+          <div class="metric-icon">🌬️</div>
+          <div class="metric-value">{{ datos_clima.wind.speed|default:"12" }} km/h</div>
+          <div class="metric-label">Viento</div>
         </div>
-
-        <div class="forecast-day-card">
-          <div style="font-size: 12px; font-weight: 700;">Jue</div>
-          <div style="font-size: 24px; margin: 6px 0;">⛈</div>
-          <div style="font-weight: 700; font-size: 14px;">17°</div>
-          <div style="font-size: 10px; color: var(--w-text-dim);">11°</div>
+        <div class="metric-card">
+          <div class="metric-icon">👁️</div>
+          <div class="metric-value">10 km</div>
+          <div class="metric-label">Visibilidad</div>
         </div>
-
-        <div class="forecast-day-card">
-          <div style="font-size: 12px; font-weight: 700;">Vie</div>
-          <div style="font-size: 24px; margin: 6px 0;">☀️</div>
-          <div style="font-weight: 700; font-size: 14px;">23°</div>
-          <div style="font-size: 10px; color: var(--w-text-dim);">14°</div>
+        <div class="metric-card">
+          <div class="metric-icon">☀️</div>
+          <div class="metric-value">UV 5</div>
+          <div class="metric-label">Índice UV</div>
         </div>
-
-        <div class="forecast-day-card">
-          <div style="font-size: 12px; font-weight: 700;">Sáb</div>
-          <div style="font-size: 24px; margin: 6px 0;">🌤</div>
-          <div style="font-weight: 700; font-size: 14px;">21°</div>
-          <div style="font-size: 10px; color: var(--w-text-dim);">13°</div>
+        <div class="metric-card">
+          <div class="metric-icon">🌅</div>
+          <div class="metric-value">06:12</div>
+          <div class="metric-label">Amanecer</div>
         </div>
-
-        <div class="forecast-day-card">
-          <div style="font-size: 12px; font-weight: 700;">Dom</div>
-          <div style="font-size: 24px; margin: 6px 0;">🌦</div>
-          <div style="font-weight: 700; font-size: 14px;">20°</div>
-          <div style="font-size: 10px; color: var(--w-text-dim);">12°</div>
+        <div class="metric-card">
+          <div class="metric-icon">🌇</div>
+          <div class="metric-value">18:25</div>
+          <div class="metric-label">Atardecer</div>
         </div>
       </div>
-
-      <!-- ⏰ HOURLY FORECAST -->
-      <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; margin: 0 0 12px; color: #fff; display: flex; align-items: center; gap: 8px;">
-        <i class="ti ti-clock"></i> Pronóstico por Horas
-      </h3>
-
-      <div class="forecast-scroll-row">
-        <div class="forecast-day-card" style="min-width: 75px;">
-          <div style="font-size: 11px; color: var(--w-text-dim);">09:00</div>
-          <div style="font-size: 20px; margin: 4px 0;">☀️</div>
-          <div style="font-weight: 700; font-size: 13px;">19°</div>
-        </div>
-
-        <div class="forecast-day-card" style="min-width: 75px;">
-          <div style="font-size: 11px; color: var(--w-text-dim);">12:00</div>
-          <div style="font-size: 20px; margin: 4px 0;">🌤</div>
-          <div style="font-weight: 700; font-size: 13px;">22°</div>
-        </div>
-
-        <div class="forecast-day-card" style="min-width: 75px;">
-          <div style="font-size: 11px; color: var(--w-text-dim);">15:00</div>
-          <div style="font-size: 20px; margin: 4px 0;">🌦</div>
-          <div style="font-weight: 700; font-size: 13px;">21°</div>
-        </div>
-
-        <div class="forecast-day-card" style="min-width: 75px;">
-          <div style="font-size: 11px; color: var(--w-text-dim);">18:00</div>
-          <div style="font-size: 20px; margin: 4px 0;">🌙</div>
-          <div style="font-weight: 700; font-size: 13px;">17°</div>
-        </div>
-
-        <div class="forecast-day-card" style="min-width: 75px;">
-          <div style="font-size: 11px; color: var(--w-text-dim);">21:00</div>
-          <div style="font-size: 20px; margin: 4px 0;">🌙</div>
-          <div style="font-weight: 700; font-size: 13px;">15°</div>
-        </div>
-      </div>
-
     </div>
 
-    <!-- ── RIGHT COLUMN (Amigis Weather & Indices) ── -->
-    <div class="clima-right-column">
+    <!-- ── RIGHT SIDEBAR ── -->
+    <div class="clima-sidebar">
 
-      <!-- Amigis Mascot Card -->
-      <div class="amigis-weather-box">
-        <div class="amigis-weather-duck">
-          <img src="{% static 'amigis/amigis-dark.svg' %}" id="amigis-weather-duck-img" alt="Amigis Clima">
-        </div>
-        <div>
-          <div style="font-size: 11px; font-weight: 700; color: #38bdf8; text-transform: uppercase; margin-bottom: 2px;">
-            Amigis Meteorológico 🦆
+      <!-- Hourly Forecast -->
+      <div class="sidebar-card">
+        <h3 class="card-title">⏰ Pronóstico por Horas</h3>
+        <div class="hourly-scroll">
+          <div class="hourly-item">
+            <div class="hourly-time">09:00</div>
+            <div class="hourly-icon">☀️</div>
+            <div class="hourly-temp">19°</div>
           </div>
-          <div class="amigis-weather-quote" id="amigis-weather-speech">
-            "Hoy hace un excelente día para salir. ¡Disfruta del sol! 😄"
+          <div class="hourly-item">
+            <div class="hourly-time">12:00</div>
+            <div class="hourly-icon">🌤</div>
+            <div class="hourly-temp">22°</div>
+          </div>
+          <div class="hourly-item">
+            <div class="hourly-time">15:00</div>
+            <div class="hourly-icon">�</div>
+            <div class="hourly-temp">21°</div>
+          </div>
+          <div class="hourly-item">
+            <div class="hourly-time">18:00</div>
+            <div class="hourly-icon">🌙</div>
+            <div class="hourly-temp">17°</div>
+          </div>
+          <div class="hourly-item">
+            <div class="hourly-time">21:00</div>
+            <div class="hourly-icon">🌙</div>
+            <div class="hourly-temp">15°</div>
           </div>
         </div>
       </div>
 
-      <!-- Indices Cards -->
-      <div class="clima-panel-box">
-        <h3 style="font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700; margin: 0 0 14px; color: #fff; display: flex; align-items: center; gap: 8px;">
-          <i class="ti ti-chart-bar"></i> Índices Ambientales
-        </h3>
+      <!-- 7-Day Forecast -->
+      <div class="sidebar-card">
+        <h3 class="card-title">📅 Pronóstico de 7 Días</h3>
+        <div class="weekly-forecast">
+          <div class="daily-item">
+            <div class="daily-day">Hoy</div>
+            <div class="daily-icon">☀️</div>
+            <div class="daily-temps">
+              <span class="daily-high">22°</span>
+              <span class="daily-low">14°</span>
+            </div>
+          </div>
+          <div class="daily-item">
+            <div class="daily-day">Mar</div>
+            <div class="daily-icon">🌤</div>
+            <div class="daily-temps">
+              <span class="daily-high">20°</span>
+              <span class="daily-low">13°</span>
+            </div>
+          </div>
+          <div class="daily-item">
+            <div class="daily-day">Mié</div>
+            <div class="daily-icon">�</div>
+            <div class="daily-temps">
+              <span class="daily-high">18°</span>
+              <span class="daily-low">12°</span>
+            </div>
+          </div>
+          <div class="daily-item">
+            <div class="daily-day">Jue</div>
+            <div class="daily-icon">⛈</div>
+            <div class="daily-temps">
+              <span class="daily-high">17°</span>
+              <span class="daily-low">11°</span>
+            </div>
+          </div>
+          <div class="daily-item">
+            <div class="daily-day">Vie</div>
+            <div class="daily-icon">☀️</div>
+            <div class="daily-temps">
+              <span class="daily-high">23°</span>
+              <span class="daily-low">14°</span>
+            </div>
+          </div>
+          <div class="daily-item">
+            <div class="daily-day">Sáb</div>
+            <div class="daily-icon">🌤</div>
+            <div class="daily-temps">
+              <span class="daily-high">21°</span>
+              <span class="daily-low">13°</span>
+            </div>
+          </div>
+          <div class="daily-item">
+            <div class="daily-day">Dom</div>
+            <div class="daily-icon">🌦</div>
+            <div class="daily-temps">
+              <span class="daily-high">20°</span>
+              <span class="daily-low">12°</span>
+            </div>
+          </div>
+        </div>
+      </div>
 
-        <div style="display: flex; flex-direction: column; gap: 12px;">
-
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255,255,255,0.04); border-radius: 12px;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <span style="font-size: 20px;">🌞</span>
+      <!-- Environmental Indices -->
+      <div class="sidebar-card">
+        <h3 class="card-title">📊 Índices Ambientales</h3>
+        <div class="indices-list">
+          <div class="index-item">
+            <div class="index-info">
+              <span class="index-icon">🌞</span>
               <div>
-                <div style="font-size: 12.5px; font-weight: 600;">Índice UV</div>
-                <div style="font-size: 11px; color: var(--w-text-dim);">Moderado (4/11)</div>
+                <div class="index-name">Índice UV</div>
+                <div class="index-desc">Moderado (4/11)</div>
               </div>
             </div>
-            <span style="color: #fbbf24; font-size: 12px; font-weight: 700;">Protección requerida</span>
+            <span class="index-status warning">Protección</span>
           </div>
-
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255,255,255,0.04); border-radius: 12px;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <span style="font-size: 20px;">🌫</span>
+          <div class="index-item">
+            <div class="index-info">
+              <span class="index-icon">🌫</span>
               <div>
-                <div style="font-size: 12.5px; font-weight: 600;">Calidad del Aire</div>
-                <div style="font-size: 11px; color: var(--w-text-dim);">32 AQI — Excelente</div>
+                <div class="index-name">Calidad del Aire</div>
+                <div class="index-desc">32 AQI — Excelente</div>
               </div>
             </div>
-            <span style="color: #34d399; font-size: 12px; font-weight: 700;">Aire Puro</span>
+            <span class="index-status good">Excelente</span>
           </div>
-
-          <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(255,255,255,0.04); border-radius: 12px;">
-            <div style="display: flex; align-items: center; gap: 10px;">
-              <span style="font-size: 20px;">⚡</span>
+          <div class="index-item">
+            <div class="index-info">
+              <span class="index-icon">⚡</span>
               <div>
-                <div style="font-size: 12.5px; font-weight: 600;">Probabilidad de Tormenta</div>
-                <div style="font-size: 11px; color: var(--w-text-dim);">15% esta tarde</div>
+                <div class="index-name">Prob. Tormenta</div>
+                <div class="index-desc">15% esta tarde</div>
               </div>
             </div>
-            <span style="color: #38bdf8; font-size: 12px; font-weight: 700;">Baja</span>
+            <span class="index-status low">Baja</span>
           </div>
-
         </div>
       </div>
 

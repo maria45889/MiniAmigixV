@@ -4,7 +4,7 @@ Study repository.
 Data access layer for study operations.
 """
 
-from estudio.models import StudyResource, StudyProgress
+from apps.estudio.models import StudyResource, StudyProgress
 
 
 class StudyRepository:

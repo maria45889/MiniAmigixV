@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from datetime import datetime, timedelta
 from apps.mongodb.models import MetricasSistemaMongo, EstadisticasUsuarioMongo
-from notificaciones.models import Notificacion
+from apps.notificaciones.models import Notificacion
 from django.contrib.auth.models import User
 from django.core.mail import send_mail
 from django.conf import settings

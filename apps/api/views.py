@@ -8,8 +8,8 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from apps.app.models import ConversacionChat, MensajeChat
 from django.conf import settings
 import openai
-from notificaciones.models import Notificacion
-from perfil.models import Perfil
+from apps.notificaciones.models import Notificacion
+from apps.perfil.models import Perfil
 import logging
 from apps.app.services import ChatService
 

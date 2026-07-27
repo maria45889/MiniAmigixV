@@ -2,8 +2,8 @@ from django.shortcuts import render, redirect
 from .models import Perfil, UserActivity, UserProfileAchievement
 from django.contrib.auth.models import User
 from django.utils import timezone
-from notificaciones.models import Notificacion
-from eventos.models import Evento
+from apps.notificaciones.models import Notificacion
+from apps.eventos.models import Evento
 from apps.app.models import ConversacionChat, Cancion, Score
 
 def ver_perfil(request):

@@ -4,7 +4,7 @@ Study selector.
 Database queries for study operations.
 """
 
-from estudio.models import StudyResource, StudyCategory, StudyProgress
+from apps.estudio.models import StudyResource, StudyCategory, StudyProgress
 
 
 class StudySelector:

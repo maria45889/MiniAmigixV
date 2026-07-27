@@ -1,10 +1,10 @@
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 from datetime import timedelta
-from eventos.models import Evento
-from notificaciones.models import Notificacion
+from apps.eventos.models import Evento
+from apps.notificaciones.models import Notificacion
 from django.contrib.auth.models import User
-from perfil.models import Perfil
+from apps.perfil.models import Perfil
 from django.core.mail import send_mail
 from django.conf import settings
 import logging

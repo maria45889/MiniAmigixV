@@ -8,7 +8,7 @@ if sys.platform.startswith('win'):
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
 
-from sugerencias.models import Sugerencia
+from apps.sugerencias.models import Sugerencia
 
 print(f"Total suggestions: {Sugerencia.objects.count()}")
 for s in Sugerencia.objects.all().order_by('-fecha_creacion'):

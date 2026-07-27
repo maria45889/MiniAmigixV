@@ -4,7 +4,7 @@ Notification selector.
 Database queries for notification operations.
 """
 
-from notificaciones.models import Notificacion
+from apps.notificaciones.models import Notificacion
 
 
 class NotificationSelector:

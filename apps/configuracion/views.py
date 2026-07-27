@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from perfil.models import Perfil
+from apps.perfil.models import Perfil
 from django.http import JsonResponse
 import json
 from django.contrib.auth import update_session_auth_hash

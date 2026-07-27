@@ -25,13 +25,12 @@ body {
         var(--bg-dark);
     color: var(--text-main);
     font-family: var(--font-ui);
-    height: auto;
     min-height: 100vh;
     overflow-y: auto;
     transition: background 0.5s ease;
 }
 
-.app-layout { display: flex; min-height: 100vh; }
+.app-layout { display: flex; height: 100vh; overflow: hidden; }
 
 /* Messages/Alerts */
 .messages-container {
@@ -212,8 +211,8 @@ body {
 .page-content {
     padding: 1.5rem 3rem;
     flex: 1;
-    overflow: visible;
-    max-height: none;
+    overflow-y: scroll;
+    max-height: calc(100vh - 72px);
     background: transparent;
     scroll-behavior: smooth;
 }
