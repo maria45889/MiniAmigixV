@@ -24,8 +24,19 @@ const AdminCenter: React.FC = () => {
     { icon: '➕', label: 'Crear usuario' },
     { icon: '📧', label: 'Enviar correo' },
     { icon: '📢', label: 'Enviar anuncio' },
-    { icon: '📊', label: 'Generar reporte' },
   ];
+
+  const exportActions = [
+    { icon: '📊', label: 'Exportar Excel', format: 'excel' },
+    { icon: '📄', label: 'Exportar PDF', format: 'pdf' },
+  ];
+
+  const handleExport = (format: string) => {
+    const url = format === 'excel' 
+      ? '/panel-admin/exportar-excel/' 
+      : '/panel-admin/exportar-pdf/';
+    window.open(url, '_blank');
+  };
 
   return (
     <div className="admin-center-container">
@@ -361,6 +372,25 @@ const AdminCenter: React.FC = () => {
         <div className="quick-actions-grid">
           {quickActions.map((action, index) => (
             <button key={index} className="quick-action-btn">
+              <span className="action-icon">{action.icon}</span>
+              <span className="action-label">{action.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Export Reports */}
+      <div className="section">
+        <div className="section-header">
+          <h2>📊 Exportar Reportes</h2>
+        </div>
+        <div className="quick-actions-grid">
+          {exportActions.map((action, index) => (
+            <button 
+              key={index} 
+              className="quick-action-btn primary"
+              onClick={() => handleExport(action.format)}
+            >
               <span className="action-icon">{action.icon}</span>
               <span className="action-label">{action.label}</span>
             </button>

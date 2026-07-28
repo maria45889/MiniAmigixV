@@ -706,9 +706,19 @@
             <button class="btn btn-secondary" style="justify-content: center;">
                 📢 Enviar anuncio
             </button>
-            <button class="btn btn-secondary" style="justify-content: center;">
-                📊 Generar reporte
-            </button>
+        </div>
+    </div>
+
+    <!-- Export Reports -->
+    <div class="admin-section">
+        <h2>📊 Exportar Reportes</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+            <a href="{% url 'exportar_reporte_excel' %}" class="btn btn-primary" style="justify-content: center;">
+                📊 Exportar Excel
+            </a>
+            <a href="{% url 'exportar_reporte_pdf' %}" class="btn btn-primary" style="justify-content: center;">
+                📄 Exportar PDF
+            </a>
         </div>
     </div>
 </div>

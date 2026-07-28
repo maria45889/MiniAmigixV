@@ -87,6 +87,8 @@ urlpatterns = [
 
     path('panel-admin/exportar-excel/', views.exportar_reporte_excel, name='exportar_reporte_excel'),
 
+    path('panel-admin/exportar-pdf/', views.exportar_reporte_pdf, name='exportar_reporte_pdf'),
+
     path('estudio/', include('apps.estudio.urls')),
 
     path('eventos/', include('apps.eventos.urls')),

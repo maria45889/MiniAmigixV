@@ -13,7 +13,7 @@ from .weather_views import clima
 from .study_views import estudio
 from .entertainment_views import entretenimiento
 from .profile_views import perfil, configuracion
-from .admin_views import panel_admin, admin_soporte, admin_sugerencias, panel_admin_email_user, responder_ticket, responder_sugerencia, admin_stats_api, exportar_reporte_excel
+from .admin_views import panel_admin, admin_soporte, admin_sugerencias, panel_admin_email_user, responder_ticket, responder_sugerencia, admin_stats_api, exportar_reporte_excel, exportar_reporte_pdf
 from .games_views import juegos, guardar_puntuacion
 from .suggestion_views import enviar_sugerencia_rapida
 
@@ -60,6 +60,7 @@ __all__ = [
     'responder_sugerencia',
     'admin_stats_api',
     'exportar_reporte_excel',
+    'exportar_reporte_pdf',
     'juegos',
     'guardar_puntuacion',
     'enviar_sugerencia_rapida'
