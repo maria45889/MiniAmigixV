@@ -134,6 +134,7 @@ INSTALLED_APPS = [
     # REST Framework
     'rest_framework',
     'rest_framework_simplejwt',
+    'drf_spectacular',
 ]
 
 # Optional apps
@@ -388,7 +389,8 @@ REST_FRAMEWORK = {
     'DEFAULT_THROTTLE_RATES': {
         'anon': '20/min',
         'user': '100/min'
-    }
+    },
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 SIMPLE_JWT = {
@@ -401,6 +403,14 @@ SIMPLE_JWT = {
 # Rate limiting
 RATELIMIT_ENABLE = True
 RATELIMIT_VIEW = 'rest_framework.throttling.AnonRateThrottle'
+
+# drf-spectacular configuration
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'MiniAmigixV API',
+    'DESCRIPTION': 'API REST para la plataforma MiniAmigixV',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
 
 # ============================================================================
 # MONGODB CONFIGURATION (TEMPORARILY DISABLED)
