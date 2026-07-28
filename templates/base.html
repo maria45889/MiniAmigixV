@@ -1,40 +1,56 @@
+{# ============================================================================ #}
+{# BASE TEMPLATE - MINIAMIGIXV #}
+{# ============================================================================ #}
 {% load static %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    {# ========================================================================== #}
+    {# META TAGS #}
+    {# ========================================================================== #}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title id="page-title">MiniAmigixV - {% block title %}Bienvenido{% endblock %}</title>
-    <!-- PWA Meta Tags -->
+    
+    {# PWA Meta Tags #}
     <meta name="theme-color" content="#7c3aed">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="MiniAmigixV">
     <meta name="description" content="MiniAmigixV - Tu espacio personal interactivo con IA, música, juegos y más">
     <meta name="application-name" content="MiniAmigixV">
-    <!-- Favicon -->
+    
+    {# ========================================================================== #}
+    {# FAVICON & MANIFEST #}
+    {# ========================================================================== #}
     <link rel="icon" href="{% static 'imagenes/logo_square.png' %}" type="image/png">
     <link rel="shortcut icon" href="{% static 'imagenes/logo_square.png' %}" type="image/png">
-    <!-- PWA Manifest -->
     <link rel="manifest" href="{% static 'manifest.json' %}">
-    <!-- Fuentes: Syne para títulos, Inter para UI -->
+    
+    {# ========================================================================== #}
+    {# FONTS #}
+    {# ========================================================================== #}
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Syne:wght@700&display=swap" rel="stylesheet">
-    <!-- Iconos: Lucide (Se recomienda descargar y servir localmente para evitar 'Tracking Prevention') -->
+    
+    {# ========================================================================== #}
+    {# ICONS #}
+    {# ========================================================================== #}
     <script src="https://unpkg.com/lucide@0.400.1/dist/umd/lucide.min.js" id="lucide-cdn-script" defer></script>
-    <!-- Iconos: Tabler (Nuevo diseño) -->
     <link rel="stylesheet" href="{% static 'css/fonts/tabler-icons.min.css' %}">
-    <!-- CSS Principal -->
+    
+    {# ========================================================================== #}
+    {# CSS STYLESHEETS #}
+    {# ========================================================================== #}
     <link rel="stylesheet" href="{% static 'css/core/style-improved.css' %}?v=2">
-    <!-- CSS Sidebar con Efecto Neon -->
     <link rel="stylesheet" href="{% static 'css/core/sidebar-neon-improved.css' %}?v=1">
-    <!-- CSS Navbar Mejorado -->
     <link rel="stylesheet" href="{% static 'css/core/navbar-improved.css' %}?v=1">
-    <!-- CSS Floating Elements -->
     <link rel="stylesheet" href="{% static 'css/core/floating-elements.css' %}?v=1">
-    <!-- CSS Mini Player -->
     <link rel="stylesheet" href="{% static 'css/core/mini-player.css' %}?v=1">
-    <!-- CSS Amigis Mascot (Versión Simple) -->
     <link rel="stylesheet" href="{% static 'amigis/css/amigis.css' %}?v=1">
+    
+    {# ========================================================================== #}
+    {# CUSTOM STYLES #}
+    {# ========================================================================== #}
     <style>
         i[data-lucide], .ti {
             display: inline-flex;

@@ -1,29 +1,37 @@
+// ============================================================================
+// DASHBOARD COMPONENT
+// ============================================================================
+
 import { useState } from 'react'
-import Header from './Header'
-import Sidebar from './Sidebar'
+import AdminCenter from './AdminCenter'
 import AmigisDashboard from './AmigisDashboard'
-import StatsCards from './StatsCards'
+import Blog from './Blog'
+import ChatLayout from './ChatLayout'
+import Entertainment from './Entertainment'
+import Events from './Events'
+import Files from './Files'
+import GamesHub from './GamesHub'
+import Header from './Header'
+import HelpCenter from './HelpCenter'
+import MusicPlayer from './MusicPlayer'
+import Notifications from './Notifications'
+import Profile from './Profile'
 import QuickActions from './QuickActions'
+import Settings from './Settings'
+import Sidebar from './Sidebar'
+import StatsCards from './StatsCards'
+import Study from './Study'
+import Suggestions from './Suggestions'
+import TodayActivity from './TodayActivity'
+import Translator from './Translator'
+import Tutorials from './Tutorials'
+import Weather from './Weather'
 import WeeklyActivity from './WeeklyActivity'
 import WeeklyGoals from './WeeklyGoals'
-import TodayActivity from './TodayActivity'
-import ChatLayout from './ChatLayout'
-import MusicPlayer from './MusicPlayer'
-import GamesHub from './GamesHub'
-import Study from './Study'
-import Entertainment from './Entertainment'
-import Weather from './Weather'
-import Translator from './Translator'
-import Blog from './Blog'
-import Events from './Events'
-import Tutorials from './Tutorials'
-import Files from './Files'
-import AdminCenter from './AdminCenter'
-import Profile from './Profile'
-import Settings from './Settings'
-import HelpCenter from './HelpCenter'
-import Suggestions from './Suggestions'
-import Notifications from './Notifications'
+
+// ============================================================================
+// TYPES
+// ============================================================================
 
 interface DashboardProps {
   username?: string

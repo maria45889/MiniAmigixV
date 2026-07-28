@@ -1,4 +1,9 @@
+# ============================================================================
+# CONTEXT PROCESSORS
+# ============================================================================
+
 from django.conf import settings
+
 
 def site_url(request):
     """
@@ -8,10 +13,12 @@ def site_url(request):
         'site_url': getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000')
     }
 
+
 def user_theme(request):
     """
     Context processor para pasar el tema del usuario a todas las plantillas
     """
+    # Default values
     perfil_tema = 'dark'
     perfil_idioma = 'es'
     perfil_nombre_amigis = 'Amigis'
@@ -36,15 +43,9 @@ def user_theme(request):
             patito_estilo = perfil.patito_estilo or 'normal'
             if perfil.avatar:
                 perfil_avatar_url = perfil.avatar.url
-        except:
-            perfil_tema = 'dark'
-            perfil_idioma = 'es'
-            perfil_nombre_amigis = 'Amigis'
-            patito_ropa = 'hoodie'
-            patito_color_ropa = 'purple'
-            patito_accesorio = 'none'
-            patito_color_cuerpo = 'yellow'
-            patito_estilo = 'normal'
+        except Exception:
+            # Keep default values on error
+            pass
     
     return {
         'perfil_tema': perfil_tema,
@@ -57,6 +58,7 @@ def user_theme(request):
         'patito_estilo': patito_estilo,
         'perfil_avatar_url': perfil_avatar_url
     }
+
 
 def is_admin_user(request):
     """

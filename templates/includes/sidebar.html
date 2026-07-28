@@ -1,8 +1,8 @@
 {% load static %}
 <aside class="sidebar">
   <div class="sidebar-header">
-    <a href="/" style="display:flex; align-items:center; gap:10px; text-decoration:none;">
-      <img src="{% static 'imagenes/logo.png' %}" alt="MiniAmigixV Logo" class="logo" style="max-height:36px;">
+    <a href="/" style="display:flex; align-items:center; gap:16px; text-decoration:none;">
+      <img src="{% static 'imagenes/logo.png' %}" alt="MiniAmigixV Logo" class="logo" style="max-height:96px;">
     </a>
   </div>
 
@@ -29,7 +29,7 @@
       <i class="ti ti-notebook"></i> <span data-i18n="study">Estudio</span>
     </a>
     <a href="{% url 'entretenimiento:entretenimiento' %}" class="nav-item {% if request.resolver_match.url_name == 'entretenimiento' %}active{% endif %}">
-      <i class="ti ti-masks"></i> <span data-i18n="entertainment">Entretenimiento</span>
+      <i class="ti ti-movie" style="font-size: 1.2rem;"></i> <span data-i18n="entertainment">Entretenimiento</span>
     </a>
     <a href="{% url 'clima' %}" class="nav-item {% if request.resolver_match.url_name == 'clima' %}active{% endif %}">
       <i class="ti ti-sun"></i> <span data-i18n="weather">Clima</span>

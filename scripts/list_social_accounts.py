@@ -1,9 +1,18 @@
-import os, sys, pathlib
+# ============================================================================
+# LIST SOCIAL ACCOUNTS SCRIPT
+# ============================================================================
+
+import os
+import pathlib
+import sys
+
+import django
+
 root = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(root))
-os.environ.setdefault('DJANGO_SETTINGS_MODULE','config.settings')
-import django
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 django.setup()
+
 try:
     from allauth.socialaccount.models import SocialAccount
     qs = SocialAccount.objects.order_by('-id')[:20]

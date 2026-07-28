@@ -1,8 +1,17 @@
-from django.urls import path, include
+# ============================================================================
+# JUEGOS URLS
+# ============================================================================
+
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
+
 from .views import (
-    GameViewSet, ScoreViewSet, AchievementViewSet,
-    GameSessionViewSet, UserStatsViewSet, TicTacToeViewSet
+    AchievementViewSet,
+    GameSessionViewSet,
+    GameViewSet,
+    ScoreViewSet,
+    TicTacToeViewSet,
+    UserStatsViewSet,
 )
 
 router = DefaultRouter()

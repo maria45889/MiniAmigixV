@@ -1,6 +1,14 @@
+// ============================================================================
+// TYPES
+// ============================================================================
+
 interface AmigisDashboardProps {
   username?: string
 }
+
+// ============================================================================
+// COMPONENT
+// ============================================================================
 
 function AmigisDashboard({ username = 'mariajosetacoc2005' }: AmigisDashboardProps) {
   return (
@@ -31,6 +39,7 @@ function AmigisDashboard({ username = 'mariajosetacoc2005' }: AmigisDashboardPro
 
         {/* Contenido del mensaje */}
         <div style={{ flex: 1 }}>
+          {/* Header */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
@@ -48,6 +57,7 @@ function AmigisDashboard({ username = 'mariajosetacoc2005' }: AmigisDashboardPro
             </h3>
           </div>
 
+          {/* Speech Bubble */}
           <div style={{
             background: 'rgba(124, 58, 237, 0.08)',
             border: '1px solid rgba(124, 58, 237, 0.2)',

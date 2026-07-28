@@ -1,17 +1,28 @@
+# ============================================================================
+# DATABASE ROUTER
+# ============================================================================
+
 class DatabaseRouter:
     """
     Controla qué modelos van a SQLite (default) y cuáles a MongoDB (mongodb).
+    Temporalmente deshabilitado - MongoDB no está activo.
     """
     
     # Definimos los labels de las apps que deben usar MongoDB
     route_app_labels = {'notificaciones', 'chats', 'recomendaciones', 'analitica', 'juegos_data'}
 
     def db_for_read(self, model, **hints):
+        """
+        Determina la base de datos para operaciones de lectura.
+        """
         if model._meta.app_label in self.route_app_labels:
             return 'mongodb'
         return 'default'
 
     def db_for_write(self, model, **hints):
+        """
+        Determina la base de datos para operaciones de escritura.
+        """
         if model._meta.app_label in self.route_app_labels:
             return 'mongodb'
         return 'default'

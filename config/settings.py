@@ -1,3 +1,7 @@
+# ============================================================================
+# DJANGO SETTINGS FOR MINIAMIGIXV
+# ============================================================================
+
 """
 Django settings for config project.
 
@@ -10,11 +14,20 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
+# ============================================================================
+# IMPORTS
+# ============================================================================
+
 import os
 import sys
+from datetime import timedelta
 from importlib.util import find_spec
 from pathlib import Path
 from dotenv import load_dotenv
+
+# ============================================================================
+# BASIC CONFIGURATION
+# ============================================================================
 
 # Load environment variables from .env file
 load_dotenv(os.path.join(Path(__file__).resolve().parent.parent, '.env'), override=True)
@@ -25,11 +38,13 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Add project root to Python path for imports
 sys.path.insert(0, str(BASE_DIR))
 
+# Optional dependencies
 HAS_DJANGO_RATELIMIT = find_spec('django_ratelimit') is not None
 HAS_CORSHEADERS = find_spec('corsheaders') is not None
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
+# ============================================================================
+# SECURITY SETTINGS
+# ============================================================================
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-default-dev-key')
@@ -71,50 +86,57 @@ else:
 # Para que Django reconozca que está detrás de un proxy con HTTPS
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-
-# Application definition
+# ============================================================================
+# APPLICATION CONFIGURATION
+# ============================================================================
 
 INSTALLED_APPS = [
+    # Django Core
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    # Allauth apps
-    'django.contrib.sites', # Required by allauth
+    'django.contrib.sites',  # Required by allauth
+    
+    # Allauth (Authentication)
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'allauth.socialaccount.providers.github',
     'allauth.socialaccount.providers.microsoft',
-    # 'webpush', # Temporalmente deshabilitado - incompatible con Django 6.0
-    # MongoEngine - Temporalmente deshabilitado
+    
+    # Temporalmente deshabilitado - incompatible con Django 6.0
+    # 'webpush',
     # 'mongoengine',
-    # MongoDB App - Temporalmente deshabilitado
     # 'mongodb',
-    # Project Apps
+    
+    # Project Apps (Alphabetical Order)
+    'apps.api',
     'apps.app.apps.AppConfig',
+    'apps.blog.apps.BlogConfig',
+    'apps.clima',
     'apps.configuracion',
+    'apps.entretenimiento',
+    'apps.estudio',
     'apps.eventos',
+    'apps.juegos.apps.JuegosConfig',
+    'apps.musica.apps.MusicaConfig',
     'apps.notificaciones',
     'apps.perfil',
-    'apps.sugerencias',
     'apps.soporte',
-    'apps.tutorial',
-    'apps.estudio',
-    'apps.clima',
+    'apps.sugerencias',
     'apps.traductor',
-    'apps.blog.apps.BlogConfig',
-    'apps.entretenimiento',
-    'apps.musica.apps.MusicaConfig',
-    'apps.juegos.apps.JuegosConfig',
+    'apps.tutorial',
+    
+    # REST Framework
     'rest_framework',
     'rest_framework_simplejwt',
-    'apps.api',
 ]
 
+# Optional apps
 if HAS_DJANGO_RATELIMIT:
     INSTALLED_APPS.append('django_ratelimit')
 
@@ -128,11 +150,11 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'allauth.account.middleware.AccountMiddleware', # Allauth middleware
+    'allauth.account.middleware.AccountMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'apps.app.middleware.SecurityHeadersMiddleware',  # Headers de seguridad adicionales
-    'apps.app.middleware.XSSProtectionMiddleware',  # Protección XSS
+    'apps.app.middleware.SecurityHeadersMiddleware',
+    'apps.app.middleware.XSSProtectionMiddleware',
 ]
 
 if HAS_CORSHEADERS:
@@ -172,9 +194,9 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/6.0/ref/settings/#databases
+# ============================================================================
+# DATABASE CONFIGURATION
+# ============================================================================
 
 # SQLite (Desarrollo)
 DATABASES = {
@@ -196,7 +218,7 @@ DATABASES = {
 #     }
 # }
 
-# Aplicaciones que usarán MongoDB (deshabilitado temporalmente)
+# MongoDB Configuration (deshabilitado temporalmente)
 # MONGO_APPS = [
 #     'notificaciones',
 #     'chats',
@@ -204,38 +226,35 @@ DATABASES = {
 #     'analitica',
 #     'juegos_data'
 # ]
-
 # DATABASE_ROUTERS = ['config.db_router.DatabaseRouter']
 
-# Allauth specific settings
+# ============================================================================
+# AUTHENTICATION CONFIGURATION (ALLAUTH)
+# ============================================================================
+
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend', # Default Django authentication
-    'allauth.account.auth_backends.AuthenticationBackend', # allauth specific authentication
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-SITE_ID = 1 # Required by allauth
+SITE_ID = 1
 
 ACCOUNT_LOGIN_METHODS = {'email'}
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*']
 ACCOUNT_SESSION_REMEMBER = True
 ACCOUNT_UNIQUE_EMAIL = True
 
-# Configuración de email para allauth
 ACCOUNT_EMAIL_SUBJECT_PREFIX = ''
-ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'http'  # Cambiar a 'https' en producción
+ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'http'
 ACCOUNT_ADAPTER = 'apps.app.adapters.AccountAdapter'
 
-# Auto-signup para redes sociales (evitar formulario adicional)
+# Social Account Configuration
 SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_QUERY_EMAIL = True
 SOCIALACCOUNT_EMAIL_REQUIRED = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
-
-# Adaptador personalizado para generar username automáticamente
 SOCIALACCOUNT_ADAPTER = 'apps.app.adapters.SocialAccountAdapter'
-
-# Saltar la página de confirmación de inicio de sesión social ("Continuar")
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
 SOCIALACCOUNT_PROVIDERS = {
@@ -254,9 +273,9 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-
-# Password validation
-# https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
+# ============================================================================
+# PASSWORD VALIDATION
+# ============================================================================
 
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -273,9 +292,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/6.0/topics/i18n/
+# ============================================================================
+# INTERNATIONALIZATION
+# ============================================================================
 
 LANGUAGE_CODE = 'es'
 
@@ -290,15 +309,14 @@ USE_I18N = True
 
 USE_TZ = True
 
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/6.0/howto/static-files/
+# ============================================================================
+# STATIC & MEDIA FILES
+# ============================================================================
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-# Media files (Avatars)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
@@ -307,20 +325,29 @@ DATA_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10485760  # 10MB
 FILE_UPLOAD_PERMISSIONS = 0o644
 
-# Configuración de APIs de IA
+# ============================================================================
+# API KEYS CONFIGURATION
+# ============================================================================
+
+# AI APIs
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 GOOGLE_API_KEY = os.getenv("GEMINI_API_KEY")
 GOOGLE_CLOUD_VISION_API_KEY = os.getenv("GOOGLE_CLOUD_VISION_API_KEY")
-OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
-WEATHERAPI_KEY = os.getenv("WEATHERAPI_KEY")
-YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
 OLLAMA_API_URL = os.getenv("OLLAMA_API_URL", "http://localhost:11434")
 if OLLAMA_API_URL and not OLLAMA_API_URL.endswith('/v1') and not OLLAMA_API_URL.endswith('/v1/'):
     OLLAMA_API_URL = OLLAMA_API_URL.rstrip('/') + '/v1'
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.3")
 
-# Configuración de Email para Sugerencias
+# External APIs
+OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
+WEATHERAPI_KEY = os.getenv("WEATHERAPI_KEY")
+YOUTUBE_API_KEY = os.getenv("YOUTUBE_API_KEY")
+
+# ============================================================================
+# EMAIL CONFIGURATION
+# ============================================================================
+
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
 EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
@@ -328,22 +355,28 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'miniamigixv@gmail.com')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
-# Lista de correos con permisos de administrador
+
+# Admin emails
 ADMIN_EMAILS = ['miniamigixv@gmail.com', 'mariajosetacoc2005@gmail.com']
 
-# Configuración de redirección de Login
+# Login/Logout redirects
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'home' # Redirige a 'home' después de un login exitoso
-ACCOUNT_LOGOUT_REDIRECT_URL = 'home' # Redirige a 'home' después de un logout
+LOGIN_REDIRECT_URL = 'home'
+ACCOUNT_LOGOUT_REDIRECT_URL = 'home'
 
-# Configuración de WebPush (VAPID keys)
+# ============================================================================
+# WEBPUSH CONFIGURATION (TEMPORARILY DISABLED)
+# ============================================================================
+
 # Reemplaza con las claves generadas por 'python manage.py webpush_generate_vapid_key'
-# y tu correo electrónico de contacto.
 WEBPUSH_VAPID_PRIVATE_KEY = os.getenv('WEBPUSH_VAPID_PRIVATE_KEY', 'TU_CLAVE_PRIVADA_AQUI')
 WEBPUSH_VAPID_PUBLIC_KEY = os.getenv('WEBPUSH_VAPID_PUBLIC_KEY', 'TU_CLAVE_PUBLICA_AQUI')
 WEBPUSH_CONTACT_EMAIL = os.getenv('WEBPUSH_CONTACT_EMAIL', 'tu_email@ejemplo.com')
 
-# Django REST Framework
+# ============================================================================
+# REST FRAMEWORK CONFIGURATION
+# ============================================================================
+
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -358,11 +391,6 @@ REST_FRAMEWORK = {
     }
 }
 
-# Rate limiting configuración
-RATELIMIT_ENABLE = True
-RATELIMIT_VIEW = 'rest_framework.throttling.AnonRateThrottle'
-
-from datetime import timedelta
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
@@ -370,9 +398,17 @@ SIMPLE_JWT = {
     'BLACKLIST_AFTER_ROTATION': False,
 }
 
-# ==================== MONGODB CONFIGURATION ====================
+# Rate limiting
+RATELIMIT_ENABLE = True
+RATELIMIT_VIEW = 'rest_framework.throttling.AnonRateThrottle'
+
+# ============================================================================
+# MONGODB CONFIGURATION (TEMPORARILY DISABLED)
+# ============================================================================
+
 MONGODB_URI = os.getenv('MONGODB_URI', 'mongodb://localhost:27017/')
 MONGODB_NAME = os.getenv('MONGODB_NAME', 'miniamigixv_db')
+MONGOENGINE_USER_DOCUMENT = 'mongoengine.django.auth.User'
 
 # Conectar a MongoDB (opcional - desactivado temporalmente)
 # try:
@@ -384,12 +420,11 @@ MONGODB_NAME = os.getenv('MONGODB_NAME', 'miniamigixv_db')
 # except Exception as e:
 #     print(f"[ERROR] Error al conectar a MongoDB: {str(e)}")
 
-# Configuración de MongoEngine
-MONGOENGINE_USER_DOCUMENT = 'mongoengine.django.auth.User'
+# ============================================================================
+# CACHE CONFIGURATION
+# ============================================================================
 
-# ==================== CACHE CONFIGURATION ====================
 # DummyCache para desarrollo (compatible con django_ratelimit)
-# Para producción, usar la configuración de Redis comentada abajo
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
@@ -423,12 +458,25 @@ SILENCED_SYSTEM_CHECKS = [
 #     }
 # }
 
-# Sesiones con base de datos para persistencia
+# Session configuration
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
-# Configuración de seguridad para producción
+# ============================================================================
+# SECURITY CONFIGURATION
+# ============================================================================
+
+# Cookie configuration
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Lax'
+CSRF_COOKIE_HTTPONLY = False
+CSRF_COOKIE_SAMESITE = 'Lax'
+
+# Development security settings
+SECURE_SSL_REDIRECT = False
+SECURE_HSTS_SECONDS = 0
+
+# Production security settings
 if not DEBUG:
-    # HTTPS y Cookies seguras
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
@@ -438,24 +486,13 @@ if not DEBUG:
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
-
-    # Headers de seguridad adicionales
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
-# Configuración de cookies
-SESSION_COOKIE_HTTPONLY = True
-SESSION_COOKIE_SAMESITE = 'Lax'
-CSRF_COOKIE_HTTPONLY = False
-CSRF_COOKIE_SAMESITE = 'Lax'
+# ============================================================================
+# TEMPLATE LOADERS
+# ============================================================================
 
-# Protección contra ataques
-SECURE_SSL_REDIRECT = False  # Desactivado en desarrollo
-SECURE_HSTS_SECONDS = 0  # Desactivado en desarrollo
-
-# Cache de plantillas
 if DEBUG:
-    # Use normal template loaders in development so changes to templates
-    # are reflected immediately without stale cache issues.
     TEMPLATE_LOADERS = [
         'django.template.loaders.filesystem.Loader',
         'django.template.loaders.app_directories.Loader',

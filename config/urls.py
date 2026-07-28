@@ -1,61 +1,64 @@
 from django.contrib import admin
-from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.urls import path, include
 from django.views.generic import TemplateView
+
 from . import views
-from pathlib import Path
+
+# ============================================================================
+# URL PATTERNS
+# ============================================================================
 
 urlpatterns = [
+    # -------------------------------------------------------------------------
+    # Core Django
+    # -------------------------------------------------------------------------
     path('admin/', admin.site.urls),
-    
-    # Authentication and Notifications
-    path('accounts/', include('allauth.urls')),
-    # path('webpush/', include('webpush.urls')), # Temporalmente deshabilitado - incompatible con Django 6.0
 
+    # -------------------------------------------------------------------------
+    # Authentication & Notifications
+    # -------------------------------------------------------------------------
+    path('accounts/', include('allauth.urls')),
     path('send-test-notification/', views.send_test_notification, name='send_test_notification'),
-    
-    # PWA Manifest
+    # path('webpush/', include('webpush.urls')),  # Temporalmente deshabilitado - incompatible con Django 6.0
+
+    # -------------------------------------------------------------------------
+    # PWA
+    # -------------------------------------------------------------------------
     path('manifest.json', TemplateView.as_view(template_name='manifest.json', content_type='application/json'), name='manifest'),
-    
-    # API routes
+
+    # -------------------------------------------------------------------------
+    # API Routes
+    # -------------------------------------------------------------------------
     path('api/', include('apps.api.urls')),
-    
-    # MongoDB Analytics - Temporalmente deshabilitado
-    # path('mongodb/', include('mongodb.urls')),
-    
-    # Blog
-    path('blog/', include('apps.blog.urls')),
-    
-    # Clima
-    path('clima/', include('apps.clima.urls')),
-    
-    # Traductor
-    path('traductor/', include('apps.traductor.urls')),
-    
-    # Eventos
-    path('eventos/', include('apps.eventos.urls')),
-    
-    # Tutorial
-    path('tutorial/', include('apps.tutorial.urls')),
-    
-    # Estudio
-    path('estudio/', include('apps.estudio.urls')),
-    
-    # Entretenimiento
-    path('entretenimiento/', include('apps.entretenimiento.urls')),
-    
-    # Música
     path('api/music/', include('apps.musica.urls')),
-    
-    # Juegos
     path('api/games/', include('apps.juegos.urls')),
-    
+
+    # -------------------------------------------------------------------------
+    # Feature Apps (Alphabetical Order)
+    # -------------------------------------------------------------------------
+    path('blog/', include('apps.blog.urls')),
+    path('clima/', include('apps.clima.urls')),
+    path('entretenimiento/', include('apps.entretenimiento.urls')),
+    path('estudio/', include('apps.estudio.urls')),
+    path('eventos/', include('apps.eventos.urls')),
+    path('traductor/', include('apps.traductor.urls')),
+    path('tutorial/', include('apps.tutorial.urls')),
+
+    # -------------------------------------------------------------------------
     # Main Application
+    # -------------------------------------------------------------------------
     path('', include('apps.app.urls')),
 ]
 
-# Serve PWA files in development
+# Temporalmente deshabilitado
+# path('mongodb/', include('mongodb.urls')),
+
+# ============================================================================
+# DEVELOPMENT ONLY
+# ============================================================================
+
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATICFILES_DIRS[0])
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

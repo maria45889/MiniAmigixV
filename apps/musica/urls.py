@@ -1,8 +1,16 @@
-from django.urls import path, include
+# ============================================================================
+# MÚSICA URLS
+# ============================================================================
+
+from django.urls import include, path
 from rest_framework.routers import DefaultRouter
+
 from .views import (
-    SongViewSet, PlaylistViewSet, FavoriteViewSet,
-    ListeningHistoryViewSet, MusicSettingsViewSet
+    FavoriteViewSet,
+    ListeningHistoryViewSet,
+    MusicSettingsViewSet,
+    PlaylistViewSet,
+    SongViewSet,
 )
 
 router = DefaultRouter()

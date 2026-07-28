@@ -40,8 +40,8 @@ function Sidebar({ activeItem = 'Inicio', onNavigate, onLogout }: SidebarProps) 
       overflowY: 'auto'
     }}>
       {/* Logo */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '0.75rem', paddingBottom: '0.5rem', borderBottom: '1px solid var(--glass-border, rgba(255, 255, 255, 0.1))' }}>
-        <img src="/favicon.svg" alt="MiniAmigixV Logo" style={{ width: '28px', height: '28px' }} />
+      <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '0.75rem', paddingBottom: '0.5rem', borderBottom: '1px solid var(--glass-border, rgba(255, 255, 255, 0.1))' }}>
+        <img src="/favicon.svg" alt="MiniAmigixV Logo" style={{ width: '48px', height: '48px' }} />
         <h2 style={{ 
           fontSize: '1.1rem', 
           fontWeight: 'bold', 
