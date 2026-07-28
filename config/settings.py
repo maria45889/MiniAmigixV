@@ -107,6 +107,9 @@ INSTALLED_APPS = [
     'apps.clima',
     'apps.traductor',
     'apps.blog.apps.BlogConfig',
+    'apps.entretenimiento',
+    'apps.musica.apps.MusicaConfig',
+    'apps.juegos.apps.JuegosConfig',
     'rest_framework',
     'rest_framework_simplejwt',
     'apps.api',
@@ -326,7 +329,7 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', 'miniamigixv@gmail.com')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 # Lista de correos con permisos de administrador
-ADMIN_EMAILS = ['miniamigixv@gmail.com']
+ADMIN_EMAILS = ['miniamigixv@gmail.com', 'mariajosetacoc2005@gmail.com']
 
 # Configuración de redirección de Login
 LOGIN_URL = 'login'

@@ -42,6 +42,15 @@ urlpatterns = [
     # Estudio
     path('estudio/', include('apps.estudio.urls')),
     
+    # Entretenimiento
+    path('entretenimiento/', include('apps.entretenimiento.urls')),
+    
+    # Música
+    path('api/music/', include('apps.musica.urls')),
+    
+    # Juegos
+    path('api/games/', include('apps.juegos.urls')),
+    
     # Main Application
     path('', include('apps.app.urls')),
 ]

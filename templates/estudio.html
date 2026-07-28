@@ -8,6 +8,64 @@
 <link rel="stylesheet" href="{% static 'css/pages/estudios.css' %}?v=42">
 {% endblock %}
 
+<script>
+// Immediate error suppression before any other scripts load
+(function() {
+  const originalError = console.error;
+  console.error = function(...args) {
+    const message = args[0] || '';
+    const messageStr = typeof message === 'string' ? message : JSON.stringify(message);
+    if (messageStr.includes('postMessage') && (messageStr.includes('target origin') || messageStr.includes('DOMWindow') || messageStr.includes('www.youtube.com'))) {
+      return;
+    }
+    if (messageStr.includes('touchstart') && messageStr.includes('passive')) {
+      return;
+    }
+    if (messageStr.includes('setTimeout') && messageStr.includes('handler took')) {
+      return;
+    }
+    originalError.apply(console, args);
+  };
+
+  const originalWarn = console.warn;
+  console.warn = function(...args) {
+    const message = args[0] || '';
+    const messageStr = typeof message === 'string' ? message : JSON.stringify(message);
+    if (messageStr.includes('postMessage') && (messageStr.includes('target origin') || messageStr.includes('DOMWindow') || messageStr.includes('www.youtube.com'))) {
+      return;
+    }
+    if (messageStr.includes('touchstart') && messageStr.includes('passive')) {
+      return;
+    }
+    if (messageStr.includes('setTimeout') && messageStr.includes('handler took')) {
+      return;
+    }
+    originalWarn.apply(console, args);
+  };
+
+  window.addEventListener('error', function(event) {
+    if (event && event.message) {
+      const messageStr = typeof event.message === 'string' ? event.message : String(event.message);
+      if (messageStr.includes('postMessage') && (messageStr.includes('target origin') || messageStr.includes('DOMWindow') || messageStr.includes('www.youtube.com'))) {
+        event.preventDefault();
+        event.stopPropagation();
+        return false;
+      }
+      if (messageStr.includes('touchstart') && messageStr.includes('passive')) {
+        event.preventDefault();
+        event.stopPropagation();
+        return false;
+      }
+      if (messageStr.includes('setTimeout') && messageStr.includes('handler took')) {
+        event.preventDefault();
+        event.stopPropagation();
+        return false;
+      }
+    }
+  }, true);
+})();
+</script>
+
 {% block content %}
 <div class="estudio-page-container fadein">
   {% csrf_token %}

@@ -15,6 +15,23 @@ from apps.app.services import ChatService
 
 logger = logging.getLogger(__name__)
 
+class APIRootView(APIView):
+    permission_classes = (AllowAny,)
+    
+    def get(self, request):
+        return Response({
+            'status': 'success',
+            'message': 'MiniAmigixV API',
+            'version': '1.0.0',
+            'endpoints': {
+                'auth': '/api/login/',
+                'register': '/api/register/',
+                'profile': '/api/profile/',
+                'chat': '/api/chat/',
+                'entretenimiento': '/entretenimiento/'
+            }
+        })
+
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 

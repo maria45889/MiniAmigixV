@@ -28,6 +28,9 @@
     <a href="{% url 'estudio' %}" class="nav-item {% if request.resolver_match.url_name == 'estudio' %}active{% endif %}">
       <i class="ti ti-notebook"></i> <span data-i18n="study">Estudio</span>
     </a>
+    <a href="{% url 'entretenimiento:entretenimiento' %}" class="nav-item {% if request.resolver_match.url_name == 'entretenimiento' %}active{% endif %}">
+      <i class="ti ti-masks"></i> <span data-i18n="entertainment">Entretenimiento</span>
+    </a>
     <a href="{% url 'clima' %}" class="nav-item {% if request.resolver_match.url_name == 'clima' %}active{% endif %}">
       <i class="ti ti-sun"></i> <span data-i18n="weather">Clima</span>
     </a>
@@ -45,21 +48,6 @@
     </a>
     <a href="{% url 'archivos' %}" class="nav-item {% if request.resolver_match.url_name == 'archivos' %}active{% endif %}">
       <i class="ti ti-folder"></i> <span data-i18n="files">Mis Archivos</span>
-    </a>
-
-    <!-- 👤 USUARIO & SISTEMA -->
-    <div class="nav-section-title" style="padding: 16px 20px 4px; font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; color: rgba(255,255,255,0.4);">
-      Usuario & Gestión
-    </div>
-
-    <a href="{% url 'perfil' %}" class="nav-item {% if request.resolver_match.url_name == 'perfil' %}active{% endif %}">
-      <i class="ti ti-user"></i> <span>Mi Perfil</span>
-    </a>
-    <a href="{% url 'lista_notificaciones' %}" class="nav-item {% if request.resolver_match.url_name == 'lista_notificaciones' %}active{% endif %}">
-      <i class="ti ti-bell"></i> <span>Notificaciones</span>
-    </a>
-    <a href="{% url 'soporte' %}" class="nav-item {% if request.resolver_match.url_name == 'soporte' %}active{% endif %}">
-      <i class="ti ti-lifebuoy"></i> <span data-i18n="support">Ayuda & Soporte</span>
     </a>
 
     <!-- 🛡 CENTRO DE ADMINISTRACIÓN (Solo Administradores) -->

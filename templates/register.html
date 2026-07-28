@@ -475,16 +475,12 @@
 
         <div class="separator"><span>O</span></div>
 
-        {% if providers %}
         <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
-            {% for provider in providers %}
-                <a href="{% provider_login_url provider.provider %}" class="social-button">
-                    <span class="social-icon">G</span>
-                    Registrarse con Google
-                </a>
-            {% endfor %}
+            <a href="{% provider_login_url 'google' %}" class="social-button google">
+                <span class="social-icon">G</span>
+                Registrarse con Google
+            </a>
         </div>
-        {% endif %}
 
         <p class="login-footer">
             ¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión aquí</a>

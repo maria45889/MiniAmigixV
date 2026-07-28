@@ -1,9 +1,4 @@
 {% load static %}
-{# =====================================================
-   MINIAMIGIXV — SETTINGS & PERSONALISATION CENTER v3.0
-   Glassmorphism · Sidebar Nav · Amigis Customizer · Mi Espacio
-   ===================================================== #}
-
 {# ── Inline styles (no separate CSS file needed) ── #}
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Sora:wght@300;400;500;600;700&display=swap');
@@ -517,9 +512,6 @@
 }
 </style>
 
-{# ─────────────────────────────────────────────
-   MAIN WRAPPER
-───────────────────────────────────────────── #}
 <div class="cfg-wrapper fadein">
 
   {# ── SIDEBAR ── #}
@@ -554,25 +546,6 @@
       <span class="nav-icon">🌌</span> Mi Espacio
     </button>
 
-    <span class="cfg-nav-section-label">Sistema</span>
-    <button class="cfg-nav-btn" onclick="showPane('notificaciones',this)">
-      <span class="nav-icon">🔔</span> Notificaciones
-    </button>
-    <button class="cfg-nav-btn" onclick="showPane('idioma',this)">
-      <span class="nav-icon">🌐</span> Idioma
-    </button>
-    <button class="cfg-nav-btn" onclick="showPane('privacidad',this)">
-      <span class="nav-icon">🔒</span> Privacidad
-    </button>
-    <button class="cfg-nav-btn" onclick="showPane('datos',this)">
-      <span class="nav-icon">💾</span> Copias de Seguridad
-    </button>
-    <button class="cfg-nav-btn" onclick="showPane('rendimiento',this)">
-      <span class="nav-icon">⚡</span> Rendimiento
-    </button>
-    <button class="cfg-nav-btn" onclick="showPane('acerca',this)">
-      <span class="nav-icon">ℹ️</span> Acerca de
-    </button>
   </aside>
 
   {# ── MAIN CONTENT ── #}
@@ -781,162 +754,11 @@
         <h3 class="cfg-section-title">🎵 Sonidos de la App</h3>
         <div class="cfg-row">
           <div class="cfg-row-left">
-            <span class="cfg-row-icon">🔔</span>
-            <div><div class="cfg-row-label">Sonidos de notificación</div><div class="cfg-row-desc">Reproduce audio al recibir alertas</div></div>
-          </div>
-          <label class="cfg-toggle"><input type="checkbox" checked><span class="cfg-toggle-slider"></span></label>
-        </div>
-        <div class="cfg-row">
-          <div class="cfg-row-left">
             <span class="cfg-row-icon">🎶</span>
             <div><div class="cfg-row-label">Música de fondo suave</div><div class="cfg-row-desc">Lo-fi de fondo mientras usas la app</div></div>
           </div>
           <label class="cfg-toggle"><input type="checkbox"><span class="cfg-toggle-slider"></span></label>
         </div>
-      </div>
-    </div>
-
-    {# ─── PANE: NOTIFICACIONES ─── #}
-    <div class="cfg-pane" id="pane-notificaciones">
-      <div class="cfg-section-card">
-        <h3 class="cfg-section-title">🔔 Control de Notificaciones</h3>
-        {% for item in notif_items %}
-        <div class="cfg-row">
-          <div class="cfg-row-left">
-            <span class="cfg-row-icon">{{ item.icon }}</span>
-            <div><div class="cfg-row-label">{{ item.name }}</div><div class="cfg-row-desc">{{ item.desc }}</div></div>
-          </div>
-          <label class="cfg-toggle"><input type="checkbox" {% if item.on %}checked{% endif %}><span class="cfg-toggle-slider"></span></label>
-        </div>
-        {% empty %}
-        {% for name,icon,desc,on in notif_default %}
-        <div class="cfg-row">
-          <div class="cfg-row-left">
-            <span class="cfg-row-icon">{{ icon }}</span>
-            <div><div class="cfg-row-label">{{ name }}</div><div class="cfg-row-desc">{{ desc }}</div></div>
-          </div>
-          <label class="cfg-toggle"><input type="checkbox" {% if on %}checked{% endif %}><span class="cfg-toggle-slider"></span></label>
-        </div>
-        {% endfor %}
-        {% endfor %}
-      </div>
-    </div>
-
-    {# ─── PANE: IDIOMA ─── #}
-    <div class="cfg-pane" id="pane-idioma">
-      <div class="cfg-section-card">
-        <h3 class="cfg-section-title">🌐 Seleccionar Idioma</h3>
-        <div class="cfg-lang-grid" id="lang-grid">
-          <div class="cfg-lang-card selected" onclick="selectLang(this,'es')">🇪🇸 Español</div>
-          <div class="cfg-lang-card" onclick="selectLang(this,'en')">🇺🇸 English</div>
-          <div class="cfg-lang-card" onclick="selectLang(this,'fr')">🇫🇷 Français</div>
-          <div class="cfg-lang-card" onclick="selectLang(this,'ja')">🇯🇵 日本語</div>
-          <div class="cfg-lang-card" onclick="selectLang(this,'ko')">🇰🇷 한국어</div>
-          <div class="cfg-lang-card" onclick="selectLang(this,'pt')">🇧🇷 Português</div>
-          <div class="cfg-lang-card" onclick="selectLang(this,'it')">🇮🇹 Italiano</div>
-          <div class="cfg-lang-card" onclick="selectLang(this,'de')">🇩🇪 Deutsch</div>
-        </div>
-        <input type="hidden" id="selected-lang-input" name="idioma" value="{{ perfil.idioma|default:'es' }}">
-      </div>
-    </div>
-
-    {# ─── PANE: PRIVACIDAD ─── #}
-    <div class="cfg-pane" id="pane-privacidad">
-      <div class="cfg-section-card">
-        <h3 class="cfg-section-title">🔒 Seguridad de la Cuenta</h3>
-        <div class="cfg-row">
-          <div class="cfg-row-left"><span class="cfg-row-icon">🔐</span><div><div class="cfg-row-label">Cambiar contraseña</div><div class="cfg-row-desc">Actualiza tu contraseña periódicamente</div></div></div>
-          <a href="{% url 'account_change_password' %}" class="cfg-btn">Cambiar →</a>
-        </div>
-        <div class="cfg-row">
-          <div class="cfg-row-left"><span class="cfg-row-icon">🛡</span><div><div class="cfg-row-label">Autenticación en dos pasos</div><div class="cfg-row-desc">Agrega una capa extra de seguridad</div></div></div>
-          <label class="cfg-toggle"><input type="checkbox"><span class="cfg-toggle-slider"></span></label>
-        </div>
-        <div class="cfg-row">
-          <div class="cfg-row-left"><span class="cfg-row-icon">📱</span><div><div class="cfg-row-label">Dispositivos conectados</div><div class="cfg-row-desc">Ver sesiones activas en tus dispositivos</div></div></div>
-          <button class="cfg-btn">Ver →</button>
-        </div>
-        <div class="cfg-row">
-          <div class="cfg-row-left"><span class="cfg-row-icon">📥</span><div><div class="cfg-row-label">Descargar mis datos</div><div class="cfg-row-desc">Exporta toda tu información personal</div></div></div>
-          <button class="cfg-btn" onclick="downloadData()">📥 Exportar</button>
-        </div>
-        <div class="cfg-row" style="padding-top:14px;border-top:1px solid rgba(244,63,94,0.20);">
-          <div class="cfg-row-left"><span class="cfg-row-icon">🗑</span><div><div class="cfg-row-label" style="color:#f43f5e;">Eliminar cuenta</div><div class="cfg-row-desc">Esta acción es irreversible</div></div></div>
-          <button class="cfg-btn" style="border-color:rgba(244,63,94,0.35);color:#f43f5e;" onclick="confirmDelete()">Eliminar</button>
-        </div>
-      </div>
-    </div>
-
-    {# ─── PANE: DATOS ─── #}
-    <div class="cfg-pane" id="pane-datos">
-      <div class="cfg-section-card">
-        <h3 class="cfg-section-title">💾 Copias de Seguridad</h3>
-        <div class="cfg-row">
-          <div class="cfg-row-left"><span class="cfg-row-icon">☁</span><div><div class="cfg-row-label">Guardar en la nube</div><div class="cfg-row-desc">Sincronización automática en la nube</div></div></div>
-          <label class="cfg-toggle"><input type="checkbox" checked><span class="cfg-toggle-slider"></span></label>
-        </div>
-        <div class="cfg-row">
-          <div class="cfg-row-left"><span class="cfg-row-icon">📥</span><div><div class="cfg-row-label">Exportar datos</div><div class="cfg-row-desc">Descarga tus datos en formato JSON</div></div></div>
-          <button class="cfg-btn" onclick="downloadData()">📥 Exportar</button>
-        </div>
-        <div class="cfg-row">
-          <div class="cfg-row-left"><span class="cfg-row-icon">📤</span><div><div class="cfg-row-label">Importar datos</div><div class="cfg-row-desc">Restaura desde un archivo de respaldo</div></div></div>
-          <button class="cfg-btn">📤 Importar</button>
-        </div>
-      </div>
-
-      <div class="cfg-section-card">
-        <h3 class="cfg-section-title">📊 Almacenamiento</h3>
-        <div style="font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:8px;">Usando 340 MB de 1 GB</div>
-        <div class="cfg-storage-bar"><div class="cfg-storage-fill"></div></div>
-        <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:6px;">34% usado</div>
-        <button class="cfg-btn" style="margin-top:14px;" onclick="showToast('🧹 Caché limpiada correctamente.')">🧹 Limpiar caché</button>
-      </div>
-    </div>
-
-    {# ─── PANE: RENDIMIENTO ─── #}
-    <div class="cfg-pane" id="pane-rendimiento">
-      <div class="cfg-section-card">
-        <h3 class="cfg-section-title">⚡ Modo de Rendimiento</h3>
-        <div class="cfg-perf-grid">
-          <div class="cfg-perf-card active" onclick="selectPerf(this)">
-            <div class="cfg-perf-icon">✨</div>
-            <div class="cfg-perf-name">Equilibrado</div>
-            <div class="cfg-perf-desc">Animaciones + rendimiento</div>
-          </div>
-          <div class="cfg-perf-card" onclick="selectPerf(this)">
-            <div class="cfg-perf-icon">🎮</div>
-            <div class="cfg-perf-name">Alto Rendimiento</div>
-            <div class="cfg-perf-desc">Máxima velocidad</div>
-          </div>
-          <div class="cfg-perf-card" onclick="selectPerf(this)">
-            <div class="cfg-perf-icon">🔋</div>
-            <div class="cfg-perf-name">Ahorro de Batería</div>
-            <div class="cfg-perf-desc">Sin animaciones</div>
-          </div>
-        </div>
-        <div class="cfg-row" style="margin-top:14px;">
-          <div class="cfg-row-left"><span class="cfg-row-icon">✨</span><div><div class="cfg-row-label">Reducir animaciones</div><div class="cfg-row-desc">Para dispositivos con poca memoria</div></div></div>
-          <label class="cfg-toggle"><input type="checkbox"><span class="cfg-toggle-slider"></span></label>
-        </div>
-      </div>
-    </div>
-
-    {# ─── PANE: ACERCA DE ─── #}
-    <div class="cfg-pane" id="pane-acerca">
-      <div class="cfg-section-card" style="text-align:center;padding:32px;">
-        <div style="font-size:52px;margin-bottom:12px;">🦆</div>
-        <h2 style="font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:800;color:#fff;margin:0 0 6px;">MiniAmigixV</h2>
-        <p style="font-size:13px;color:rgba(255,255,255,0.45);margin:0 0 20px;">Tu compañero inteligente de aprendizaje y entretenimiento.</p>
-        <div style="display:inline-flex;align-items:center;gap:10px;background:rgba(124,58,237,0.18);border:1px solid rgba(124,58,237,0.35);padding:10px 20px;border-radius:14px;">
-          <span>📦</span>
-          <span style="font-size:13px;font-weight:700;color:#c084fc;">Versión 3.0 — Edición Amigis</span>
-        </div>
-      </div>
-      <div class="cfg-section-card">
-        <div class="cfg-row"><div class="cfg-row-left"><span class="cfg-row-icon">🆕</span><div><div class="cfg-row-label">Novedades de la versión</div><div class="cfg-row-desc">Rediseño Glassmorphism completo</div></div></div><button class="cfg-btn">Ver →</button></div>
-        <div class="cfg-row"><div class="cfg-row-left"><span class="cfg-row-icon">📜</span><div><div class="cfg-row-label">Licencias de software</div><div class="cfg-row-desc">Dependencias y créditos de terceros</div></div></div><button class="cfg-btn">Ver →</button></div>
-        <div class="cfg-row"><div class="cfg-row-left"><span class="cfg-row-icon">📧</span><div><div class="cfg-row-label">Contacto y soporte</div><div class="cfg-row-desc">Envíanos tus sugerencias y problemas</div></div></div><button class="cfg-btn">Contactar →</button></div>
       </div>
     </div>
 
@@ -946,9 +768,6 @@
 {# Toast #}
 <div class="cfg-toast" id="cfg-toast-msg">✅ Cambios guardados correctamente.</div>
 
-{# ────────────────────────────────────────────────────
-   SCRIPT
-──────────────────────────────────────────────────── #}
 <script>
 /* ── Pane Switching ── */
 function showPane(name, btn) {
@@ -978,15 +797,6 @@ function setAccent(color, el) {
   el.classList.add('selected');
   el.classList.add('active');
   showToast('🎨 Color de acento cambiado a ' + color + '.');
-}
-
-/* ── Language ── */
-function selectLang(el, code) {
-  document.querySelectorAll('.cfg-lang-card').forEach(c => c.classList.remove('selected'));
-  el.classList.add('selected');
-  const inp = document.getElementById('selected-lang-input');
-  if (inp) inp.value = code;
-  showToast('🌐 Idioma actualizado.');
 }
 
 /* ── Amigis accessories ── */
@@ -1021,21 +831,9 @@ function applyTheme(theme, el) {
   showToast('🌌 Tema "' + theme + '" aplicado. ¡Genial!');
 }
 
-/* ── Performance ── */
-function selectPerf(el) {
-  document.querySelectorAll('.cfg-perf-card').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-}
-
 /* ── Save / Reset ── */
 function saveSettings() { showToast('💾 Configuración guardada correctamente.'); }
 function resetAll()      { showToast('🔄 Valores restaurados a los predeterminados.'); }
-function downloadData()  { showToast('📥 Exportando tus datos…'); }
-function confirmDelete() {
-  if (confirm('⚠️ ¿Estás segura de que deseas eliminar tu cuenta? Esta acción es irreversible.')) {
-    showToast('🗑 Solicitud de eliminación enviada.');
-  }
-}
 
 /* ── Toast ── */
 function showToast(msg) {

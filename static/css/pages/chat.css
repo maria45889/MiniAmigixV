@@ -25,10 +25,12 @@
 /* ── Container Layout ── */
 .chat-page-container {
   min-height: calc(100vh - 80px);
-  padding: 10px 0 30px;
+  padding: 10px 16px 30px;
   position: relative;
   font-family: 'Sora', system-ui, sans-serif;
   color: var(--c-text-bright);
+  width: 100%;
+  max-width: 100%;
 }
 
 /* ── Header ── */
@@ -95,15 +97,22 @@
 /* ── 3-Column Main Grid ── */
 .chat-main-grid {
   display: grid;
-  grid-template-columns: 280px 1fr 280px;
+  grid-template-columns: 260px minmax(0, 1fr) 260px;
   gap: 16px;
   height: calc(100vh - 190px);
   min-height: 550px;
+  width: 100%;
+}
+
+@media (max-width: 1400px) {
+  .chat-main-grid {
+    grid-template-columns: 240px minmax(0, 1fr) 240px;
+  }
 }
 
 @media (max-width: 1200px) {
   .chat-main-grid {
-    grid-template-columns: 260px 1fr;
+    grid-template-columns: 220px minmax(0, 1fr);
   }
   .chat-right-panel {
     display: none;

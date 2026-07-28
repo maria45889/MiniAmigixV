@@ -39,5 +39,5 @@ class AuthSelector:
     
     @staticmethod
     def get_google_social_apps(site):
-        """Get Google OAuth apps for the current site."""
-        return SocialApp.objects.filter(sites=site, provider='google')
+        """Get all social OAuth apps for the current site."""
+        return SocialApp.objects.filter(sites=site)

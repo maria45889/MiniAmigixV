@@ -1,1764 +1,716 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Centro de Administración General{% endblock %}
-
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/admin/admin-modern.css' %}?v=4">
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
-<style>
-    .admin-dashboard {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 32px !important;
-        padding: 28px !important;
-        animation: fadeIn 0.6s ease-out !important;
-    }
-    
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(20px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-    
-    /* Enhanced Header */
-    .admin-header {
-        background: rgba(20, 20, 35, 0.7) !important;
-        backdrop-filter: blur(24px) !important;
-        -webkit-backdrop-filter: blur(24px) !important;
-        padding: 32px 40px !important;
-        border-radius: 24px !important;
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
-        position: relative !important;
-        overflow: hidden !important;
-    }
-    
-    .admin-header::before {
-        content: '' !important;
-        position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        height: 4px !important;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%) !important;
-    }
-    
-    .header-content {
-        display: flex !important;
-        justify-content: space-between !important;
-        align-items: flex-start !important;
-        gap: 24px !important;
-    }
-    
-    .header-left h1 {
-        font-family: 'Syne', sans-serif !important;
-        font-size: 36px !important;
-        margin: 0 0 8px 0 !important;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-        -webkit-background-clip: text !important;
-        -webkit-text-fill-color: transparent !important;
-        background-clip: text !important;
-        font-weight: 800 !important;
-        letter-spacing: -0.5px !important;
-    }
-    
-    .header-left p {
-        color: #a0a0b0 !important;
-        font-size: 15px !important;
-        margin: 0 !important;
-        line-height: 1.5 !important;
-    }
-    
-    .header-status {
-        display: flex !important;
-        align-items: center !important;
-        gap: 16px !important;
-        margin-top: 16px !important;
-    }
-    
-    .status-indicator {
-        display: flex !important;
-        align-items: center !important;
-        gap: 8px !important;
-        padding: 8px 16px !important;
-        background: rgba(67, 233, 123, 0.1) !important;
-        border: 1px solid rgba(67, 233, 123, 0.2) !important;
-        border-radius: 50px !important;
-        font-size: 13px !important;
-        color: #43e97b !important;
-        font-weight: 600 !important;
-    }
-    
-    .status-dot {
-        width: 8px !important;
-        height: 8px !important;
-        background: #43e97b !important;
-        border-radius: 50% !important;
-        animation: pulse 2s infinite !important;
-    }
-    
-    @keyframes pulse {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.5; transform: scale(1.2); }
-    }
-    
-    .last-update {
-        color: #64748b !important;
-        font-size: 13px !important;
-    }
-    
-    .header-actions {
-        display: flex !important;
-        gap: 12px !important;
-    }
-    
-    /* Enhanced Stats Grid */
-    .stats-grid {
-        display: grid !important;
-        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)) !important;
-        gap: 24px !important;
-    }
-    
-    .stat-card {
-        background: rgba(20, 20, 35, 0.7) !important;
-        backdrop-filter: blur(24px) !important;
-        -webkit-backdrop-filter: blur(24px) !important;
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
-        border-radius: 20px !important;
-        padding: 32px 24px !important;
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: flex-start !important;
-        text-align: left !important;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-        position: relative !important;
-        overflow: hidden !important;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
-    }
-    
-    .stat-card::before {
-        content: '' !important;
-        position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        height: 3px !important;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-        opacity: 0 !important;
-        transition: opacity 0.3s ease !important;
-    }
-    
-    .stat-card:hover::before {
-        opacity: 1 !important;
-    }
-    
-    .stat-card:hover {
-        transform: translateY(-8px) scale(1.02) !important;
-        box-shadow: 0 12px 40px rgba(102, 126, 234, 0.2) !important;
-        border-color: rgba(102, 126, 234, 0.3) !important;
-    }
-    
-    .stat-icon {
-        font-size: 36px !important;
-        margin-bottom: 20px !important;
-        width: 64px !important;
-        height: 64px !important;
-        border-radius: 16px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.15), rgba(118, 75, 162, 0.15)) !important;
-        transition: all 0.3s ease !important;
-    }
-    
-    .stat-card:hover .stat-icon {
-        transform: scale(1.1) rotate(-5deg) !important;
-    }
-    
-    .stat-value {
-        font-size: 48px !important;
-        font-weight: 800 !important;
-        font-family: 'Syne', sans-serif !important;
-        color: white !important;
-        margin-bottom: 8px !important;
-        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
-        line-height: 1 !important;
-    }
-    
-    .stat-label {
-        font-size: 14px !important;
-        color: #a0a0b0 !important;
-        font-weight: 600 !important;
-        text-transform: uppercase !important;
-        letter-spacing: 1.5px !important;
-        margin-bottom: 12px !important;
-    }
-    
-    .stat-trend {
-        display: flex !important;
-        align-items: center !important;
-        gap: 6px !important;
-        font-size: 13px !important;
-        font-weight: 600 !important;
-        padding: 6px 12px !important;
-        background: rgba(67, 233, 123, 0.1) !important;
-        border: 1px solid rgba(67, 233, 123, 0.2) !important;
-        border-radius: 50px !important;
-        color: #43e97b !important;
-    }
-    
-    .stat-trend.negative {
-        background: rgba(240, 147, 251, 0.1) !important;
-        border-color: rgba(240, 147, 251, 0.2) !important;
-        color: #f093fb !important;
-    }
-    
-    .stat-divider {
-        width: 100% !important;
-        height: 2px !important;
-        background: linear-gradient(90deg, rgba(102, 126, 234, 0.3), transparent) !important;
-        margin: 16px 0 !important;
-    }
-    
-    /* Admin Section */
-    .admin-section {
-        background: rgba(20, 20, 35, 0.7) !important;
-        backdrop-filter: blur(24px) !important;
-        -webkit-backdrop-filter: blur(24px) !important;
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
-        border-radius: 24px !important;
-        padding: 32px !important;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
-        position: relative !important;
-        overflow: hidden !important;
-    }
-    
-    .admin-section::before {
-        content: '' !important;
-        position: absolute !important;
-        top: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        height: 4px !important;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-    }
-    
-    .admin-section h2 {
-        font-family: 'Syne', sans-serif !important;
-        font-size: 24px !important;
-        margin-top: 0 !important;
-        margin-bottom: 28px !important;
-        color: white !important;
-        display: flex !important;
-        align-items: center !important;
-        gap: 12px !important;
-        font-weight: 700 !important;
-    }
-    
-    .admin-section h2 i {
-        font-size: 28px !important;
-        color: #667eea !important;
-    }
-    
-    /* Search and Filter */
-    .search-filter-container {
-        display: flex !important;
-        gap: 16px !important;
-        margin-bottom: 24px !important;
-        flex-wrap: wrap !important;
-    }
-    
-    .search-box {
-        flex: 1 !important;
-        min-width: 280px !important;
-        position: relative !important;
-    }
-    
-    .search-box input {
-        width: 100% !important;
-        padding: 14px 20px 14px 48px !important;
-        background: rgba(0, 0, 0, 0.3) !important;
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
-        border-radius: 12px !important;
-        color: white !important;
-        font-size: 15px !important;
-        transition: all 0.3s ease !important;
-    }
-    
-    .search-box input:focus {
-        outline: none !important;
-        border-color: #667eea !important;
-        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1) !important;
-    }
-    
-    .search-box i {
-        position: absolute !important;
-        left: 16px !important;
-        top: 50% !important;
-        transform: translateY(-50%) !important;
-        color: #64748b !important;
-        font-size: 20px !important;
-    }
-    
-    .filter-tabs {
-        display: flex !important;
-        gap: 8px !important;
-        flex-wrap: wrap !important;
-    }
-    
-    .filter-tab {
-        padding: 10px 20px !important;
-        background: rgba(255, 255, 255, 0.05) !important;
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
-        border-radius: 50px !important;
-        color: #a0a0b0 !important;
-        font-size: 14px !important;
-        font-weight: 600 !important;
-        cursor: pointer !important;
-        transition: all 0.3s ease !important;
-    }
-    
-    .filter-tab:hover, .filter-tab.active {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-        color: white !important;
-        border-color: transparent !important;
-    }
-    
-    /* Table */
-    .table-container {
-        overflow-x: auto !important;
-        border-radius: 16px !important;
-    }
-    
-    .admin-table {
-        width: 100% !important;
-        border-collapse: separate !important;
-        border-spacing: 0 !important;
-    }
-    
-    .admin-table thead {
-        background: rgba(102, 126, 234, 0.1) !important;
-    }
-    
-    .admin-table th {
-        text-align: left !important;
-        padding: 18px 24px !important;
-        color: white !important;
-        font-weight: 700 !important;
-        font-size: 13px !important;
-        text-transform: uppercase !important;
-        letter-spacing: 1px !important;
-        border-bottom: 2px solid rgba(102, 126, 234, 0.2) !important;
-    }
-    
-    .admin-table td {
-        padding: 20px 24px !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
-        color: #e2e8f0 !important;
-        font-size: 15px !important;
-        font-weight: 500 !important;
-        transition: all 0.3s ease !important;
-    }
-    
-    .admin-table tbody tr:hover {
-        background: rgba(102, 126, 234, 0.05) !important;
-        transform: scale(1.005) !important;
-    }
-    
-    .admin-table tbody tr:hover td {
-        color: white !important;
-    }
-    
-    .user-avatar {
-        width: 44px !important;
-        height: 44px !important;
-        border-radius: 50% !important;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        font-weight: 700 !important;
-        font-size: 18px !important;
-        color: white !important;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) !important;
-        flex-shrink: 0 !important;
-    }
-    
-    .user-cell {
-        display: flex !important;
-        align-items: center !important;
-        gap: 14px !important;
-    }
-    
-    .user-info {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 4px !important;
-    }
-    
-    .user-name {
-        font-weight: 600 !important;
-        color: white !important;
-    }
-    
-    .user-email {
-        font-size: 13px !important;
-        color: #64748b !important;
-    }
-    
-    .badge {
-        display: inline-flex !important;
-        align-items: center !important;
-        gap: 6px !important;
-        padding: 8px 16px !important;
-        border-radius: 50px !important;
-        font-size: 12px !important;
-        font-weight: 700 !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.5px !important;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2) !important;
-    }
-    
-    .badge-admin {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-        color: white !important;
-    }
-    
-    .badge-staff {
-        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%) !important;
-        color: white !important;
-    }
-    
-    .badge-active {
-        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%) !important;
-        color: #0a0a0f !important;
-    }
-    
-    .badge-inactive {
-        background: rgba(240, 147, 251, 0.2) !important;
-        color: #f093fb !important;
-        border: 1px solid rgba(240, 147, 251, 0.3) !important;
-    }
-    
-    .btn {
-        padding: 10px 20px !important;
-        border: none !important;
-        border-radius: 12px !important;
-        font-size: 14px !important;
-        font-weight: 600 !important;
-        cursor: pointer !important;
-        transition: all 0.3s ease !important;
-        display: inline-flex !important;
-        align-items: center !important;
-        gap: 8px !important;
-        text-decoration: none !important;
-    }
-    
-    .btn-primary {
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-        color: white !important;
-        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3) !important;
-    }
-    
-    .btn-primary:hover {
-        transform: translateY(-2px) !important;
-        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4) !important;
-    }
-    
-    .btn-secondary {
-        background: rgba(255, 255, 255, 0.1) !important;
-        color: white !important;
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
-    }
-    
-    .btn-secondary:hover {
-        background: rgba(255, 255, 255, 0.15) !important;
-        border-color: rgba(102, 126, 234, 0.3) !important;
-    }
-    
-    .btn-sm {
-        padding: 8px 16px !important;
-        font-size: 13px !important;
-    }
-    
-    .refresh-btn {
-        display: inline-flex !important;
-        align-items: center !important;
-        gap: 10px !important;
-        padding: 12px 24px !important;
-        background: rgba(79, 172, 254, 0.15) !important;
-        border: 1px solid rgba(79, 172, 254, 0.3) !important;
-        border-radius: 50px !important;
-        color: #4facfe !important;
-        font-size: 14px !important;
-        font-weight: 600 !important;
-        cursor: pointer !important;
-        transition: all 0.3s ease !important;
-    }
-    
-    .refresh-btn:hover {
-        background: rgba(79, 172, 254, 0.25) !important;
-        transform: translateY(-2px) !important;
-        box-shadow: 0 4px 15px rgba(79, 172, 254, 0.3) !important;
-    }
-    
-    .back-link {
-        display: inline-flex !important;
-        align-items: center !important;
-        gap: 8px !important;
-        color: #e2e8f0 !important;
-        text-decoration: none !important;
-        font-size: 16px !important;
-        font-weight: 600 !important;
-        padding: 10px 20px !important;
-        border-radius: 12px !important;
-        transition: all 0.3s ease !important;
-    }
-    
-    .back-link:hover {
-        color: #667eea !important;
-        background: rgba(102, 126, 234, 0.1) !important;
-    }
-    
-    .quick-link-card {
-        text-decoration: none !important;
-        cursor: pointer !important;
-        position: relative !important;
-    }
-    
-    .quick-link-card::after {
-        content: '' !important;
-        position: absolute !important;
-        inset: 0 !important;
-        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1)) !important;
-        opacity: 0 !important;
-        transition: opacity 0.3s ease !important;
-        border-radius: 20px !important;
-    }
-    
-    .quick-link-card:hover::after {
-        opacity: 1 !important;
-    }
-    
-    /* Statistics Charts */
-    .stats-charts {
-        display: grid !important;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important;
-        gap: 24px !important;
-    }
-    
-    .chart-card {
-        background: rgba(20, 20, 35, 0.7) !important;
-        backdrop-filter: blur(24px) !important;
-        -webkit-backdrop-filter: blur(24px) !important;
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
-        border-radius: 20px !important;
-        padding: 28px !important;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2) !important;
-    }
-    
-    .chart-card h3 {
-        font-family: 'Syne', sans-serif !important;
-        font-size: 18px !important;
-        margin: 0 0 20px 0 !important;
-        color: white !important;
-        font-weight: 700 !important;
-    }
-    
-    .bar-chart {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 12px !important;
-    }
-    
-    .bar-item {
-        display: flex !important;
-        align-items: center !important;
-        gap: 12px !important;
-    }
-    
-    .bar-label {
-        min-width: 100px !important;
-        font-size: 13px !important;
-        color: #a0a0b0 !important;
-        font-weight: 600 !important;
-    }
-    
-    .bar-track {
-        flex: 1 !important;
-        height: 8px !important;
-        background: rgba(255, 255, 255, 0.1) !important;
-        border-radius: 4px !important;
-        overflow: hidden !important;
-    }
-    
-    .bar-fill {
-        height: 100% !important;
-        background: linear-gradient(90deg, #667eea, #764ba2) !important;
-        border-radius: 4px !important;
-        transition: width 0.6s ease !important;
-    }
-    
-    .bar-value {
-        min-width: 40px !important;
-        font-size: 13px !important;
-        color: white !important;
-        font-weight: 700 !important;
-        text-align: right !important;
-    }
-    
-    /* Visitor Stats */
-    .visitor-stats {
-        display: grid !important;
-        grid-template-columns: repeat(3, 1fr) !important;
-        gap: 20px !important;
-    }
-    
-    .visitor-stat {
-        background: rgba(67, 233, 123, 0.1) !important;
-        border: 1px solid rgba(67, 233, 123, 0.2) !important;
-        border-radius: 16px !important;
-        padding: 20px !important;
-        text-align: center !important;
-    }
-    
-    .visitor-stat-value {
-        font-size: 32px !important;
-        font-weight: 800 !important;
-        color: #43e97b !important;
-        margin-bottom: 4px !important;
-    }
-    
-    .visitor-stat-label {
-        font-size: 13px !important;
-        color: #a0a0b0 !important;
-        text-transform: uppercase !important;
-        letter-spacing: 1px !important;
-    }
-    
-    /* Notifications Grouped */
-    .notification-group {
-        margin-bottom: 24px !important;
-    }
-    
-    .notification-group-title {
-        font-size: 14px !important;
-        color: #64748b !important;
-        font-weight: 700 !important;
-        text-transform: uppercase !important;
-        letter-spacing: 1px !important;
-        margin-bottom: 16px !important;
-    }
-    
-    .notification-item {
-        display: flex !important;
-        align-items: center !important;
-        gap: 16px !important;
-        padding: 16px !important;
-        background: rgba(255, 255, 255, 0.03) !important;
-        border: 1px solid rgba(255, 255, 255, 0.05) !important;
-        border-radius: 12px !important;
-        margin-bottom: 12px !important;
-        transition: all 0.3s ease !important;
-    }
-    
-    .notification-item:hover {
-        background: rgba(102, 126, 234, 0.05) !important;
-        border-color: rgba(102, 126, 234, 0.2) !important;
-    }
-    
-    .notification-icon {
-        width: 40px !important;
-        height: 40px !important;
-        border-radius: 10px !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
-        font-size: 20px !important;
-    }
-    
-    .notification-icon.chat { background: rgba(102, 126, 234, 0.2); color: #667eea; }
-    .notification-icon.event { background: rgba(67, 233, 123, 0.2); color: #43e97b; }
-    .notification-icon.support { background: rgba(250, 112, 154, 0.2); color: #fa709a; }
-    .notification-icon.music { background: rgba(79, 172, 254, 0.2); color: #4facfe; }
-    .notification-icon.study { background: rgba(240, 147, 251, 0.2); color: #f093fb; }
-    
-    .notification-content {
-        flex: 1 !important;
-    }
-    
-    .notification-title {
-        font-size: 14px !important;
-        color: white !important;
-        font-weight: 600 !important;
-        margin-bottom: 4px !important;
-    }
-    
-    .notification-time {
-        font-size: 12px !important;
-        color: #64748b !important;
-    }
-    
-    /* Support Metrics */
-    .support-metrics {
-        display: grid !important;
-        grid-template-columns: repeat(3, 1fr) !important;
-        gap: 20px !important;
-    }
-    
-    .support-metric {
-        background: rgba(250, 112, 154, 0.1) !important;
-        border: 1px solid rgba(250, 112, 154, 0.2) !important;
-        border-radius: 16px !important;
-        padding: 20px !important;
-        text-align: center !important;
-    }
-    
-    .support-metric-value {
-        font-size: 32px !important;
-        font-weight: 800 !important;
-        color: #fa709a !important;
-        margin-bottom: 4px !important;
-    }
-    
-    .support-metric-label {
-        font-size: 13px !important;
-        color: #a0a0b0 !important;
-        text-transform: uppercase !important;
-        letter-spacing: 1px !important;
-    }
-    
-    /* Suggestions */
-    .suggestion-item {
-        display: flex !important;
-        align-items: center !important;
-        gap: 16px !important;
-        padding: 16px !important;
-        background: rgba(102, 126, 234, 0.05) !important;
-        border: 1px solid rgba(102, 126, 234, 0.1) !important;
-        border-radius: 12px !important;
-        margin-bottom: 12px !important;
-    }
-    
-    .suggestion-user {
-        font-weight: 600 !important;
-        color: white !important;
-    }
-    
-    .suggestion-text {
-        flex: 1 !important;
-        color: #e2e8f0 !important;
-    }
-    
-    /* System Status */
-    .system-status-grid {
-        display: grid !important;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important;
-        gap: 16px !important;
-    }
-    
-    .system-status-item {
-        display: flex !important;
-        align-items: center !important;
-        gap: 12px !important;
-        padding: 16px !important;
-        background: rgba(67, 233, 123, 0.1) !important;
-        border: 1px solid rgba(67, 233, 123, 0.2) !important;
-        border-radius: 12px !important;
-    }
-    
-    .system-status-dot {
-        width: 10px !important;
-        height: 10px !important;
-        background: #43e97b !important;
-        border-radius: 50% !important;
-        animation: pulse 2s infinite !important;
-    }
-    
-    .system-status-dot.warning {
-        background: #fbbf24 !important;
-    }
-    
-    .system-status-dot.error {
-        background: #ef4444 !important;
-    }
-    
-    .system-status-label {
-        font-size: 14px !important;
-        color: white !important;
-        font-weight: 600 !important;
-    }
-    
-    /* Activity Timeline */
-    .activity-timeline {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 16px !important;
-    }
-    
-    .activity-item {
-        display: flex !important;
-        gap: 16px !important;
-        padding: 16px !important;
-        background: rgba(255, 255, 255, 0.03) !important;
-        border: 1px solid rgba(255, 255, 255, 0.05) !important;
-        border-radius: 12px !important;
-    }
-    
-    .activity-time {
-        min-width: 80px !important;
-        font-size: 13px !important;
-        color: #64748b !important;
-        font-weight: 600 !important;
-    }
-    
-    .activity-content {
-        flex: 1 !important;
-        color: #e2e8f0 !important;
-        font-size: 14px !important;
-    }
-    
-    /* Quick Actions */
-    .quick-actions-grid {
-        display: grid !important;
-        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)) !important;
-        gap: 16px !important;
-    }
-    
-    .quick-action-card {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        gap: 12px !important;
-        padding: 24px !important;
-        background: rgba(102, 126, 234, 0.1) !important;
-        border: 1px solid rgba(102, 126, 234, 0.2) !important;
-        border-radius: 16px !important;
-        cursor: pointer !important;
-        transition: all 0.3s ease !important;
-        text-decoration: none !important;
-    }
-    
-    .quick-action-card:hover {
-        background: rgba(102, 126, 234, 0.2) !important;
-        transform: translateY(-4px) !important;
-        box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2) !important;
-    }
-    
-    .quick-action-icon {
-        font-size: 28px !important;
-        color: #667eea !important;
-    }
-    
-    .quick-action-label {
-        font-size: 13px !important;
-        color: white !important;
-        font-weight: 600 !important;
-        text-align: center !important;
-    }
-    
-    /* Reports Section */
-    .reports-grid {
-        display: grid !important;
-        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
-        gap: 16px !important;
-    }
-    
-    .report-card {
-        display: flex !important;
-        flex-direction: column !important;
-        align-items: center !important;
-        gap: 12px !important;
-        padding: 24px !important;
-        background: rgba(79, 172, 254, 0.1) !important;
-        border: 1px solid rgba(79, 172, 254, 0.2) !important;
-        border-radius: 16px !important;
-        cursor: pointer !important;
-        transition: all 0.3s ease !important;
-    }
-    
-    .report-card:hover {
-        background: rgba(79, 172, 254, 0.2) !important;
-        transform: translateY(-4px) !important;
-    }
-    
-    .report-icon {
-        font-size: 28px !important;
-        color: #4facfe !important;
-    }
-    
-    .report-label {
-        font-size: 13px !important;
-        color: white !important;
-        font-weight: 600 !important;
-    }
-    
-    .report-actions {
-        display: flex !important;
-        gap: 8px !important;
-        margin-top: 8px !important;
-    }
-    
-    .report-action-btn {
-        padding: 6px 12px !important;
-        font-size: 11px !important;
-        background: rgba(255, 255, 255, 0.1) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        border-radius: 6px !important;
-        color: #a0a0b0 !important;
-        cursor: pointer !important;
-        transition: all 0.3s ease !important;
-    }
-    
-    .report-action-btn:hover {
-        background: rgba(79, 172, 254, 0.2) !important;
-        color: #4facfe !important;
-    }
-    
-    /* Security Section */
-    .security-grid {
-        display: grid !important;
-        grid-template-columns: repeat(3, 1fr) !important;
-        gap: 20px !important;
-    }
-    
-    .security-item {
-        background: rgba(240, 147, 251, 0.1) !important;
-        border: 1px solid rgba(240, 147, 251, 0.2) !important;
-        border-radius: 16px !important;
-        padding: 20px !important;
-        text-align: center !important;
-    }
-    
-    .security-value {
-        font-size: 32px !important;
-        font-weight: 800 !important;
-        color: #f093fb !important;
-        margin-bottom: 4px !important;
-    }
-    
-    .security-label {
-        font-size: 13px !important;
-        color: #a0a0b0 !important;
-        text-transform: uppercase !important;
-        letter-spacing: 1px !important;
-    }
-    
-    /* Blog Management Section */
-    .blog-metrics {
-        display: grid !important;
-        grid-template-columns: repeat(3, 1fr) !important;
-        gap: 12px !important;
-        margin-bottom: 16px !important;
-    }
-    
-    .blog-metric {
-        background: rgba(102, 126, 234, 0.1) !important;
-        border: 1px solid rgba(102, 126, 234, 0.2) !important;
-        border-radius: 12px !important;
-        padding: 16px !important;
-        text-align: center !important;
-    }
-    
-    .blog-metric-value {
-        font-size: 24px !important;
-        font-weight: 700 !important;
-        color: #667eea !important;
-        margin-bottom: 4px !important;
-    }
-    
-    .blog-metric-label {
-        font-size: 12px !important;
-        color: #a0a0b0 !important;
-        text-transform: uppercase !important;
-        letter-spacing: 0.5px !important;
-    }
-    
-    .blog-post-item {
-        background: rgba(255, 255, 255, 0.05) !important;
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
-        border-radius: 8px !important;
-        padding: 12px !important;
-        margin-bottom: 8px !important;
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 4px !important;
-    }
-    
-    .blog-post-title {
-        font-size: 14px !important;
-        font-weight: 600 !important;
-        color: #ffffff !important;
-    }
-    
-    .blog-post-author {
-        font-size: 12px !important;
-        color: #a0a0b0 !important;
-    }
-    
-    .blog-post-date {
-        font-size: 11px !important;
-        color: #64748b !important;
-    }
-    
-    /* Two Column Layout */
-    .two-column-layout {
-        display: grid !important;
-        grid-template-columns: 2fr 1fr !important;
-        gap: 24px !important;
-    }
-    
-    @media (max-width: 1024px) {
-        .two-column-layout {
-            grid-template-columns: 1fr !important;
-        }
-    }
-    
-    /* Spinning animation for refresh */
-    .spinning {
-        animation: spin 1s linear infinite !important;
-    }
-    
-    @keyframes spin {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-</style>
-{% endblock %}
+{% block title %}Centro de Administración - MiniAmigixV{% endblock %}
 
 {% block content %}
 <style>
-    :root {
-        --accent:         #f43f5e;
-        --accent-light:   #fb7185;
-        --accent-dark:    #be123c;
-        --bg:            #0a0a0f;
-        --surface:       rgba(255,255,255,0.04);
-        --surface-hov:   rgba(255,255,255,0.07);
-        --border:        rgba(255,255,255,0.1);
-        --border-hov:    #f43f5e50;
-        --text:          #f1f5f9;
-        --muted:         #94a3b8;
-        --radius:        24px;
-        --shadow-accent: 0 0 40px #f43f5e30;
-        --glow:          0 0 18px #f43f5e80;
-    }
-
-    .admin-page * { box-sizing: border-box; }
-    .admin-page {
-        min-height: 100vh;
-        background: var(--bg);
-        color: var(--text);
-        font-family: 'Inter', system-ui, sans-serif;
-        padding-bottom: 40px;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .admin-orb {
-        position: absolute;
-        border-radius: 50%;
-        filter: blur(80px);
-        pointer-events: none;
-        z-index: 0;
-    }
-    .admin-orb-1 {
-        width: 400px; height: 400px;
-        background: radial-gradient(circle, #f43f5e33 0%, transparent 70%);
-        top: -100px; left: -100px;
-        animation: orbFloat1 10s ease-in-out infinite;
-    }
-    .admin-orb-2 {
-        width: 350px; height: 350px;
-        background: radial-gradient(circle, #fb718526 0%, transparent 70%);
-        bottom: -50px; right: -50px;
-        animation: orbFloat2 12s ease-in-out infinite;
-    }
-
-    @keyframes orbFloat1 {
-        0%,100% { transform: translate(0,0) scale(1); }
-        50%      { transform: translate(40px,40px) scale(1.1); }
-    }
-    @keyframes orbFloat2 {
-        0%,100% { transform: translate(0,0) scale(1); }
-        50%      { transform: translate(-40px,-40px) scale(0.9); }
-    }
-    @keyframes fadeSlideUp {
-        from { opacity: 0; transform: translateY(20px); }
-        to   { opacity: 1; transform: translateY(0); }
-    }
-
-    .admin-hero {
-        position: relative;
-        z-index: 1;
-        text-align: center;
-        padding: 40px 20px 20px;
-        animation: fadeSlideUp 0.5s ease both;
-    }
-    .admin-hero h1 {
-        font-size: 2.5rem;
-        font-weight: 800;
-        background: linear-gradient(135deg, #fff 30%, var(--accent-light) 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin: 10px 0 5px;
-    }
-    .admin-hero p { color: var(--muted); margin: 0; }
-
-    /* Glassmorphism Overrides */
-    .admin-page > div:not(.admin-hero):not(.admin-orb) {
-        position: relative;
-        z-index: 1;
-        animation: fadeSlideUp 0.5s 0.2s ease both;
+    .admin-container {
         max-width: 1400px;
         margin: 0 auto;
-        padding: 0 20px;
+        padding: 20px;
     }
-    
-    .games-hero-banner, .translator-header, .movies-header, .stats-cards, .games-grid, .ticket-list, .translator-layout {
-        background: var(--surface) !important;
-        border: 1px solid var(--border) !important;
-        border-radius: var(--radius) !important;
-        backdrop-filter: blur(20px) !important;
-        box-shadow: var(--shadow-accent) !important;
+
+    .admin-nav {
+        background: rgba(124, 58, 237, 0.1);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(124, 58, 237, 0.2);
+        border-radius: 16px;
+        padding: 16px;
         margin-bottom: 24px;
-        transition: transform 0.3s, box-shadow 0.3s;
     }
-    
-    .game-card, .movie-card, .series-card, .ticket-card, .translator-box {
-        background: rgba(0,0,0,0.2) !important;
-        border: 1px solid rgba(255,255,255,0.05) !important;
-        border-radius: 16px !important;
-        transition: all 0.3s;
+
+    .admin-nav-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding-bottom: 16px;
+        margin-bottom: 16px;
+        border-bottom: 1px solid rgba(124, 58, 237, 0.2);
     }
-    
-    .game-card:hover, .movie-card:hover, .series-card:hover, .ticket-card:hover {
-        border-color: var(--accent) !important;
-        background: #f43f5e0D !important;
-        transform: translateY(-4px) !important;
+
+    .admin-nav-logo {
+        font-size: 24px;
+        font-weight: 700;
+        background: linear-gradient(135deg, #c084fc, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
     }
-    
-    .hero-continue-btn, .btn-primary, .translate-btn {
-        background: linear-gradient(135deg, var(--accent), var(--accent-light)) !important;
-        color: #fff !important;
-        border: none !important;
-        box-shadow: var(--glow) !important;
-        border-radius: 12px !important;
-        font-weight: 700 !important;
+
+    .admin-nav-links {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .admin-nav-link {
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 13px;
+        font-weight: 500;
+        color: rgba(255,255,255,0.8);
+        text-decoration: none;
+        transition: all 0.3s ease;
+        background: rgba(255,255,255,0.05);
+    }
+
+    .admin-nav-link:hover {
+        background: rgba(124, 58, 237, 0.2);
+        color: #c084fc;
+    }
+
+    .admin-nav-link.active {
+        background: rgba(124, 58, 237, 0.3);
+        color: #c084fc;
+    }
+
+    .admin-nav-link.logout {
+        background: rgba(239, 68, 68, 0.1);
+        color: #ef4444;
+    }
+
+    .admin-nav-link.logout:hover {
+        background: rgba(239, 68, 68, 0.2);
+    }
+
+    .admin-header {
+        background: rgba(124, 58, 237, 0.1);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(124, 58, 237, 0.2);
+        border-radius: 24px;
+        padding: 32px;
+        margin-bottom: 24px;
+    }
+
+    .admin-header h1 {
+        font-size: 28px;
+        font-weight: 700;
+        color: #fff;
+        margin: 0 0 8px 0;
+        background: linear-gradient(135deg, #c084fc, #8b5cf6);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+
+    .admin-header p {
+        color: rgba(255,255,255,0.6);
+        margin: 0;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+
+    .stat-card {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 16px;
+        padding: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        background: rgba(124, 58, 237, 0.1);
+        border-color: rgba(124, 58, 237, 0.3);
+        transform: translateY(-4px);
+    }
+
+    .stat-value {
+        font-size: 32px;
+        font-weight: 700;
+        color: #c084fc;
+        margin-bottom: 4px;
+    }
+
+    .stat-label {
+        font-size: 13px;
+        color: rgba(255,255,255,0.6);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .admin-section {
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+    }
+
+    .admin-section h2 {
+        font-size: 18px;
+        font-weight: 600;
+        color: #fff;
+        margin: 0 0 16px 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .admin-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .admin-table th,
+    .admin-table td {
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    .admin-table th {
+        font-size: 12px;
+        font-weight: 600;
+        color: rgba(255,255,255,0.6);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .admin-table td {
+        color: rgba(255,255,255,0.8);
+    }
+
+    .admin-table tbody tr:hover {
+        background: rgba(124, 58, 237, 0.05);
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+    }
+
+    .badge-admin {
+        background: rgba(124, 58, 237, 0.2);
+        color: #c084fc;
+    }
+
+    .badge-active {
+        background: rgba(34, 197, 94, 0.2);
+        color: #22c55e;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        border: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #c084fc, #8b5cf6);
+        color: #fff;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+    }
+
+    .btn-secondary {
+        background: rgba(255,255,255,0.1);
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255,255,255,0.15);
+    }
+
+    .btn-sm {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 24px;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px;
+        color: rgba(255,255,255,0.4);
+    }
+
+    .user-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #c084fc, #8b5cf6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        color: #fff;
+    }
+
+    .user-cell {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .user-name {
+        font-weight: 600;
+        color: #fff;
+    }
+
+    .user-email {
+        font-size: 12px;
+        color: rgba(255,255,255,0.5);
     }
 </style>
-<div class="admin-dashboard">
-    <!-- Enhanced Header -->
-    <div class="admin-header">
-        <div class="header-content">
-            <div class="header-left">
-                <h1>🛡 Centro de Administración</h1>
-                <p>Bienvenido, Super Administrador</p>
-                <p>Gestiona usuarios, contenido y el estado de MiniAmigixV desde un solo lugar.</p>
-                <div class="header-status">
-                    <div class="status-indicator">
-                        <div class="status-dot"></div>
-                        Sistema operativo correctamente
-                    </div>
-                    <span class="last-update">🕒 Última actualización: Hace 1 minuto</span>
-                </div>
-            </div>
-            <div class="header-actions">
-                <button class="refresh-btn" id="refresh-btn" onclick="refreshStats()">
-                    <i class="ti ti-refresh"></i>
-                    <span id="refresh-text">Actualizar</span>
-                </button>
-                <a href="{% url 'exportar_reporte_excel' %}" class="btn btn-primary">
-                    <i class="ti ti-chart-bar"></i> Ver reportes
-                </a>
-            </div>
+
+<div class="admin-container">
+    <!-- Navigation Menu -->
+    <nav class="admin-nav">
+        <div class="admin-nav-header">
+            <div class="admin-nav-logo">🎮 MiniAmigixV</div>
         </div>
+        <div class="admin-nav-links">
+            <a href="/" class="admin-nav-link">🏠 Inicio</a>
+            <a href="/chat/" class="admin-nav-link">💬 Chat IA</a>
+            <a href="/musica/" class="admin-nav-link">🎵 Música</a>
+            <a href="/juegos/" class="admin-nav-link">🎮 Juegos</a>
+            <a href="/estudio/" class="admin-nav-link">📚 Estudio</a>
+            <a href="/clima/" class="admin-nav-link">🌤️ Clima</a>
+            <a href="/traductor/" class="admin-nav-link">🌐 Traductor</a>
+            <a href="/blog/" class="admin-nav-link">📝 Blog</a>
+            <a href="/eventos/" class="admin-nav-link">📅 Eventos</a>
+            <a href="/tutoriales/" class="admin-nav-link">📖 Tutoriales</a>
+            <a href="/archivos/" class="admin-nav-link">📁 Mis Archivos</a>
+            <a href="/panel-admin/" class="admin-nav-link active">🛡 Administración</a>
+            <a href="/panel-admin/" class="admin-nav-link active">⚙️ Centro Admin</a>
+            <a href="/logout/" class="admin-nav-link logout">🚪 Cerrar Sesión</a>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="admin-header">
+        <h1>🛡 Centro de Administración</h1>
+        <p>Bienvenido, {{ user.username }}. Gestiona MiniAmigixV desde aquí.</p>
     </div>
 
-    <!-- Enhanced Stats Grid with Trends -->
+    <!-- Stats Grid -->
     <div class="stats-grid">
         <div class="stat-card">
-            <div class="stat-icon"><i class="ti ti-users"></i></div>
             <div class="stat-value">{{ total_usuarios }}</div>
             <div class="stat-label">Usuarios</div>
-            <div class="stat-divider"></div>
-            <div class="stat-trend">+2 esta semana</div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon"><i class="ti ti-message"></i></div>
             <div class="stat-value">{{ total_chats }}</div>
             <div class="stat-label">Chats IA</div>
-            <div class="stat-divider"></div>
-            <div class="stat-trend">Hoy</div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon"><i class="ti ti-music"></i></div>
             <div class="stat-value">{{ total_canciones }}</div>
-            <div class="stat-label">Música</div>
-            <div class="stat-divider"></div>
-            <div class="stat-trend">3 Listas creadas</div>
+            <div class="stat-label">Canciones</div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon"><i class="ti ti-calendar"></i></div>
             <div class="stat-value">{{ total_eventos }}</div>
             <div class="stat-label">Eventos</div>
-            <div class="stat-divider"></div>
-            <div class="stat-trend">1 Programado</div>
         </div>
         <div class="stat-card">
-            <div class="stat-icon"><i class="ti ti-bell"></i></div>
-            <div class="stat-value">{{ total_notificaciones }}</div>
-            <div class="stat-label">Notificaciones</div>
-            <div class="stat-divider"></div>
-            <div class="stat-trend">3 sin leer</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-icon"><i class="ti ti-headset"></i></div>
             <div class="stat-value">{{ total_tickets_pendientes }}</div>
             <div class="stat-label">Tickets</div>
-            <div class="stat-divider"></div>
-            <div class="stat-trend negative">Pendientes</div>
         </div>
     </div>
 
-    <!-- Statistics Charts -->
-    <div class="stats-charts">
-        <div class="chart-card">
-            <h3>📈 Crecimiento de Usuarios</h3>
-            <div class="bar-chart">
-                <div class="bar-item">
-                    <div class="bar-label">Usuarios</div>
-                    <div class="bar-track"><div class="bar-fill" style="width: 80%;"></div></div>
-                    <div class="bar-value">{{ total_usuarios }}</div>
-                </div>
-                <div class="bar-item">
-                    <div class="bar-label">Chats IA</div>
-                    <div class="bar-track"><div class="bar-fill" style="width: 60%;"></div></div>
-                    <div class="bar-value">{{ total_chats }}</div>
-                </div>
-                <div class="bar-item">
-                    <div class="bar-label">Eventos</div>
-                    <div class="bar-track"><div class="bar-fill" style="width: 40%;"></div></div>
-                    <div class="bar-value">{{ total_eventos }}</div>
-                </div>
-                <div class="bar-item">
-                    <div class="bar-label">Notificaciones</div>
-                    <div class="bar-track"><div class="bar-fill" style="width: 70%;"></div></div>
-                    <div class="bar-value">{{ total_notificaciones }}</div>
-                </div>
+    <!-- Entertainment Section -->
+    <div class="admin-section">
+        <h2>🎮 Entretenimiento</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px;">
+            <div style="text-align: center; padding: 16px; background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 12px;">
+                <div style="font-size: 32px; font-weight: 700; color: #c084fc;">{{ total_canciones }}</div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.5px;">Canciones</div>
+            </div>
+            <div style="text-align: center; padding: 16px; background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 12px;">
+                <div style="font-size: 32px; font-weight: 700; color: #c084fc;">{{ total_playlists }}</div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.5px;">Playlists</div>
+            </div>
+            <div style="text-align: center; padding: 16px; background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 12px;">
+                <div style="font-size: 32px; font-weight: 700; color: #c084fc;">{{ total_favoritos }}</div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.5px;">Favoritos</div>
+            </div>
+            <div style="text-align: center; padding: 16px; background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 12px;">
+                <div style="font-size: 32px; font-weight: 700; color: #c084fc;">{{ total_juegos }}</div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.5px;">Juegos</div>
+            </div>
+            <div style="text-align: center; padding: 16px; background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 12px;">
+                <div style="font-size: 32px; font-weight: 700; color: #c084fc;">{{ total_puntuaciones }}</div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.5px;">Puntuaciones</div>
+            </div>
+            <div style="text-align: center; padding: 16px; background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 12px;">
+                <div style="font-size: 32px; font-weight: 700; color: #c084fc;">{{ total_logros }}</div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.5px;">Logros</div>
             </div>
         </div>
-        <div class="chart-card">
-            <h3>🎵 Actividad Musical</h3>
-            <div class="bar-chart">
-                <div class="bar-item">
-                    <div class="bar-label">Canciones</div>
-                    <div class="bar-track"><div class="bar-fill" style="width: 50%;"></div></div>
-                    <div class="bar-value">{{ total_canciones }}</div>
-                </div>
-                <div class="bar-item">
-                    <div class="bar-label">Reproducciones</div>
-                    <div class="bar-track"><div class="bar-fill" style="width: 85%;"></div></div>
-                    <div class="bar-value">{{ total_reproducciones }}</div>
-                </div>
-                <div class="bar-item">
-                    <div class="bar-label">Playlists</div>
-                    <div class="bar-track"><div class="bar-fill" style="width: 30%;"></div></div>
-                    <div class="bar-value">{{ total_playlists }}</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Two Column Layout -->
-    <div class="two-column-layout">
-        <!-- Left Column -->
-        <div style="display: flex; flex-direction: column; gap: 24px;">
-            <!-- User Management Section -->
-            <div class="admin-section">
-                <h2><i class="ti ti-users"></i> Gestión de Usuarios</h2>
-                <div class="search-filter-container">
-                    <div class="search-box">
-                        <i class="ti ti-search"></i>
-                        <input type="text" placeholder="🔍 Buscar usuario..." id="user-search">
-                    </div>
-                    <div class="filter-tabs">
-                        <div class="filter-tab active" onclick="filterUsers(event, 'all')">Todos</div>
-                        <div class="filter-tab" onclick="filterUsers(event, 'active')">Activos</div>
-                        <div class="filter-tab" onclick="filterUsers(event, 'admin')">Administradores</div>
-                        <div class="filter-tab" onclick="filterUsers(event, 'new')">Nuevos</div>
-                    </div>
-                </div>
-                <div class="table-container">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Usuario</th>
-                                <th>Estado</th>
-                                <th>Miembro desde</th>
-                                <th>Último acceso</th>
-                                <th>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for u in ultimos_usuarios %}
-                            <tr data-date-joined="{{ u.date_joined|date:'Y-m-d' }}">
-                                <td>
-                                    <div class="user-cell">
-                                        <div class="user-avatar">{{ u.username.0|upper }}</div>
-                                        <div class="user-info">
-                                            <div class="user-name">{{ u.username }}</div>
-                                            <div class="user-email">{{ u.email|default:"Sin correo" }}</div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td>
-                                    {% if u.is_superuser %}
-                                        <span class="badge badge-admin">🟢 Superadmin</span>
-                                    {% elif u.is_staff %}
-                                        <span class="badge badge-staff">🔵 Staff</span>
-                                    {% else %}
-                                        <span class="badge badge-active">🟢 Activo</span>
-                                    {% endif %}
-                                </td>
-                                <td>{{ u.date_joined|date:"M Y" }}</td>
-                                <td>{% if u.last_login %}{{ u.last_login|date:"d M Y, H:i" }}{% else %}Nunca{% endif %}</td>
-                                <td>
-                                    <div style="display: flex; gap: 8px;">
-                                        {% if u.email %}
-                                        <a href="{% url 'panel_admin_email_user' u.id %}" class="btn btn-secondary btn-sm">✉️</a>
-                                        {% endif %}
-                                        <button class="btn btn-secondary btn-sm">✏️</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            {% empty %}
-                            <tr>
-                                <td colspan="5" style="text-align: center; color: #64748b; padding: 40px;">No hay usuarios registrados.</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- Visitor Statistics -->
-            <div class="admin-section">
-                <h2><i class="ti ti-world"></i> Visitantes</h2>
-                <div class="visitor-stats">
-                    <div class="visitor-stat">
-                        <div class="visitor-stat-value">{{ visitantes_hoy }}</div>
-                        <div class="visitor-stat-label">Hoy</div>
-                    </div>
-                    <div class="visitor-stat">
-                        <div class="visitor-stat-value">{{ visitantes_semana }}</div>
-                        <div class="visitor-stat-label">Esta semana</div>
-                    </div>
-                    <div class="visitor-stat">
-                        <div class="visitor-stat-value">{{ visitantes_mes }}</div>
-                        <div class="visitor-stat-label">Este mes</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Notifications Section -->
-            <div class="admin-section">
-                <h2><i class="ti ti-bell"></i> Notificaciones</h2>
-                <div class="notification-group">
-                    <div class="notification-group-title">Hoy</div>
-                    {% for notif in ultimas_notificaciones %}
-                    <div class="notification-item">
-                        <div class="notification-icon {% if notif.tipo == 'evento' %}event{% elif notif.tipo == 'info' %}chat{% else %}support{% endif %}">
-                            <i class="ti ti-{% if notif.tipo == 'evento' %}calendar{% elif notif.tipo == 'info' %}message{% else %}headset{% endif %}"></i>
-                        </div>
-                        <div class="notification-content">
-                            <div class="notification-title">{{ notif.titulo }}</div>
-                            <div class="notification-time">{{ notif.fecha_creacion|date:"H:i" }}</div>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <div style="color: #64748b; padding: 20px; text-align: center;">No hay notificaciones recientes.</div>
-                    {% endfor %}
-                </div>
-            </div>
-        </div>
-
-        <!-- Right Column -->
-        <div style="display: flex; flex-direction: column; gap: 24px;">
-            <!-- Support Section -->
-            <div class="admin-section">
-                <h2><i class="ti ti-headset"></i> Soporte</h2>
-                <div class="support-metrics">
-                    <div class="support-metric">
-                        <div class="support-metric-value">{{ total_tickets_pendientes }}</div>
-                        <div class="support-metric-label">Pendientes</div>
-                    </div>
-                    <div class="support-metric">
-                        <div class="support-metric-value">{{ total_tickets_resueltos }}</div>
-                        <div class="support-metric-label">Resueltos</div>
-                    </div>
-                    <div class="support-metric">
-                        <div class="support-metric-value">{{ tiempo_promedio_respuesta }}</div>
-                        <div class="support-metric-label">Tiempo promedio</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Blog Management Section -->
-            <div class="admin-section">
-                <h2><i class="ti ti-file-text"></i> Gestión del Blog</h2>
-                <div class="blog-metrics">
-                    <div class="blog-metric">
-                        <div class="blog-metric-value">{{ total_publicaciones }}</div>
-                        <div class="blog-metric-label">Publicaciones</div>
-                    </div>
-                    <div class="blog-metric">
-                        <div class="blog-metric-value">{{ total_categorias }}</div>
-                        <div class="blog-metric-label">Categorías</div>
-                    </div>
-                    <div class="blog-metric">
-                        <div class="blog-metric-value">{{ total_comentarios }}</div>
-                        <div class="blog-metric-label">Comentarios</div>
-                    </div>
-                </div>
-                <div style="margin-top: 16px;">
-                    <div style="color: #a0a0b0; font-size: 13px; margin-bottom: 8px;">Últimas publicaciones:</div>
-                    {% for post in ultimas_publicaciones %}
-                    <div class="blog-post-item">
-                        <div class="blog-post-title">{{ post.titulo|truncatechars:25 }}</div>
-                        <div class="blog-post-author">{{ post.usuario.username }}</div>
-                        <div class="blog-post-date">{{ post.fecha_publicacion|date:"d M Y" }}</div>
-                    </div>
-                    {% empty %}
-                    <div style="color: #64748b; padding: 12px; text-align: center;">No hay publicaciones.</div>
-                    {% endfor %}
-                </div>
-                <a href="{% url 'blog' %}" class="btn btn-secondary" style="width: 100%; margin-top: 12px;">Ir al Blog</a>
-            </div>
-
-            <!-- Suggestions Section -->
-            <div class="admin-section">
-                <h2><i class="ti ti-message"></i> Sugerencias</h2>
-                {% for sugerencia in ultimas_sugerencias|slice:":3" %}
-                <div class="suggestion-item">
-                    <div class="suggestion-user">{{ sugerencia.usuario.username|default:"Anónimo" }}</div>
-                    <div class="suggestion-text">{{ sugerencia.titulo|truncatechars:30 }}</div>
+        
+        <div class="grid-2">
+            <div>
+                <h3 style="font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 12px;">🎵 Últimas Canciones</h3>
+                {% for cancion in ultimas_canciones %}
+                <div style="padding: 12px; background: rgba(255,255,255,0.02); border-radius: 8px; margin-bottom: 8px;">
+                    <div style="font-weight: 600; color: #fff;">{{ cancion.nombre }}</div>
+                    <div style="font-size: 12px; color: rgba(255,255,255,0.5);">{{ cancion.artista|default:"Desconocido" }} · {{ cancion.usuario.username }}</div>
                 </div>
                 {% empty %}
-                <div style="color: #64748b; padding: 20px; text-align: center;">No hay sugerencias recientes.</div>
+                <div class="empty-state">No hay canciones</div>
                 {% endfor %}
-                <a href="{% url 'admin_sugerencias' %}" class="btn btn-secondary" style="width: 100%; margin-top: 12px;">Ver todas</a>
             </div>
-
-            <!-- System Status -->
-            <div class="admin-section">
-                <h2><i class="ti ti-settings"></i> Estado del Sistema</h2>
-                <div class="system-status-grid">
-                    <div class="system-status-item">
-                        <div class="system-status-dot"></div>
-                        <div class="system-status-label">Chat IA</div>
-                    </div>
-                    <div class="system-status-item">
-                        <div class="system-status-dot"></div>
-                        <div class="system-status-label">Música</div>
-                    </div>
-                    <div class="system-status-item">
-                        <div class="system-status-dot"></div>
-                        <div class="system-status-label">Eventos</div>
-                    </div>
-                    <div class="system-status-item">
-                        <div class="system-status-dot"></div>
-                        <div class="system-status-label">Traductor</div>
-                    </div>
-                    <div class="system-status-item">
-                        <div class="system-status-dot"></div>
-                        <div class="system-status-label">Clima</div>
-                    </div>
-                    <div class="system-status-item">
-                        <div class="system-status-dot"></div>
-                        <div class="system-status-label">Servidor</div>
-                    </div>
+            <div>
+                <h3 style="font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 12px;">🎮 Últimos Juegos</h3>
+                {% for juego in ultimos_juegos %}
+                <div style="padding: 12px; background: rgba(255,255,255,0.02); border-radius: 8px; margin-bottom: 8px;">
+                    <div style="font-weight: 600; color: #fff;">{{ juego.icono }} {{ juego.nombre }}</div>
+                    <div style="font-size: 12px; color: rgba(255,255,255,0.5);">{{ juego.get_tipo_display }} · {{ juego.get_dificultad_display }}</div>
                 </div>
-            </div>
-
-            <!-- Activity Timeline -->
-            <div class="admin-section">
-                <h2><i class="ti ti-activity"></i> Actividad Reciente</h2>
-                <div class="activity-timeline">
-                    <div class="activity-item">
-                        <div class="activity-time">Hace 2 min</div>
-                        <div class="activity-content">Nuevo usuario registrado</div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-time">Hace 5 min</div>
-                        <div class="activity-content">Evento creado</div>
-                    </div>
-                    <div class="activity-item">
-                        <div class="activity-time">Hace 10 min</div>
-                        <div class="activity-content">Nuevo ticket de soporte</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Quick Actions -->
-            <div class="admin-section">
-                <h2><i class="ti ti-bolt"></i> Acciones Rápidas</h2>
-                <div class="quick-actions-grid">
-                    <div class="quick-action-card">
-                        <div class="quick-action-icon">➕</div>
-                        <div class="quick-action-label">Crear usuario</div>
-                    </div>
-                    <div class="quick-action-card">
-                        <div class="quick-action-icon">📧</div>
-                        <div class="quick-action-label">Enviar correo</div>
-                    </div>
-                    <div class="quick-action-card">
-                        <div class="quick-action-icon">📢</div>
-                        <div class="quick-action-label">Enviar anuncio</div>
-                    </div>
-                    <div class="quick-action-card">
-                        <div class="quick-action-icon">📊</div>
-                        <div class="quick-action-label">Generar reporte</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Reports Section -->
-            <div class="admin-section">
-                <h2><i class="ti ti-file-text"></i> Reportes</h2>
-                <div class="reports-grid">
-                    <div class="report-card">
-                        <div class="report-icon">👥</div>
-                        <div class="report-label">Usuarios</div>
-                        <div class="report-actions">
-                            <button class="report-action-btn disabled" disabled>PDF</button>
-                            <a href="{% url 'exportar_reporte_excel' %}?tipo=usuarios" class="report-action-btn">Excel</a>
-                        </div>
-                    </div>
-                    <div class="report-card">
-                        <div class="report-icon">📅</div>
-                        <div class="report-label">Eventos</div>
-                        <div class="report-actions">
-                            <button class="report-action-btn disabled" disabled>PDF</button>
-                            <a href="{% url 'exportar_reporte_excel' %}?tipo=eventos" class="report-action-btn">Excel</a>
-                        </div>
-                    </div>
-                    <div class="report-card">
-                        <div class="report-icon">💬</div>
-                        <div class="report-label">Chats IA</div>
-                        <div class="report-actions">
-                            <button class="report-action-btn disabled" disabled>PDF</button>
-                            <a href="{% url 'exportar_reporte_excel' %}?tipo=chats" class="report-action-btn">Excel</a>
-                        </div>
-                    </div>
-                    <div class="report-card">
-                        <div class="report-icon">🔔</div>
-                        <div class="report-label">Notificaciones</div>
-                        <div class="report-actions">
-                            <button class="report-action-btn disabled" disabled>PDF</button>
-                            <a href="{% url 'exportar_reporte_excel' %}?tipo=notificaciones" class="report-action-btn">Excel</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Security Section -->
-            <div class="admin-section">
-                <h2><i class="ti ti-shield"></i> Seguridad</h2>
-                <div class="security-grid">
-                    <div class="security-item">
-                        <div class="security-value">{{ intentos_fallidos }}</div>
-                        <div class="security-label">Intentos fallidos</div>
-                    </div>
-                    <div class="security-item">
-                        <div class="security-value">{{ sesiones_activas }}</div>
-                        <div class="security-label">Sesiones activas</div>
-                    </div>
-                    <div class="security-item">
-                        <div class="security-value">Hoy</div>
-                        <div class="security-label">Copias de seguridad</div>
-                    </div>
-                </div>
+                {% empty %}
+                <div class="empty-state">No hay juegos</div>
+                {% endfor %}
             </div>
         </div>
     </div>
 
-    <!-- Visitors Table Section -->
+    <!-- Study Section -->
     <div class="admin-section">
-        <h2><i class="ti ti-users"></i> Visitantes Recientes (Sin cuenta)</h2>
-        <div class="table-container">
+        <h2>📚 Estudio</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px;">
+            <div style="text-align: center; padding: 16px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 12px;">
+                <div style="font-size: 32px; font-weight: 700; color: #22c55e;">{{ total_recursos_estudio }}</div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.5px;">Recursos</div>
+            </div>
+            <div style="text-align: center; padding: 16px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 12px;">
+                <div style="font-size: 32px; font-weight: 700; color: #22c55e;">{{ total_sesiones_estudio }}</div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.5px;">Sesiones</div>
+            </div>
+            <div style="text-align: center; padding: 16px; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.2); border-radius: 12px;">
+                <div style="font-size: 32px; font-weight: 700; color: #22c55e;">{{ total_pomodoros }}</div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.5px;">Pomodoros</div>
+            </div>
+        </div>
+        <div>
+            <h3 style="font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 12px;">📖 Últimos Recursos</h3>
+            {% for recurso in ultimos_recursos %}
+            <div style="padding: 12px; background: rgba(255,255,255,0.02); border-radius: 8px; margin-bottom: 8px;">
+                <div style="font-weight: 600; color: #fff;">{{ recurso.titulo }}</div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.5);">{{ recurso.get_tipo_recurso_display }} · {{ recurso.usuario.username }}</div>
+            </div>
+            {% empty %}
+            <div class="empty-state">No hay recursos</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Entertainment Section -->
+    <div class="admin-section">
+        <h2>🎮 Entretenimiento</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px;">
+            <div style="text-align: center; padding: 16px; background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 12px;">
+                <div style="font-size: 32px; font-weight: 700; color: #c084fc;">{{ total_canciones }}</div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.5px;">Canciones</div>
+            </div>
+            <div style="text-align: center; padding: 16px; background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 12px;">
+                <div style="font-size: 32px; font-weight: 700; color: #c084fc;">{{ total_playlists }}</div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.5px;">Playlists</div>
+            </div>
+            <div style="text-align: center; padding: 16px; background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 12px;">
+                <div style="font-size: 32px; font-weight: 700; color: #c084fc;">{{ total_favoritos }}</div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.5px;">Favoritos</div>
+            </div>
+            <div style="text-align: center; padding: 16px; background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 12px;">
+                <div style="font-size: 32px; font-weight: 700; color: #c084fc;">{{ total_juegos }}</div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.5px;">Juegos</div>
+            </div>
+            <div style="text-align: center; padding: 16px; background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 12px;">
+                <div style="font-size: 32px; font-weight: 700; color: #c084fc;">{{ total_puntuaciones }}</div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.5px;">Puntuaciones</div>
+            </div>
+            <div style="text-align: center; padding: 16px; background: rgba(124, 58, 237, 0.1); border: 1px solid rgba(124, 58, 237, 0.2); border-radius: 12px;">
+                <div style="font-size: 32px; font-weight: 700; color: #c084fc;">{{ total_logros }}</div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.5px;">Logros</div>
+            </div>
+        </div>
+        
+        <h3 style="font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 12px;">🔗 Módulos de Entretenimiento</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px;">
+            <a href="/musica/" class="btn btn-secondary" style="justify-content: center;">🎵 Música</a>
+            <a href="/juegos/" class="btn btn-secondary" style="justify-content: center;">🎮 Juegos</a>
+            <a href="/chat/" class="btn btn-secondary" style="justify-content: center;">💬 Chat IA</a>
+            <a href="/clima/" class="btn btn-secondary" style="justify-content: center;">🌤️ Clima</a>
+            <a href="/traductor/" class="btn btn-secondary" style="justify-content: center;">🌐 Traductor</a>
+            <a href="/reloj/" class="btn btn-secondary" style="justify-content: center;">⏰ Reloj</a>
+        </div>
+        
+        <div class="grid-2">
+            <div>
+                <h3 style="font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 12px;">🎵 Últimas Canciones</h3>
+                {% for cancion in ultimas_canciones %}
+                <div style="padding: 12px; background: rgba(255,255,255,0.02); border-radius: 8px; margin-bottom: 8px;">
+                    <div style="font-weight: 600; color: #fff;">{{ cancion.nombre }}</div>
+                    <div style="font-size: 12px; color: rgba(255,255,255,0.5);">{{ cancion.artista|default:"Desconocido" }} · {{ cancion.usuario.username }}</div>
+                </div>
+                {% empty %}
+                <div class="empty-state">No hay canciones</div>
+                {% endfor %}
+            </div>
+            <div>
+                <h3 style="font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 12px;">🎮 Últimos Juegos</h3>
+                {% for juego in ultimos_juegos %}
+                <div style="padding: 12px; background: rgba(255,255,255,0.02); border-radius: 8px; margin-bottom: 8px;">
+                    <div style="font-weight: 600; color: #fff;">{{ juego.icono }} {{ juego.nombre }}</div>
+                    <div style="font-size: 12px; color: rgba(255,255,255,0.5);">{{ juego.get_tipo_display }} · {{ juego.get_dificultad_display }}</div>
+                </div>
+                {% empty %}
+                <div class="empty-state">No hay juegos</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <!-- Weather Section -->
+        <div class="admin-section">
+            <h2>🌤️ Clima</h2>
+            <div style="text-align: center; padding: 24px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.2); border-radius: 12px;">
+                <div style="font-size: 48px; font-weight: 700; color: #3b82f6;">{{ total_consultas_clima }}</div>
+                <div style="font-size: 14px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.5px;">Consultas de clima</div>
+            </div>
+        </div>
+
+        <!-- Translator Section -->
+        <div class="admin-section">
+            <h2>🌐 Traductor</h2>
+            <div style="text-align: center; padding: 24px; background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.2); border-radius: 12px;">
+                <div style="font-size: 48px; font-weight: 700; color: #eab308;">{{ total_traducciones }}</div>
+                <div style="font-size: 14px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.5px;">Traducciones</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Section -->
+    <div class="admin-section">
+        <h2>🔔 Notificaciones</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 20px;">
+            <div style="text-align: center; padding: 16px; background: rgba(250, 112, 154, 0.1); border: 1px solid rgba(250, 112, 154, 0.2); border-radius: 12px;">
+                <div style="font-size: 32px; font-weight: 700; color: #fa709a;">{{ total_notificaciones }}</div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.6); text-transform: uppercase; letter-spacing: 0.5px;">Sin leer</div>
+            </div>
+        </div>
+        <div>
+            <h3 style="font-size: 14px; color: rgba(255,255,255,0.6); margin-bottom: 12px;">📋 Últimas Notificaciones</h3>
+            {% for notif in ultimas_notificaciones %}
+            <div style="padding: 12px; background: rgba(255,255,255,0.02); border-radius: 8px; margin-bottom: 8px;">
+                <div style="font-weight: 600; color: #fff;">{{ notif.titulo }}</div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.5);">{{ notif.fecha_creacion|date:"d M Y, H:i" }}</div>
+            </div>
+            {% empty %}
+            <div class="empty-state">No hay notificaciones</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <!-- Users Section -->
+        <div class="admin-section">
+            <h2>👥 Gestión de Usuarios</h2>
             <table class="admin-table">
                 <thead>
                     <tr>
-                        <th>Nombre</th>
-                        <th>Email</th>
-                        <th>Fecha Última Interacción</th>
-                        <th>Total Sugerencias</th>
+                        <th>Usuario</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for v in ultimos_visitantes %}
+                    {% for u in ultimos_usuarios %}
                     <tr>
                         <td>
                             <div class="user-cell">
-                                <div class="user-avatar" style="background: linear-gradient(135deg, #43e97b, #38f9d7);">{{ v.nombre.0|upper }}</div>
-                                {{ v.nombre }}
+                                <div class="user-avatar">{{ u.username.0|upper }}</div>
+                                <div>
+                                    <div class="user-name">{{ u.username }}</div>
+                                    <div class="user-email">{{ u.email|default:"Sin correo" }}</div>
+                                </div>
                             </div>
                         </td>
-                        <td>{{ v.email|default:"<span style='color: #64748b; font-style: italic;'>Sin correo</span>"|safe }}</td>
-                        <td>{{ v.fecha_ultima_interaccion|date:"d M Y, H:i" }}</td>
-                        <td>{{ v.total_sugerencias }}</td>
+                        <td>
+                            {% if u.is_superuser %}
+                                <span class="badge badge-admin">Admin</span>
+                            {% else %}
+                                <span class="badge badge-active">Activo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if u.email %}
+                            <a href="{% url 'panel_admin_email_user' u.id %}" class="btn btn-secondary btn-sm">✉️</a>
+                            {% endif %}
+                        </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="4" style="text-align: center; color: #64748b;">No hay visitantes registrados.</td>
+                        <td colspan="3" class="empty-state">No hay usuarios</td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+
+        <!-- Blog Section -->
+        <div class="admin-section">
+            <h2>📝 Gestión del Blog</h2>
+            <div style="margin-bottom: 16px;">
+                <span style="color: rgba(255,255,255,0.6);">Publicaciones: {{ total_publicaciones }}</span>
+                <span style="color: rgba(255,255,255,0.6); margin-left: 16px;">Comentarios: {{ total_comentarios }}</span>
+            </div>
+            {% for post in ultimas_publicaciones|slice:":3" %}
+            <div style="padding: 12px; background: rgba(255,255,255,0.02); border-radius: 8px; margin-bottom: 8px;">
+                <div style="font-weight: 600; color: #fff;">{{ post.titulo|truncatechars:30 }}</div>
+                <div style="font-size: 12px; color: rgba(255,255,255,0.5);">{{ post.usuario.username }} · {{ post.fecha_publicacion|date:"d M Y" }}</div>
+            </div>
+            {% empty %}
+            <div class="empty-state">No hay publicaciones</div>
+            {% endfor %}
+            <a href="{% url 'blog' %}" class="btn btn-secondary" style="width: 100%; margin-top: 12px;">Ir al Blog</a>
+        </div>
     </div>
 
+    <!-- Visitors Section -->
+    <div class="admin-section">
+        <h2>🌍 Visitantes</h2>
+        <div class="stats-grid" style="margin-bottom: 0;">
+            <div class="stat-card">
+                <div class="stat-value">{{ visitantes_hoy }}</div>
+                <div class="stat-label">Hoy</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ visitantes_semana }}</div>
+                <div class="stat-label">Esta semana</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">{{ visitantes_mes }}</div>
+                <div class="stat-label">Este mes</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Status -->
+    <div class="admin-section">
+        <h2>⚙️ Estado del Sistema</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px;">
+            <div style="display: flex; align-items: center; gap: 8px; padding: 12px; background: rgba(34, 197, 94, 0.1); border-radius: 8px;">
+                <div style="width: 8px; height: 8px; background: #22c55e; border-radius: 50%;"></div>
+                <span style="color: #fff;">Chat IA</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; padding: 12px; background: rgba(34, 197, 94, 0.1); border-radius: 8px;">
+                <div style="width: 8px; height: 8px; background: #22c55e; border-radius: 50%;"></div>
+                <span style="color: #fff;">Música</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; padding: 12px; background: rgba(34, 197, 94, 0.1); border-radius: 8px;">
+                <div style="width: 8px; height: 8px; background: #22c55e; border-radius: 50%;"></div>
+                <span style="color: #fff;">Eventos</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; padding: 12px; background: rgba(34, 197, 94, 0.1); border-radius: 8px;">
+                <div style="width: 8px; height: 8px; background: #22c55e; border-radius: 50%;"></div>
+                <span style="color: #fff;">Traductor</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; padding: 12px; background: rgba(34, 197, 94, 0.1); border-radius: 8px;">
+                <div style="width: 8px; height: 8px; background: #22c55e; border-radius: 50%;"></div>
+                <span style="color: #fff;">Clima</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; padding: 12px; background: rgba(34, 197, 94, 0.1); border-radius: 8px;">
+                <div style="width: 8px; height: 8px; background: #22c55e; border-radius: 50%;"></div>
+                <span style="color: #fff;">Servidor</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-2">
+        <!-- Support Section -->
+        <div class="admin-section">
+            <h2>🎧 Soporte</h2>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px;">
+                <div style="text-align: center; padding: 16px; background: rgba(250, 112, 154, 0.1); border-radius: 8px;">
+                    <div style="font-size: 24px; font-weight: 700; color: #fa709a;">{{ total_tickets_pendientes }}</div>
+                    <div style="font-size: 12px; color: rgba(255,255,255,0.6);">Pendientes</div>
+                </div>
+                <div style="text-align: center; padding: 16px; background: rgba(34, 197, 94, 0.1); border-radius: 8px;">
+                    <div style="font-size: 24px; font-weight: 700; color: #22c55e;">{{ total_tickets_resueltos }}</div>
+                    <div style="font-size: 12px; color: rgba(255,255,255,0.6);">Resueltos</div>
+                </div>
+                <div style="text-align: center; padding: 16px; background: rgba(124, 58, 237, 0.1); border-radius: 8px;">
+                    <div style="font-size: 24px; font-weight: 700; color: #c084fc;">{{ tiempo_promedio_respuesta }}</div>
+                    <div style="font-size: 12px; color: rgba(255,255,255,0.6);">Tiempo promedio</div>
+                </div>
+            </div>
+            <a href="{% url 'admin_soporte' %}" class="btn btn-secondary" style="width: 100%;">Ver tickets</a>
+        </div>
+
+        <!-- Suggestions Section -->
+        <div class="admin-section">
+            <h2>💡 Sugerencias</h2>
+            {% for sugerencia in ultimas_sugerencias|slice:":3" %}
+            <div style="padding: 12px; background: rgba(255,255,255,0.02); border-radius: 8px; margin-bottom: 8px;">
+                <div style="font-weight: 600; color: #fff;">{{ sugerencia.usuario.username|default:"Anónimo" }}</div>
+                <div style="font-size: 13px; color: rgba(255,255,255,0.5);">{{ sugerencia.titulo|truncatechars:35 }}</div>
+            </div>
+            {% empty %}
+            <div class="empty-state">No hay sugerencias</div>
+            {% endfor %}
+            <a href="{% url 'admin_sugerencias' %}" class="btn btn-secondary" style="width: 100%; margin-top: 12px;">Ver todas</a>
+        </div>
+    </div>
+
+    <!-- Recent Activity -->
+    <div class="admin-section">
+        <h2>📊 Actividad Reciente</h2>
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div style="display: flex; gap: 12px; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 8px;">
+                <span style="color: rgba(255,255,255,0.5); font-size: 13px; min-width: 80px;">Hace 2 min</span>
+                <span style="color: #fff;">Nuevo usuario registrado</span>
+            </div>
+            <div style="display: flex; gap: 12px; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 8px;">
+                <span style="color: rgba(255,255,255,0.5); font-size: 13px; min-width: 80px;">Hace 5 min</span>
+                <span style="color: #fff;">Evento creado</span>
+            </div>
+            <div style="display: flex; gap: 12px; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 8px;">
+                <span style="color: rgba(255,255,255,0.5); font-size: 13px; min-width: 80px;">Hace 10 min</span>
+                <span style="color: #fff;">Nuevo ticket de soporte</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="admin-section">
+        <h2>⚡ Acciones Rápidas</h2>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px;">
+            <button class="btn btn-secondary" style="justify-content: center;">
+                ➕ Crear usuario
+            </button>
+            <button class="btn btn-secondary" style="justify-content: center;">
+                📧 Enviar correo
+            </button>
+            <button class="btn btn-secondary" style="justify-content: center;">
+                📢 Enviar anuncio
+            </button>
+            <button class="btn btn-secondary" style="justify-content: center;">
+                📊 Generar reporte
+            </button>
+        </div>
+    </div>
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-    // User search and filter functionality
-    let currentUserFilter = 'all';
-    const searchInput = document.getElementById('user-search');
-
-    function applyUserFilter() {
-        const searchValue = searchInput?.value.toLowerCase() || '';
-        const rows = document.querySelectorAll('.admin-table tbody tr');
-
-        rows.forEach(row => {
-            const username = row.querySelector('.user-name')?.textContent.toLowerCase() || '';
-            const email = row.querySelector('.user-email')?.textContent.toLowerCase() || '';
-            const badge = row.querySelector('.badge')?.textContent.toLowerCase() || '';
-            const joinedDate = row.dataset.dateJoined || '';
-
-            let matchesFilter = true;
-            if (currentUserFilter === 'active') {
-                matchesFilter = badge.includes('activo') || badge.includes('staff') || badge.includes('superadmin');
-            } else if (currentUserFilter === 'admin') {
-                matchesFilter = badge.includes('superadmin') || badge.includes('staff');
-            } else if (currentUserFilter === 'new') {
-                if (joinedDate) {
-                    const joined = new Date(joinedDate);
-                    const sevenDaysAgo = new Date();
-                    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-                    matchesFilter = joined >= sevenDaysAgo;
-                } else {
-                    matchesFilter = false;
-                }
-            }
-
-            const matchesSearch = username.includes(searchValue) || email.includes(searchValue);
-            row.style.display = (matchesFilter && matchesSearch) ? '' : 'none';
-        });
-    }
-
-    function filterUsers(event, filter) {
-        event.preventDefault();
-        currentUserFilter = filter;
-        const tabs = document.querySelectorAll('.filter-tab');
-        tabs.forEach(tab => tab.classList.remove('active'));
-        event.target.classList.add('active');
-        applyUserFilter();
-    }
-
-    searchInput?.addEventListener('input', applyUserFilter);
-
-    async function refreshStats() {
-        const refreshBtn = document.getElementById('refresh-btn');
-        const refreshText = document.getElementById('refresh-text');
-
-        refreshBtn.classList.add('spinning');
-        refreshText.textContent = 'Actualizando...';
-
-        try {
-            const response = await fetch('/api/admin/stats/', {
-                method: 'GET',
-                headers: {
-                    'Content-Type': 'application/json',
-                }
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-
-                // Update stat values
-                const statValues = document.querySelectorAll('.stat-value');
-                if (statValues.length >= 6) {
-                    statValues[0].textContent = data.total_usuarios;
-                    statValues[1].textContent = data.total_chats;
-                    statValues[2].textContent = data.total_canciones;
-                    statValues[3].textContent = data.total_eventos;
-                    statValues[4].textContent = data.total_notificaciones;
-                    statValues[5].textContent = data.total_tickets_pendientes;
-                }
-
-                // Update music activity
-                const barValues = document.querySelectorAll('.bar-value');
-                if (barValues.length >= 3) {
-                    barValues[1].textContent = data.total_reproducciones;
-                    barValues[2].textContent = data.total_playlists;
-                }
-
-                // Update visitor stats
-                const visitorValues = document.querySelectorAll('.visitor-stat-value');
-                if (visitorValues.length >= 3) {
-                    visitorValues[0].textContent = data.visitantes_hoy;
-                    visitorValues[1].textContent = data.visitantes_semana;
-                    visitorValues[2].textContent = data.visitantes_mes;
-                }
-
-                // Update support metrics
-                const supportValues = document.querySelectorAll('.support-metric-value');
-                if (supportValues.length >= 3) {
-                    supportValues[0].textContent = data.total_tickets_pendientes;
-                    supportValues[1].textContent = data.total_tickets_resueltos;
-                    supportValues[2].textContent = data.tiempo_promedio_respuesta;
-                }
-
-                // Update security stats
-                const securityValues = document.querySelectorAll('.security-value');
-                if (securityValues.length >= 2) {
-                    securityValues[0].textContent = data.intentos_fallidos;
-                    securityValues[1].textContent = data.sesiones_activas;
-                }
-
-                refreshText.textContent = 'Actualizado';
-                setTimeout(() => {
-                    refreshText.textContent = 'Actualizar';
-                }, 2000);
-            } else {
-                refreshText.textContent = 'Error';
-                setTimeout(() => {
-                    refreshText.textContent = 'Actualizar';
-                }, 2000);
-            }
-        } catch (error) {
-            console.error('Error al actualizar estadísticas:', error);
-            refreshText.textContent = 'Error';
-            setTimeout(() => {
-                refreshText.textContent = 'Actualizar';
-            }, 2000);
-        } finally {
-            refreshBtn.classList.remove('spinning');
-        }
-    }
-
-    // Auto-refresh every 30 seconds
-    setInterval(() => {
-        refreshStats();
-    }, 30000);
-</script>
 {% endblock %}

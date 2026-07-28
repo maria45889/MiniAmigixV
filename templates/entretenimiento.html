@@ -183,104 +183,125 @@
             <button class="ent-filter-btn ent-filter-btn--active" data-filter="all">Todo</button>
             <button class="ent-filter-btn" data-filter="peliculas">🎬 Películas</button>
             <button class="ent-filter-btn" data-filter="series">📺 Series</button>
-            <button class="ent-filter-btn" data-filter="libros">📖 Libros</button>
             <button class="ent-filter-btn" data-filter="anime">🎌 Anime</button>
+            <button class="ent-filter-btn" data-filter="libros">📖 Libros</button>
+            <button class="ent-filter-btn" data-filter="manga">📚 Manga</button>
+            <button class="ent-filter-btn" data-filter="musica">� Música</button>
+            <button class="ent-filter-btn" data-filter="podcasts">🎙️ Podcasts</button>
             <button class="ent-filter-btn" data-filter="teatro">🎭 Teatro</button>
             <button class="ent-filter-btn" data-filter="documentales">🎥 Documentales</button>
         </div>
     </div>
 
     <!-- Featured Content (Recommendation of the Day) -->
+    {% if contenido_destacado %}
     <div class="ent-featured-section">
         <div class="ent-featured-badge">⭐ Recomendación del día</div>
         <div class="ent-featured-card" onclick="openModal(this)"
-            data-titulo="{{ recomendaciones.peliculas.0.titulo }}"
-            data-genero="{{ recomendaciones.peliculas.0.genero }}"
-            data-descripcion="{{ recomendaciones.peliculas.0.descripcion }}"
-            data-director="{{ recomendaciones.peliculas.0.director }}"
-            data-anio="{{ recomendaciones.peliculas.0.anio }}"
-            data-duracion="{{ recomendaciones.peliculas.0.duracion }}"
-            data-calificacion="{{ recomendaciones.peliculas.0.calificacion }}"
-            data-imagen="{{ recomendaciones.peliculas.0.imagen }}">
+            data-titulo="{{ contenido_destacado.titulo }}"
+            data-genero="{{ contenido_destacado.genero }}"
+            data-descripcion="{{ contenido_destacado.descripcion }}"
+            data-director="{{ contenido_destacado.director }}"
+            data-anio="{{ contenido_destacado.anio }}"
+            data-duracion="{{ contenido_destacado.duracion }}"
+            data-calificacion="{{ contenido_destacado.calificacion }}"
+            data-imagen="{{ contenido_destacado.imagen }}"
+            data-trailer="{{ contenido_destacado.trailer|default:'' }}"
+            data-id="{{ contenido_destacado.id }}">
             <div class="ent-featured-bg">
-                <img src="{{ recomendaciones.peliculas.0.imagen }}" alt="{{ recomendaciones.peliculas.0.titulo }}" class="ent-featured-img">
+                <img src="{{ contenido_destacado.imagen|default:'https://placehold.co/800x450/2d3748/ffffff?text=Sin+Imagen' }}" alt="{{ contenido_destacado.titulo }}" class="ent-featured-img">
                 <div class="ent-featured-overlay"></div>
             </div>
             <div class="ent-featured-content">
-                <h2 class="ent-featured-title">{{ recomendaciones.peliculas.0.titulo }}</h2>
+                <h2 class="ent-featured-title">{{ contenido_destacado.titulo }}</h2>
                 <div class="ent-featured-meta">
-                    <span class="ent-featured-rating">⭐ {{ recomendaciones.peliculas.0.calificacion }}/10</span>
-                    <span class="ent-featured-genre">{{ recomendaciones.peliculas.0.genero }}</span>
+                    <span class="ent-featured-rating">⭐ {{ contenido_destacado.calificacion }}/10</span>
+                    <span class="ent-featured-genre">{{ contenido_destacado.genero }}</span>
                 </div>
-                <p class="ent-featured-desc">{{ recomendaciones.peliculas.0.descripcion }}</p>
+                <p class="ent-featured-desc">{{ contenido_destacado.descripcion }}</p>
                 <div class="ent-featured-actions">
-                    <button class="ent-featured-btn ent-featured-btn--trailer" onclick="event.stopPropagation(); searchTrailerFromFeatured('{{ recomendaciones.peliculas.0.titulo }}')">
+                    <button class="ent-featured-btn ent-featured-btn--trailer" onclick="event.stopPropagation(); searchTrailerFromFeatured('{{ contenido_destacado.titulo }}')">
                         <span>▶</span> Ver tráiler
                     </button>
-                    <button class="ent-featured-btn ent-featured-btn--favorite" onclick="event.stopPropagation(); toggleFavoriteFromFeatured(this)" data-titulo="{{ recomendaciones.peliculas.0.titulo }}" data-imagen="{{ recomendaciones.peliculas.0.imagen }}" data-calificacion="{{ recomendaciones.peliculas.0.calificacion }}" data-genero="{{ recomendaciones.peliculas.0.genero }}">
+                    <button class="ent-featured-btn ent-featured-btn--favorite" onclick="event.stopPropagation(); toggleFavoriteFromFeatured(this)" data-id="{{ contenido_destacado.id }}" data-titulo="{{ contenido_destacado.titulo }}" data-imagen="{{ contenido_destacado.imagen }}" data-calificacion="{{ contenido_destacado.calificacion }}" data-genero="{{ contenido_destacado.genero }}">
                         <span class="ent-heart-icon">♡</span> Añadir a favoritos
                     </button>
                 </div>
             </div>
         </div>
     </div>
+    {% endif %}
 
     <!-- Trends Section -->
+    {% if recomendaciones.series %}
     <div class="ent-trends-section">
         <div class="ent-trends-header">
             <h2 class="ent-trends-title">🔥 Tendencias</h2>
         </div>
         <div class="ent-trends-list">
+            {% for item in recomendaciones.series|slice:":1" %}
             <div class="ent-trend-item" onclick="openModal(this)"
-                data-titulo="{{ recomendaciones.series.0.titulo }}"
-                data-genero="{{ recomendaciones.series.0.genero }}"
-                data-descripcion="{{ recomendaciones.series.0.descripcion }}"
-                data-director="{{ recomendaciones.series.0.director }}"
-                data-anio="{{ recomendaciones.series.0.anio }}"
-                data-duracion="{{ recomendaciones.series.0.duracion }}"
-                data-calificacion="{{ recomendaciones.series.0.calificacion }}"
-                data-imagen="{{ recomendaciones.series.0.imagen }}">
+                data-titulo="{{ item.titulo }}"
+                data-genero="{{ item.genero }}"
+                data-descripcion="{{ item.descripcion }}"
+                data-director="{{ item.director }}"
+                data-anio="{{ item.anio }}"
+                data-duracion="{{ item.duracion }}"
+                data-calificacion="{{ item.calificacion }}"
+                data-imagen="{{ item.imagen }}"
+                data-trailer="{{ item.trailer|default:'' }}"
+                data-id="{{ item.id }}">
                 <span class="ent-trend-rank">1️⃣</span>
-                <img src="{{ recomendaciones.series.0.imagen }}" alt="{{ recomendaciones.series.0.titulo }}" class="ent-trend-img">
+                <img src="{{ item.imagen|default:'https://placehold.co/100x100/2d3748/ffffff?text=Img' }}" alt="{{ item.titulo }}" class="ent-trend-img">
                 <div class="ent-trend-info">
-                    <h4>{{ recomendaciones.series.0.titulo }}</h4>
-                    <span class="ent-trend-genre">{{ recomendaciones.series.0.genero }}</span>
+                    <h4>{{ item.titulo }}</h4>
+                    <span class="ent-trend-genre">{{ item.genero }}</span>
                 </div>
             </div>
+            {% endfor %}
+            {% for item in recomendaciones.anime|slice:":1" %}
             <div class="ent-trend-item" onclick="openModal(this)"
-                data-titulo="{{ recomendaciones.anime.0.titulo }}"
-                data-genero="{{ recomendaciones.anime.0.genero }}"
-                data-descripcion="{{ recomendaciones.anime.0.descripcion }}"
-                data-director="{{ recomendaciones.anime.0.director }}"
-                data-anio="{{ recomendaciones.anime.0.anio }}"
-                data-duracion="{{ recomendaciones.anime.0.duracion }}"
-                data-calificacion="{{ recomendaciones.anime.0.calificacion }}"
-                data-imagen="{{ recomendaciones.anime.0.imagen }}">
+                data-titulo="{{ item.titulo }}"
+                data-genero="{{ item.genero }}"
+                data-descripcion="{{ item.descripcion }}"
+                data-director="{{ item.director }}"
+                data-anio="{{ item.anio }}"
+                data-duracion="{{ item.duracion }}"
+                data-calificacion="{{ item.calificacion }}"
+                data-imagen="{{ item.imagen }}"
+                data-trailer="{{ item.trailer|default:'' }}"
+                data-id="{{ item.id }}">
                 <span class="ent-trend-rank">2️⃣</span>
-                <img src="{{ recomendaciones.anime.0.imagen }}" alt="{{ recomendaciones.anime.0.titulo }}" class="ent-trend-img">
+                <img src="{{ item.imagen|default:'https://placehold.co/100x100/2d3748/ffffff?text=Img' }}" alt="{{ item.titulo }}" class="ent-trend-img">
                 <div class="ent-trend-info">
-                    <h4>{{ recomendaciones.anime.0.titulo }}</h4>
-                    <span class="ent-trend-genre">{{ recomendaciones.anime.0.genero }}</span>
+                    <h4>{{ item.titulo }}</h4>
+                    <span class="ent-trend-genre">{{ item.genero }}</span>
                 </div>
             </div>
+            {% endfor %}
+            {% for item in recomendaciones.peliculas|slice:"1:2" %}
             <div class="ent-trend-item" onclick="openModal(this)"
-                data-titulo="{{ recomendaciones.peliculas.1.titulo }}"
-                data-genero="{{ recomendaciones.peliculas.1.genero }}"
-                data-descripcion="{{ recomendaciones.peliculas.1.descripcion }}"
-                data-director="{{ recomendaciones.peliculas.1.director }}"
-                data-anio="{{ recomendaciones.peliculas.1.anio }}"
-                data-duracion="{{ recomendaciones.peliculas.1.duracion }}"
-                data-calificacion="{{ recomendaciones.peliculas.1.calificacion }}"
-                data-imagen="{{ recomendaciones.peliculas.1.imagen }}">
+                data-titulo="{{ item.titulo }}"
+                data-genero="{{ item.genero }}"
+                data-descripcion="{{ item.descripcion }}"
+                data-director="{{ item.director }}"
+                data-anio="{{ item.anio }}"
+                data-duracion="{{ item.duracion }}"
+                data-calificacion="{{ item.calificacion }}"
+                data-imagen="{{ item.imagen }}"
+                data-trailer="{{ item.trailer|default:'' }}"
+                data-id="{{ item.id }}">
                 <span class="ent-trend-rank">3️⃣</span>
-                <img src="{{ recomendaciones.peliculas.1.imagen }}" alt="{{ recomendaciones.peliculas.1.titulo }}" class="ent-trend-img">
+                <img src="{{ item.imagen|default:'https://placehold.co/100x100/2d3748/ffffff?text=Img' }}" alt="{{ item.titulo }}" class="ent-trend-img">
                 <div class="ent-trend-info">
-                    <h4>{{ recomendaciones.peliculas.1.titulo }}</h4>
-                    <span class="ent-trend-genre">{{ recomendaciones.peliculas.1.genero }}</span>
+                    <h4>{{ item.titulo }}</h4>
+                    <span class="ent-trend-genre">{{ item.genero }}</span>
                 </div>
             </div>
+            {% endfor %}
         </div>
     </div>
+    {% endif %}
 
     <!-- AI Recommendation Section -->
     <div class="ent-ai-section">
@@ -317,9 +338,10 @@
                     data-duracion="{{ item.duracion|default:'' }}"
                     data-calificacion="{{ item.calificacion|default:'' }}"
                     data-imagen="{{ item.imagen }}"
-                    data-id="{{ item.titulo|slugify }}">
+                    data-trailer="{{ item.trailer|default:'' }}"
+                    data-id="{{ item.id }}">
                     <img src="{{ item.imagen }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
-                    <button class="ent-favorite-btn" onclick="event.stopPropagation(); toggleFavorite(this)" data-id="{{ item.titulo|slugify }}" data-titulo="{{ item.titulo }}" data-imagen="{{ item.imagen }}" data-calificacion="{{ item.calificacion }}" data-genero="{{ item.genero }}">
+                    <button class="ent-favorite-btn" onclick="event.stopPropagation(); toggleFavorite(this)" data-id="{{ item.id }}" data-titulo="{{ item.titulo }}" data-imagen="{{ item.imagen }}" data-calificacion="{{ item.calificacion }}" data-genero="{{ item.genero }}">
                         <span class="ent-heart-icon">♡</span>
                     </button>
                     <div class="ent-card-overlay">
@@ -351,9 +373,10 @@
                     data-duracion="{{ item.duracion|default:'' }}"
                     data-calificacion="{{ item.calificacion|default:'' }}"
                     data-imagen="{{ item.imagen }}"
-                    data-id="{{ item.titulo|slugify }}">
+                    data-trailer="{{ item.trailer|default:'' }}"
+                    data-id="{{ item.id }}">
                     <img src="{{ item.imagen }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
-                    <button class="ent-favorite-btn" onclick="event.stopPropagation(); toggleFavorite(this)" data-id="{{ item.titulo|slugify }}" data-titulo="{{ item.titulo }}" data-imagen="{{ item.imagen }}" data-calificacion="{{ item.calificacion }}" data-genero="{{ item.genero }}">
+                    <button class="ent-favorite-btn" onclick="event.stopPropagation(); toggleFavorite(this)" data-id="{{ item.id }}" data-titulo="{{ item.titulo }}" data-imagen="{{ item.imagen }}" data-calificacion="{{ item.calificacion }}" data-genero="{{ item.genero }}">
                         <span class="ent-heart-icon">♡</span>
                     </button>
                     <div class="ent-card-overlay">
@@ -385,9 +408,10 @@
                     data-duracion="{{ item.duracion|default:'' }}"
                     data-calificacion="{{ item.calificacion|default:'' }}"
                     data-imagen="{{ item.imagen }}"
-                    data-id="{{ item.titulo|slugify }}">
+                    data-trailer="{{ item.trailer|default:'' }}"
+                    data-id="{{ item.id }}">
                     <img src="{{ item.imagen }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
-                    <button class="ent-favorite-btn" onclick="event.stopPropagation(); toggleFavorite(this)" data-id="{{ item.titulo|slugify }}" data-titulo="{{ item.titulo }}" data-imagen="{{ item.imagen }}" data-calificacion="{{ item.calificacion }}" data-genero="{{ item.genero }}">
+                    <button class="ent-favorite-btn" onclick="event.stopPropagation(); toggleFavorite(this)" data-id="{{ item.id }}" data-titulo="{{ item.titulo }}" data-imagen="{{ item.imagen }}" data-calificacion="{{ item.calificacion }}" data-genero="{{ item.genero }}">
                         <span class="ent-heart-icon">♡</span>
                     </button>
                     <div class="ent-card-overlay">
@@ -419,9 +443,10 @@
                     data-duracion="{{ item.duracion|default:'' }}"
                     data-calificacion="{{ item.calificacion|default:'' }}"
                     data-imagen="{{ item.imagen }}"
-                    data-id="{{ item.titulo|slugify }}">
+                    data-trailer="{{ item.trailer|default:'' }}"
+                    data-id="{{ item.id }}">
                     <img src="{{ item.imagen }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
-                    <button class="ent-favorite-btn" onclick="event.stopPropagation(); toggleFavorite(this)" data-id="{{ item.titulo|slugify }}" data-titulo="{{ item.titulo }}" data-imagen="{{ item.imagen }}" data-calificacion="{{ item.calificacion }}" data-genero="{{ item.genero }}">
+                    <button class="ent-favorite-btn" onclick="event.stopPropagation(); toggleFavorite(this)" data-id="{{ item.id }}" data-titulo="{{ item.titulo }}" data-imagen="{{ item.imagen }}" data-calificacion="{{ item.calificacion }}" data-genero="{{ item.genero }}">
                         <span class="ent-heart-icon">♡</span>
                     </button>
                     <div class="ent-card-overlay">
@@ -448,17 +473,22 @@
                     data-titulo="{{ item.titulo }}"
                     data-genero="{{ item.genero|default:'Libro' }}"
                     data-descripcion="{{ item.descripcion }}"
-                    data-director="{{ item.autor|default:'' }}"
+                    data-director="{{ item.director|default:'' }}"
                     data-director-label="Autor"
                     data-anio="{{ item.anio|default:'' }}"
-                    data-duracion="{{ item.paginas|default:'' }}"
+                    data-duracion="{{ item.duracion|default:'' }}"
                     data-duracion-label="Extensión"
                     data-calificacion="{{ item.calificacion|default:'' }}"
-                    data-imagen="{{ item.imagen|default:'https://placehold.co/300x450/2d3748/ffffff?text=Libro' }}">
+                    data-imagen="{{ item.imagen|default:'https://placehold.co/300x450/2d3748/ffffff?text=Libro' }}"
+                    data-trailer="{{ item.trailer|default:'' }}"
+                    data-id="{{ item.id }}">
                     <img src="{{ item.imagen|default:'https://placehold.co/300x450/2d3748/ffffff?text=Libro' }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
+                    <button class="ent-favorite-btn" onclick="event.stopPropagation(); toggleFavorite(this)" data-id="{{ item.id }}" data-titulo="{{ item.titulo }}" data-imagen="{{ item.imagen }}" data-calificacion="{{ item.calificacion }}" data-genero="{{ item.genero }}">
+                        <span class="ent-heart-icon">♡</span>
+                    </button>
                     <div class="ent-card-overlay">
                         <h4>{{ item.titulo }}</h4>
-                        <p class="ent-card-genre">{{ item.autor }}</p>
+                        <p class="ent-card-genre">{{ item.director }}</p>
                     </div>
                 </div>
                 {% endfor %}
@@ -476,16 +506,126 @@
                     data-titulo="{{ item.titulo }}"
                     data-genero="{{ item.genero|default:'Musical' }}"
                     data-descripcion="{{ item.descripcion }}"
-                    data-director="{{ item.autor|default:'' }}"
+                    data-director="{{ item.director|default:'' }}"
                     data-director-label="Compositor"
                     data-anio="{{ item.anio|default:'' }}"
                     data-duracion="{{ item.duracion|default:'' }}"
                     data-calificacion="{{ item.calificacion|default:'' }}"
-                    data-imagen="{{ item.imagen }}">
+                    data-imagen="{{ item.imagen }}"
+                    data-trailer="{{ item.trailer|default:'' }}"
+                    data-id="{{ item.id }}">
                     <img src="{{ item.imagen }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
+                    <button class="ent-favorite-btn" onclick="event.stopPropagation(); toggleFavorite(this)" data-id="{{ item.id }}" data-titulo="{{ item.titulo }}" data-imagen="{{ item.imagen }}" data-calificacion="{{ item.calificacion }}" data-genero="{{ item.genero }}">
+                        <span class="ent-heart-icon">♡</span>
+                    </button>
                     <div class="ent-card-overlay">
                         <h4>{{ item.titulo }}</h4>
-                        <p class="ent-card-genre">{{ item.autor }}</p>
+                        <p class="ent-card-genre">{{ item.director }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Manga -->
+        {% if recomendaciones.manga %}
+        <div class="ent-row">
+            <h2 class="ent-row-title">Manga Popular</h2>
+            <div class="ent-row-scroll">
+                {% for item in recomendaciones.manga %}
+                <div class="ent-card ent-card-book" onclick="openModal(this)"
+                    data-titulo="{{ item.titulo }}"
+                    data-genero="{{ item.genero|default:'Manga' }}"
+                    data-descripcion="{{ item.descripcion }}"
+                    data-director="{{ item.director|default:'' }}"
+                    data-director-label="Autor"
+                    data-anio="{{ item.anio|default:'' }}"
+                    data-duracion="{{ item.duracion|default:'' }}"
+                    data-duracion-label="Capítulos"
+                    data-calificacion="{{ item.calificacion|default:'' }}"
+                    data-imagen="{{ item.imagen|default:'https://placehold.co/300x450/2d3748/ffffff?text=Manga' }}"
+                    data-trailer="{{ item.trailer|default:'' }}"
+                    data-id="{{ item.id }}">
+                    <img src="{{ item.imagen|default:'https://placehold.co/300x450/2d3748/ffffff?text=Manga' }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
+                    <button class="ent-favorite-btn" onclick="event.stopPropagation(); toggleFavorite(this)" data-id="{{ item.id }}" data-titulo="{{ item.titulo }}" data-imagen="{{ item.imagen }}" data-calificacion="{{ item.calificacion }}" data-genero="{{ item.genero }}">
+                        <span class="ent-heart-icon">♡</span>
+                    </button>
+                    <div class="ent-card-overlay">
+                        <h4>{{ item.titulo }}</h4>
+                        <p class="ent-card-genre">{{ item.director }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Música -->
+        {% if recomendaciones.musica %}
+        <div class="ent-row">
+            <h2 class="ent-row-title">Álbumes Destacados</h2>
+            <div class="ent-row-scroll">
+                {% for item in recomendaciones.musica %}
+                <div class="ent-card" onclick="openModal(this)"
+                    data-titulo="{{ item.titulo }}"
+                    data-genero="{{ item.genero|default:'Música' }}"
+                    data-descripcion="{{ item.descripcion }}"
+                    data-director="{{ item.director|default:'' }}"
+                    data-director-label="Artista"
+                    data-anio="{{ item.anio|default:'' }}"
+                    data-duracion="{{ item.duracion|default:'' }}"
+                    data-calificacion="{{ item.calificacion|default:'' }}"
+                    data-imagen="{{ item.imagen }}"
+                    data-trailer="{{ item.trailer|default:'' }}"
+                    data-id="{{ item.id }}">
+                    <img src="{{ item.imagen }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
+                    <button class="ent-favorite-btn" onclick="event.stopPropagation(); toggleFavorite(this)" data-id="{{ item.id }}" data-titulo="{{ item.titulo }}" data-imagen="{{ item.imagen }}" data-calificacion="{{ item.calificacion }}" data-genero="{{ item.genero }}">
+                        <span class="ent-heart-icon">♡</span>
+                    </button>
+                    <div class="ent-card-overlay">
+                        <div class="ent-card-meta">
+                            <span class="ent-card-rating">⭐ {{ item.calificacion }}</span>
+                            <span class="ent-card-year">{{ item.anio|default:'' }}</span>
+                        </div>
+                        <h4>{{ item.titulo }}</h4>
+                        <p class="ent-card-genre">{{ item.director }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Podcasts -->
+        {% if recomendaciones.podcasts %}
+        <div class="ent-row">
+            <h2 class="ent-row-title">Podcasts Recomendados</h2>
+            <div class="ent-row-scroll">
+                {% for item in recomendaciones.podcasts %}
+                <div class="ent-card" onclick="openModal(this)"
+                    data-titulo="{{ item.titulo }}"
+                    data-genero="{{ item.genero|default:'Podcast' }}"
+                    data-descripcion="{{ item.descripcion }}"
+                    data-director="{{ item.director|default:'' }}"
+                    data-director-label="Host"
+                    data-anio="{{ item.anio|default:'' }}"
+                    data-duracion="{{ item.duracion|default:'' }}"
+                    data-calificacion="{{ item.calificacion|default:'' }}"
+                    data-imagen="{{ item.imagen }}"
+                    data-trailer="{{ item.trailer|default:'' }}"
+                    data-id="{{ item.id }}">
+                    <img src="{{ item.imagen }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
+                    <button class="ent-favorite-btn" onclick="event.stopPropagation(); toggleFavorite(this)" data-id="{{ item.id }}" data-titulo="{{ item.titulo }}" data-imagen="{{ item.imagen }}" data-calificacion="{{ item.calificacion }}" data-genero="{{ item.genero }}">
+                        <span class="ent-heart-icon">♡</span>
+                    </button>
+                    <div class="ent-card-overlay">
+                        <div class="ent-card-meta">
+                            <span class="ent-card-rating">⭐ {{ item.calificacion }}</span>
+                            <span class="ent-card-year">{{ item.anio|default:'' }}</span>
+                        </div>
+                        <h4>{{ item.titulo }}</h4>
+                        <p class="ent-card-genre">{{ item.director }}</p>
                     </div>
                 </div>
                 {% endfor %}
@@ -535,6 +675,7 @@
                         <span>♡</span> Añadir a favoritos
                     </button>
                 </div>
+                <input type="hidden" id="modal-trailer" value="">
             </div>
         </div>
     </div>
@@ -838,6 +979,9 @@ function getCategoryFromTitle(title) {
     if (titleLower.includes('serie')) return 'series';
     if (titleLower.includes('anime')) return 'anime';
     if (titleLower.includes('libro')) return 'libros';
+    if (titleLower.includes('manga')) return 'manga';
+    if (titleLower.includes('música') || titleLower.includes('álbum')) return 'musica';
+    if (titleLower.includes('podcast')) return 'podcasts';
     if (titleLower.includes('teatro')) return 'teatro';
     if (titleLower.includes('documental')) return 'documentales';
     return 'all';
@@ -858,34 +1002,60 @@ function initializeFavorites() {
     });
 }
 
-function toggleFavorite(btn) {
+async function toggleFavorite(btn) {
     const id = btn.dataset.id;
+    const titulo = btn.dataset.titulo;
     const heartIcon = btn.querySelector('.ent-heart-icon');
     
-    if (favorites.includes(id)) {
-        // Remove from favorites
-        favorites = favorites.filter(favId => favId !== id);
-        btn.classList.remove('ent-favorite-btn--active');
-        heartIcon.textContent = '♡';
-    } else {
-        // Add to favorites
-        favorites.push(id);
-        btn.classList.add('ent-favorite-btn--active');
-        heartIcon.textContent = '❤️';
+    try {
+        // Send request to backend
+        const response = await fetch('/entretenimiento/toggle-favorito/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ contenido_id: id })
+        });
+        
+        const data = await response.json();
+        
+        if (data.status === 'added') {
+            favorites.push(id);
+            btn.classList.add('ent-favorite-btn--active');
+            heartIcon.textContent = '❤️';
+        } else if (data.status === 'removed') {
+            favorites = favorites.filter(favId => favId !== id);
+            btn.classList.remove('ent-favorite-btn--active');
+            heartIcon.textContent = '♡';
+        }
+        
+        // Save to localStorage
+        localStorage.setItem('entertainmentFavorites', JSON.stringify(favorites));
+        
+    } catch (error) {
+        console.error('Error al toggle favorito:', error);
+        // Fallback to localStorage only
+        if (favorites.includes(id)) {
+            favorites = favorites.filter(favId => favId !== id);
+            btn.classList.remove('ent-favorite-btn--active');
+            heartIcon.textContent = '♡';
+        } else {
+            favorites.push(id);
+            btn.classList.add('ent-favorite-btn--active');
+            heartIcon.textContent = '❤️';
+        }
+        localStorage.setItem('entertainmentFavorites', JSON.stringify(favorites));
     }
-    
-    // Save to localStorage
-    localStorage.setItem('entertainmentFavorites', JSON.stringify(favorites));
 }
 
 function initializeFeaturedFavorites() {
     const featuredFavBtn = document.querySelector('.ent-featured-btn--favorite');
     if (featuredFavBtn) {
-        const titulo = featuredFavBtn.dataset.titulo;
-        const id = titulo.toLowerCase().replace(/\s+/g, '-');
+        const id = featuredFavBtn.dataset.id;
         const heartIcon = featuredFavBtn.querySelector('.ent-heart-icon');
         
-        if (favorites.includes(id)) {
+        if (id && favorites.includes(id)) {
             featuredFavBtn.classList.add('ent-featured-btn--favorite-active');
             heartIcon.textContent = '❤️';
         }
@@ -897,7 +1067,7 @@ initializeFavorites();
 initializeFeaturedFavorites();
 
 // ============ AI RECOMMENDATION ============
-function getAIRecommendation() {
+async function getAIRecommendation() {
     const btn = document.querySelector('.ent-ai-btn');
     const resultDiv = document.getElementById('aiRecommendationResult');
     
@@ -905,48 +1075,88 @@ function getAIRecommendation() {
     btn.disabled = true;
     btn.textContent = 'Buscando...';
     
-    // Collect all content from the page
-    const allContent = [];
-    document.querySelectorAll('.ent-card').forEach(card => {
-        allContent.push({
-            titulo: card.dataset.titulo,
-            genero: card.dataset.genero,
-            descripcion: card.dataset.descripcion,
-            imagen: card.dataset.imagen,
-            calificacion: card.dataset.calificacion,
-            anio: card.dataset.anio,
-            duracion: card.dataset.duracion
+    try {
+        // Send request to backend
+        const response = await fetch('/entretenimiento/recomendacion-ia/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            }
         });
-    });
-    
-    // Randomly select a recommendation (simulating AI)
-    setTimeout(() => {
-        const randomIndex = Math.floor(Math.random() * allContent.length);
-        const recommendation = allContent[randomIndex];
         
-        // Display the recommendation
-        resultDiv.innerHTML = `
-            <h3 class="ent-ai-result-title">🤖 Te recomiendo:</h3>
-            <div class="ent-ai-result-content">
-                <img src="${recommendation.imagen}" alt="${recommendation.titulo}" class="ent-ai-result-img">
-                <div class="ent-ai-result-info">
-                    <h4>${recommendation.titulo}</h4>
-                    <p>${recommendation.descripcion}</p>
-                    <div class="ent-ai-result-meta">
-                        <span>⭐ ${recommendation.calificacion}</span>
-                        <span>${recommendation.genero}</span>
-                        ${recommendation.anio ? `<span>${recommendation.anio}</span>` : ''}
+        const data = await response.json();
+        
+        if (data.status === 'success') {
+            const recommendation = data.contenido;
+            
+            // Display the recommendation
+            resultDiv.innerHTML = `
+                <h3 class="ent-ai-result-title">🤖 Te recomiendo:</h3>
+                <div class="ent-ai-result-content">
+                    <img src="${recommendation.imagen}" alt="${recommendation.titulo}" class="ent-ai-result-img">
+                    <div class="ent-ai-result-info">
+                        <h4>${recommendation.titulo}</h4>
+                        <p>${recommendation.descripcion}</p>
+                        <div class="ent-ai-result-meta">
+                            <span>⭐ ${recommendation.calificacion}</span>
+                            <span>${recommendation.genero}</span>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `;
+            `;
+            
+            resultDiv.style.display = 'block';
+        } else {
+            resultDiv.innerHTML = '<p style="color: #ef4444;">No se pudo obtener una recomendación. Inténtalo de nuevo.</p>';
+            resultDiv.style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Error al obtener recomendación IA:', error);
         
-        resultDiv.style.display = 'block';
+        // Fallback: Collect all content from the page and select randomly
+        const allContent = [];
+        document.querySelectorAll('.ent-card').forEach(card => {
+            allContent.push({
+                titulo: card.dataset.titulo,
+                genero: card.dataset.genero,
+                descripcion: card.dataset.descripcion,
+                imagen: card.dataset.imagen,
+                calificacion: card.dataset.calificacion,
+                anio: card.dataset.anio,
+                duracion: card.dataset.duracion
+            });
+        });
         
-        // Re-enable button
-        btn.disabled = false;
-        btn.textContent = 'Obtener otra recomendación';
-    }, 1000);
+        if (allContent.length > 0) {
+            const randomIndex = Math.floor(Math.random() * allContent.length);
+            const recommendation = allContent[randomIndex];
+            
+            resultDiv.innerHTML = `
+                <h3 class="ent-ai-result-title">🤖 Te recomiendo:</h3>
+                <div class="ent-ai-result-content">
+                    <img src="${recommendation.imagen}" alt="${recommendation.titulo}" class="ent-ai-result-img">
+                    <div class="ent-ai-result-info">
+                        <h4>${recommendation.titulo}</h4>
+                        <p>${recommendation.descripcion}</p>
+                        <div class="ent-ai-result-meta">
+                            <span>⭐ ${recommendation.calificacion}</span>
+                            <span>${recommendation.genero}</span>
+                            ${recommendation.anio ? `<span>${recommendation.anio}</span>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+            resultDiv.style.display = 'block';
+        } else {
+            resultDiv.innerHTML = '<p style="color: #ef4444;">No hay contenido disponible para recomendar.</p>';
+            resultDiv.style.display = 'block';
+        }
+    }
+    
+    // Re-enable button
+    btn.disabled = false;
+    btn.textContent = 'Obtener otra recomendación';
 }
 
 // ============ MODAL ACTIONS ============
@@ -962,6 +1172,7 @@ function openModal(card) {
     document.getElementById('modal-genre').textContent = d.genero || '';
     document.getElementById('modal-desc').textContent = d.descripcion || '';
     document.getElementById('modal-rating').textContent = d.calificacion ? d.calificacion + ' / 10' : '';
+    document.getElementById('modal-trailer').value = d.trailer || '';
 
     // Director / Autor / Compositor
     const dirWrap = document.getElementById('meta-director-wrap');
@@ -1006,7 +1217,12 @@ function openModal(card) {
 }
 
 function searchTrailer() {
-    if (currentModalTitle) {
+    const trailerUrl = document.getElementById('modal-trailer').value;
+    if (trailerUrl) {
+        // Si hay tráiler directo, abrirlo
+        window.open(trailerUrl, '_blank');
+    } else if (currentModalTitle) {
+        // Si no, buscar en YouTube
         const searchQuery = encodeURIComponent(currentModalTitle + ' tráiler');
         window.open(`https://www.youtube.com/results?search_query=${searchQuery}`, '_blank');
     }
@@ -1022,8 +1238,7 @@ function searchTrailerFromFeatured(titulo) {
 }
 
 function toggleFavoriteFromFeatured(btn) {
-    const titulo = btn.dataset.titulo;
-    const id = titulo.toLowerCase().replace(/\s+/g, '-');
+    const id = btn.dataset.id;
     const heartIcon = btn.querySelector('.ent-heart-icon');
     
     if (favorites.includes(id)) {
@@ -1055,11 +1270,10 @@ function toggleFavoriteFromFeatured(btn) {
 
 function addToFavoritesFromModal() {
     if (currentModalTitle) {
-        const id = currentModalTitle.toLowerCase().replace(/\s+/g, '-');
-        
-        // Find the corresponding card and toggle favorite
-        const card = document.querySelector(`[data-id="${id}"]`);
+        // Find the corresponding card by title and get its ID
+        const card = document.querySelector(`[data-titulo="${currentModalTitle}"]`);
         if (card) {
+            const id = card.dataset.id;
             const btn = card.querySelector('.ent-favorite-btn');
             if (btn) {
                 toggleFavorite(btn);

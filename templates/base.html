@@ -413,18 +413,55 @@
         console.error = function(...args) {
             const message = args[0] || '';
             const messageStr = typeof message === 'string' ? message : JSON.stringify(message);
-            if (messageStr.includes('postMessage') && (messageStr.includes('target origin') || messageStr.includes('DOMWindow'))) {
+            if (messageStr.includes('postMessage') && (messageStr.includes('target origin') || messageStr.includes('DOMWindow') || messageStr.includes('www.youtube.com'))) {
                 return; // Ignorar advertencia de origen en localhost
             }
+            if (messageStr.includes('touchstart') && messageStr.includes('passive')) {
+                return; // Ignorar advertencia de touchstart de YouTube
+            }
+            if (messageStr.includes('setTimeout') && messageStr.includes('handler took')) {
+                return; // Ignorar advertencias de rendimiento
+            }
+            if (messageStr.includes('Violation') && messageStr.includes('setTimeout')) {
+                return; // Ignorar advertencias de rendimiento de React
+            }
             originalError.apply(console, args);
+        };
+
+        const originalWarn = console.warn;
+        console.warn = function(...args) {
+            const message = args[0] || '';
+            const messageStr = typeof message === 'string' ? message : JSON.stringify(message);
+            if (messageStr.includes('postMessage') && (messageStr.includes('target origin') || messageStr.includes('DOMWindow') || messageStr.includes('www.youtube.com'))) {
+                return; // Ignorar advertencia de origen en localhost
+            }
+            if (messageStr.includes('touchstart') && messageStr.includes('passive')) {
+                return; // Ignorar advertencia de touchstart de YouTube
+            }
+            if (messageStr.includes('setTimeout') && messageStr.includes('handler took')) {
+                return; // Ignorar advertencias de rendimiento
+            }
+            if (messageStr.includes('Violation') && messageStr.includes('setTimeout')) {
+                return; // Ignorar advertencias de rendimiento de React
+            }
+            originalWarn.apply(console, args);
         };
 
         // Interceptar errores de ventana para postMessage
         const originalOnErrorHandler = window.onerror;
         window.onerror = function(message, source, lineno, colno, error) {
             const messageStr = typeof message === 'string' ? message : String(message);
-            if (messageStr.includes('postMessage') && (messageStr.includes('target origin') || messageStr.includes('DOMWindow'))) {
+            if (messageStr.includes('postMessage') && (messageStr.includes('target origin') || messageStr.includes('DOMWindow') || messageStr.includes('www.youtube.com'))) {
                 return true; // Prevenir que el error se muestre en consola
+            }
+            if (messageStr.includes('touchstart') && messageStr.includes('passive')) {
+                return true; // Ignorar advertencia de touchstart de YouTube
+            }
+            if (messageStr.includes('setTimeout') && messageStr.includes('handler took')) {
+                return true; // Ignorar advertencias de rendimiento
+            }
+            if (messageStr.includes('Violation') && messageStr.includes('setTimeout')) {
+                return true; // Ignorar advertencias de rendimiento de React
             }
             if (originalOnErrorHandler) {
                 return originalOnErrorHandler(message, source, lineno, colno, error);
@@ -436,7 +473,22 @@
         window.addEventListener('error', function(event) {
             if (event && event.message) {
                 const messageStr = typeof event.message === 'string' ? event.message : String(event.message);
-                if (messageStr.includes('postMessage') && (messageStr.includes('target origin') || messageStr.includes('DOMWindow'))) {
+                if (messageStr.includes('postMessage') && (messageStr.includes('target origin') || messageStr.includes('DOMWindow') || messageStr.includes('www.youtube.com'))) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return false;
+                }
+                if (messageStr.includes('touchstart') && messageStr.includes('passive')) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return false;
+                }
+                if (messageStr.includes('setTimeout') && messageStr.includes('handler took')) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return false;
+                }
+                if (messageStr.includes('Violation') && messageStr.includes('setTimeout')) {
                     event.preventDefault();
                     event.stopPropagation();
                     return false;
@@ -448,7 +500,7 @@
         window.addEventListener('unhandledrejection', function(event) {
             if (event.reason) {
                 const reasonStr = typeof event.reason === 'string' ? event.reason : String(event.reason);
-                if (reasonStr.includes('postMessage') && (reasonStr.includes('target origin') || reasonStr.includes('DOMWindow'))) {
+                if (reasonStr.includes('postMessage') && (reasonStr.includes('target origin') || reasonStr.includes('DOMWindow') || reasonStr.includes('www.youtube.com'))) {
                     event.preventDefault();
                 }
             }
