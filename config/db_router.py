@@ -4,8 +4,7 @@
 
 class DatabaseRouter:
     """
-    Controla qué modelos van a SQLite (default) y cuáles a MongoDB (mongodb).
-    Temporalmente deshabilitado - MongoDB no está activo.
+    Controla qué modelos van a PostgreSQL (default), SQLite (sqlite) y cuáles a MongoDB (mongodb).
     """
     
     # Definimos los labels de las apps que deben usar MongoDB
@@ -17,7 +16,7 @@ class DatabaseRouter:
         """
         if model._meta.app_label in self.route_app_labels:
             return 'mongodb'
-        return 'default'
+        return 'default'  # PostgreSQL por defecto
 
     def db_for_write(self, model, **hints):
         """
@@ -25,12 +24,12 @@ class DatabaseRouter:
         """
         if model._meta.app_label in self.route_app_labels:
             return 'mongodb'
-        return 'default'
+        return 'default'  # PostgreSQL por defecto
 
     def allow_relation(self, obj1, obj2, **hints):
         """
         Permite relaciones solo si ambos modelos están en la misma base de datos.
-        Nota: Django no soporta ForeignKeys reales entre SQLite y MongoDB.
+        Nota: Django no soporta ForeignKeys reales entre PostgreSQL y MongoDB.
         """
         if (
             obj1._meta.app_label in self.route_app_labels or
@@ -42,6 +41,7 @@ class DatabaseRouter:
     def allow_migrate(self, db, app_label, model_name=None, **hints):
         """
         Asegura que las migraciones de las apps de Mongo solo ocurran en 'mongodb'.
+        Las demás apps van a PostgreSQL (default).
         """
         if app_label in self.route_app_labels:
             return db == 'mongodb'

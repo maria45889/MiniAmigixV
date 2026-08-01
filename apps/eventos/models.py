@@ -50,6 +50,3 @@ class Evento(models.Model):
             'otro': '#64748b'       # Gris
         }
         return colors.get(self.categoria, '#64748b')
-
-    class Meta:
-        ordering = ['fecha']

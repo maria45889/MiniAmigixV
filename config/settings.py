@@ -108,8 +108,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.github',
     'allauth.socialaccount.providers.microsoft',
     
-    # Temporalmente deshabilitado - incompatible con Django 6.0
-    # 'webpush',
+    # Temporalmente deshabilitado - requiere instalación de MongoDB
     # 'mongoengine',
     # 'mongodb',
     
@@ -199,7 +198,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # DATABASE CONFIGURATION
 # ============================================================================
 
-# SQLite (Desarrollo)
+# SQLite (Base de datos principal - Desarrollo)
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -207,7 +206,7 @@ DATABASES = {
     },
 }
 
-# PostgreSQL (Producción - comentado para desarrollo)
+# PostgreSQL (Producción - descomentar cuando esté configurado)
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.postgresql',
@@ -216,10 +215,10 @@ DATABASES = {
 #         'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'postgres'),
 #         'HOST': os.getenv('POSTGRES_HOST', 'localhost'),
 #         'PORT': os.getenv('POSTGRES_PORT', '5432'),
-#     }
+#     },
 # }
 
-# MongoDB Configuration (deshabilitado temporalmente)
+# MongoDB Configuration (deshabilitado - requiere instalación de MongoDB)
 # MONGO_APPS = [
 #     'notificaciones',
 #     'chats',
@@ -420,7 +419,7 @@ MONGODB_URI = os.getenv('MONGODB_URI', 'mongodb://localhost:27017/')
 MONGODB_NAME = os.getenv('MONGODB_NAME', 'miniamigixv_db')
 MONGOENGINE_USER_DOCUMENT = 'mongoengine.django.auth.User'
 
-# Conectar a MongoDB (opcional - desactivado temporalmente)
+# Conectar a MongoDB (deshabilitado temporalmente - requiere instalación)
 # try:
 #     from mongoengine import connect
 #     connect(db=MONGODB_NAME, host=MONGODB_URI, alias='default')
@@ -446,7 +445,7 @@ SILENCED_SYSTEM_CHECKS = [
     'django_ratelimit.E003',  # Silenciar error de shared cache en desarrollo
 ]
 
-# Redis (Memurai) - Caching y sesiones (para producción)
+# Redis (Memurai) - Caching y sesiones (deshabilitado - requiere instalación)
 # REDIS_HOST = os.getenv('REDIS_HOST', 'localhost')
 # REDIS_PORT = os.getenv('REDIS_PORT', '6379')
 # REDIS_DB = os.getenv('REDIS_DB', '0')
@@ -467,6 +466,9 @@ SILENCED_SYSTEM_CHECKS = [
 #         'TIMEOUT': 300,  # 5 minutos por defecto
 #     }
 # }
+
+# Session configuration
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 # Session configuration
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'

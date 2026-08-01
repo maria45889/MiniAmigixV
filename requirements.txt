@@ -12,6 +12,7 @@ Django==6.0.6
 django-allauth==65.18.0
 djangorestframework
 djangorestframework-simplejwt
+drf-spectacular
 django-webpush==0.3.1
 mongoengine==0.28.0
 h11==0.16.0
@@ -44,6 +45,5 @@ django-ratelimit==4.1.0
 django-cors-headers==4.9.0
 openpyxl==3.1.5
 xlsxwriter==3.2.0
-Pillow==12.2.0
 pytesseract==0.3.13
 reportlab==4.2.0

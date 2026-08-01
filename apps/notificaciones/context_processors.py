@@ -2,6 +2,9 @@ from .models import Notificacion
 
 def notificaciones_sin_leer(request):
     if request.user.is_authenticated:
-        count = Notificacion.objects.filter(usuario=request.user, leida=False).count()
-        return {'notificaciones_sin_leer': count}
+        try:
+            count = Notificacion.objects.filter(usuario=request.user, leida=False).count()
+            return {'notificaciones_sin_leer': count}
+        except Exception:
+            return {'notificaciones_sin_leer': 0}
     return {'notificaciones_sin_leer': 0}
