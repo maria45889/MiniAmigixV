@@ -54,6 +54,10 @@ DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
 ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,10.19.45.68').split(',')
 
+# Agregar URL de ngrok si no está presente
+if 'yasmin-uncalumniative-demetria.ngrok-free.dev' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('yasmin-uncalumniative-demetria.ngrok-free.dev')
+
 # URL base del sitio para correos electrónicos y enlaces absolutos
 SITE_URL = os.getenv('SITE_URL', 'http://127.0.0.1:8000')
 
