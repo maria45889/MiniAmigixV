@@ -1,4 +1,7 @@
 from django.shortcuts import render, redirect
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
 from .models import Perfil, UserActivity, UserProfileAchievement
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -87,3 +90,26 @@ def editar_perfil(request):
             messages.error(request, f'Error: {str(e)}')
     
     return render(request, 'perfil/editar.html', {'perfil': perfil})
+
+@csrf_exempt
+@login_required
+def cambiar_tema(request):
+    """API endpoint para cambiar el tema del usuario"""
+    if request.method == 'POST':
+        try:
+            import json
+            data = json.loads(request.body)
+            nuevo_tema = data.get('tema', 'dark')
+            
+            if nuevo_tema not in ['dark', 'light', 'auto']:
+                return JsonResponse({'success': False, 'error': 'Tema inválido'}, status=400)
+            
+            perfil, created = Perfil.objects.get_or_create(usuario=request.user)
+            perfil.tema = nuevo_tema
+            perfil.save()
+            
+            return JsonResponse({'success': True, 'tema': nuevo_tema})
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)}, status=500)
+    
+    return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)

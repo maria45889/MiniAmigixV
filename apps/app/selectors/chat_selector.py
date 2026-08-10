@@ -32,12 +32,16 @@ class ChatSelector:
 
     @staticmethod
     def get_all_by_user_with_last_message(user):
-        """Get all conversations with their last message."""
+        """Get all conversations with their last message (optimized)."""
         from django.db.models import Prefetch
-        conversaciones = ConversacionChat.objects.filter(usuario=user).select_related('usuario').order_by('-fecha_actualizacion')
+        # Optimizar con Prefetch para traer solo el último mensaje
+        conversaciones = ConversacionChat.objects.filter(usuario=user).select_related('usuario').prefetch_related(
+            Prefetch('mensajes', queryset=MensajeChat.objects.order_by('-fecha_creacion')[:1], to_attr='last_message_prefetch')
+        ).order_by('-fecha_actualizacion')
+        
         result = []
         for conv in conversaciones:
-            last_msg = conv.mensajes.order_by('-fecha_creacion').first()
+            last_msg = conv.last_message_prefetch[0] if conv.last_message_prefetch else None
             result.append({
                 'conversation': conv,
                 'last_message': last_msg

@@ -4,6 +4,7 @@ OpenAI API integration.
 
 import logging
 import openai
+import requests
 from typing import List, Dict
 
 logger = logging.getLogger(__name__)
@@ -47,13 +48,22 @@ class OpenAIAPI:
             )
             
             try:
+                # Usar API directa de Ollama para mejor rendimiento
+                if provider_name == 'ollama':
+                    return OpenAIAPI._call_ollama_direct(
+                        client_kwargs['base_url'].replace('/v1', ''),
+                        model,
+                        current_messages,
+                        max_tokens
+                    )
+                
                 client = openai.OpenAI(**client_kwargs)
                 logger.info(f'Llamando a proveedor {provider_name} con modelo {model}')
                 response = client.chat.completions.create(
                     model=model,
                     messages=current_messages,
                     max_tokens=max_tokens,
-                    timeout=30.0,
+                    timeout=60.0,
                 )
                 logger.info(f'Respuesta recibida de {provider_name}')
                 return response.choices[0].message.content
@@ -72,7 +82,16 @@ class OpenAIAPI:
         """Get available provider configurations."""
         configs = []
 
-        # Priorizar Groq (más rápido)
+        # Priorizar Ollama (local y gratuito) - usar mistral que funciona
+        if getattr(settings_obj, 'OLLAMA_API_URL', None):
+            configs.append((
+                'ollama',
+                {'base_url': settings_obj.OLLAMA_API_URL, 'api_key': 'ollama'},
+                getattr(settings_obj, 'OLLAMA_MODEL', 'mistral:latest'),
+                False,
+            ))
+
+        # Groq (rápido pero requiere API key válida)
         if getattr(settings_obj, 'GROQ_API_KEY', None):
             configs.append((
                 'groq',
@@ -81,6 +100,7 @@ class OpenAIAPI:
                 False,
             ))
 
+        # OpenAI (requiere API key válida)
         if getattr(settings_obj, 'OPENAI_API_KEY', None):
             configs.append((
                 'openai',
@@ -97,15 +117,54 @@ class OpenAIAPI:
                 True,
             ))
 
-        if getattr(settings_obj, 'OLLAMA_API_URL', None):
-            configs.append((
-                'ollama',
-                {'base_url': settings_obj.OLLAMA_API_URL, 'api_key': 'ollama'},
-                getattr(settings_obj, 'OLLAMA_MODEL', 'llama3.3'),
-                False,
-            ))
-
         return configs
+    
+    @staticmethod
+    def _call_ollama_direct(base_url: str, model: str, messages: List[Dict], max_tokens: int) -> str:
+        """Call Ollama API directly for better performance."""
+        try:
+            # Convertir mensajes al formato de Ollama - versión simplificada
+            prompt_parts = []
+            for msg in messages:
+                role = msg.get('role', '')
+                content = msg.get('content', '')
+                if content:  # Solo agregar si hay contenido
+                    if role == 'system':
+                        prompt_parts.append(f"System: {content}")
+                    elif role == 'user':
+                        prompt_parts.append(f"User: {content}")
+                    elif role == 'assistant':
+                        prompt_parts.append(f"Assistant: {content}")
+            
+            prompt = "\n".join(prompt_parts)
+            
+            # Limitar longitud del prompt para evitar timeouts
+            if len(prompt) > 2000:
+                prompt = prompt[:2000] + "..."
+            
+            # Llamar a API de Ollama
+            response = requests.post(
+                f"{base_url}/api/generate",
+                json={
+                    "model": model,
+                    "prompt": prompt,
+                    "stream": False,
+                    "options": {
+                        "num_predict": min(max_tokens, 100),  # Limitar tokens para velocidad
+                        "temperature": 0.7
+                    }
+                },
+                timeout=120.0  # Aumentar a 120 segundos
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                return data.get('response', '')
+            else:
+                raise Exception(f"Ollama API error: {response.status_code}")
+        except Exception as e:
+            logger.error(f"Error calling Ollama directly: {str(e)}")
+            raise
     
     @staticmethod
     def _prepare_messages(

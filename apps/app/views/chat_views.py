@@ -40,7 +40,7 @@ def chat_view(request):
             conversaciones = [active_conv]
             conversaciones_data = [{'conversation': active_conv, 'last_message': None}]
 
-    mensajes = ChatSelector.get_all_messages(active_conv)
+    mensajes = ChatSelector.get_recent_chronological(active_conv, limit=50)
     active_id = active_conv.id
 
     return render(request, 'chat.html', {

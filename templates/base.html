@@ -1064,6 +1064,93 @@
             document.documentElement.style.setProperty('--accent-gradient', 'linear-gradient(135deg, ' + saved + ', ' + hexPair(saved) + ')');
         }
     })();
+
+    // ─────────────────────────────────────────
+    // MODO OSCURO/CLARO PERSISTENTE
+    // ─────────────────────────────────────────
+    (function() {
+        // Función para aplicar tema
+        function applyTheme(theme) {
+            const html = document.documentElement;
+            
+            if (theme === 'light') {
+                html.classList.remove('dark-mode');
+                html.classList.add('light-mode');
+                html.style.setProperty('--bg-primary', '#ffffff');
+                html.style.setProperty('--bg-secondary', '#f8fafc');
+                html.style.setProperty('--text-main', '#1e293b');
+                html.style.setProperty('--text-secondary', '#64748b');
+            } else if (theme === 'dark') {
+                html.classList.remove('light-mode');
+                html.classList.add('dark-mode');
+                html.style.setProperty('--bg-primary', '#0f172a');
+                html.style.setProperty('--bg-secondary', '#1e293b');
+                html.style.setProperty('--text-main', '#f8fafc');
+                html.style.setProperty('--text-secondary', '#94a3b8');
+            } else if (theme === 'auto') {
+                const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+                applyTheme(prefersDark ? 'dark' : 'light');
+                return;
+            }
+            
+            localStorage.setItem('theme', theme);
+        }
+
+        // Función para cambiar tema
+        async function changeTheme(newTheme) {
+            try {
+                const response = await fetch('/perfil/api/cambiar-tema/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+                    },
+                    body: JSON.stringify({ tema: newTheme })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        applyTheme(data.tema);
+                        return true;
+                    }
+                }
+            } catch (e) {
+                console.log('Error cambiando tema:', e);
+            }
+            
+            // Fallback: aplicar tema localmente
+            applyTheme(newTheme);
+            return false;
+        }
+
+        // Inicializar tema al cargar
+        document.addEventListener('DOMContentLoaded', function() {
+            // Primero intentar obtener tema del servidor
+            const userTheme = "{{ perfil.tema|default:'dark' }}";
+            if (userTheme && userTheme !== 'None') {
+                applyTheme(userTheme);
+            } else {
+                // Fallback a localStorage
+                const savedTheme = localStorage.getItem('theme') || 'dark';
+                applyTheme(savedTheme);
+            }
+
+            // Exponer función globalmente
+            window.changeTheme = changeTheme;
+            window.applyTheme = applyTheme;
+            
+            // Función toggle para el botón del navbar
+            window.toggleTheme = function() {
+                const currentTheme = localStorage.getItem('theme') || 'dark';
+                const themes = ['dark', 'light', 'auto'];
+                const currentIndex = themes.indexOf(currentTheme);
+                const nextIndex = (currentIndex + 1) % themes.length;
+                const nextTheme = themes[nextIndex];
+                changeTheme(nextTheme);
+            };
+        });
+    })();
     </script>
     <!-- JS Amigis Mascot (Versión Simple) -->
     <script>

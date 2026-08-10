@@ -83,7 +83,7 @@
             <div class="vinyl-disc" id="vinyl-disc">
               <div class="vinyl-center-dot"></div>
             </div>
-            <img id="current-album-art" src="{% static 'imagenes/logo_square.png' %}" alt="Album Art" style="display: none;">
+            <img id="current-album-art" src="{% static 'imagenes/logo_square.png' %}" alt="Album Art" loading="lazy" style="display: none;">
           </div>
 
           <!-- Song Info & Controls -->
@@ -139,16 +139,16 @@
                 <i class="ti ti-brand-youtube"></i> Descargar MP4
               </button>
             </div>
+            
+            <!-- Legal Notice -->
+            <div id="download-notice" style="display:none; margin-top:8px; font-size:9px; color:var(--m-text-dim); text-align:center;">
+              ⚠️ Descarga solo para uso personal. Respeta los derechos de autor del artista.
+            </div>
 
-            <!-- Equalizer Bars -->
-            <div class="visualizer-bars-row" id="visualizer-bars">
-              <div class="v-bar"></div>
-              <div class="v-bar"></div>
-              <div class="v-bar"></div>
-              <div class="v-bar"></div>
-              <div class="v-bar"></div>
-              <div class="v-bar"></div>
-              <div class="v-bar"></div>
+            <!-- Audio Waveform Visualizer -->
+            <div class="waveform-visualizer-container">
+              <canvas id="waveform-canvas" class="waveform-canvas"></canvas>
+              <div class="visualizer-label">Visualización de Audio</div>
             </div>
 
           </div>
@@ -188,48 +188,6 @@
             <div id="yt-video-player"></div>
           </div>
 
-        </div>
-      </div>
-
-      <!-- PLAYLISTS CATEGORIES -->
-      <h3 class="section-heading-title" id="playlist-section">
-        <i class="ti ti-layout-grid"></i> Playlists Recomendadas
-      </h3>
-      <div class="playlists-grid">
-        <div class="playlist-card-item" onclick="loadPlaylistGenre('Favoritas')">
-          <div class="pl-icon">🎧</div>
-          <div class="pl-title">Mis Favoritas</div>
-          <div class="pl-subtitle">Tus temas imprescindibles</div>
-        </div>
-
-        <div class="playlist-card-item" onclick="loadPlaylistGenre('Estudio')">
-          <div class="pl-icon">💻</div>
-          <div class="pl-title">Para Estudiar</div>
-          <div class="pl-subtitle">Concentración máxima</div>
-        </div>
-
-        <div class="playlist-card-item" onclick="loadPlaylistGenre('Relajación')">
-          <div class="pl-icon">🌙</div>
-          <div class="pl-title">Relajación</div>
-          <div class="pl-subtitle">Lo-fi y ambiente suave</div>
-        </div>
-
-        <div class="playlist-card-item" onclick="loadPlaylistGenre('Motivación')">
-          <div class="pl-icon">🔥</div>
-          <div class="pl-title">Motivación</div>
-          <div class="pl-subtitle">Energía al 100%</div>
-        </div>
-
-        <div class="playlist-card-item" onclick="loadPlaylistGenre('Gaming')">
-          <div class="pl-icon">🎮</div>
-          <div class="pl-title">Gaming</div>
-          <div class="pl-subtitle">Beats para jugar</div>
-        </div>
-
-        <div class="playlist-card-item" onclick="loadPlaylistGenre('Instrumental')">
-          <div class="pl-icon">🎼</div>
-          <div class="pl-title">Instrumental</div>
-          <div class="pl-subtitle">Melodías puras</div>
         </div>
       </div>
 
@@ -294,7 +252,7 @@
                  data-artist="{{ cancion.artista|default:'Artista desconocido' }}"
                  data-youtube-id="{{ cancion.youtube_id|default:'' }}"
                  data-song-id="{{ cancion.id }}">
-              <img src="{% if cancion.youtube_id %}https://img.youtube.com/vi/{{ cancion.youtube_id }}/mqdefault.jpg{% else %}{% static 'imagenes/logo_square.png' %}{% endif %}" class="lsi-thumb" alt="Thumb">
+              <img src="{% if cancion.youtube_id %}https://img.youtube.com/vi/{{ cancion.youtube_id }}/mqdefault.jpg{% else %}{% static 'imagenes/logo_square.png' %}{% endif %}" class="lsi-thumb" alt="Thumb" loading="lazy" referrerpolicy="no-referrer">
               <div class="lsi-details">
                 <div class="lsi-name">{{ cancion.nombre }}</div>
                 <div class="lsi-artist">{{ cancion.artista|default:"Artista desconocido" }}</div>
@@ -379,6 +337,10 @@ var lyricsTimestamps = [];
 var CSRF = '';
 
 var audio = null;
+var audioContext = null;
+var analyser = null;
+var dataArray = null;
+var animationId = null;
 
 // ─────────────────────────────────────────
 // INIT — wire up everything after DOM ready
@@ -417,44 +379,49 @@ document.addEventListener('DOMContentLoaded', function() {
   audio.addEventListener('waiting', function() {
     setLoadingState(true);
   });
+
+  // Inicializar visualizador de ondas
+  initWaveformVisualizer();
 });
 
 // ─────────────────────────────────────────
 // PLAY / PAUSE
 // ─────────────────────────────────────────
 function togglePlayPause() {
-  if (!currentYoutubeId && (!audio || !audio.src)) {
-    // Nothing loaded yet — try playing first library item
-    var items = document.querySelectorAll('.library-song-item');
-    if (items.length > 0) playSongIndex(0);
-    return;
-  }
-
-  if (currentYoutubeId) {
-    // YouTube songs: control the YT.Player
-    if (mainYtPlayer && typeof mainYtPlayer.getPlayerState === 'function') {
-      var state = mainYtPlayer.getPlayerState();
-      if (state === 1) { // 1 = PLAYING
-        if (typeof mainYtPlayer.pauseVideo === 'function') mainYtPlayer.pauseVideo();
-      } else {
-        if (typeof mainYtPlayer.playVideo === 'function') mainYtPlayer.playVideo();
-      }
+  // Usar requestAnimationFrame para evitar bloquear el hilo principal
+  requestAnimationFrame(function() {
+    if (!currentYoutubeId && (!audio || !audio.src)) {
+      // Nothing loaded yet — try playing first library item
+      var items = document.querySelectorAll('.library-song-item');
+      if (items.length > 0) playSongIndex(0);
       return;
     }
-  }
 
+    if (currentYoutubeId) {
+      // YouTube songs: control the YT.Player
+      if (mainYtPlayer && typeof mainYtPlayer.getPlayerState === 'function') {
+        var state = mainYtPlayer.getPlayerState();
+        if (state === 1) { // 1 = PLAYING
+          if (typeof mainYtPlayer.pauseVideo === 'function') mainYtPlayer.pauseVideo();
+        } else {
+          if (typeof mainYtPlayer.playVideo === 'function') mainYtPlayer.playVideo();
+        }
+        return;
+      }
+    }
 
-  // Non-YouTube: use <audio> element
-  if (!audio) return;
-  if (isPlaying) {
-    audio.pause();
-    setPlayingState(false);
-  } else {
-    audio.play().catch(function() {
-      showAudioError('No se pudo reproducir.');
-    });
-    setPlayingState(true);
-  }
+    // Non-YouTube: use <audio> element
+    if (!audio) return;
+    if (isPlaying) {
+      audio.pause();
+      setPlayingState(false);
+    } else {
+      audio.play().catch(function() {
+        showAudioError('No se pudo reproducir.');
+      });
+      setPlayingState(true);
+    }
+  });
 }
 
 function resetPlayer() {
@@ -485,21 +452,20 @@ function setPlayingState(playing) {
   isPlaying = playing;
   const playBtn = document.getElementById('play-pause-btn');
   const vinyl = document.getElementById('vinyl-disc');
-  const bars = document.getElementById('visualizer-bars');
   const duck = document.getElementById('amigis-dj-duck');
 
   if (playing) {
     playBtn.textContent = '⏸';
     vinyl.classList.add('playing');
-    bars.classList.add('active');
     duck.classList.add('dancing');
     document.getElementById('amigis-dj-quote').textContent = '"¡Ritmo genial! Me encanta esta canción." 🎶';
+    // connectAudioToVisualizer(); // Desactivado temporalmente por performance
   } else {
     playBtn.textContent = '▶️';
     vinyl.classList.remove('playing');
-    bars.classList.remove('active');
     duck.classList.remove('dancing');
     document.getElementById('amigis-dj-quote').textContent = '"En pausa... ¡Avisame cuando volvamos a bailar!" 🦆';
+    stopWaveformAnimation();
   }
 }
 
@@ -545,6 +511,7 @@ async function playSong(title, artist, ytId, songId) {
 
   // Show download buttons
   document.getElementById('download-btns').style.display = 'flex';
+  document.getElementById('download-notice').style.display = 'block';
 
   // Always silence & reset the <audio> element first
   if (audio) {
@@ -892,9 +859,56 @@ function loadYouTubeVideo(ytId, title, retries) {
             // Error 100: Video not found
             // Error 101/150: Embed not allowed
             if (event.data === 150 || event.data === 100 || event.data === 101) {
-              showAudioError('Este video de YouTube no puede reproducirse debido a restricciones del propietario. Intenta con otra canción.');
-              setLoadingState(false);
-              setPlayingState(false);
+              // Intentar reproducir solo el audio recargando con diferentes parámetros
+              if (mainYtPlayer) {
+                mainYtPlayer.destroy();
+                mainYtPlayer = null;
+                mainYtPlayerReady = false;
+              }
+              
+              // Intentar con parámetros alternativos para audio
+              mainYtPlayer = new YT.Player('yt-video-player', {
+                height: '100%',
+                width: '100%',
+                videoId: ytId,
+                playerVars: {
+                  'autoplay': 1,
+                  'rel': 0,
+                  'modestbranding': 1,
+                  'playsinline': 1,
+                  'origin': window.location.origin,
+                  'controls': 1,
+                  'disablekb': 1
+                },
+                events: {
+                  'onReady': function(event) {
+                    mainYtPlayerReady = true;
+                    event.target.playVideo();
+                  },
+                  'onStateChange': function(event) {
+                    if (event.data === YT.PlayerState.PLAYING) {
+                      setPlayingState(true);
+                      if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(true);
+                      startMainYtPoller();
+                    } else {
+                      setPlayingState(false);
+                      if (typeof updateMiniPlayerPlayButton === 'function') updateMiniPlayerPlayButton(false);
+                      stopMainYtPoller();
+                    }
+                    if (event.data === YT.PlayerState.ENDED) {
+                      if (repeatOn) { mainYtPlayer.seekTo(0); mainYtPlayer.playVideo(); }
+                      else { playNextSong(); }
+                    }
+                  },
+                  'onError': function(event) {
+                    // Si falla de nuevo, cargar letras de todos modos
+                    loadLyrics(currentSongTitle, currentSongArtist, currentSongId);
+                    showAudioError('Este video de YouTube tiene restricciones. Intenta con otra canción o usa el botón de descargar MP3 para obtener el audio.');
+                    setLoadingState(false);
+                    setPlayingState(false);
+                  }
+                }
+              });
             } else {
               // For other errors, try streaming fallback
               playViaStreamEndpoint(currentYoutubeId || ytId, currentSongTitle, currentSongArtist);
@@ -1367,6 +1381,105 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }, 500);
 });
+
+// ─────────────────────────────────────────
+// WAVEFORM VISUALIZER
+// ─────────────────────────────────────────
+function initWaveformVisualizer() {
+  var canvas = document.getElementById('waveform-canvas');
+  if (!canvas) return;
+
+  canvas.width = canvas.offsetWidth * 2; // High DPI
+  canvas.height = canvas.offsetHeight * 2;
+  canvas.style.width = canvas.offsetWidth + 'px';
+  canvas.style.height = canvas.offsetHeight + 'px';
+
+  var ctx = canvas.getContext('2d');
+  ctx.scale(2, 2);
+}
+
+function connectAudioToVisualizer() {
+  if (!audio || !audio.src) return;
+
+  try {
+    if (!audioContext) {
+      audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+
+    if (audioContext.state === 'suspended') {
+      audioContext.resume();
+    }
+
+    if (!analyser) {
+      analyser = audioContext.createAnalyser();
+      analyser.fftSize = 128; // Reducir de 256 a 128 para mejor rendimiento
+      var bufferLength = analyser.frequencyBinCount;
+      dataArray = new Uint8Array(bufferLength);
+
+      var source = audioContext.createMediaElementSource(audio);
+      source.connect(analyser);
+      analyser.connect(audioContext.destination);
+    }
+
+    startWaveformAnimation();
+  } catch (e) {
+    console.log('Audio visualizer not available:', e);
+  }
+}
+
+function drawWaveform() {
+  var canvas = document.getElementById('waveform-canvas');
+  if (!canvas || !analyser) return;
+
+  var ctx = canvas.getContext('2d');
+  var width = canvas.offsetWidth;
+  var height = canvas.offsetHeight;
+
+  analyser.getByteFrequencyData(dataArray);
+
+  ctx.clearRect(0, 0, width, height);
+
+  var barWidth = (width / dataArray.length) * 2.5;
+  var barHeight;
+  var x = 0;
+
+  for (var i = 0; i < dataArray.length; i++) {
+    barHeight = (dataArray[i] / 255) * height;
+
+    // Gradiente de colores
+    var gradient = ctx.createLinearGradient(0, height, 0, height - barHeight);
+    gradient.addColorStop(0, '#c084fc');
+    gradient.addColorStop(0.5, '#8b5cf6');
+    gradient.addColorStop(1, '#06b6d4');
+
+    ctx.fillStyle = gradient;
+    ctx.fillRect(x, height - barHeight, barWidth, barHeight);
+
+    x += barWidth + 1;
+  }
+
+  animationId = requestAnimationFrame(drawWaveform);
+}
+
+function startWaveformAnimation() {
+  if (animationId) {
+    cancelAnimationFrame(animationId);
+  }
+  drawWaveform();
+}
+
+function stopWaveformAnimation() {
+  if (animationId) {
+    cancelAnimationFrame(animationId);
+    animationId = null;
+  }
+
+  var canvas = document.getElementById('waveform-canvas');
+  if (canvas) {
+    var ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.offsetWidth, canvas.offsetHeight);
+  }
+}
 
 // Wire mini player control buttons (they live in base.html)
 document.addEventListener('DOMContentLoaded', function() {

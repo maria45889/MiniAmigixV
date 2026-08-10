@@ -6,9 +6,18 @@ import json
 import os
 import requests
 
-from .models import Nota, Resumen, StudySession, PomodoroSession, DailyStats
+from .models import Nota, Resumen, StudySession, PomodoroSession, DailyStats, UserProfile, Mision, MisionCompletada, LeccionRapida, Insignia, InsigniaUsuario, Accesorio, AccesorioUsuario
 from django.utils import timezone
 from datetime import datetime, timedelta
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from .serializers import (
+    UserProfileSerializer, MisionSerializer, MisionCompletadaSerializer,
+    LeccionRapidaSerializer, InsigniaSerializer, InsigniaUsuarioSerializer,
+    AccesorioSerializer, AccesorioUsuarioSerializer
+)
 
 @login_required
 def estudio(request):
@@ -416,3 +425,187 @@ def guardar_pomodoro(request):
             return JsonResponse({'success': False, 'error': str(e)})
     
     return JsonResponse({'success': False, 'error': 'Método no permitido'})
+
+# ─────────────────────────────────────────
+# VIEWSETS DE GAMIFICACIÓN - MUNDO AMIGIS
+# ─────────────────────────────────────────
+
+class UserProfileViewSet(viewsets.ModelViewSet):
+    serializer_class = UserProfileSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return UserProfile.objects.filter(usuario=self.request.user)
+    
+    def get_object(self):
+        profile, created = UserProfile.objects.get_or_create(
+            usuario=self.request.user,
+            defaults={
+                'xp': 0,
+                'nivel': 1,
+                'monedas': 100,
+                'racha_actual': 0,
+                'racha_maxima': 0,
+                'misiones_completadas': 0
+            }
+        )
+        return profile
+    
+    @action(detail=False, methods=['post'])
+    def agregar_xp(self, request):
+        profile = self.get_object()
+        cantidad = request.data.get('cantidad', 0)
+        try:
+            cantidad = int(cantidad)
+            profile.agregar_xp(cantidad)
+            return Response({'success': True, 'xp_actual': profile.xp, 'nivel': profile.nivel})
+        except (ValueError, TypeError):
+            return Response({'success': False, 'error': 'Cantidad inválida'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    @action(detail=False, methods=['post'])
+    def agregar_monedas(self, request):
+        profile = self.get_object()
+        cantidad = request.data.get('cantidad', 0)
+        try:
+            cantidad = int(cantidad)
+            profile.agregar_monedas(cantidad)
+            return Response({'success': True, 'monedas_actuales': profile.monedas})
+        except (ValueError, TypeError):
+            return Response({'success': False, 'error': 'Cantidad inválida'}, status=status.HTTP_400_BAD_REQUEST)
+
+class MisionViewSet(viewsets.ModelViewSet):
+    serializer_class = MisionSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return Mision.objects.filter(activa=True)
+    
+    @action(detail=True, methods=['post'])
+    def completar(self, request, pk=None):
+        mision = self.get_object()
+        profile, _ = UserProfile.objects.get_or_create(usuario=request.user)
+        
+        # Verificar si ya está completada
+        if MisionCompletada.objects.filter(usuario=request.user, mision=mision).exists():
+            return Response({'success': False, 'error': 'Misión ya completada'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Crear registro de misión completada
+        mision_completada = MisionCompletada.objects.create(
+            usuario=request.user,
+            mision=mision,
+            xp_ganado=mision.xp_recompensa,
+            monedas_ganadas=mision.monedas_recompensa
+        )
+        
+        # Actualizar perfil del usuario
+        profile.agregar_xp(mision.xp_recompensa)
+        profile.agregar_monedas(mision.monedas_recompensa)
+        profile.misiones_completadas += 1
+        profile.save()
+        
+        return Response({
+            'success': True,
+            'xp_ganado': mision.xp_recompensa,
+            'monedas_ganadas': mision.monedas_recompensa,
+            'xp_total': profile.xp,
+            'nivel': profile.nivel,
+            'monedas_totales': profile.monedas
+        })
+
+class MisionCompletadaViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = MisionCompletadaSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return MisionCompletada.objects.filter(usuario=self.request.user)
+
+class LeccionRapidaViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = LeccionRapidaSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return LeccionRapida.objects.filter(activa=True)
+
+class InsigniaViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = InsigniaSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return Insignia.objects.all()
+
+class InsigniaUsuarioViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = InsigniaUsuarioSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return InsigniaUsuario.objects.filter(usuario=self.request.user)
+
+class AccesorioViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = AccesorioSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return Accesorio.objects.all()
+    
+    @action(detail=True, methods=['post'])
+    def comprar(self, request, pk=None):
+        accesorio = self.get_object()
+        profile, _ = UserProfile.objects.get_or_create(usuario=request.user)
+        
+        # Verificar si ya está comprado
+        if AccesorioUsuario.objects.filter(usuario=request.user, accesorio=accesorio).exists():
+            return Response({'success': False, 'error': 'Accesorio ya comprado'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Verificar si tiene suficientes monedas
+        if profile.monedas < accesorio.precio:
+            return Response({'success': False, 'error': 'Monedas insuficientes'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Verificar si tiene el XP requerido
+        if profile.xp < accesorio.xp_requerido:
+            return Response({'success': False, 'error': 'XP insuficiente'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Verificar stock si es limitado
+        if accesorio.limitado and accesorio.stock <= 0:
+            return Response({'success': False, 'error': 'Sin stock'}, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Realizar compra
+        profile.agregar_monedas(-accesorio.precio)
+        accesorio_usuario = AccesorioUsuario.objects.create(
+            usuario=request.user,
+            accesorio=accesorio
+        )
+        
+        # Actualizar stock si es limitado
+        if accesorio.limitado:
+            accesorio.stock -= 1
+            accesorio.save()
+        
+        return Response({
+            'success': True,
+            'monedas_restantes': profile.monedas,
+            'accesorio': AccesorioUsuarioSerializer(accesorio_usuario).data
+        })
+
+class AccesorioUsuarioViewSet(viewsets.ModelViewSet):
+    serializer_class = AccesorioUsuarioSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return AccesorioUsuario.objects.filter(usuario=self.request.user)
+    
+    @action(detail=True, methods=['post'])
+    def equipar(self, request, pk=None):
+        accesorio_usuario = self.get_object()
+        
+        # Des equipar otros accesorios de la misma categoría
+        categoria = accesorio_usuario.accesorio.categoria
+        AccesorioUsuario.objects.filter(
+            usuario=request.user,
+            accesorio__categoria=categoria
+        ).update(equipado=False)
+        
+        # Equipar el accesorio seleccionado
+        accesorio_usuario.equipado = True
+        accesorio_usuario.save()
+        
+        return Response({'success': True})
