@@ -1,21 +1,38 @@
-const CACHE_NAME = 'miniamigixv-v2';
+const CACHE_NAME = 'miniamigixv-v6';
 const urlsToCache = [
     '/',
-    '/static/css/style.css',
-    '/static/css/sidebar-neon.css',
+    '/static/css/core/style.css',
+    '/static/css/core/sidebar-neon.css',
     '/static/imagenes/logo.png',
     '/static/favicon.ico'
-];
+].filter(url => {
+    // Validate URLs before caching
+    try {
+        new URL(url, window.location.origin);
+        return true;
+    } catch (e) {
+        console.warn('Invalid URL in cache list:', url);
+        return false;
+    }
+});
 
 // Instalación del service worker
 self.addEventListener('install', event => {
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then(cache => {
-                console.log('Opened cache');
-                return cache.addAll(urlsToCache);
+                console.log('Opened cache for:', CACHE_NAME);
+                return cache.addAll(urlsToCache.map(url => {
+                    console.log('Caching:', url);
+                    return url;
+                })).catch(error => {
+                    console.error('Failed to cache some URLs:', error);
+                    // Continue even if some URLs fail to cache
+                    return Promise.resolve();
+                });
             })
     );
+    self.skipWaiting();
 });
 
 // Activación del service worker
@@ -32,6 +49,7 @@ self.addEventListener('activate', event => {
             );
         })
     );
+    self.clients.claim();
 });
 
 // Fetch de recursos
@@ -60,10 +78,15 @@ self.addEventListener('fetch', event => {
                         caches.open(CACHE_NAME)
                             .then(cache => {
                                 cache.put(event.request, responseToCache);
+                            }).catch(err => {
+                                console.warn('Failed to cache response:', err);
                             });
                         return response;
                     }
-                );
+                ).catch(error => {
+                    console.error('Fetch failed:', error);
+                    return new Response('Network error occurred', { status: 503 });
+                });
             })
     );
 });

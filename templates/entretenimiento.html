@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{% static 'css/pages/entretenimiento.css' %}?v=21">
+<link rel="stylesheet" href="{% static 'css/pages/entretenimiento.css' %}?v=23">
 {% endblock %}
 
 {% block content %}
@@ -209,7 +209,7 @@
             data-trailer="{{ contenido_destacado.trailer|default:'' }}"
             data-id="{{ contenido_destacado.id }}">
             <div class="ent-featured-bg">
-                <img src="{{ contenido_destacado.imagen|default:'https://placehold.co/800x450/2d3748/ffffff?text=Sin+Imagen' }}" alt="{{ contenido_destacado.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-featured-img">
+                <img src="https://placehold.co/800x450/8b5cf6/ffffff?text={{ contenido_destacado.titulo|urlencode }}" alt="Portada de {{ contenido_destacado.titulo }} - {{ contenido_destacado.genero }} - Recomendación del día" loading="lazy" referrerpolicy="no-referrer" class="ent-featured-img">
                 <div class="ent-featured-overlay"></div>
             </div>
             <div class="ent-featured-content">
@@ -252,7 +252,7 @@
                 data-trailer="{{ item.trailer|default:'' }}"
                 data-id="{{ item.id }}">
                 <span class="ent-trend-rank">1️⃣</span>
-                <img src="{{ item.imagen|default:'https://placehold.co/100x100/2d3748/ffffff?text=Img' }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-trend-img">
+                <img src="https://placehold.co/100x100/8b5cf6/ffffff?text={{ item.titulo|urlencode }}" alt="Portada de {{ item.titulo }} - {{ item.genero }} - Serie destacada" loading="lazy" referrerpolicy="no-referrer" class="ent-trend-img">
                 <div class="ent-trend-info">
                     <h4>{{ item.titulo }}</h4>
                     <span class="ent-trend-genre">{{ item.genero }}</span>
@@ -272,7 +272,7 @@
                 data-trailer="{{ item.trailer|default:'' }}"
                 data-id="{{ item.id }}">
                 <span class="ent-trend-rank">2️⃣</span>
-                <img src="{{ item.imagen|default:'https://placehold.co/100x100/2d3748/ffffff?text=Img' }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-trend-img">
+                <img src="https://placehold.co/100x100/ef4444/ffffff?text={{ item.titulo|urlencode }}" alt="Portada de {{ item.titulo }} - {{ item.genero }} - Anime destacado" loading="lazy" referrerpolicy="no-referrer" class="ent-trend-img">
                 <div class="ent-trend-info">
                     <h4>{{ item.titulo }}</h4>
                     <span class="ent-trend-genre">{{ item.genero }}</span>
@@ -292,7 +292,7 @@
                 data-trailer="{{ item.trailer|default:'' }}"
                 data-id="{{ item.id }}">
                 <span class="ent-trend-rank">3️⃣</span>
-                <img src="{{ item.imagen|default:'https://placehold.co/100x100/2d3748/ffffff?text=Img' }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-trend-img">
+                <img src="https://placehold.co/100x100/ec4899/ffffff?text={{ item.titulo|urlencode }}" alt="Portada de {{ item.titulo }} - {{ item.genero }} - Película destacada" loading="lazy" referrerpolicy="no-referrer" class="ent-trend-img">
                 <div class="ent-trend-info">
                     <h4>{{ item.titulo }}</h4>
                     <span class="ent-trend-genre">{{ item.genero }}</span>
@@ -340,7 +340,7 @@
                     data-imagen="{{ item.imagen }}"
                     data-trailer="{{ item.trailer|default:'' }}"
                     data-id="{{ item.id }}">
-                    <img src="{{ item.imagen }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
+                    <img src="https://placehold.co/240x360/ec4899/ffffff?text={{ item.titulo|urlencode }}" alt="Portada de {{ item.titulo }} - {{ item.genero }} - {{ item.anio|default:'' }} - Calificación: {{ item.calificacion|default:'N/A' }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
                     <button class="ent-favorite-btn" onclick="event.stopPropagation(); toggleFavorite(this)" data-id="{{ item.id }}" data-titulo="{{ item.titulo }}" data-imagen="{{ item.imagen }}" data-calificacion="{{ item.calificacion }}" data-genero="{{ item.genero }}">
                         <span class="ent-heart-icon">♡</span>
                     </button>
@@ -375,7 +375,7 @@
                     data-imagen="{{ item.imagen }}"
                     data-trailer="{{ item.trailer|default:'' }}"
                     data-id="{{ item.id }}">
-                    <img src="{{ item.imagen }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
+                    <img src="https://placehold.co/240x360/8b5cf6/ffffff?text={{ item.titulo|urlencode }}" alt="Portada de la serie {{ item.titulo }} - {{ item.genero }} - {{ item.anio|default:'' }} - Calificación: {{ item.calificacion|default:'N/A' }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
                     <button class="ent-favorite-btn" onclick="event.stopPropagation(); toggleFavorite(this)" data-id="{{ item.id }}" data-titulo="{{ item.titulo }}" data-imagen="{{ item.imagen }}" data-calificacion="{{ item.calificacion }}" data-genero="{{ item.genero }}">
                         <span class="ent-heart-icon">♡</span>
                     </button>
@@ -410,7 +410,7 @@
                     data-imagen="{{ item.imagen }}"
                     data-trailer="{{ item.trailer|default:'' }}"
                     data-id="{{ item.id }}">
-                    <img src="{{ item.imagen }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
+                    <img src="https://placehold.co/240x360/ef4444/ffffff?text={{ item.titulo|urlencode }}" alt="Portada del anime {{ item.titulo }} - {{ item.genero }} - {{ item.anio|default:'' }} - Calificación: {{ item.calificacion|default:'N/A' }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
                     <button class="ent-favorite-btn" onclick="event.stopPropagation(); toggleFavorite(this)" data-id="{{ item.id }}" data-titulo="{{ item.titulo }}" data-imagen="{{ item.imagen }}" data-calificacion="{{ item.calificacion }}" data-genero="{{ item.genero }}">
                         <span class="ent-heart-icon">♡</span>
                     </button>
@@ -445,7 +445,7 @@
                     data-imagen="{{ item.imagen }}"
                     data-trailer="{{ item.trailer|default:'' }}"
                     data-id="{{ item.id }}">
-                    <img src="{{ item.imagen }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
+                    <img src="https://placehold.co/240x360/10b981/ffffff?text={{ item.titulo|urlencode }}" alt="Portada del documental {{ item.titulo }} - {{ item.genero }} - {{ item.anio|default:'' }} - Calificación: {{ item.calificacion|default:'N/A' }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
                     <button class="ent-favorite-btn" onclick="event.stopPropagation(); toggleFavorite(this)" data-id="{{ item.id }}" data-titulo="{{ item.titulo }}" data-imagen="{{ item.imagen }}" data-calificacion="{{ item.calificacion }}" data-genero="{{ item.genero }}">
                         <span class="ent-heart-icon">♡</span>
                     </button>
@@ -462,7 +462,7 @@
             </div>
         </div>
         {% endif %}
-        
+
         <!-- Libros -->
         {% if recomendaciones.libros %}
         <div class="ent-row">
@@ -482,7 +482,7 @@
                     data-imagen="{{ item.imagen|default:'https://placehold.co/300x450/2d3748/ffffff?text=Libro' }}"
                     data-trailer="{{ item.trailer|default:'' }}"
                     data-id="{{ item.id }}">
-                    <img src="{{ item.imagen|default:'https://placehold.co/300x450/2d3748/ffffff?text=Libro' }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
+                    <img src="https://placehold.co/200x300/06b6d4/ffffff?text={{ item.titulo|urlencode }}" alt="Portada del libro {{ item.titulo }} - Autor: {{ item.director }} - {{ item.genero }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
                     <button class="ent-favorite-btn" onclick="event.stopPropagation(); toggleFavorite(this)" data-id="{{ item.id }}" data-titulo="{{ item.titulo }}" data-imagen="{{ item.imagen }}" data-calificacion="{{ item.calificacion }}" data-genero="{{ item.genero }}">
                         <span class="ent-heart-icon">♡</span>
                     </button>
@@ -514,7 +514,7 @@
                     data-imagen="{{ item.imagen }}"
                     data-trailer="{{ item.trailer|default:'' }}"
                     data-id="{{ item.id }}">
-                    <img src="{{ item.imagen }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
+                    <img src="https://placehold.co/240x360/f59e0b/ffffff?text={{ item.titulo|urlencode }}" alt="Portada de la obra de teatro {{ item.titulo }} - {{ item.genero }} - Compositor: {{ item.director }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
                     <button class="ent-favorite-btn" onclick="event.stopPropagation(); toggleFavorite(this)" data-id="{{ item.id }}" data-titulo="{{ item.titulo }}" data-imagen="{{ item.imagen }}" data-calificacion="{{ item.calificacion }}" data-genero="{{ item.genero }}">
                         <span class="ent-heart-icon">♡</span>
                     </button>
@@ -547,7 +547,7 @@
                     data-imagen="{{ item.imagen|default:'https://placehold.co/300x450/2d3748/ffffff?text=Manga' }}"
                     data-trailer="{{ item.trailer|default:'' }}"
                     data-id="{{ item.id }}">
-                    <img src="{{ item.imagen|default:'https://placehold.co/300x450/2d3748/ffffff?text=Manga' }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
+                    <img src="https://placehold.co/200x300/ef4444/ffffff?text={{ item.titulo|urlencode }}" alt="Portada del manga {{ item.titulo }} - Autor: {{ item.director }} - {{ item.genero }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
                     <button class="ent-favorite-btn" onclick="event.stopPropagation(); toggleFavorite(this)" data-id="{{ item.id }}" data-titulo="{{ item.titulo }}" data-imagen="{{ item.imagen }}" data-calificacion="{{ item.calificacion }}" data-genero="{{ item.genero }}">
                         <span class="ent-heart-icon">♡</span>
                     </button>
@@ -579,7 +579,7 @@
                     data-imagen="{{ item.imagen }}"
                     data-trailer="{{ item.trailer|default:'' }}"
                     data-id="{{ item.id }}">
-                    <img src="{{ item.imagen }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
+                    <img src="https://placehold.co/240x360/a855f7/ffffff?text={{ item.titulo|urlencode }}" alt="Portada del álbum {{ item.titulo }} - Artista: {{ item.director }} - {{ item.genero }} - {{ item.anio|default:'' }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
                     <button class="ent-favorite-btn" onclick="event.stopPropagation(); toggleFavorite(this)" data-id="{{ item.id }}" data-titulo="{{ item.titulo }}" data-imagen="{{ item.imagen }}" data-calificacion="{{ item.calificacion }}" data-genero="{{ item.genero }}">
                         <span class="ent-heart-icon">♡</span>
                     </button>
@@ -615,7 +615,7 @@
                     data-imagen="{{ item.imagen }}"
                     data-trailer="{{ item.trailer|default:'' }}"
                     data-id="{{ item.id }}">
-                    <img src="{{ item.imagen }}" alt="{{ item.titulo }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
+                    <img src="https://placehold.co/240x360/0ea5e9/ffffff?text={{ item.titulo|urlencode }}" alt="Portada del podcast {{ item.titulo }} - Host: {{ item.director }} - {{ item.genero }}" loading="lazy" referrerpolicy="no-referrer" class="ent-card-img">
                     <button class="ent-favorite-btn" onclick="event.stopPropagation(); toggleFavorite(this)" data-id="{{ item.id }}" data-titulo="{{ item.titulo }}" data-imagen="{{ item.imagen }}" data-calificacion="{{ item.calificacion }}" data-genero="{{ item.genero }}">
                         <span class="ent-heart-icon">♡</span>
                     </button>
@@ -681,9 +681,6 @@
     </div>
 </div>
 
-{% endblock %}
-
-{% block extra_js %}
 <style>
 /* ===== MODAL STYLES ===== */
 .ent-modal-overlay {
@@ -812,546 +809,142 @@
 
 .ent-modal-rating {
     position: absolute;
-    bottom: -12px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(124, 58, 237, 0.8);
-    border-radius: 20px;
-    padding: 6px 16px;
+    top: 12px;
+    left: 12px;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    padding: 8px 14px;
+    border-radius: 12px;
     display: flex;
     align-items: center;
     gap: 6px;
     font-size: 1rem;
     font-weight: 700;
-    color: #fff;
-    white-space: nowrap;
-    box-shadow: 0 2px 8px rgba(124,58,237,0.3);
+    color: #fbbf24;
+    border: 1px solid rgba(251, 191, 36, 0.3);
 }
 
 .ent-modal-info {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 14px;
 }
 
 .ent-modal-genre {
     display: inline-block;
-    background: rgba(124,58,237,0.15);
-    border: 1px solid rgba(124,58,237,0.3);
+    background: rgba(124, 58, 237, 0.2);
     color: #a78bfa;
-    font-size: 0.78rem;
-    font-weight: 700;
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    padding: 4px 12px;
+    padding: 6px 14px;
     border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 16px;
     width: fit-content;
+    border: 1px solid rgba(124, 58, 237, 0.3);
 }
 
 .ent-modal-title {
-    font-size: 1.8rem;
-    font-weight: 800;
-    color: #f8fafc;
-    margin: 0;
+    font-size: 2rem;
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 16px;
     line-height: 1.2;
 }
 
 .ent-modal-desc {
-    color: #94a3b8;
-    font-size: 0.95rem;
+    color: rgba(255,255,255,0.7);
     line-height: 1.7;
-    margin: 0;
+    margin-bottom: 24px;
+    font-size: 1rem;
 }
 
 .ent-modal-meta {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    margin-top: 8px;
-    border-top: 1px solid rgba(255,255,255,0.07);
-    padding-top: 16px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 20px;
 }
 
 .ent-meta-item {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
+    background: rgba(255,255,255,0.04);
+    padding: 14px 18px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.08);
 }
 
 .ent-meta-label {
+    display: block;
     font-size: 0.8rem;
-    font-weight: 700;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 6px;
     text-transform: uppercase;
-    letter-spacing: 0.8px;
-    color: #64748b;
-    min-width: 110px;
-    flex-shrink: 0;
+    letter-spacing: 0.5px;
+    font-weight: 600;
 }
 
 .ent-meta-value {
+    color: #fff;
     font-size: 0.95rem;
-    font-weight: 600;
-    color: #e2e8f0;
+    font-weight: 500;
 }
 
-@media (max-width: 600px) {
+@media (max-width: 768px) {
     .ent-modal-inner {
         flex-direction: column;
         padding: 24px;
     }
-    .ent-modal-poster { flex: none; width: 140px; margin: 0 auto 20px; }
-    .ent-modal-title { font-size: 1.4rem; }
+    .ent-modal-poster {
+        flex: 0 0 auto;
+        width: 180px;
+        margin: 0 auto;
+    }
+    .ent-modal-title {
+        font-size: 1.5rem;
+    }
+    .ent-modal-meta {
+        grid-template-columns: 1fr;
+    }
 }
 </style>
 
+{% endblock %}
+
+{% block extra_js %}
 <script>
-// Initialize lucide icons
-if (typeof lucide !== 'undefined') {
-    lucide.createIcons();
-}
-
-// ============ SEARCH AND FILTER ============
-const searchInput = document.getElementById('searchInput');
-const filterButtons = document.querySelectorAll('.ent-filter-btn');
-const allCards = document.querySelectorAll('.ent-card');
-const allRows = document.querySelectorAll('.ent-row');
-
-// Search functionality
-searchInput.addEventListener('input', function() {
-    const searchTerm = this.value.toLowerCase();
-    filterContent(searchTerm, getCurrentFilter());
-});
-
-// Filter functionality
-filterButtons.forEach(btn => {
-    btn.addEventListener('click', function() {
-        // Update active state
-        filterButtons.forEach(b => b.classList.remove('ent-filter-btn--active'));
-        this.classList.add('ent-filter-btn--active');
-        
-        // Filter content
-        const filter = this.dataset.filter;
-        const searchTerm = searchInput.value.toLowerCase();
-        filterContent(searchTerm, filter);
+// Manejo de errores en imágenes
+document.addEventListener('DOMContentLoaded', function() {
+    const images = document.querySelectorAll('.ent-card-img, .ent-featured-img, .ent-trend-img');
+    
+    images.forEach(img => {
+        img.onerror = function() {
+            if (this.dataset.fallback) {
+                this.src = this.dataset.fallback;
+            }
+        };
     });
 });
 
-function getCurrentFilter() {
-    const activeBtn = document.querySelector('.ent-filter-btn--active');
-    return activeBtn ? activeBtn.dataset.filter : 'all';
-}
-
-function filterContent(searchTerm, filter) {
-    allRows.forEach(row => {
-        const rowTitle = row.querySelector('.ent-row-title');
-        if (!rowTitle) return;
-        
-        const category = getCategoryFromTitle(rowTitle.textContent);
-        const cards = row.querySelectorAll('.ent-card');
-        
-        // Check if row should be visible based on filter
-        const showRow = filter === 'all' || category === filter;
-        
-        // Check each card for search term
-        let hasVisibleCards = false;
-        cards.forEach(card => {
-            const title = card.dataset.titulo?.toLowerCase() || '';
-            const genre = card.dataset.genero?.toLowerCase() || '';
-            const matchesSearch = title.includes(searchTerm) || genre.includes(searchTerm);
-            
-            if (showRow && matchesSearch) {
-                card.style.display = '';
-                hasVisibleCards = true;
-            } else {
-                card.style.display = 'none';
-            }
-        });
-        
-        // Show/hide row based on visible cards
-        row.style.display = hasVisibleCards ? '' : 'none';
-    });
-}
-
-function getCategoryFromTitle(title) {
-    const titleLower = title.toLowerCase();
-    if (titleLower.includes('películ')) return 'peliculas';
-    if (titleLower.includes('serie')) return 'series';
-    if (titleLower.includes('anime')) return 'anime';
-    if (titleLower.includes('libro')) return 'libros';
-    if (titleLower.includes('manga')) return 'manga';
-    if (titleLower.includes('música') || titleLower.includes('álbum')) return 'musica';
-    if (titleLower.includes('podcast')) return 'podcasts';
-    if (titleLower.includes('teatro')) return 'teatro';
-    if (titleLower.includes('documental')) return 'documentales';
-    return 'all';
-}
-
-// ============ FAVORITES SYSTEM ============
-let favorites = JSON.parse(localStorage.getItem('entertainmentFavorites') || '[]');
-
-// Initialize favorite buttons on page load
-function initializeFavorites() {
-    const favoriteBtns = document.querySelectorAll('.ent-favorite-btn');
-    favoriteBtns.forEach(btn => {
-        const id = btn.dataset.id;
-        if (favorites.includes(id)) {
-            btn.classList.add('ent-favorite-btn--active');
-            btn.querySelector('.ent-heart-icon').textContent = '❤️';
-        }
-    });
-}
-
-async function toggleFavorite(btn) {
-    const id = btn.dataset.id;
-    const titulo = btn.dataset.titulo;
-    const heartIcon = btn.querySelector('.ent-heart-icon');
+// Modal functions
+function openModal(element) {
+    const data = element.dataset;
+    document.getElementById('modal-title').textContent = data.titulo;
+    document.getElementById('modal-genre').textContent = data.genero;
+    document.getElementById('modal-desc').textContent = data.descripcion;
+    document.getElementById('modal-director').textContent = data.director;
+    document.getElementById('modal-anio').textContent = data.anio;
+    document.getElementById('modal-duracion').textContent = data.duracion;
+    document.getElementById('modal-rating').textContent = data.calificacion;
+    document.getElementById('modal-trailer').value = data.trailer;
     
-    try {
-        // Send request to backend
-        const response = await fetch('/entretenimiento/toggle-favorito/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({ contenido_id: id })
-        });
-        
-        const data = await response.json();
-        
-        if (data.status === 'added') {
-            favorites.push(id);
-            btn.classList.add('ent-favorite-btn--active');
-            heartIcon.textContent = '❤️';
-        } else if (data.status === 'removed') {
-            favorites = favorites.filter(favId => favId !== id);
-            btn.classList.remove('ent-favorite-btn--active');
-            heartIcon.textContent = '♡';
-        }
-        
-        // Save to localStorage
-        localStorage.setItem('entertainmentFavorites', JSON.stringify(favorites));
-        
-    } catch (error) {
-        console.error('Error al toggle favorito:', error);
-        // Fallback to localStorage only
-        if (favorites.includes(id)) {
-            favorites = favorites.filter(favId => favId !== id);
-            btn.classList.remove('ent-favorite-btn--active');
-            heartIcon.textContent = '♡';
-        } else {
-            favorites.push(id);
-            btn.classList.add('ent-favorite-btn--active');
-            heartIcon.textContent = '❤️';
-        }
-        localStorage.setItem('entertainmentFavorites', JSON.stringify(favorites));
-    }
-}
-
-function initializeFeaturedFavorites() {
-    const featuredFavBtn = document.querySelector('.ent-featured-btn--favorite');
-    if (featuredFavBtn) {
-        const id = featuredFavBtn.dataset.id;
-        const heartIcon = featuredFavBtn.querySelector('.ent-heart-icon');
-        
-        if (id && favorites.includes(id)) {
-            featuredFavBtn.classList.add('ent-featured-btn--favorite-active');
-            heartIcon.textContent = '❤️';
-        }
-    }
-}
-
-// Initialize on page load
-initializeFavorites();
-initializeFeaturedFavorites();
-
-// ============ AI RECOMMENDATION ============
-async function getAIRecommendation() {
-    const btn = document.querySelector('.ent-ai-btn');
-    const resultDiv = document.getElementById('aiRecommendationResult');
+    const directorLabel = data.directorLabel || 'Director';
+    document.getElementById('meta-director-label').textContent = directorLabel;
     
-    // Disable button and show loading
-    btn.disabled = true;
-    btn.textContent = 'Buscando...';
+    const duracionLabel = data.duracionLabel || 'Duración';
+    document.getElementById('meta-duracion-label').textContent = duracionLabel;
     
-    try {
-        // Send request to backend
-        const response = await fetch('/entretenimiento/recomendacion-ia/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            }
-        });
-        
-        const data = await response.json();
-        
-        if (data.status === 'success') {
-            const recommendation = data.contenido;
-            
-            // Display the recommendation
-            resultDiv.innerHTML = `
-                <h3 class="ent-ai-result-title">🤖 Te recomiendo:</h3>
-                <div class="ent-ai-result-content">
-                    <img src="${recommendation.imagen}" alt="${recommendation.titulo}" class="ent-ai-result-img">
-                    <div class="ent-ai-result-info">
-                        <h4>${recommendation.titulo}</h4>
-                        <p>${recommendation.descripcion}</p>
-                        <div class="ent-ai-result-meta">
-                            <span>⭐ ${recommendation.calificacion}</span>
-                            <span>${recommendation.genero}</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-            
-            resultDiv.style.display = 'block';
-        } else {
-            resultDiv.innerHTML = '<p style="color: #ef4444;">No se pudo obtener una recomendación. Inténtalo de nuevo.</p>';
-            resultDiv.style.display = 'block';
-        }
-    } catch (error) {
-        console.error('Error al obtener recomendación IA:', error);
-        
-        // Fallback: Collect all content from the page and select randomly
-        const allContent = [];
-        document.querySelectorAll('.ent-card').forEach(card => {
-            allContent.push({
-                titulo: card.dataset.titulo,
-                genero: card.dataset.genero,
-                descripcion: card.dataset.descripcion,
-                imagen: card.dataset.imagen,
-                calificacion: card.dataset.calificacion,
-                anio: card.dataset.anio,
-                duracion: card.dataset.duracion
-            });
-        });
-        
-        if (allContent.length > 0) {
-            const randomIndex = Math.floor(Math.random() * allContent.length);
-            const recommendation = allContent[randomIndex];
-            
-            resultDiv.innerHTML = `
-                <h3 class="ent-ai-result-title">🤖 Te recomiendo:</h3>
-                <div class="ent-ai-result-content">
-                    <img src="${recommendation.imagen}" alt="${recommendation.titulo}" class="ent-ai-result-img">
-                    <div class="ent-ai-result-info">
-                        <h4>${recommendation.titulo}</h4>
-                        <p>${recommendation.descripcion}</p>
-                        <div class="ent-ai-result-meta">
-                            <span>⭐ ${recommendation.calificacion}</span>
-                            <span>${recommendation.genero}</span>
-                            ${recommendation.anio ? `<span>${recommendation.anio}</span>` : ''}
-                        </div>
-                    </div>
-                </div>
-            `;
-            resultDiv.style.display = 'block';
-        } else {
-            resultDiv.innerHTML = '<p style="color: #ef4444;">No hay contenido disponible para recomendar.</p>';
-            resultDiv.style.display = 'block';
-        }
-    }
+    const modalImg = document.getElementById('modal-img');
+    modalImg.src = data.imagen || 'https://placehold.co/200x300/8b5cf6/ffffff?text=No+Image';
     
-    // Re-enable button
-    btn.disabled = false;
-    btn.textContent = 'Obtener otra recomendación';
-}
-
-// ============ MODAL ACTIONS ============
-let currentModalTitle = '';
-
-function openModal(card) {
-    const d = card.dataset;
-    currentModalTitle = d.titulo || '';
-    
-    document.getElementById('modal-img').src = d.imagen || '';
-    document.getElementById('modal-img').alt = d.titulo || '';
-    document.getElementById('modal-title').textContent = d.titulo || '';
-    document.getElementById('modal-genre').textContent = d.genero || '';
-    document.getElementById('modal-desc').textContent = d.descripcion || '';
-    document.getElementById('modal-rating').textContent = d.calificacion ? d.calificacion + ' / 10' : '';
-    document.getElementById('modal-trailer').value = d.trailer || '';
-
-    // Director / Autor / Compositor
-    const dirWrap = document.getElementById('meta-director-wrap');
-    const dirLabel = document.getElementById('meta-director-label');
-    const dirVal   = document.getElementById('modal-director');
-    if (d.director) {
-        dirLabel.textContent = d.directorLabel || 'Director';
-        dirVal.textContent = d.director;
-        dirWrap.style.display = 'flex';
-    } else {
-        dirWrap.style.display = 'none';
-    }
-
-    // Año
-    const anioWrap = document.getElementById('meta-anio-wrap');
-    const anioVal  = document.getElementById('modal-anio');
-    if (d.anio) {
-        anioVal.textContent = d.anio;
-        anioWrap.style.display = 'flex';
-    } else {
-        anioWrap.style.display = 'none';
-    }
-
-    // Duración / Páginas
-    const durWrap  = document.getElementById('meta-duracion-wrap');
-    const durLabel = document.getElementById('meta-duracion-label');
-    const durVal   = document.getElementById('modal-duracion');
-    if (d.duracion) {
-        durLabel.textContent = d.duracionLabel || 'Duración';
-        durVal.textContent = d.duracion;
-        durWrap.style.display = 'flex';
-    } else {
-        durWrap.style.display = 'none';
-    }
-
-    // Rating visibility
-    const ratingEl = document.querySelector('.ent-modal-rating');
-    ratingEl.style.display = d.calificacion ? 'flex' : 'none';
-
-    document.getElementById('entModal').classList.add('active');
-    document.body.style.overflow = 'hidden';
-}
-
-function searchTrailer() {
-    const trailerUrl = document.getElementById('modal-trailer').value;
-    if (trailerUrl) {
-        // Si hay tráiler directo, abrirlo
-        window.open(trailerUrl, '_blank');
-    } else if (currentModalTitle) {
-        // Si no, buscar en YouTube
-        const searchQuery = encodeURIComponent(currentModalTitle + ' tráiler');
-        window.open(`https://www.youtube.com/results?search_query=${searchQuery}`, '_blank');
-    }
-}
-
-function searchTrailerFromFeatured(titulo) {
-    if (titulo) {
-        const searchQuery = encodeURIComponent(titulo + ' tráiler oficial');
-        window.open(`https://www.youtube.com/results?search_query=${searchQuery}`, '_blank');
-    } else {
-        alert('No se pudo obtener el título de la película');
-    }
-}
-
-function toggleFavoriteFromFeatured(btn) {
-    const id = btn.dataset.id;
-    const heartIcon = btn.querySelector('.ent-heart-icon');
-    
-    if (favorites.includes(id)) {
-        // Remove from favorites
-        favorites = favorites.filter(favId => favId !== id);
-        btn.classList.remove('ent-featured-btn--favorite-active');
-        heartIcon.textContent = '♡';
-    } else {
-        // Add to favorites
-        favorites.push(id);
-        btn.classList.add('ent-featured-btn--favorite-active');
-        heartIcon.textContent = '❤️';
-    }
-    
-    // Save to localStorage
-    localStorage.setItem('entertainmentFavorites', JSON.stringify(favorites));
-    
-    // Update all favorite buttons with same ID
-    document.querySelectorAll(`.ent-favorite-btn[data-id="${id}"]`).forEach(favBtn => {
-        if (favorites.includes(id)) {
-            favBtn.classList.add('ent-favorite-btn--active');
-            favBtn.querySelector('.ent-heart-icon').textContent = '❤️';
-        } else {
-            favBtn.classList.remove('ent-favorite-btn--active');
-            favBtn.querySelector('.ent-heart-icon').textContent = '♡';
-        }
-    });
-}
-
-function addToFavoritesFromModal() {
-    if (currentModalTitle) {
-        // Find the corresponding card by title and get its ID
-        const card = document.querySelector(`[data-titulo="${currentModalTitle}"]`);
-        if (card) {
-            const id = card.dataset.id;
-            const btn = card.querySelector('.ent-favorite-btn');
-            if (btn) {
-                toggleFavorite(btn);
-            }
-        }
-    }
-}
-
-// ============ PARTICLES ============
-(function createParticles() {
-    const container = document.getElementById('particles');
-    if (!container) return;
-    const colors = ['#f43f5e', '#8b5cf6', '#06b6d4', '#f59e0b', '#a78bfa', '#ec4899'];
-
-    for (let i = 0; i < 18; i++) {
-        const span = document.createElement('span');
-        const size = Math.random() * 6 + 3;
-        span.style.cssText = `
-            width: ${size}px;
-            height: ${size}px;
-            left: ${Math.random() * 100}%;
-            top: ${80 + Math.random() * 40}%;
-            background: ${colors[Math.floor(Math.random() * colors.length)]};
-            animation-duration: ${12 + Math.random() * 18}s;
-            animation-delay: ${Math.random() * 10}s;
-        `;
-        container.appendChild(span);
-    }
-})();
-
-// ============ MODAL ============
-function openModal(card) {
-    const d = card.dataset;
-    document.getElementById('modal-img').src = d.imagen || '';
-    document.getElementById('modal-img').alt = d.titulo || '';
-    document.getElementById('modal-title').textContent = d.titulo || '';
-    document.getElementById('modal-genre').textContent = d.genero || '';
-    document.getElementById('modal-desc').textContent = d.descripcion || '';
-    document.getElementById('modal-rating').textContent = d.calificacion ? d.calificacion + ' / 10' : '';
-
-    // Director / Autor / Compositor
-    const dirWrap = document.getElementById('meta-director-wrap');
-    const dirLabel = document.getElementById('meta-director-label');
-    const dirVal   = document.getElementById('modal-director');
-    if (d.director) {
-        dirLabel.textContent = d.directorLabel || 'Director';
-        dirVal.textContent = d.director;
-        dirWrap.style.display = 'flex';
-    } else {
-        dirWrap.style.display = 'none';
-    }
-
-    // Año
-    const anioWrap = document.getElementById('meta-anio-wrap');
-    const anioVal  = document.getElementById('modal-anio');
-    if (d.anio) {
-        anioVal.textContent = d.anio;
-        anioWrap.style.display = 'flex';
-    } else {
-        anioWrap.style.display = 'none';
-    }
-
-    // Duración / Páginas
-    const durWrap  = document.getElementById('meta-duracion-wrap');
-    const durLabel = document.getElementById('meta-duracion-label');
-    const durVal   = document.getElementById('modal-duracion');
-    if (d.duracion) {
-        durLabel.textContent = d.duracionLabel || 'Duración';
-        durVal.textContent = d.duracion;
-        durWrap.style.display = 'flex';
-    } else {
-        durWrap.style.display = 'none';
-    }
-
-    // Rating visibility
-    const ratingEl = document.querySelector('.ent-modal-rating');
-    ratingEl.style.display = d.calificacion ? 'flex' : 'none';
-
     document.getElementById('entModal').classList.add('active');
     document.body.style.overflow = 'hidden';
 }

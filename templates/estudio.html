@@ -5,1367 +5,542 @@
 {% block nav_title %}Estudio{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/pages/estudios.css' %}?v=42">
+<link rel="stylesheet" href="{% static 'css/pages/estudios.css' %}?v=52">
+<style>
+/* Estudio Page - MiniAmigixV - Inline fallback */
+.estudio-page-container {
+    padding: 2rem;
+    min-height: 100vh;
+    background: 
+        radial-gradient(circle at top left, rgba(91, 33, 182, 0.15), transparent 40%),
+        radial-gradient(circle at bottom right, rgba(6, 182, 212, 0.15), transparent 40%),
+        var(--bg-dark);
+}
+
+.estudio-header {
+    margin-bottom: 2rem;
+}
+
+.header-content {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    background: rgba(20, 20, 30, 0.65);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-radius: 20px;
+    padding: 2rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+}
+
+.header-icon {
+    font-size: 3rem;
+}
+
+.header-text h1 {
+    font-family: var(--font-title);
+    font-size: 2rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem 0;
+    color: var(--text-main);
+}
+
+.header-motivational {
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-left: auto;
+}
+
+.accessibility-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.accessibility-btn:hover {
+    background: var(--accent-gradient);
+    border-color: rgba(124, 58, 237, 0.5);
+    transform: scale(1.05);
+}
+
+.search-btn {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 12px;
+    padding: 0.75rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1.25rem;
+}
+
+.search-btn:hover {
+    background: var(--accent-gradient);
+    border-color: rgba(124, 58, 237, 0.5);
+}
+
+.header-progress {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.progress-label {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.mini-progress-bar {
+    width: 120px;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.mini-progress-fill {
+    height: 100%;
+    background: var(--accent-gradient);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+.estudio-main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+.estudio-left-column,
+.estudio-right-column {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.glass-card {
+    background: rgba(20, 20, 30, 0.65);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-radius: 20px;
+    padding: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+}
+
+.card-header h2 {
+    font-family: var(--font-title);
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-main);
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+    .estudio-main-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .estudio-page-container {
+        padding: 1rem;
+    }
+    
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .header-actions {
+        flex-direction: column;
+        margin-left: 0;
+    }
+}
+</style>
 {% endblock %}
-
-<script>
-// Immediate error suppression before any other scripts load
-(function() {
-  const originalError = console.error;
-  console.error = function(...args) {
-    const message = args[0] || '';
-    const messageStr = typeof message === 'string' ? message : JSON.stringify(message);
-    if (messageStr.includes('postMessage') && (messageStr.includes('target origin') || messageStr.includes('DOMWindow') || messageStr.includes('www.youtube.com'))) {
-      return;
-    }
-    if (messageStr.includes('touchstart') && messageStr.includes('passive')) {
-      return;
-    }
-    if (messageStr.includes('setTimeout') && messageStr.includes('handler took')) {
-      return;
-    }
-    originalError.apply(console, args);
-  };
-
-  const originalWarn = console.warn;
-  console.warn = function(...args) {
-    const message = args[0] || '';
-    const messageStr = typeof message === 'string' ? message : JSON.stringify(message);
-    if (messageStr.includes('postMessage') && (messageStr.includes('target origin') || messageStr.includes('DOMWindow') || messageStr.includes('www.youtube.com'))) {
-      return;
-    }
-    if (messageStr.includes('touchstart') && messageStr.includes('passive')) {
-      return;
-    }
-    if (messageStr.includes('setTimeout') && messageStr.includes('handler took')) {
-      return;
-    }
-    originalWarn.apply(console, args);
-  };
-
-  window.addEventListener('error', function(event) {
-    if (event && event.message) {
-      const messageStr = typeof event.message === 'string' ? event.message : String(event.message);
-      if (messageStr.includes('postMessage') && (messageStr.includes('target origin') || messageStr.includes('DOMWindow') || messageStr.includes('www.youtube.com'))) {
-        event.preventDefault();
-        event.stopPropagation();
-        return false;
-      }
-      if (messageStr.includes('touchstart') && messageStr.includes('passive')) {
-        event.preventDefault();
-        event.stopPropagation();
-        return false;
-      }
-      if (messageStr.includes('setTimeout') && messageStr.includes('handler took')) {
-        event.preventDefault();
-        event.stopPropagation();
-        return false;
-      }
-    }
-  }, true);
-})();
-</script>
 
 {% block content %}
 <div class="estudio-page-container fadein">
   {% csrf_token %}
 
   <!-- ════════════════════════════════════
-       HEADER BAR
+       HEADER
   ════════════════════════════════════ -->
-  <div class="estudio-header-bar">
-    <div class="estudio-header-title">
-      <span style="font-size: 26px;">📚</span>
-      <div>
+  <div class="estudio-header">
+    <div class="header-content">
+      <span class="header-icon">📚</span>
+      <div class="header-text">
         <h1>Estudio & Aprendizaje</h1>
-        <p>Aprende a tu ritmo con la guía inteligente de MiniAmigixV y Amigis.</p>
+        <p class="header-motivational">Tu espacio para aprender y crecer cada día</p>
       </div>
-    </div>
-
-    <div class="estudio-header-actions">
-      <button class="e-header-btn" onclick="scrollToSection('courses-section')">
-        <i class="ti ti-book"></i> Mis Cursos
-      </button>
-      <button class="e-header-btn" onclick="scrollToSection('notes-section')">
-        <i class="ti ti-notes"></i> Mis Apuntes
-      </button>
-      <button class="e-header-btn" onclick="scrollToSection('pomodoro-section')">
-        <i class="ti ti-clock"></i> Pomodoro
-      </button>
-      <button class="e-header-btn" onclick="scrollToSection('academia-section')">
-        <i class="ti ti-school" style="color: #c084fc;"></i> Academia Amigis
-      </button>
-    </div>
-  </div>
-
-  <!-- ════════════════════════════════════
-       STATS BAR
-  ════════════════════════════════════ -->
-  <div class="study-stats-grid">
-    <div class="study-stat-card">
-      <div class="sstat-icon" style="color: #38bdf8;">📚</div>
-      <div>
-        <div class="sstat-val" id="stat-study-hours">28.5h</div>
-        <div class="sstat-lbl">Horas Estudiadas</div>
-      </div>
-    </div>
-
-    <div class="study-stat-card">
-      <div class="sstat-icon" style="color: #f43f5e;">🔥</div>
-      <div>
-        <div class="sstat-val" id="stat-streak">7 días</div>
-        <div class="sstat-lbl">Racha Diaria</div>
-      </div>
-    </div>
-
-    <div class="study-stat-card">
-      <div class="sstat-icon" style="color: #10b981;">🏆</div>
-      <div>
-        <div class="sstat-val" id="stat-courses-completed">4</div>
-        <div class="sstat-lbl">Cursos Terminados</div>
-      </div>
-    </div>
-
-    <div class="study-stat-card">
-      <div class="sstat-icon" style="color: #f59e0b;">⭐</div>
-      <div>
-        <div class="sstat-val" id="stat-learning-level">Avanzado</div>
-        <div class="sstat-lbl">Nivel de Aprendizaje</div>
-      </div>
-    </div>
-
-    <div class="study-stat-card">
-      <div class="sstat-icon" style="color: #c084fc;">📈</div>
-      <div>
-        <div class="sstat-val" id="stat-weekly-progress">+12%</div>
-        <div class="sstat-lbl">Progreso Semanal</div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ════════════════════════════════════
-       📖 MIS CURSOS (Progress Cards Grid)
-  ════════════════════════════════════ -->
-  <h2 class="estudio-section-title" id="courses-section">
-    <span>📖 Mis Cursos (16 Total)</span>
-  </h2>
-
-  <div class="courses-grid" style="display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 12px !important; max-height: none !important; overflow: visible !important; height: auto !important;">
-    <!-- Desarrollo de Software -->
-    <div class="course-card-item">
-      <div class="course-icon-badge">💻</div>
-      <h3>Desarrollo de Software</h3>
-      <p style="font-size: 12px; color: var(--e-text-dim); margin: 0;">Arquitectura, patrones y código limpio.</p>
-      <div class="course-progress-bar">
-        <div class="course-progress-fill" style="width: 80%;"></div>
-      </div>
-      <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--e-text-soft);">
-        <span>Progreso</span>
-        <strong style="color: #c084fc;">80%</strong>
-      </div>
-      <button class="btn-continue-course" onclick="continueCourse('Desarrollo de Software')">
-        Continuar Curso <i class="ti ti-arrow-right"></i>
-      </button>
-    </div>
-
-    <!-- HTML y CSS -->
-    <div class="course-card-item">
-      <div class="course-icon-badge">🌐</div>
-      <h3>HTML5 y CSS3</h3>
-      <p style="font-size: 12px; color: var(--e-text-dim); margin: 0;">Maquetación web y Glassmorphism.</p>
-      <div class="course-progress-bar">
-        <div class="course-progress-fill" style="width: 100%; background: #10b981;"></div>
-      </div>
-      <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--e-text-soft);">
-        <span>Completado</span>
-        <strong style="color: #10b981;">100% ✔</strong>
-      </div>
-      <button class="btn-continue-course" style="background: rgba(16,185,129,0.2); border: 1px solid #10b981; color: #10b981;" onclick="continueCourse('HTML5 y CSS3')">
-        Repasar Contenido <i class="ti ti-check"></i>
-      </button>
-    </div>
-
-    <!-- JavaScript -->
-    <div class="course-card-item">
-      <div class="course-icon-badge">⚙️</div>
-      <h3>JavaScript Moderno</h3>
-      <p style="font-size: 12px; color: var(--e-text-dim); margin: 0;">ES6+, Promesas y Async/Await.</p>
-      <div class="course-progress-bar">
-        <div class="course-progress-fill" style="width: 60%;"></div>
-      </div>
-      <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--e-text-soft);">
-        <span>Progreso</span>
-        <strong style="color: #c084fc;">60%</strong>
-      </div>
-      <button class="btn-continue-course" onclick="continueCourse('JavaScript Moderno')">
-        Continuar Curso <i class="ti ti-arrow-right"></i>
-      </button>
-    </div>
-
-    <!-- Python -->
-    <div class="course-card-item">
-      <div class="course-icon-badge">🐍</div>
-      <h3>Python Avanzado</h3>
-      <p style="font-size: 12px; color: var(--e-text-dim); margin: 0;">Django, APIs y Data Science.</p>
-      <div class="course-progress-bar">
-        <div class="course-progress-fill" style="width: 45%;"></div>
-      </div>
-      <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--e-text-soft);">
-        <span>Progreso</span>
-        <strong style="color: #c084fc;">45%</strong>
-      </div>
-      <button class="btn-continue-course" onclick="continueCourse('Python Avanzado')">
-        Continuar Curso <i class="ti ti-arrow-right"></i>
-      </button>
-    </div>
-
-    <!-- Java -->
-    <div class="course-card-item">
-      <div class="course-icon-badge">☕</div>
-      <h3>Java & Spring Boot</h3>
-      <p style="font-size: 12px; color: var(--e-text-dim); margin: 0;">POO, Servlets y Microservicios.</p>
-      <div class="course-progress-bar">
-        <div class="course-progress-fill" style="width: 90%;"></div>
-      </div>
-      <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--e-text-soft);">
-        <span>Progreso</span>
-        <strong style="color: #c084fc;">90%</strong>
-      </div>
-      <button class="btn-continue-course" onclick="continueCourse('Java & Spring Boot')">
-        Continuar Curso <i class="ti ti-arrow-right"></i>
-      </button>
-    </div>
-
-    <!-- Bases de Datos -->
-    <div class="course-card-item">
-      <div class="course-icon-badge">🗄️</div>
-      <h3>Bases de Datos SQL & NoSQL</h3>
-      <p style="font-size: 12px; color: var(--e-text-dim); margin: 0;">PostgreSQL, SQLite y MongoDB.</p>
-      <div class="course-progress-bar">
-        <div class="course-progress-fill" style="width: 70%;"></div>
-      </div>
-      <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--e-text-soft);">
-        <span>Progreso</span>
-        <strong style="color: #c084fc;">70%</strong>
-      </div>
-      <button class="btn-continue-course" onclick="continueCourse('Bases de Datos')">
-        Continuar Curso <i class="ti ti-arrow-right"></i>
-      </button>
-    </div>
-
-    <!-- Matemáticas Avanzadas -->
-    <div class="course-card-item">
-      <div class="course-icon-badge">📐</div>
-      <h3>Matemáticas Avanzadas</h3>
-      <p style="font-size: 12px; color: var(--e-text-dim); margin: 0;">Cálculo, álgebra lineal y estadística.</p>
-      <div class="course-progress-bar">
-        <div class="course-progress-fill" style="width: 55%;"></div>
-      </div>
-      <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--e-text-soft);">
-        <span>Progreso</span>
-        <strong style="color: #c084fc;">55%</strong>
-      </div>
-      <button class="btn-continue-course" onclick="continueCourse('Matemáticas Avanzadas')">
-        Continuar Curso <i class="ti ti-arrow-right"></i>
-      </button>
-    </div>
-
-    <!-- Derecho y Legislación -->
-    <div class="course-card-item">
-      <div class="course-icon-badge">⚖️</div>
-      <h3>Derecho y Legislación</h3>
-      <p style="font-size: 12px; color: var(--e-text-dim); margin: 0;">Derecho civil, penal y corporativo.</p>
-      <div class="course-progress-bar">
-        <div class="course-progress-fill" style="width: 30%;"></div>
-      </div>
-      <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--e-text-soft);">
-        <span>Progreso</span>
-        <strong style="color: #c084fc;">30%</strong>
-      </div>
-      <button class="btn-continue-course" onclick="continueCourse('Derecho y Legislación')">
-        Continuar Curso <i class="ti ti-arrow-right"></i>
-      </button>
-    </div>
-
-    <!-- Idiomas: Inglés -->
-    <div class="course-card-item">
-      <div class="course-icon-badge">🌍</div>
-      <h3>Inglés Profesional</h3>
-      <p style="font-size: 12px; color: var(--e-text-dim); margin: 0;">Gramática, conversación y negocios.</p>
-      <div class="course-progress-bar">
-        <div class="course-progress-fill" style="width: 85%;"></div>
-      </div>
-      <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--e-text-soft);">
-        <span>Progreso</span>
-        <strong style="color: #c084fc;">85%</strong>
-      </div>
-      <button class="btn-continue-course" onclick="continueCourse('Inglés Profesional')">
-        Continuar Curso <i class="ti ti-arrow-right"></i>
-      </button>
-    </div>
-
-    <!-- Negocios y Emprendimiento -->
-    <div class="course-card-item">
-      <div class="course-icon-badge">📊</div>
-      <h3>Negocios y Emprendimiento</h3>
-      <p style="font-size: 12px; color: var(--e-text-dim); margin: 0;">Marketing, finanzas y gestión.</p>
-      <div class="course-progress-bar">
-        <div class="course-progress-fill" style="width: 40%;"></div>
-      </div>
-      <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--e-text-soft);">
-        <span>Progreso</span>
-        <strong style="color: #c084fc;">40%</strong>
-      </div>
-      <button class="btn-continue-course" onclick="continueCourse('Negocios y Emprendimiento')">
-        Continuar Curso <i class="ti ti-arrow-right"></i>
-      </button>
-    </div>
-
-    <!-- Arte y Diseño -->
-    <div class="course-card-item">
-      <div class="course-icon-badge">🎨</div>
-      <h3>Arte y Diseño Digital</h3>
-      <p style="font-size: 12px; color: var(--e-text-dim); margin: 0;">Illustrator, Photoshop y UX/UI.</p>
-      <div class="course-progress-bar">
-        <div class="course-progress-fill" style="width: 65%;"></div>
-      </div>
-      <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--e-text-soft);">
-        <span>Progreso</span>
-        <strong style="color: #c084fc;">65%</strong>
-      </div>
-      <button class="btn-continue-course" onclick="continueCourse('Arte y Diseño Digital')">
-        Continuar Curso <i class="ti ti-arrow-right"></i>
-      </button>
-    </div>
-
-    <!-- Ciencias Naturales -->
-    <div class="course-card-item">
-      <div class="course-icon-badge">🔬</div>
-      <h3>Ciencias Naturales</h3>
-      <p style="font-size: 12px; color: var(--e-text-dim); margin: 0;">Biología, química y física.</p>
-      <div class="course-progress-bar">
-        <div class="course-progress-fill" style="width: 50%;"></div>
-      </div>
-      <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--e-text-soft);">
-        <span>Progreso</span>
-        <strong style="color: #c084fc;">50%</strong>
-      </div>
-      <button class="btn-continue-course" onclick="continueCourse('Ciencias Naturales')">
-        Continuar Curso <i class="ti ti-arrow-right"></i>
-      </button>
-    </div>
-
-    <!-- Historia Universal -->
-    <div class="course-card-item">
-      <div class="course-icon-badge">🏛️</div>
-      <h3>Historia Universal</h3>
-      <p style="font-size: 12px; color: var(--e-text-dim); margin: 0;">Civilizaciones antiguas y modernas.</p>
-      <div class="course-progress-bar">
-        <div class="course-progress-fill" style="width: 75%;"></div>
-      </div>
-      <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--e-text-soft);">
-        <span>Progreso</span>
-        <strong style="color: #c084fc;">75%</strong>
-      </div>
-      <button class="btn-continue-course" onclick="continueCourse('Historia Universal')">
-        Continuar Curso <i class="ti ti-arrow-right"></i>
-      </button>
-    </div>
-
-    <!-- Medicina y Salud -->
-    <div class="course-card-item">
-      <div class="course-icon-badge">🏥</div>
-      <h3>Medicina y Salud</h3>
-      <p style="font-size: 12px; color: var(--e-text-dim); margin: 0;">Anatomía, fisiología y primeros auxilios.</p>
-      <div class="course-progress-bar">
-        <div class="course-progress-fill" style="width: 35%;"></div>
-      </div>
-      <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--e-text-soft);">
-        <span>Progreso</span>
-        <strong style="color: #c084fc;">35%</strong>
-      </div>
-      <button class="btn-continue-course" onclick="continueCourse('Medicina y Salud')">
-        Continuar Curso <i class="ti ti-arrow-right"></i>
-      </button>
-    </div>
-
-    <!-- Matemáticas Básicas -->
-    <div class="course-card-item">
-      <div class="course-icon-badge">�</div>
-      <h3>Matemáticas Básicas</h3>
-      <p style="font-size: 12px; color: var(--e-text-dim); margin: 0;">Suma, resta, multiplicación y división.</p>
-      <div class="course-progress-bar">
-        <div class="course-progress-fill" style="width: 60%;"></div>
-      </div>
-      <div style="display: flex; justify-content: space-between; font-size: 11px; color: var(--e-text-soft);">
-        <span>Progreso</span>
-        <strong style="color: #c084fc;">60%</strong>
-      </div>
-      <button class="btn-continue-course" onclick="continueCourse('Matemáticas Básicas')">
-        Continuar Curso <i class="ti ti-arrow-right"></i>
-      </button>
-    </div>
-  </div>
-
-  <!-- ════════════════════════════════════
-       SPLIT GRID: POMODORO TIMER & GOALS
-  ════════════════════════════════════ -->
-  <div class="study-split-grid" id="pomodoro-section">
-
-    <!-- Pomodoro Timer Box -->
-    <div class="study-panel-box pomodoro-box">
-      <div class="estudio-section-title" style="margin: 0;">
-        <i class="ti ti-timer"></i> Temporizador Pomodoro
-      </div>
-
-      <div class="pomodoro-clock" id="pomodoro-timer-display">25:00</div>
-
-      <div class="pomodoro-controls">
-        <button class="e-header-btn" style="background: linear-gradient(135deg, #7c3aed, #06b6d4); color: #fff;" onclick="startPomodoro()">
-          ▶ Iniciar
+      <div class="header-actions">
+        <button class="search-btn" id="search-btn">
+          <span>🔍</span>
         </button>
-        <button class="e-header-btn" onclick="pausePomodoro()">
-          ⏸ Pausar
-        </button>
-        <button class="e-header-btn" onclick="resetPomodoro()">
-          🔄 Reiniciar
-        </button>
-      </div>
-
-      <div style="font-size: 12px; color: var(--e-text-soft); margin-top: 10px;">
-        🍅 Pomodoros completados hoy: <strong style="color: #f43f5e;" id="pomodoros-count">4</strong>
-      </div>
-    </div>
-
-    <!-- Metas y Objetivos -->
-    <div class="study-panel-box">
-      <div class="estudio-section-title" style="margin-bottom: 14px;">
-        <i class="ti ti-target"></i> Metas del Día
-      </div>
-
-      <div class="goals-list-box">
-        <div class="goal-item-row" onclick="toggleGoal(this)">
-          <i class="ti ti-square-check" style="color: #10b981;"></i>
-          <span>Estudiar 2 horas de programación</span>
-        </div>
-        <div class="goal-item-row" onclick="toggleGoal(this)">
-          <i class="ti ti-square" style="color: var(--e-text-dim);"></i>
-          <span>Completar un módulo de curso</span>
-        </div>
-        <div class="goal-item-row" onclick="toggleGoal(this)">
-          <i class="ti ti-square" style="color: var(--e-text-dim);"></i>
-          <span>Leer 20 páginas de documentación</span>
-        </div>
-        <div class="goal-item-row" onclick="toggleGoal(this)">
-          <i class="ti ti-square-check" style="color: #10b981;"></i>
-          <span>Resolver 5 ejercicios prácticos</span>
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <!-- ════════════════════════════════════
-       📝 MIS APUNTES BOARD
-  ════════════════════════════════════ -->
-  <div class="study-panel-box" id="notes-section" style="margin-bottom: 28px;">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-      <h2 class="estudio-section-title" style="margin: 0;">
-        <i class="ti ti-notes"></i> Mis Apuntes & Notas
-      </h2>
-      <div style="display: flex; gap: 8px;">
-        <button class="e-header-btn" onclick="addNewNotePrompt()">
-          <i class="ti ti-plus"></i> Nueva Nota
-        </button>
-        <button class="e-header-btn" onclick="exportNotesPDF()">
-          <i class="ti ti-file-export"></i> Exportar Apuntes
-        </button>
-      </div>
-    </div>
-
-    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px;" id="notes-grid-container">
-      {% if notas %}
-        {% for nota in notas %}
-        <div class="study-panel-box" style="padding: 16px; background: rgba(255,255,255,0.04);">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-            <strong style="color: #c084fc; font-size: 14px;">📌 {{ nota.titulo }}</strong>
-            <span style="font-size: 10px; color: var(--e-text-dim);">{{ nota.fecha_creacion|date:"d M" }}</span>
+        <div class="header-progress">
+          <span class="progress-label">Progreso general</span>
+          <div class="mini-progress-bar">
+            <div class="mini-progress-fill" id="general-progress" style="width: 45%"></div>
           </div>
-          <p style="font-size: 12px; color: var(--e-text-soft); margin: 0; line-height: 1.5;">{{ nota.contenido }}</p>
         </div>
-        {% endfor %}
-      {% else %}
-        <div class="study-panel-box" style="padding: 16px; background: rgba(255,255,255,0.04);">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-            <strong style="color: #c084fc; font-size: 14px;">📌 Apuntes de Django APIs</strong>
-            <span style="font-size: 10px; color: var(--e-text-dim);">Hoy</span>
-          </div>
-          <p style="font-size: 12px; color: var(--e-text-soft); margin: 0; line-height: 1.5;">Conceptos clave: Serializers, ViewSets, Routers y autenticación por Token.</p>
-        </div>
-
-        <div class="study-panel-box" style="padding: 16px; background: rgba(255,255,255,0.04);">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-            <strong style="color: #38bdf8; font-size: 14px;">📌 Comandos Git Esenciales</strong>
-            <span style="font-size: 10px; color: var(--e-text-dim);">Ayer</span>
-          </div>
-          <p style="font-size: 12px; color: var(--e-text-soft); margin: 0; line-height: 1.5;">git checkout -b feature, git commit -m, git push origin branch.</p>
-        </div>
-
-        <div class="study-panel-box" style="padding: 16px; background: rgba(255,255,255,0.04);">
-          <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-            <strong style="color: #10b981; font-size: 14px;">📌 Trucos CSS Glassmorphism</strong>
-            <span style="font-size: 10px; color: var(--e-text-dim);">Hace 3 días</span>
-          </div>
-          <p style="font-size: 12px; color: var(--e-text-soft); margin: 0; line-height: 1.5;">backdrop-filter: blur(20px), background: rgba(255,255,255,0.08), border translucido.</p>
-        </div>
-      {% endif %}
+      </div>
     </div>
   </div>
 
   <!-- ════════════════════════════════════
-       🎓 ACADEMIA DE AMIGIS & RECOMPENSAS
+       MAIN GRID
   ════════════════════════════════════ -->
-  <div class="study-panel-box" id="academia-section">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-      <h2 class="estudio-section-title" style="margin: 0;">
-        <span>🎓 Academia de Amigis & Tienda de Accesorios</span>
-      </h2>
-      <span style="font-size: 12px; color: #f59e0b; font-weight: 700;">🪙 320 Monedas Amigis</span>
+  <div class="estudio-main-grid">
+    
+    <!-- ════════════════════════════════════
+         LEFT COLUMN
+    ════════════════════════════════════ -->
+    <div class="estudio-left-column">
+      
+      <!-- RESUMEN DE ESTUDIO -->
+      <div class="glass-card summary-card">
+        <div class="card-header">
+          <span class="card-icon">📊</span>
+          <h2>Resumen de Estudio</h2>
+        </div>
+        <div class="summary-stats">
+          <div class="summary-stat">
+            <div class="stat-icon">⏱️</div>
+            <div class="stat-value" id="study-hours">0h</div>
+            <div class="stat-label">Horas Estudiadas</div>
+          </div>
+          <div class="summary-stat">
+            <div class="stat-icon">🔥</div>
+            <div class="stat-value" id="study-streak">0 días</div>
+            <div class="stat-label">Racha Actual</div>
+          </div>
+          <div class="summary-stat">
+            <div class="stat-icon">⭐</div>
+            <div class="stat-value" id="study-level">Nivel 1</div>
+            <div class="stat-label">Nivel de Aprendizaje</div>
+          </div>
+          <div class="summary-stat">
+            <div class="stat-icon">📈</div>
+            <div class="stat-value" id="weekly-progress">+0%</div>
+            <div class="stat-label">Progreso Semanal</div>
+          </div>
+        </div>
+        <div class="summary-progress-enhanced">
+          <div class="circular-progress-container">
+            <div class="circular-progress">
+              <svg class="progress-ring" width="80" height="80">
+                <circle class="progress-ring-circle-bg" stroke="rgba(255,255,255,0.1)" stroke-width="8" fill="transparent" r="32" cx="40" cy="40"/>
+                <circle class="progress-ring-circle" id="xp-ring" stroke="url(#gradient)" stroke-width="8" fill="transparent" r="32" cx="40" cy="40" stroke-dasharray="201" stroke-dashoffset="201" stroke-linecap="round"/>
+                <defs>
+                  <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" style="stop-color:#7c3aed"/>
+                    <stop offset="100%" style="stop-color:#c084fc"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+              <div class="progress-center">
+                <span class="xp-value" id="current-xp">0</span>
+                <span class="xp-label">XP</span>
+              </div>
+            </div>
+            <div class="progress-info">
+              <span class="progress-title">Progreso al siguiente nivel</span>
+              <span class="progress-detail" id="next-level">Siguiente nivel: 100 XP</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- POMODORO -->
+      <div class="glass-card pomodoro-card">
+        <div class="card-header">
+          <span class="card-icon">🍅</span>
+          <h2>Pomodoro</h2>
+        </div>
+        <div class="pomodoro-enhanced">
+          <div class="pomodoro-timer-visual">
+            <div class="timer-display-large" id="pomodoro-display">25:00</div>
+            <div class="timer-motivational" id="timer-motivational">¡Un Pomodoro más y lo tienes! 🍅</div>
+          </div>
+          <div class="timer-controls-enhanced">
+            <button class="timer-btn-enhanced btn-start-enhanced" id="pomodoro-start">
+              <span>▶</span> Iniciar
+            </button>
+            <button class="timer-btn-enhanced btn-pause-enhanced" id="pomodoro-pause" style="display: none;">
+              <span>⏸</span> Pausar
+            </button>
+            <button class="timer-btn-enhanced btn-reset-enhanced" id="pomodoro-reset">
+              <span>↻</span> Reiniciar
+            </button>
+          </div>
+          <div class="pomodoro-progress">
+            <div class="session-progress">
+              <span class="session-label">Progreso de la sesión</span>
+              <div class="session-bar">
+                <div class="session-fill" id="session-progress-fill" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+          <div class="pomodoro-stats-enhanced">
+            <div class="pomodoro-stat-enhanced">
+              <span class="pomodoro-stat-icon">🍅</span>
+              <div class="pomodoro-stat-content">
+                <span class="pomodoro-stat-value" id="pomodoros-today">0</span>
+                <span class="pomodoro-stat-label">Completados hoy</span>
+              </div>
+            </div>
+            <div class="pomodoro-stat-enhanced">
+              <span class="pomodoro-stat-icon">🏆</span>
+              <div class="pomodoro-stat-content">
+                <span class="pomodoro-stat-value" id="total-pomodoros">0</span>
+                <span class="pomodoro-stat-label">Total completados</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MIS NOTAS -->
+      <div class="glass-card notes-card">
+        <div class="card-header">
+          <span class="card-icon">📝</span>
+          <h2>Mis Notas</h2>
+          <div class="notes-actions">
+            <button class="btn-new-note" id="btn-new-note">
+              <span>+</span> Nueva nota
+            </button>
+            <button class="btn-view-all" id="btn-view-all">
+              <span>📚</span> Ver todas
+            </button>
+          </div>
+        </div>
+        <div class="notes-container" id="notes-container">
+          <div class="notes-library" id="notes-grid">
+            <!-- Las notas se cargarán dinámicamente -->
+          </div>
+          <div class="empty-state-enhanced" id="notes-empty" style="display: none;">
+            <div class="empty-icon-large">📝</div>
+            <p class="empty-title">Tu biblioteca de notas está vacía</p>
+            <p class="empty-subtitle">Comienza creando tu primera nota para organizar tu aprendizaje</p>
+            <button class="btn-create-first-enhanced" onclick="showNoteModal()">
+              <span>✨</span> Crear tu primera nota
+            </button>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-    <p style="font-size: 12.5px; color: var(--e-text-soft); margin: 0 0 16px;">
-      Cada curso completado te otorga insignias, experiencia XP y desbloquea accesorios exclusivos para vestir a tu mascota Amigis.
-    </p>
-
-    <div class="academia-store-grid">
-      <div class="accessory-card">
-        <span style="font-size: 32px;">🧢</span>
-        <div style="font-weight: 700; font-size: 13px; margin: 6px 0 2px;">Gorra Gamer</div>
-        <span style="font-size: 11px; color: #10b981;">Desbloqueado ✔</span>
+    <!-- ════════════════════════════════════
+         RIGHT COLUMN
+    ════════════════════════════════════ -->
+    <div class="estudio-right-column">
+      
+      <!-- CALENDARIO PEQUEÑO -->
+      <div class="glass-card calendar-card">
+        <div class="card-header">
+          <span class="card-icon">🗓️</span>
+          <h2>Calendario</h2>
+        </div>
+        <div class="calendar-container">
+          <div class="calendar-header">
+            <button class="calendar-nav" id="calendar-prev">
+              <span>‹</span>
+            </button>
+            <span class="calendar-month" id="calendar-month">Enero 2024</span>
+            <button class="calendar-nav" id="calendar-next">
+              <span>›</span>
+            </button>
+          </div>
+          <div class="calendar-weekdays">
+            <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span>
+          </div>
+          <div class="calendar-days" id="calendar-days">
+            <!-- Los días se generarán dinámicamente -->
+          </div>
+        </div>
+        <div class="calendar-legend-enhanced">
+          <div class="legend-item">
+            <span class="legend-dot studied"></span>
+            <span>Estudiado</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot goal"></span>
+            <span>Meta pendiente</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot activity"></span>
+            <span>Actividad</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot today"></span>
+            <span>Hoy</span>
+          </div>
+        </div>
       </div>
 
-      <div class="accessory-card">
-        <span style="font-size: 32px;">👓</span>
-        <div style="font-weight: 700; font-size: 13px; margin: 6px 0 2px;">Gafas Neón</div>
-        <span style="font-size: 11px; color: #10b981;">Desbloqueado ✔</span>
+      <!-- METAS DE ESTUDIO -->
+      <div class="glass-card goals-card">
+        <div class="card-header">
+          <span class="card-icon">🎯</span>
+          <h2>Metas del Día</h2>
+          <button class="btn-add-goal" id="btn-add-goal">
+            <span>+</span> Agregar meta
+          </button>
+        </div>
+        <div class="goals-container" id="goals-container">
+          <div class="goals-list-enhanced" id="goals-list">
+            <!-- Las metas se cargarán dinámicamente -->
+          </div>
+          <div class="empty-state-enhanced" id="goals-empty" style="display: none;">
+            <div class="empty-icon-large">🎯</div>
+            <p class="empty-title">Sin metas para hoy</p>
+            <p class="empty-subtitle">Establece tus objetivos para mantenerte enfocado</p>
+            <button class="btn-create-first-enhanced" onclick="showGoalModal()">
+              <span>🎯</span> Agregar tu primera meta
+            </button>
+          </div>
+        </div>
+        <div class="goals-progress-enhanced">
+          <div class="progress-header">
+            <span class="progress-label">Progreso del día</span>
+            <span class="progress-value"><span id="goals-completed">0</span>/<span id="goals-total">0</span> metas</span>
+          </div>
+          <div class="progress-bar-enhanced">
+            <div class="progress-fill-enhanced" id="goals-progress-fill" style="width: 0%"></div>
+          </div>
+        </div>
       </div>
 
-      <div class="accessory-card">
-        <span style="font-size: 32px;">🎒</span>
-        <div style="font-weight: 700; font-size: 13px; margin: 6px 0 2px;">Mochila de Estudio</div>
-        <span style="font-size: 11px; color: #c084fc;">100 Monedas</span>
-      </div>
+    </div>
 
-      <div class="accessory-card">
-        <span style="font-size: 32px;">💻</span>
-        <div style="font-weight: 700; font-size: 13px; margin: 6px 0 2px;">Laptop Neón</div>
-        <span style="font-size: 11px; color: #10b981;">Equipado ✔</span>
+  </div>
+
+  <!-- ════════════════════════════════════
+       ACTIVIDAD RECIENTE
+  ════════════════════════════════════ -->
+  <div class="glass-card activity-card">
+    <div class="card-header">
+      <span class="card-icon">🌟</span>
+      <h2>Actividad Reciente</h2>
+    </div>
+    <div class="activity-timeline" id="activity-timeline">
+      <div class="activity-item">
+        <div class="activity-icon activity-pomodoro">🟢</div>
+        <div class="activity-content">
+          <span class="activity-text">Completaste una sesión Pomodoro</span>
+          <span class="activity-time">Hace 20 min</span>
+        </div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon activity-note">🟣</div>
+        <div class="activity-content">
+          <span class="activity-text">Creaste una nota</span>
+          <span class="activity-time">Hace 1 h</span>
+        </div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon activity-xp">⭐</div>
+        <div class="activity-content">
+          <span class="activity-text">Ganaste 50 XP</span>
+          <span class="activity-time">Ayer</span>
+        </div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon activity-streak">🔥</div>
+        <div class="activity-content">
+          <span class="activity-text">Mantuviste tu racha</span>
+          <span class="activity-time">Ayer</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       MODAL PARA NOTAS
+  ════════════════════════════════════ -->
+  <div class="modal-overlay" id="note-modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Nueva Nota</h3>
+        <button class="modal-close" onclick="closeNoteModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="note-title">Título</label>
+          <input type="text" id="note-title" placeholder="Título de tu nota">
+        </div>
+        <div class="form-group">
+          <label for="note-content">Contenido</label>
+          <textarea id="note-content" rows="6" placeholder="Escribe tu nota aquí..."></textarea>
+        </div>
+        <div class="form-group">
+          <label for="note-color">Color</label>
+          <div class="color-picker">
+            <button class="color-option" data-color="#fef08a" style="background: #fef08a;"></button>
+            <button class="color-option" data-color="#bbf7d0" style="background: #bbf7d0;"></button>
+            <button class="color-option" data-color="#a5f3fc" style="background: #a5f3fc;"></button>
+            <button class="color-option" data-color="#fecaca" style="background: #fecaca;"></button>
+            <button class="color-option" data-color="#e9d5ff" style="background: #e9d5ff;"></button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeNoteModal()">Cancelar</button>
+        <button class="btn-primary" onclick="saveNote()">Guardar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════════════════════════════════════
+       MODAL PARA METAS
+  ════════════════════════════════════ -->
+  <div class="modal-overlay" id="goal-modal" style="display: none;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Nueva Meta</h3>
+        <button class="modal-close" onclick="closeGoalModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="goal-title">Meta</label>
+          <input type="text" id="goal-title" placeholder="Ej: Estudiar 1 hora">
+        </div>
+        <div class="form-group">
+          <label for="goal-description">Descripción (opcional)</label>
+          <textarea id="goal-description" rows="3" placeholder="Detalles adicionales..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeGoalModal()">Cancelar</button>
+        <button class="btn-primary" onclick="saveGoal()">Guardar</button>
       </div>
     </div>
   </div>
 
 </div>
 
-<!-- ════════════════════════════════════
-     SCRIPTS
-════════════════════════════════════ -->
-<script>
-let pomodoroSeconds = 25 * 60;
-let pomodoroTimerId = null;
-let completedPomodoros = 4;
-
-function startPomodoro() {
-  if (pomodoroTimerId) return;
-  pomodoroTimerId = setInterval(() => {
-    if (pomodoroSeconds > 0) {
-      pomodoroSeconds--;
-      updatePomodoroDisplay();
-    } else {
-      clearInterval(pomodoroTimerId);
-      pomodoroTimerId = null;
-      completedPomodoros++;
-      document.getElementById('pomodoros-count').textContent = completedPomodoros;
-      alert("🍅 ¡Pomodoro completado! Tómate un descanso de 5 minutos.");
-      pomodoroSeconds = 25 * 60;
-      updatePomodoroDisplay();
-    }
-  }, 1000);
-}
-
-function pausePomodoro() {
-  clearInterval(pomodoroTimerId);
-  pomodoroTimerId = null;
-}
-
-function resetPomodoro() {
-  pausePomodoro();
-  pomodoroSeconds = 25 * 60;
-  updatePomodoroDisplay();
-}
-
-function updatePomodoroDisplay() {
-  const m = Math.floor(pomodoroSeconds / 60);
-  const s = pomodoroSeconds % 60;
-  document.getElementById('pomodoro-timer-display').textContent =
-    `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-}
-
-const courseData = {
-  'Desarrollo de Software': {
-    icon: '💻',
-    lessons: [
-      { title: 'Arquitectura de Software', duration: '45 min', completed: true },
-      { title: 'Patrones de Diseño', duration: '60 min', completed: true },
-      { title: 'Clean Code', duration: '50 min', completed: false },
-      { title: 'Testing y QA', duration: '40 min', completed: false },
-      { title: 'DevOps Basics', duration: '55 min', completed: false }
-    ],
-    resources: ['Documentación SOLID', 'Patrones GoF', 'Clean Code Book'],
-    quiz: [
-      { q: '¿Qué principio SOLID promueve una sola responsabilidad?', options: ['SRP', 'OCP', 'LSP', 'ISP'], correct: 0 },
-      { q: '¿Qué patrón se usa para crear objetos?', options: ['Singleton', 'Factory', 'Observer', 'Strategy'], correct: 1 }
-    ]
-  },
-  'HTML5 y CSS3': {
-    icon: '🌐',
-    lessons: [
-      { title: 'Estructura HTML5', duration: '30 min', completed: true },
-      { title: 'CSS Grid Layout', duration: '45 min', completed: true },
-      { title: 'Flexbox Avanzado', duration: '40 min', completed: true },
-      { title: 'Animaciones CSS', duration: '35 min', completed: true },
-      { title: 'Responsive Design', duration: '50 min', completed: true }
-    ],
-    resources: ['MDN Web Docs', 'CSS Tricks', 'Can I Use'],
-    quiz: [
-      { q: '¿Qué propiedad CSS crea un grid?', options: ['display: grid', 'display: flex', 'display: block', 'display: table'], correct: 0 },
-      { q: '¿Qué unidad es relativa al tamaño de fuente?', options: ['px', 'rem', 'vh', 'vw'], correct: 1 }
-    ]
-  },
-  'JavaScript Moderno': {
-    icon: '⚙️',
-    lessons: [
-      { title: 'ES6+ Features', duration: '50 min', completed: true },
-      { title: 'Promesas y Async/Await', duration: '45 min', completed: true },
-      { title: 'DOM Manipulation', duration: '40 min', completed: false },
-      { title: 'Event Loop', duration: '35 min', completed: false },
-      { title: 'Modules', duration: '30 min', completed: false }
-    ],
-    resources: ['JavaScript.info', 'You Dont Know JS', 'Eloquent JavaScript'],
-    quiz: [
-      { q: '¿Qué método crea una promesa?', options: ['new Promise()', 'Promise.create()', 'make Promise()', 'Promise()'], correct: 0 },
-      { q: '¿Qué es el Event Loop?', options: ['Un bucle de eventos', 'Un ciclo de vida', 'Un componente UI', 'Un servidor'], correct: 0 }
-    ]
-  },
-  'Python Avanzado': {
-    icon: '🐍',
-    lessons: [
-      { title: 'Decoradores', duration: '40 min', completed: true },
-      { title: 'Generadores', duration: '35 min', completed: true },
-      { title: 'Django Framework', duration: '60 min', completed: false },
-      { title: 'Data Science con Pandas', duration: '50 min', completed: false },
-      { title: 'API REST', duration: '45 min', completed: false }
-    ],
-    resources: ['Python Docs', 'Django Project', 'Pandas Documentation'],
-    quiz: [
-      { q: '¿Qué símbolo define un decorador?', options: ['@', '#', '$', '&'], correct: 0 },
-      { q: '¿Qué palabra clave usa yield?', options: ['yield', 'return', 'send', 'next'], correct: 0 }
-    ]
-  },
-  'Java & Spring Boot': {
-    icon: '☕',
-    lessons: [
-      { title: 'POO en Java', duration: '50 min', completed: true },
-      { title: 'Spring Boot Basics', duration: '45 min', completed: true },
-      { title: 'REST APIs', duration: '40 min', completed: true },
-      { title: 'Spring Security', duration: '55 min', completed: false },
-      { title: 'Microservicios', duration: '60 min', completed: false }
-    ],
-    resources: ['Spring Docs', 'Baeldung', 'Java Official Docs'],
-    quiz: [
-      { q: '¿Qué anotación define un controller?', options: ['@Controller', '@Service', '@Repository', '@Component'], correct: 0 },
-      { q: '¿Qué inyección usa Spring?', options: ['Constructor', 'Setter', 'Field', 'Todas'], correct: 3 }
-    ]
-  },
-  'Bases de Datos SQL & NoSQL': {
-    icon: '🗄️',
-    lessons: [
-      { title: 'PostgreSQL Basics', duration: '45 min', completed: true },
-      { title: 'SQL Avanzado', duration: '50 min', completed: true },
-      { title: 'MongoDB', duration: '40 min', completed: false },
-      { title: 'Redis', duration: '30 min', completed: false },
-      { title: 'Diseño de Esquemas', duration: '45 min', completed: false }
-    ],
-    resources: ['PostgreSQL Docs', 'MongoDB University', 'SQL Tutorial'],
-    quiz: [
-      { q: '¿Qué comando selecciona datos?', options: ['SELECT', 'INSERT', 'UPDATE', 'DELETE'], correct: 0 },
-      { q: '¿MongoDB usa qué formato?', options: ['JSON', 'XML', 'CSV', 'SQL'], correct: 0 }
-    ]
-  },
-  'Matemáticas Avanzadas': {
-    icon: '📐',
-    lessons: [
-      { title: 'Cálculo Diferencial', duration: '60 min', completed: true },
-      { title: 'Álgebra Lineal', duration: '55 min', completed: true },
-      { title: 'Estadística', duration: '50 min', completed: false },
-      { title: 'Ecuaciones Diferenciales', duration: '65 min', completed: false },
-      { title: 'Análisis Numérico', duration: '55 min', completed: false }
-    ],
-    resources: ['Khan Academy', 'MIT OpenCourseWare', 'Wolfram Math'],
-    quiz: [
-      { q: '¿Qué es la derivada?', options: ['Tasa de cambio', 'Área bajo curva', 'Suma', 'Producto'], correct: 0 },
-      { q: '¿Qué estudia el álgebra lineal?', options: ['Vectores y matrices', 'Números', 'Figuras', 'Probabilidad'], correct: 0 }
-    ]
-  },
-  'Derecho y Legislación': {
-    icon: '⚖️',
-    lessons: [
-      { title: 'Derecho Civil', duration: '50 min', completed: true },
-      { title: 'Derecho Penal', duration: '55 min', completed: false },
-      { title: 'Derecho Corporativo', duration: '45 min', completed: false },
-      { title: 'Derecho Internacional', duration: '60 min', completed: false },
-      { title: 'Ética Legal', duration: '40 min', completed: false }
-    ],
-    resources: ['Leyes MX', 'Códigos Civiles', 'Jurisprudencia'],
-    quiz: [
-      { q: '¿Qué rama estudia delitos?', options: ['Derecho Penal', 'Derecho Civil', 'Derecho Laboral', 'Derecho Mercantil'], correct: 0 },
-      { q: '¿Qué es la jurisprudencia?', options: ['Precedentes legales', 'Nuevas leyes', 'Reglamentos', 'Constitución'], correct: 0 }
-    ]
-  },
-  'Inglés Profesional': {
-    icon: '🌍',
-    lessons: [
-      { title: 'Grammar Advanced', duration: '40 min', completed: true },
-      { title: 'Business Vocabulary', duration: '45 min', completed: true },
-      { title: 'Conversation Skills', duration: '50 min', completed: true },
-      { title: 'Writing Professional', duration: '40 min', completed: false },
-      { title: 'Presentations', duration: '45 min', completed: false }
-    ],
-    resources: ['Cambridge Dictionary', 'BBC Learning', 'Business English'],
-    quiz: [
-      { q: '¿Past tense de "go"?', options: ['went', 'goed', 'gone', 'going'], correct: 0 },
-      { q: '¿Qué significa "deadline"?', options: ['Fecha límite', 'Línea muerta', 'Final', 'Inicio'], correct: 0 }
-    ]
-  },
-  'Negocios y Emprendimiento': {
-    icon: '📊',
-    lessons: [
-      { title: 'Marketing Digital', duration: '45 min', completed: true },
-      { title: 'Finanzas', duration: '50 min', completed: false },
-      { title: 'Gestión de Proyectos', duration: '40 min', completed: false },
-      { title: 'Modelos de Negocio', duration: '55 min', completed: false },
-      { title: 'Pitch Deck', duration: '35 min', completed: false }
-    ],
-    resources: ['Harvard Business', 'Lean Startup', 'Marketing Pro'],
-    quiz: [
-      { q: '¿Qué es el ROI?', options: ['Retorno de Inversión', 'Riesgo Operativo', 'Rentabilidad Interna', 'Ratio Operativo'], correct: 0 },
-      { q: '¿Qué es un MVP?', options: ['Producto Mínimo Viable', 'Mejor Valor Posible', 'Máximo Valor Producto', 'Modelo de Ventas'], correct: 0 }
-    ]
-  },
-  'Arte y Diseño Digital': {
-    icon: '🎨',
-    lessons: [
-      { title: 'Teoría del Color', duration: '35 min', completed: true },
-      { title: 'Illustrator Basics', duration: '45 min', completed: true },
-      { title: 'Photoshop Avanzado', duration: '50 min', completed: false },
-      { title: 'UX/UI Design', duration: '55 min', completed: false },
-      { title: 'Motion Graphics', duration: '45 min', completed: false }
-    ],
-    resources: ['Adobe Tutorials', 'Dribbble', 'Behance'],
-    quiz: [
-      { q: '¿Colores primarios CMYK?', options: ['Cyan, Magenta, Yellow, Black', 'Red, Blue, Green', 'RGB', 'HSV'], correct: 0 },
-      { q: '¿Qué es UX?', options: ['Experiencia de Usuario', 'Interfaz de Usuario', 'Diseño Universal', 'Accesibilidad'], correct: 0 }
-    ]
-  },
-  'Ciencias Naturales': {
-    icon: '🔬',
-    lessons: [
-      { title: 'Biología Celular', duration: '50 min', completed: true },
-      { title: 'Química Orgánica', duration: '45 min', completed: true },
-      { title: 'Física Mecánica', duration: '55 min', completed: false },
-      { title: 'Genética', duration: '50 min', completed: false },
-      { title: 'Ecología', duration: '40 min', completed: false }
-    ],
-    resources: ['Nature Journal', 'Science Daily', 'Khan Science'],
-    quiz: [
-      { q: '¿Qué orgánulo contiene ADN?', options: ['Núcleo', 'Mitocondria', 'Ribosoma', 'Lisosoma'], correct: 0 },
-      { q: '¿Qué es la fotosíntesis?', options: ['Conversión de luz a energía', 'Respiración', 'Digestión', 'Reproducción'], correct: 0 }
-    ]
-  },
-  'Historia Universal': {
-    icon: '🏛️',
-    lessons: [
-      { title: 'Civilizaciones Antiguas', duration: '50 min', completed: true },
-      { title: 'Edad Media', duration: '45 min', completed: true },
-      { title: 'Renacimiento', duration: '40 min', completed: true },
-      { title: 'Revolución Industrial', duration: '50 min', completed: false },
-      { title: 'Siglo XX', duration: '55 min', completed: false }
-    ],
-    resources: ['Britannica', 'History Channel', 'National Geographic'],
-    quiz: [
-      { q: '¿Cuándo cayó Roma?', options: ['476 d.C.', '1000 a.C.', '1492', '1789'], correct: 0 },
-      { q: '¿Qué inició la Revolución Industrial?', options: ['Máquina de vapor', 'Electricidad', 'Computadora', 'Internet'], correct: 0 }
-    ]
-  },
-  'Medicina y Salud': {
-    icon: '🏥',
-    lessons: [
-      { title: 'Anatomía Humana', duration: '55 min', completed: true },
-      { title: 'Fisiología', duration: '50 min', completed: false },
-      { title: 'Primeros Auxilios', duration: '40 min', completed: false },
-      { title: 'Farmacología Básica', duration: '45 min', completed: false },
-      { title: 'Nutrición', duration: '35 min', completed: false }
-    ],
-    resources: ['Mayo Clinic', 'WebMD', 'PubMed'],
-    quiz: [
-      { q: '¿Qué órgano bombea sangre?', options: ['Corazón', 'Pulmón', 'Hígado', 'Riñón'], correct: 0 },
-      { q: '¿Qué es el RCP?', options: ['Reanimación CardioPulmonar', 'Respiración', 'Cirugía', 'Diagnóstico'], correct: 0 }
-    ]
-  },
-  'Matemáticas Básicas': {
-    icon: '�',
-    lessons: [
-      { title: 'Suma y Resta', duration: '30 min', completed: true },
-      { title: 'Multiplicación', duration: '35 min', completed: true },
-      { title: 'División', duration: '40 min', completed: true },
-      { title: 'Fracciones', duration: '45 min', completed: false },
-      { title: 'Decimales', duration: '40 min', completed: false }
-    ],
-    resources: ['Khan Academy', 'Math is Fun', 'Cool Math'],
-    quiz: [
-      { q: '¿Cuánto es 7 + 5?', options: ['11', '12', '13', '14'], correct: 1 },
-      { q: '¿Cuánto es 8 × 6?', options: ['42', '48', '54', '56'], correct: 1 }
-    ]
-  }
-};
-
-function continueCourse(name) {
-  const course = courseData[name];
-  if (!course) {
-    alert('Curso no encontrado');
-    return;
-  }
-
-  const coursesGrid = document.querySelector('.courses-grid');
-  const courseTitle = document.querySelector('#courses-section');
-  
-  if (coursesGrid) {
-    coursesGrid.style.display = 'none';
-  }
-  
-  const completedLessons = course.lessons.filter(l => l.completed).length;
-  const totalLessons = course.lessons.length;
-  const progressPercent = Math.round((completedLessons / totalLessons) * 100);
-  
-  const courseContent = document.createElement('div');
-  courseContent.className = 'course-detail-container';
-  courseContent.style.cssText = `
-    margin-top: 20px;
-    animation: fadeIn 0.3s ease;
-  `;
-  
-  courseContent.innerHTML = `
-    <style>
-      @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
-      }
-      .lesson-item {
-        display: flex;
-        align-items: center;
-        padding: 12px 16px;
-        background: rgba(255,255,255,0.04);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 10px;
-        margin-bottom: 10px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-      }
-      .lesson-item:hover {
-        background: rgba(139, 92, 246, 0.15);
-        border-color: rgba(139, 92, 246, 0.4);
-        transform: translateX(5px);
-      }
-      .lesson-item.completed {
-        border-left: 3px solid #10b981;
-      }
-      .lesson-item:not(.completed) {
-        border-left: 3px solid rgba(255,255,255,0.2);
-      }
-      .quiz-option {
-        padding: 12px 16px;
-        background: rgba(255,255,255,0.04);
-        border: 2px solid rgba(255,255,255,0.1);
-        border-radius: 8px;
-        margin-bottom: 8px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-      }
-      .quiz-option:hover {
-        background: rgba(139, 92, 246, 0.1);
-        border-color: rgba(139, 92, 246, 0.4);
-      }
-      .quiz-option.correct {
-        background: rgba(16, 185, 129, 0.2);
-        border-color: #10b981;
-      }
-      .quiz-option.incorrect {
-        background: rgba(239, 68, 68, 0.2);
-        border-color: #ef4444;
-      }
-      .resource-tag {
-        display: inline-block;
-        padding: 6px 12px;
-        background: rgba(139, 92, 246, 0.2);
-        border: 1px solid rgba(139, 92, 246, 0.4);
-        border-radius: 20px;
-        font-size: 12px;
-        margin: 4px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-      }
-      .resource-tag:hover {
-        background: rgba(139, 92, 246, 0.4);
-        transform: scale(1.05);
-      }
-    </style>
-    
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-      <div style="display: flex; align-items: center; gap: 12px;">
-        <span style="font-size: 48px;">${course.icon}</span>
-        <div>
-          <h2 style="color: #c084fc; margin: 0; font-size: 24px;">${name}</h2>
-          <div style="display: flex; align-items: center; gap: 8px; margin-top: 4px;">
-            <div style="width: 120px; height: 6px; background: rgba(255,255,255,0.1); border-radius: 3px; overflow: hidden;">
-              <div style="width: ${progressPercent}%; height: 100%; background: linear-gradient(90deg, #8b5cf6, #06b6d4);"></div>
-            </div>
-            <span style="font-size: 12px; color: var(--e-text-soft);">${progressPercent}% completado</span>
-          </div>
-        </div>
-      </div>
-      <div style="display: flex; gap: 10px;">
-        <button onclick="generateCertificate('${name}', ${progressPercent})" style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #10b981; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.2s ease;">
-          📜 Comprobante
-        </button>
-        <button onclick="deleteCourse('${name}')" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #ef4444; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.2s ease;">
-          🗑️ Eliminar Curso
-        </button>
-        <button onclick="backToCourses()" style="background: rgba(139, 92, 246, 0.2); border: 1px solid #8b5cf6; color: #fff; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 500; transition: all 0.2s ease;">
-          ← Volver a Cursos
-        </button>
-      </div>
-    </div>
-
-    <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 20px;">
-      <div>
-        <div class="study-panel-box" style="margin-bottom: 20px;">
-          <h3 style="color: #fff; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-            📝 Lecciones (${completedLessons}/${totalLessons})
-          </h3>
-          ${course.lessons.map((lesson, index) => `
-            <div class="lesson-item ${lesson.completed ? 'completed' : ''}" onclick="startLesson('${lesson.title}')">
-              <div style="flex: 1;">
-                <div style="color: ${lesson.completed ? '#10b981' : '#fff'}; font-weight: 500; margin-bottom: 4px;">
-                  ${lesson.completed ? '✓ ' : ''}${lesson.title}
-                </div>
-                <div style="font-size: 11px; color: var(--e-text-dim);">⏱️ ${lesson.duration}</div>
-              </div>
-              <i class="ti ti-chevron-right" style="color: var(--e-text-dim);"></i>
-            </div>
-          `).join('')}
-        </div>
-
-        <div class="study-panel-box" style="margin-bottom: 20px;">
-          <h3 style="color: #fff; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-            🎯 Quiz Rápido
-          </h3>
-          <div id="quiz-container">
-            ${course.quiz.map((q, qIndex) => `
-              <div style="margin-bottom: 20px;">
-                <p style="color: var(--e-text-soft); margin-bottom: 10px; font-weight: 500;">${qIndex + 1}. ${q.q}</p>
-                ${q.options.map((opt, oIndex) => `
-                  <div class="quiz-option" onclick="checkAnswer(this, ${oIndex === q.correct})">${opt}</div>
-                `).join('')}
-              </div>
-            `).join('')}
-          </div>
-        </div>
-      </div>
-
-      <div>
-        <div class="study-panel-box" style="margin-bottom: 20px;">
-          <h3 style="color: #fff; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-            📚 Recursos
-          </h3>
-          ${course.resources.map(r => `<span class="resource-tag">🔗 ${r}</span>`).join('')}
-        </div>
-
-        <div class="study-panel-box" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(6, 182, 212, 0.15)); border: 1px solid rgba(139, 92, 246, 0.3);">
-          <h3 style="color: #c084fc; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-            ⏱️ Cronómetro de Estudio
-          </h3>
-          <div style="text-align: center; margin-bottom: 15px;">
-            <div id="study-timer" style="font-size: 48px; font-weight: 700; color: #fff; font-family: 'Courier New', monospace; letter-spacing: 2px;">
-              00:00:00
-            </div>
-            <div style="display: flex; gap: 8px; justify-content: center; margin-top: 12px;">
-              <button onclick="startStudyTimer()" id="start-timer-btn" style="background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #10b981; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.2s ease;">
-                ▶️ Iniciar
-              </button>
-              <button onclick="pauseStudyTimer()" id="pause-timer-btn" style="background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #f59e0b; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.2s ease; display: none;">
-                ⏸️ Pausar
-              </button>
-              <button onclick="resetStudyTimer()" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #ef4444; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: 600; transition: all 0.2s ease;">
-                🔄 Reiniciar
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <div class="study-panel-box" style="background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(6, 182, 212, 0.15)); border: 1px solid rgba(139, 92, 246, 0.3);">
-          <h3 style="color: #c084fc; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-            🤖 Amigis AI
-          </h3>
-          <p style="color: var(--e-text-soft); font-size: 13px; margin-bottom: 12px; line-height: 1.5;">
-            Obtén ayuda personalizada con tus dudas sobre ${name}.
-          </p>
-          <button onclick="startChatWithCourse('${name}')" style="width: 100%; background: linear-gradient(135deg, #8b5cf6, #06b6d4); border: none; color: #fff; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s ease;">
-            💬 Chatear con Amigis
-          </button>
-        </div>
-
-        <div class="study-panel-box">
-          <h3 style="color: #fff; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-            🏆 Logros
-          </h3>
-          <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-            <span style="font-size: 24px;" title="Primera lección completada">🎯</span>
-            <span style="font-size: 24px; opacity: 0.3;" title="Quiz perfecto">⭐</span>
-            <span style="font-size: 24px; opacity: 0.3;" title="Curso completado">🏅</span>
-            <span style="font-size: 24px; opacity: 0.3;" title="Estudio rápido">⚡</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  `;
-  
-  courseTitle.parentNode.insertBefore(courseContent, courseTitle.nextSibling);
-}
-
-function backToCourses() {
-  const courseContent = document.querySelector('.course-detail-container');
-  const coursesGrid = document.querySelector('.courses-grid');
-  
-  if (courseContent) {
-    courseContent.remove();
-  }
-  
-  if (coursesGrid) {
-    coursesGrid.style.display = 'grid';
-  }
-}
-
-function startChatWithCourse(courseName) {
-  // Redirigir al chat con un contexto del curso
-  window.location.href = `/chat?context=${encodeURIComponent(courseName)}`;
-}
-
-function checkAnswer(element, isCorrect) {
-  // Reset all options in the same question
-  const parent = element.parentElement;
-  const options = parent.querySelectorAll('.quiz-option');
-  options.forEach(opt => {
-    opt.classList.remove('correct', 'incorrect');
-  });
-  
-  // Mark the selected option
-  if (isCorrect) {
-    element.classList.add('correct');
-    element.innerHTML += ' ✓';
-  } else {
-    element.classList.add('incorrect');
-    element.innerHTML += ' ✗';
-  }
-}
-
-function startLesson(title) {
-  alert(`📚 Iniciando lección: ${title}\n\nEsta función abrirá el contenido de la lección en una ventana modal.`);
-}
-
-function deleteCourse(courseName) {
-  if (confirm(`¿Estás seguro de que quieres eliminar el curso "${courseName}"?\n\nEsta acción no se puede deshacer.`)) {
-    // Eliminar el curso del grid principal
-    const coursesGrid = document.querySelector('.courses-grid');
-    const courseCards = coursesGrid.querySelectorAll('.course-card-item');
-    
-    courseCards.forEach(card => {
-      const title = card.querySelector('h3').textContent;
-      if (title === courseName) {
-        card.remove();
-      }
-    });
-    
-    // Volver a la vista de cursos
-    backToCourses();
-    
-    // Actualizar el contador total
-    updateCourseCount();
-    
-    alert(`✅ Curso "${courseName}" eliminado correctamente.`);
-  }
-}
-
-function updateCourseCount() {
-  const coursesGrid = document.querySelector('.courses-grid');
-  const courseCards = coursesGrid.querySelectorAll('.course-card-item');
-  const count = courseCards.length;
-  
-  const courseTitle = document.querySelector('#courses-section span');
-  if (courseTitle) {
-    courseTitle.textContent = `📖 Mis Cursos (${count} Total)`;
-  }
-}
-
-function generateCertificate(courseName, progress) {
-  const currentDate = new Date().toLocaleDateString('es-ES', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-  
-  const certificateHTML = `
-    <div style="
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      z-index: 10000;
-    " onclick="this.remove()">
-      <div style="
-        background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-        border: 3px solid;
-        border-image: linear-gradient(135deg, #8b5cf6, #06b6d4) 1;
-        border-radius: 20px;
-        padding: 40px;
-        max-width: 600px;
-        width: 90%;
-        text-align: center;
-        box-shadow: 0 20px 60px rgba(139, 92, 246, 0.3);
-        animation: certificateSlide 0.5s ease;
-      " onclick="event.stopPropagation()">
-        <style>
-          @keyframes certificateSlide {
-            from { opacity: 0; transform: scale(0.8) translateY(-50px); }
-            to { opacity: 1; transform: scale(1) translateY(0); }
-          }
-        </style>
-        
-        <div style="font-size: 60px; margin-bottom: 20px;">🎓</div>
-        
-        <h1 style="
-          font-size: 32px;
-          background: linear-gradient(135deg, #8b5cf6, #06b6d4);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          margin-bottom: 10px;
-          font-weight: 800;
-       ">COMPROBANTE DE ESTUDIO</h1>
-        
-        <div style="
-          width: 100%;
-          height: 2px;
-          background: linear-gradient(90deg, transparent, #8b5cf6, #06b6d4, transparent);
-          margin: 20px 0;
-        "></div>
-        
-        <p style="color: #fff; font-size: 16px; margin-bottom: 10px;">
-          Este comprobante certifica que el estudiante ha completado
-        </p>
-        
-        <h2 style="
-          color: #c084fc;
-          font-size: 28px;
-          margin: 20px 0;
-          font-weight: 700;
-        ">${courseName}</h2>
-        
-        <div style="
-          background: rgba(139, 92, 246, 0.1);
-          border: 1px solid rgba(139, 92, 246, 0.3);
-          border-radius: 12px;
-          padding: 20px;
-          margin: 20px 0;
-        ">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-            <span style="color: var(--e-text-soft);">Progreso del curso:</span>
-            <span style="color: #10b981; font-weight: 700; font-size: 20px;">${progress}%</span>
-          </div>
-          <div style="width: 100%; height: 10px; background: rgba(255,255,255,0.1); border-radius: 5px; overflow: hidden;">
-            <div style="width: ${progress}%; height: 100%; background: linear-gradient(90deg, #8b5cf6, #06b6d4);"></div>
-          </div>
-        </div>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0;">
-          <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px;">
-            <div style="color: var(--e-text-dim); font-size: 12px; margin-bottom: 5px;">Fecha de emisión</div>
-            <div style="color: #fff; font-weight: 600;">${currentDate}</div>
-          </div>
-          <div style="background: rgba(255,255,255,0.05); padding: 15px; border-radius: 10px;">
-            <div style="color: var(--e-text-dim); font-size: 12px; margin-bottom: 5px;">ID de comprobante</div>
-            <div style="color: #fff; font-weight: 600;">${generateCertificateId()}</div>
-          </div>
-        </div>
-        
-        <div style="color: var(--e-text-soft); font-size: 12px; margin-top: 20px;">
-          Emitido por MiniAmigixV - Plataforma de Estudio
-        </div>
-        
-        <button onclick="printCertificate()" style="
-          margin-top: 25px;
-          background: linear-gradient(135deg, #8b5cf6, #06b6d4);
-          border: none;
-          color: #fff;
-          padding: 12px 30px;
-          border-radius: 8px;
-          cursor: pointer;
-          font-weight: 600;
-          font-size: 14px;
-          transition: all 0.2s ease;
-        " onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
-          🖨️ Imprimir Comprobante
-        </button>
-        
-        <button onclick="this.closest('div[style*=fixed]').remove()" style="
-          margin-top: 10px;
-          background: transparent;
-          border: 1px solid rgba(255,255,255,0.2);
-          color: var(--e-text-soft);
-          padding: 8px 20px;
-          border-radius: 8px;
-          cursor: pointer;
-          font-size: 13px;
-        ">Cerrar</button>
-      </div>
-    </div>
-  `;
-  
-  document.body.insertAdjacentHTML('beforeend', certificateHTML);
-}
-
-function generateCertificateId() {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let id = 'CERT-';
-  for (let i = 0; i < 8; i++) {
-    id += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return id;
-}
-
-function printCertificate() {
-  window.print();
-}
-
-let studyTimerInterval = null;
-let studyTimerSeconds = 0;
-
-function startStudyTimer() {
-  if (studyTimerInterval) return;
-  
-  const startBtn = document.getElementById('start-timer-btn');
-  const pauseBtn = document.getElementById('pause-timer-btn');
-  
-  if (startBtn) startBtn.style.display = 'none';
-  if (pauseBtn) pauseBtn.style.display = 'inline-block';
-  
-  studyTimerInterval = setInterval(() => {
-    studyTimerSeconds++;
-    updateStudyTimerDisplay();
-  }, 1000);
-}
-
-function pauseStudyTimer() {
-  if (!studyTimerInterval) return;
-  
-  clearInterval(studyTimerInterval);
-  studyTimerInterval = null;
-  
-  const startBtn = document.getElementById('start-timer-btn');
-  const pauseBtn = document.getElementById('pause-timer-btn');
-  
-  if (startBtn) {
-    startBtn.style.display = 'inline-block';
-    startBtn.textContent = '▶️ Continuar';
-  }
-  if (pauseBtn) pauseBtn.style.display = 'none';
-}
-
-function resetStudyTimer() {
-  pauseStudyTimer();
-  studyTimerSeconds = 0;
-  updateStudyTimerDisplay();
-  
-  const startBtn = document.getElementById('start-timer-btn');
-  if (startBtn) startBtn.textContent = '▶️ Iniciar';
-}
-
-function updateStudyTimerDisplay() {
-  const timerElement = document.getElementById('study-timer');
-  if (!timerElement) return;
-  
-  const hours = Math.floor(studyTimerSeconds / 3600);
-  const minutes = Math.floor((studyTimerSeconds % 3600) / 60);
-  const seconds = studyTimerSeconds % 60;
-  
-  timerElement.textContent = 
-    `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-}
-
-function toggleGoal(row) {
-  row.classList.toggle('completed');
-  const icon = row.querySelector('i');
-  if (row.classList.contains('completed')) {
-    icon.className = 'ti ti-square-check';
-    icon.style.color = '#10b981';
-  } else {
-    icon.className = 'ti ti-square';
-    icon.style.color = 'var(--e-text-dim)';
-  }
-}
-
-function addNewNotePrompt() {
-  const title = prompt("Título de la nota:");
-  const content = prompt("Contenido de la nota:");
-  if (title && content) {
-    const container = document.getElementById('notes-grid-container');
-    const noteDiv = document.createElement('div');
-    noteDiv.className = 'study-panel-box';
-    noteDiv.style.padding = '16px';
-    noteDiv.style.background = 'rgba(255,255,255,0.04)';
-    noteDiv.innerHTML = `
-      <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-        <strong style="color: #c084fc; font-size: 14px;">📌 ${escapeHtml(title)}</strong>
-        <span style="font-size: 10px; color: var(--e-text-dim);">Ahora</span>
-      </div>
-      <p style="font-size: 12px; color: var(--e-text-soft); margin: 0; line-height: 1.5;">${escapeHtml(content)}</p>
-    `;
-    container.prepend(noteDiv);
-  }
-}
-
-function exportNotesPDF() {
-  window.print();
-}
-
-function scrollToSection(id) {
-  document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
-}
-
-function escapeHtml(str) {
-  return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-</script>
+<script src="{% static 'js/estudio.js' %}?v=51"></script>
 {% endblock %}

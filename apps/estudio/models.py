@@ -6,6 +6,7 @@ import uuid
 class Nota(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notas')
+    titulo = models.CharField(max_length=200, blank=True, default='', help_text='Título de la nota')
     contenido = models.TextField()
     color = models.CharField(max_length=7, default='#fef08a', help_text='Color de la nota en formato HEX')
     fijada = models.BooleanField(default=False, help_text='Si la nota está fijada arriba')
@@ -18,7 +19,8 @@ class Nota(models.Model):
         verbose_name_plural = 'Notas'
     
     def __str__(self):
-        return self.contenido[:50] + '...' if len(self.contenido) > 50 else self.contenido
+        titulo_display = self.titulo if self.titulo else self.contenido[:50]
+        return titulo_display + '...' if len(titulo_display) > 50 else titulo_display
 
 class Resumen(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -149,10 +151,6 @@ class DailyStats(models.Model):
         verbose_name_plural = 'Estadísticas Diarias'
         unique_together = ['usuario', 'fecha']
 
-# ─────────────────────────────────────────
-# MODELOS DE GAMIFICACIÓN - MUNDO AMIGIS
-# ─────────────────────────────────────────
-
 class UserProfile(models.Model):
     usuario = models.OneToOneField(User, on_delete=models.CASCADE, related_name='perfil_amigis')
     xp = models.IntegerField(default=0, help_text='Puntos de experiencia')
@@ -182,6 +180,24 @@ class UserProfile(models.Model):
     def agregar_monedas(self, cantidad):
         self.monedas += cantidad
         self.save()
+
+class MetaDiaria(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='metas_diarias')
+    titulo = models.CharField(max_length=200)
+    descripcion = models.TextField(blank=True, null=True)
+    completada = models.BooleanField(default=False)
+    fecha = models.DateField(auto_now_add=True)
+    orden = models.IntegerField(default=0, help_text='Orden de visualización')
+    
+    class Meta:
+        ordering = ['orden', '-fecha']
+        verbose_name = 'Meta Diaria'
+        verbose_name_plural = 'Metas Diarias'
+        unique_together = ['usuario', 'titulo', 'fecha']
+    
+    def __str__(self):
+        estado = "✓" if self.completada else "☐"
+        return f"{estado} {self.titulo} - {self.fecha.strftime('%d/%m/%Y')}"
 
 class Mision(models.Model):
     CATEGORIAS = [

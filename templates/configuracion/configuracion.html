@@ -546,6 +546,16 @@
       <span class="nav-icon">🌌</span> Mi Espacio
     </button>
 
+    <span class="cfg-nav-section-label">Entretenimiento</span>
+    <button class="cfg-nav-btn" onclick="showPane('entretenimiento',this)">
+      <span class="nav-icon">🎮</span> Entretenimiento
+    </button>
+
+    <span class="cfg-nav-section-label">Accesibilidad</span>
+    <button class="cfg-nav-btn" onclick="showPane('accesibilidad',this)">
+      <span class="nav-icon">♿</span> Accesibilidad
+    </button>
+
   </aside>
 
   {# ── MAIN CONTENT ── #}
@@ -762,8 +772,704 @@
       </div>
     </div>
 
-  </div>{# end cfg-main #}
-</div>{# end cfg-wrapper #}
+    {# ─── PANE: ENTRETENIMIENTO ─── #}
+    <div class="cfg-pane" id="pane-entretenimiento">
+      
+      {# ─── MÚSICA ─── #}
+      <div class="cfg-section-card">
+        <h3 class="cfg-section-title">🎵 Música</h3>
+        <p style="font-size:12.5px;color:var(--cfg-dim);margin:0 0 16px;">Personaliza tu experiencia musical en MiniAmigixV.</p>
+        
+        <div class="cfg-espacio-grid">
+          <div class="cfg-espacio-card selected" id="music-default" onclick="setMusicTheme('default',this)">
+            <div class="cfg-espacio-icon">🎵</div>
+            <div class="cfg-espacio-name">Tema Musical</div>
+            <div class="cfg-espacio-desc">Tema musical por defecto</div>
+          </div>
+          <div class="cfg-espacio-card" id="music-lofi" onclick="setMusicTheme('lofi',this)">
+            <div class="cfg-espacio-icon">🎧</div>
+            <div class="cfg-espacio-name">Lo-Fi Beats</div>
+            <div class="cfg-espacio-desc">Música relajante para estudiar</div>
+          </div>
+          <div class="cfg-espacio-card" id="music-jazz" onclick="setMusicTheme('jazz',this)">
+            <div class="cfg-espacio-icon">🎷</div>
+            <div class="cfg-espacio-name">Jazz Lounge</div>
+            <div class="cfg-espacio-desc">Jazz suave y elegante</div>
+          </div>
+          <div class="cfg-espacio-card" id="music-electronic" onclick="setMusicTheme('electronic',this)">
+            <div class="cfg-espacio-icon">🎹</div>
+            <div class="cfg-espacio-name">Electronic</div>
+            <div class="cfg-espacio-desc">Beats electrónicos energéticos</div>
+          </div>
+          <div class="cfg-espacio-card" id="music-classical" onclick="setMusicTheme('classical',this)">
+            <div class="cfg-espacio-icon">🎻</div>
+            <div class="cfg-espacio-name">Clásica</div>
+            <div class="cfg-espacio-desc">Música clásica atemporal</div>
+          </div>
+          <div class="cfg-espacio-card" id="music-ambient" onclick="setMusicTheme('ambient',this)">
+            <div class="cfg-espacio-icon">🌊</div>
+            <div class="cfg-espacio-name">Ambient</div>
+            <div class="cfg-espacio-desc">Sonidos ambientales relajantes</div>
+          </div>
+        </div>
+
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🔊</span>
+            <div><div class="cfg-row-label">Reproducción automática</div><div class="cfg-row-desc">Reproduce música automáticamente</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="music-autoplay-toggle" onchange="toggleMusicAutoplay(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🔁</span>
+            <div><div class="cfg-row-label">Repetir playlist</div><div class="cfg-row-desc">Repite la playlist actual</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="music-repeat-toggle" onchange="toggleMusicRepeat(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🔀</span>
+            <div><div class="cfg-row-label">Aleatorio</div><div class="cfg-row-desc">Reproduce canciones aleatoriamente</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="music-shuffle-toggle" onchange="toggleMusicShuffle(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+      </div>
+
+      {# ─── JUEGOS ─── #}
+      <div class="cfg-section-card">
+        <h3 class="cfg-section-title">🎮 Juegos</h3>
+        <p style="font-size:12.5px;color:var(--cfg-dim);margin:0 0 16px;">Configura tus preferencias de juegos.</p>
+        
+        <div class="cfg-espacio-grid">
+          <div class="cfg-espacio-card selected" id="game-arcade" onclick="setGameTheme('arcade',this)">
+            <div class="cfg-espacio-icon">🕹️</div>
+            <div class="cfg-espacio-name">Arcade</div>
+            <div class="cfg-espacio-desc">Estilo arcade clásico</div>
+          </div>
+          <div class="cfg-espacio-card" id="game-puzzle" onclick="setGameTheme('puzzle',this)">
+            <div class="cfg-espacio-icon">🧩</div>
+            <div class="cfg-espacio-name">Puzzle</div>
+            <div class="cfg-espacio-desc">Juegos de puzzle</div>
+          </div>
+          <div class="cfg-espacio-card" id="game-memory" onclick="setGameTheme('memory',this)">
+            <div class="cfg-espacio-icon">🧠</div>
+            <div class="cfg-espacio-name">Memoria</div>
+            <div class="cfg-espacio-desc">Juegos de memoria</div>
+          </div>
+          <div class="cfg-espacio-card" id="game-trivia" onclick="setGameTheme('trivia',this)">
+            <div class="cfg-espacio-icon">❓</div>
+            <div class="cfg-espacio-name">Trivia</div>
+            <div class="cfg-espacio-desc">Preguntas y respuestas</div>
+          </div>
+          <div class="cfg-espacio-card" id="game-word" onclick="setGameTheme('word',this)">
+            <div class="cfg-espacio-icon">📝</div>
+            <div class="cfg-espacio-name">Palabras</div>
+            <div class="cfg-espacio-desc">Juegos de palabras</div>
+          </div>
+          <div class="cfg-espacio-card" id="game-math" onclick="setGameTheme('math',this)">
+            <div class="cfg-espacio-icon">🔢</div>
+            <div class="cfg-espacio-name">Matemáticas</div>
+            <div class="cfg-espacio-desc">Juegos matemáticos</div>
+          </div>
+        </div>
+
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🔊</span>
+            <div><div class="cfg-row-label">Sonidos de juego</div><div class="cfg-row-desc">Activa efectos de sonido</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="game-sounds-toggle" onchange="toggleGameSounds(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🎵</span>
+            <div><div class="cfg-row-label">Música de fondo</div><div class="cfg-row-desc">Música durante el juego</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="game-music-toggle" onchange="toggleGameMusic(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🏆</span>
+            <div><div class="cfg-row-label">Mostrar puntuaciones</div><div class="cfg-row-desc">Muestra tus mejores puntuaciones</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="game-scores-toggle" onchange="toggleGameScores(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+      </div>
+
+      {# ─── BLOG ─── #}
+      <div class="cfg-section-card">
+        <h3 class="cfg-section-title">📝 Blog</h3>
+        <p style="font-size:12.5px;color:var(--cfg-dim);margin:0 0 16px;">Personaliza tu experiencia de lectura en el blog.</p>
+        
+        <div class="cfg-espacio-grid">
+          <div class="cfg-espacio-card selected" id="blog-modern" onclick="setBlogTheme('modern',this)">
+            <div class="cfg-espacio-icon">✨</div>
+            <div class="cfg-espacio-name">Moderno</div>
+            <div class="cfg-espacio-desc">Diseño moderno y limpio</div>
+          </div>
+          <div class="cfg-espacio-card" id="blog-classic" onclick="setBlogTheme('classic',this)">
+            <div class="cfg-espacio-icon">📜</div>
+            <div class="cfg-espacio-name">Clásico</div>
+            <div class="cfg-espacio-desc">Estilo tradicional de blog</div>
+          </div>
+          <div class="cfg-espacio-card" id="blog-minimal" onclick="setBlogTheme('minimal',this)">
+            <div class="cfg-espacio-icon">🧹</div>
+            <div class="cfg-espacio-name">Minimalista</div>
+            <div class="cfg-espacio-desc">Diseño minimalista</div>
+          </div>
+          <div class="cfg-espacio-card" id="blog-magazine" onclick="setBlogTheme('magazine',this)">
+            <div class="cfg-espacio-icon">📰</div>
+            <div class="cfg-espacio-name">Revista</div>
+            <div class="cfg-espacio-desc">Estilo de revista digital</div>
+          </div>
+          <div class="cfg-espacio-card" id="blog-dark" onclick="setBlogTheme('dark',this)">
+            <div class="cfg-espacio-icon">🌙</div>
+            <div class="cfg-espacio-name">Oscuro</div>
+            <div class="cfg-espacio-desc">Tema oscuro para lectura</div>
+          </div>
+          <div class="cfg-espacio-card" id="blog-readable" onclick="setBlogTheme('readable',this)">
+            <div class="cfg-espacio-icon">📖</div>
+            <div class="cfg-espacio-name">Lectura fácil</div>
+            <div class="cfg-espacio-desc">Optimizado para lectura</div>
+          </div>
+        </div>
+
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">💬</span>
+            <div><div class="cfg-row-label">Comentarios</div><div class="cfg-row-desc">Permite comentarios en posts</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="blog-comments-toggle" onchange="toggleBlogComments(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🔔</span>
+            <div><div class="cfg-row-label">Notificaciones de posts</div><div class="cfg-row-desc">Notifica nuevos posts</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="blog-notifications-toggle" onchange="toggleBlogNotifications(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">📂</span>
+            <div><div class="cfg-row-label">Categorías</div><div class="cfg-row-desc">Muestra categorías de posts</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="blog-categories-toggle" onchange="toggleBlogCategories(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+      </div>
+    </div>
+
+    {# ─── PANE: ACCESIBILIDAD ─── #}
+    <div class="cfg-pane" id="pane-accesibilidad">
+      
+      {# ─── PERSONALIZACIÓN DE ACCESIBILIDAD ─── #}
+      <div class="cfg-section-card" style="background:linear-gradient(135deg,rgba(124,58,237,0.22),rgba(6,182,212,0.14));border-color:rgba(124,58,237,0.32);">
+        <h3 class="cfg-section-title">⚙️ Personalización de Accesibilidad</h3>
+        <p style="font-size:12.5px;color:var(--cfg-dim);margin:0 0 16px;">Guarda, restaura y crea perfiles de accesibilidad personalizados.</p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <button onclick="saveAccessibilityProfile()" style="padding:10px 20px;background:var(--accent-gradient);border:none;border-radius:8px;color:white;cursor:pointer;font-weight:600;">
+            � Guardar Configuración
+          </button>
+          <button onclick="restoreAccessibilityProfile()" style="padding:10px 20px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:8px;color:var(--cfg-text);cursor:pointer;font-weight:600;">
+            🔄 Restaurar Configuración
+          </button>
+          <button onclick="createNewProfile()" style="padding:10px 20px;background:rgba(16,185,129,0.2);border:1px solid rgba(16,185,129,0.4);border-radius:8px;color:#10b981;cursor:pointer;font-weight:600;">
+            ➕ Crear Perfil
+          </button>
+          <button onclick="previewAccessibility()" style="padding:10px 20px;background:rgba(245,158,11,0.2);border:1px solid rgba(245,158,11,0.4);border-radius:8px;color:#f59e0b;cursor:pointer;font-weight:600;">
+            �️ Vista Previa
+          </button>
+          <button onclick="applyRecommendedConfig()" style="padding:10px 20px;background:rgba(244,63,94,0.2);border:1px solid rgba(244,63,94,0.4);border-radius:8px;color:#f43f5e;cursor:pointer;font-weight:600;">
+            ✨ Configuración Recomendada
+          </button>
+        </div>
+      </div>
+
+      {# ─── 👁️ VISUAL ─── #}
+      <div class="cfg-section-card">
+        <h3 class="cfg-section-title">�️ Visual</h3>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">📝</span>
+            <div><div class="cfg-row-label">Tamaño de texto</div><div class="cfg-row-desc">Ajusta el tamaño del texto</div></div>
+          </div>
+          <select id="text-size-select" onchange="setTextSize(this.value)" style="padding:8px 12px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:6px;color:var(--cfg-text);">
+            <option value="normal">Normal</option>
+            <option value="large">Grande</option>
+            <option value="extra-large">Muy grande</option>
+          </select>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">�</span>
+            <div><div class="cfg-row-label">Tipo de fuente</div><div class="cfg-row-desc">Cambia el tipo de fuente</div></div>
+          </div>
+          <select id="font-family-select" onchange="setFontFamily(this.value)" style="padding:8px 12px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:6px;color:var(--cfg-text);">
+            <option value="default">Predeterminada</option>
+            <option value="sans-serif">Sans Serif</option>
+            <option value="serif">Serif</option>
+            <option value="monospace">Monospace</option>
+          </select>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🎨</span>
+            <div><div class="cfg-row-label">Alto contraste</div><div class="cfg-row-desc">Mejora el contraste de colores</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="high-contrast-toggle" onchange="toggleHighContrast(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🔄</span>
+            <div><div class="cfg-row-label">Invertir colores</div><div class="cfg-row-desc">Invierte los colores de la interfaz</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="invert-colors-toggle" onchange="toggleInvertColors(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🌈</span>
+            <div><div class="cfg-row-label">Filtro de color</div><div class="cfg-row-desc">Aplica un filtro de color</div></div>
+          </div>
+          <select id="color-filter-select" onchange="setColorFilter(this.value)" style="padding:8px 12px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:6px;color:var(--cfg-text);">
+            <option value="none">Ninguno</option>
+            <option value="grayscale">Escala de grises</option>
+            <option value="sepia">Sepia</option>
+            <option value="protanopia">Protanopia</option>
+            <option value="deuteranopia">Deuteranopia</option>
+            <option value="tritanopia">Tritanopia</option>
+          </select>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">↔️</span>
+            <div><div class="cfg-row-label">Espaciado entre letras</div><div class="cfg-row-desc">Ajusta el espaciado entre letras</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="letter-spacing-toggle" onchange="toggleLetterSpacing(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">↕️</span>
+            <div><div class="cfg-row-label">Espaciado entre líneas</div><div class="cfg-row-desc">Ajusta el espaciado entre líneas</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="line-spacing-toggle" onchange="toggleLineSpacing(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">�</span>
+            <div><div class="cfg-row-label">Cursor grande</div><div class="cfg-row-desc">Aumenta el tamaño del cursor</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="large-cursor-toggle" onchange="toggleLargeCursor(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">✨</span>
+            <div><div class="cfg-row-label">Resaltar botones</div><div class="cfg-row-desc">Resalta los botones importantes</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="highlight-buttons-toggle" onchange="toggleHighlightButtons(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">�️</span>
+            <div><div class="cfg-row-label">Describir imágenes</div><div class="cfg-row-desc">Muestra descripciones de imágenes</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="describe-images-toggle" onchange="toggleDescribeImages(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">�</span>
+            <div><div class="cfg-row-label">Texto alternativo automático</div><div class="cfg-row-desc">Genera texto alternativo automáticamente</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="auto-alt-toggle" onchange="toggleAutoAlt(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">�</span>
+            <div><div class="cfg-row-label">Compatibilidad con lector de pantalla</div><div class="cfg-row-desc">Optimiza para lectores de pantalla</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="screen-reader-toggle" onchange="toggleScreenReader(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+      </div>
+
+      {# ─── 👂 AUDITIVA ─── #}
+      <div class="cfg-section-card">
+        <h3 class="cfg-section-title">👂 Auditiva</h3>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">📺</span>
+            <div><div class="cfg-row-label">Subtítulos automáticos</div><div class="cfg-row-desc">Muestra subtítulos en videos</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="auto-subtitles-toggle" onchange="toggleAutoSubtitles(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">📝</span>
+            <div><div class="cfg-row-label">Transcripción de audios</div><div class="cfg-row-desc">Transcribe contenido de audio a texto</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="audio-transcription-toggle" onchange="toggleAudioTranscription(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🔔</span>
+            <div><div class="cfg-row-label">Alertas visuales</div><div class="cfg-row-desc">Muestra alertas visuales para sonidos</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="visual-alerts-toggle" onchange="toggleVisualAlerts(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">📳</span>
+            <div><div class="cfg-row-label">Vibración para notificaciones</div><div class="cfg-row-desc">Vibra al recibir notificaciones</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="vibration-toggle" onchange="toggleVibration(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🔊</span>
+            <div><div class="cfg-row-label">Indicadores visuales de sonidos</div><div class="cfg-row-desc">Muestra indicadores visuales de sonidos</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="sound-indicators-toggle" onchange="toggleSoundIndicators(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🎚️</span>
+            <div><div class="cfg-row-label">Control independiente de volumen</div><div class="cfg-row-desc">Controla volumen de diferentes elementos</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="independent-volume-toggle" onchange="toggleIndependentVolume(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">💬</span>
+            <div><div class="cfg-row-label">Aviso visual cuando alguien habla</div><div class="cfg-row-desc">Muestra aviso cuando alguien habla</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="speaking-indicator-toggle" onchange="toggleSpeakingIndicator(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">📝</span>
+            <div><div class="cfg-row-label">Texto alternativo para audio</div><div class="cfg-row-desc">Proporciona texto alternativo para audio</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="audio-alt-toggle" onchange="toggleAudioAlt(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+      </div>
+
+      {# ─── 🦽 FÍSICA / MOTORA ─── #}
+      <div class="cfg-section-card">
+        <h3 class="cfg-section-title">🦽 Física / Motora</h3>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🔘</span>
+            <div><div class="cfg-row-label">Botones grandes</div><div class="cfg-row-desc">Aumenta el tamaño de los botones</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="large-buttons-toggle" onchange="toggleLargeButtons(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🎯</span>
+            <div><div class="cfg-row-label">Menos precisión necesaria</div><div class="cfg-row-desc">Reduce la precisión necesaria para hacer clic</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="reduced-precision-toggle" onchange="toggleReducedPrecision(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">⌨️</span>
+            <div><div class="cfg-row-label">Navegación con teclado</div><div class="cfg-row-desc">Permite navegación completa con teclado</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="keyboard-nav-toggle" onchange="toggleKeyboardNav(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">⌨️</span>
+            <div><div class="cfg-row-label">Atajos de teclado personalizables</div><div class="cfg-row-desc">Personaliza atajos de teclado</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="custom-shortcuts-toggle" onchange="toggleCustomShortcuts(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🧭</span>
+            <div><div class="cfg-row-label">Menús simplificados</div><div class="cfg-row-desc">Simplifica la estructura de menús</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="simplified-menus-toggle" onchange="toggleSimplifiedMenus(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">⏱️</span>
+            <div><div class="cfg-row-label">Mayor tiempo para acciones</div><div class="cfg-row-desc">Aumenta el tiempo para completar acciones</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="extended-time-toggle" onchange="toggleExtendedTime(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">👆</span>
+            <div><div class="cfg-row-label">Evitar doble clic</div><div class="cfg-row-desc">Elimina necesidad de doble clic</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="no-double-click-toggle" onchange="toggleNoDoubleClick(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">⌨️</span>
+            <div><div class="cfg-row-label">Control mediante teclado</div><div class="cfg-row-desc">Control completo mediante teclado</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="keyboard-only-toggle" onchange="toggleKeyboardOnly(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🦯</span>
+            <div><div class="cfg-row-label">Compatibilidad con dispositivos de asistencia</div><div class="cfg-row-desc">Compatible con dispositivos de asistencia</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="assistive-devices-toggle" onchange="toggleAssistiveDevices(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+      </div>
+
+      {# ─── 🧠 COGNITIVA / INTELECTUAL ─── #}
+      <div class="cfg-section-card">
+        <h3 class="cfg-section-title">🧠 Cognitiva / Intelectual</h3>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">📖</span>
+            <div><div class="cfg-row-label">Lectura fácil</div><div class="cfg-row-desc">Simplifica el texto para facilitar lectura</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="easy-read-toggle" onchange="toggleEasyRead(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">📝</span>
+            <div><div class="cfg-row-label">Textos simplificados</div><div class="cfg-row-desc">Simplifica el contenido de texto</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="simplified-text-toggle" onchange="toggleSimplifiedText(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">📋</span>
+            <div><div class="cfg-row-label">Instrucciones paso a paso</div><div class="cfg-row-desc">Divide tareas en pasos simples</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="step-by-step-toggle" onchange="toggleStepByStep(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🧹</span>
+            <div><div class="cfg-row-label">Menos elementos en pantalla</div><div class="cfg-row-desc">Reduce la cantidad de elementos visuales</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="minimal-ui-toggle" onchange="toggleMinimalUI(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">📋</span>
+            <div><div class="cfg-row-label">Menús sencillos</div><div class="cfg-row-desc">Simplifica la estructura de menús</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="simple-menus-toggle" onchange="toggleSimpleMenus(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">✅</span>
+            <div><div class="cfg-row-label">Confirmación antes de acciones importantes</div><div class="cfg-row-desc">Pide confirmación para acciones importantes</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="confirm-actions-toggle" onchange="toggleConfirmActions(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🔔</span>
+            <div><div class="cfg-row-label">Recordatorios</div><div class="cfg-row-desc">Activa recordatorios automáticos</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="reminders-toggle" onchange="toggleReminders(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🔄</span>
+            <div><div class="cfg-row-label">Repetición de instrucciones</div><div class="cfg-row-desc">Repite instrucciones automáticamente</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="repeat-instructions-toggle" onchange="toggleRepeatInstructions(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🎯</span>
+            <div><div class="cfg-row-label">Modo concentración</div><div class="cfg-row-desc">Reduce distracciones</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="focus-mode-toggle" onchange="toggleFocusMode(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+      </div>
+
+      {# ─── 🗣️ COMUNICACIÓN ─── #}
+      <div class="cfg-section-card">
+        <h3 class="cfg-section-title">🗣️ Comunicación</h3>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🎤</span>
+            <div><div class="cfg-row-label">Dictado por voz</div><div class="cfg-row-desc">Permite dictar texto por voz</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="voice-dictation-toggle" onchange="toggleVoiceDictation(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🎧</span>
+            <div><div class="cfg-row-label">Texto a voz</div><div class="cfg-row-desc">Lee el contenido de texto en voz alta</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="tts-toggle" onchange="toggleTTS(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">💬</span>
+            <div><div class="cfg-row-label">Frases rápidas</div><div class="cfg-row-desc">Acceso rápido a frases comunes</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="quick-phrases-toggle" onchange="toggleQuickPhrases(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">📝</span>
+            <div><div class="cfg-row-label">Respuestas prediseñadas</div><div class="cfg-row-desc">Usa respuestas prediseñadas</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="preset-responses-toggle" onchange="togglePresetResponses(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🖼️</span>
+            <div><div class="cfg-row-label">Comunicación mediante pictogramas</div><div class="cfg-row-desc">Usa pictogramas para comunicarse</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="pictograms-toggle" onchange="togglePictograms(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🔄</span>
+            <div><div class="cfg-row-label">Conversión de voz a texto</div><div class="cfg-row-desc">Convierte voz a texto automáticamente</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="voice-to-text-toggle" onchange="toggleVoiceToText(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">⌨️</span>
+            <div><div class="cfg-row-label">Tamaño de teclado ajustable</div><div class="cfg-row-desc">Ajusta el tamaño del teclado virtual</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="adjustable-keyboard-toggle" onchange="toggleAdjustableKeyboard(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+      </div>
+
+      {# ─── 📖 APRENDIZAJE ─── #}
+      <div class="cfg-section-card">
+        <h3 class="cfg-section-title">📖 Aprendizaje</h3>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">📚</span>
+            <div><div class="cfg-row-label">Modo estudio</div><div class="cfg-row-desc">Activa modo de estudio optimizado</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="study-mode-toggle" onchange="toggleStudyMode(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">📖</span>
+            <div><div class="cfg-row-label">Lectura guiada</div><div class="cfg-row-desc">Guía la lectura del contenido</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="guided-reading-toggle" onchange="toggleGuidedReading(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">📝</span>
+            <div><div class="cfg-row-label">Resumen de textos</div><div class="cfg-row-desc">Genera resúmenes de textos largos</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="text-summary-toggle" onchange="toggleTextSummary(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">💡</span>
+            <div><div class="cfg-row-label">Explicaciones sencillas</div><div class="cfg-row-desc">Proporciona explicaciones simplificadas</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="simple-explanations-toggle" onchange="toggleSimpleExplanations(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">📖</span>
+            <div><div class="cfg-row-label">Diccionario</div><div class="cfg-row-desc">Acceso rápido a diccionario</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="dictionary-toggle" onchange="toggleDictionary(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🌐</span>
+            <div><div class="cfg-row-label">Traductor</div><div class="cfg-row-desc">Traducción integrada</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="translator-toggle" onchange="toggleTranslator(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🖼️</span>
+            <div><div class="cfg-row-label">Ejemplos visuales</div><div class="cfg-row-desc">Muestra ejemplos visuales</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="visual-examples-toggle" onchange="toggleVisualExamples(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🔄</span>
+            <div><div class="cfg-row-label">Repetición de contenido</div><div class="cfg-row-desc">Permite repetir contenido</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="content-repeat-toggle" onchange="toggleContentRepeat(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">⏱️</span>
+            <div><div class="cfg-row-label">Control de velocidad de lectura</div><div class="cfg-row-desc">Ajusta la velocidad de lectura</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="reading-speed-toggle" onchange="toggleReadingSpeed(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+      </div>
+
+      {# ─── 🧩 NEURODIVERSIDAD ─── #}
+      <div class="cfg-section-card">
+        <h3 class="cfg-section-title">🧩 Neurodiversidad</h3>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">👁️</span>
+            <div><div class="cfg-row-label">Reducir estímulos visuales</div><div class="cfg-row-desc">Reduce elementos visuales distractivos</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="reduce-visual-stimuli-toggle" onchange="toggleReduceVisualStimuli(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🎬</span>
+            <div><div class="cfg-row-label">Reducir animaciones</div><div class="cfg-row-desc">Reduce o elimina animaciones</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="reduce-animations-toggle" onchange="toggleReduceAnimations(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🎯</span>
+            <div><div class="cfg-row-label">Modo concentración</div><div class="cfg-row-desc">Activa modo de concentración</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="neuro-focus-mode-toggle" onchange="toggleNeuroFocusMode(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🔄</span>
+            <div><div class="cfg-row-label">Interfaz predecible</div><div class="cfg-row-desc">Mantiene la interfaz consistente</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="predictable-ui-toggle" onchange="togglePredictableUI(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🔇</span>
+            <div><div class="cfg-row-label">Notificaciones silenciosas</div><div class="cfg-row-desc">Notificaciones sin sonido</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="silent-notifications-toggle" onchange="toggleSilentNotifications(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🔊</span>
+            <div><div class="cfg-row-label">Control de sonidos</div><div class="cfg-row-desc">Control total de sonidos</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="sound-control-toggle" onchange="toggleSoundControl(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">📅</span>
+            <div><div class="cfg-row-label">Rutinas y recordatorios</div><div class="cfg-row-desc">Establece rutinas y recordatorios</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="routines-toggle" onchange="toggleRoutines(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-row-left">
+            <span class="cfg-row-icon">🎨</span>
+            <div><div class="cfg-row-label">Personalización de colores</div><div class="cfg-row-desc">Personaliza los colores de la interfaz</div></div>
+          </div>
+          <label class="cfg-toggle"><input type="checkbox" id="color-customization-toggle" onchange="toggleColorCustomization(this)"><span class="cfg-toggle-slider"></span></label>
+        </div>
+      </div>
+    </div>
 
 {# Toast #}
 <div class="cfg-toast" id="cfg-toast-msg">✅ Cambios guardados correctamente.</div>
@@ -852,6 +1558,932 @@ function previewAvatar(input) {
   }
 }
 
+/* ── Accessibility Functions ── */
+function setTextSize(size, el) {
+  document.querySelectorAll('#pane-accesibilidad .cfg-theme-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  
+  document.body.classList.remove('text-normal', 'text-large', 'text-extra-large');
+  document.body.classList.add('text-' + size);
+  
+  localStorage.setItem('accesibilidad-texto', size);
+  showToast('📝 Tamaño de texto cambiado a ' + size + '.');
+}
+
+function toggleHighContrast(el) {
+  if (el.checked) {
+    document.body.classList.add('high-contrast');
+  } else {
+    document.body.classList.remove('high-contrast');
+  }
+  localStorage.setItem('accesibilidad-alto-contraste', el.checked);
+  showToast('🎨 Alto contraste ' + (el.checked ? 'activado' : 'desactivado') + '.');
+}
+
+function setContrast(mode, el) {
+  document.querySelectorAll('#pane-accesibilidad .cfg-theme-card').forEach(c => {
+    if (c.id.startsWith('contrast-')) c.classList.remove('selected');
+  });
+  el.classList.add('selected');
+  
+  document.body.classList.remove('contrast-normal', 'contrast-high', 'contrast-soft', 'contrast-dark');
+  document.body.classList.add('contrast-' + mode);
+  
+  localStorage.setItem('accesibilidad-contraste', mode);
+  showToast('🎨 Contraste cambiado a ' + mode + '.');
+}
+
+function setAnimations(mode, el) {
+  document.querySelectorAll('#pane-accesibilidad .cfg-theme-card').forEach(c => {
+    if (c.id.startsWith('anim-')) c.classList.remove('selected');
+  });
+  el.classList.add('selected');
+  
+  document.body.classList.remove('reduced-animations', 'disabled-animations');
+  if (mode === 'reduced') {
+    document.body.classList.add('reduced-animations');
+  } else if (mode === 'disabled') {
+    document.body.classList.add('disabled-animations');
+  }
+  
+  localStorage.setItem('accesibilidad-animaciones', mode);
+  showToast('🎬 Animaciones ' + (mode === 'enabled' ? 'activadas' : mode === 'reduced' ? 'reducidas' : 'desactivadas') + '.');
+}
+
+function toggleSimplifiedNav(el) {
+  localStorage.setItem('accesibilidad-nav-simplificada', el.checked);
+  showToast('🧭 Navegación simplificada ' + (el.checked ? 'activada' : 'desactivada') + '.');
+}
+
+function toggleScreenReader(el) {
+  if (el.checked) {
+    document.body.classList.add('screen-reader-optimized');
+  } else {
+    document.body.classList.remove('screen-reader-optimized');
+  }
+  localStorage.setItem('accesibilidad-lector-pantalla', el.checked);
+  showToast('🔊 Optimización para lector de pantalla ' + (el.checked ? 'activada' : 'desactivada') + '.');
+}
+
+function toggleTTS(el) {
+  localStorage.setItem('accesibilidad-tts', el.checked);
+  showToast('🎧 Texto a voz ' + (el.checked ? 'activado' : 'desactivado') + '.');
+}
+
+function toggleVisualAlerts(el) {
+  localStorage.setItem('accesibilidad-alertas-visuales', el.checked);
+  showToast('🔔 Alertas visuales ' + (el.checked ? 'activadas' : 'desactivadas') + '.');
+}
+
+function toggleKeyboardNav(el) {
+  localStorage.setItem('accesibilidad-nav-teclado', el.checked);
+  showToast('⌨️ Navegación por teclado ' + (el.checked ? 'mejorada' : 'restaurada') + '.');
+}
+
+function toggleEasyRead(el) {
+  if (el.checked) {
+    document.body.classList.add('easy-read-mode');
+  } else {
+    document.body.classList.remove('easy-read-mode');
+  }
+  localStorage.setItem('accesibilidad-lectura-facil', el.checked);
+  showToast('📖 Modo lectura fácil ' + (el.checked ? 'activado' : 'desactivado') + '.');
+}
+
+function toggleLargeButtons(el) {
+  if (el.checked) {
+    document.body.classList.add('large-buttons');
+  } else {
+    document.body.classList.remove('large-buttons');
+  }
+  localStorage.setItem('accesibilidad-botones-grandes', el.checked);
+  showToast('🔘 Botones grandes ' + (el.checked ? 'activados' : 'desactivados') + '.');
+}
+
+function toggleSubtitles(el) {
+  localStorage.setItem('accesibilidad-subtitulos', el.checked);
+  showToast('📺 Subtítulos ' + (el.checked ? 'activados' : 'desactivados') + '.');
+}
+
+function toggleHighlight(el) {
+  if (el.checked) {
+    document.body.classList.add('highlight-elements');
+  } else {
+    document.body.classList.remove('highlight-elements');
+  }
+  localStorage.setItem('accesibilidad-resaltar', el.checked);
+  showToast('✨ Resaltar elementos ' + (el.checked ? 'activado' : 'desactivado') + '.');
+}
+
+function toggleNoFlash(el) {
+  if (el.checked) {
+    document.body.classList.add('no-flash');
+  } else {
+    document.body.classList.remove('no-flash');
+  }
+  localStorage.setItem('accesibilidad-no-flash', el.checked);
+  showToast('⚡ Evitar parpadeo ' + (el.checked ? 'activado' : 'desactivado') + '.');
+}
+
+function toggleAudioTranscription(el) {
+  localStorage.setItem('accesibilidad-transcripcion-audio', el.checked);
+  showToast('📝 Transcripción de audio ' + (el.checked ? 'activada' : 'desactivada') + '.');
+}
+
+function toggleStepByStep(el) {
+  localStorage.setItem('accesibilidad-paso-a-paso', el.checked);
+  showToast('📋 Instrucciones paso a paso ' + (el.checked ? 'activadas' : 'desactivadas') + '.');
+}
+
+function toggleMinimalUI(el) {
+  if (el.checked) {
+    document.body.classList.add('minimal-ui');
+  } else {
+    document.body.classList.remove('minimal-ui');
+  }
+  localStorage.setItem('accesibilidad-ui-minimal', el.checked);
+  showToast('🧹 UI minimalista ' + (el.checked ? 'activada' : 'desactivada') + '.');
+}
+
+function toggleExtendedTime(el) {
+  localStorage.setItem('accesibilidad-tiempo-extendido', el.checked);
+  showToast('⏱️ Tiempo extendido ' + (el.checked ? 'activado' : 'desactivado') + '.');
+}
+
+function toggleNoPrecision(el) {
+  localStorage.setItem('accesibilidad-sin-precision', el.checked);
+  showToast('🎯 Sin precisión ' + (el.checked ? 'activado' : 'desactivado') + '.');
+}
+
+function updateAccessibilityProfile() {
+  const profile = {
+    visual: document.getElementById('acc-visual').checked,
+    auditivo: document.getElementById('acc-auditivo').checked,
+    motriz: document.getElementById('acc-motriz').checked,
+    cognitivo: document.getElementById('acc-cognitivo').checked,
+    comunicacion: document.getElementById('acc-comunicacion').checked,
+    otro: document.getElementById('acc-otro').checked
+  };
+  
+  localStorage.setItem('accesibilidad-perfil', JSON.stringify(profile));
+  
+  // Auto-apply settings based on profile
+  applyAccessibilityProfile(profile);
+  
+  showToast('♿ Perfil de accesibilidad actualizado.');
+}
+
+function applyAccessibilityProfile(profile) {
+  // Visual needs
+  if (profile.visual) {
+    if (!document.getElementById('high-contrast-toggle').checked) {
+      document.getElementById('high-contrast-toggle').checked = true;
+      document.body.classList.add('high-contrast');
+    }
+    if (!document.getElementById('large-buttons-toggle').checked) {
+      document.getElementById('large-buttons-toggle').checked = true;
+      document.body.classList.add('large-buttons');
+    }
+  }
+  
+  // Auditory needs
+  if (profile.auditivo) {
+    if (!document.getElementById('subtitles-toggle').checked) {
+      document.getElementById('subtitles-toggle').checked = true;
+    }
+    if (!document.getElementById('visual-alerts-toggle').checked) {
+      document.getElementById('visual-alerts-toggle').checked = true;
+    }
+  }
+  
+  // Motor needs
+  if (profile.motriz) {
+    if (!document.getElementById('keyboard-nav-toggle').checked) {
+      document.getElementById('keyboard-nav-toggle').checked = true;
+    }
+    if (!document.getElementById('extended-time-toggle').checked) {
+      document.getElementById('extended-time-toggle').checked = true;
+    }
+  }
+  
+  // Cognitive needs
+  if (profile.cognitivo) {
+    if (!document.getElementById('easy-read-toggle').checked) {
+      document.getElementById('easy-read-toggle').checked = true;
+      document.body.classList.add('easy-read-mode');
+    }
+    if (!document.getElementById('minimal-ui-toggle').checked) {
+      document.getElementById('minimal-ui-toggle').checked = true;
+      document.body.classList.add('minimal-ui');
+    }
+  }
+}
+
+/* ── Personalización de Accesibilidad ── */
+function saveAccessibilityProfile() {
+  const config = {
+    visual: {
+      textSize: document.getElementById('text-size-select').value,
+      fontFamily: document.getElementById('font-family-select').value,
+      highContrast: document.getElementById('high-contrast-toggle').checked,
+      invertColors: document.getElementById('invert-colors-toggle').checked,
+      colorFilter: document.getElementById('color-filter-select').value,
+      letterSpacing: document.getElementById('letter-spacing-toggle').checked,
+      lineSpacing: document.getElementById('line-spacing-toggle').checked,
+      largeCursor: document.getElementById('large-cursor-toggle').checked,
+      highlightButtons: document.getElementById('highlight-buttons-toggle').checked,
+      describeImages: document.getElementById('describe-images-toggle').checked,
+      autoAlt: document.getElementById('auto-alt-toggle').checked,
+      screenReader: document.getElementById('screen-reader-toggle').checked
+    },
+    auditiva: {
+      autoSubtitles: document.getElementById('auto-subtitles-toggle').checked,
+      audioTranscription: document.getElementById('audio-transcription-toggle').checked,
+      visualAlerts: document.getElementById('visual-alerts-toggle').checked,
+      vibration: document.getElementById('vibration-toggle').checked,
+      soundIndicators: document.getElementById('sound-indicators-toggle').checked,
+      independentVolume: document.getElementById('independent-volume-toggle').checked,
+      speakingIndicator: document.getElementById('speaking-indicator-toggle').checked,
+      audioAlt: document.getElementById('audio-alt-toggle').checked
+    },
+    fisica: {
+      largeButtons: document.getElementById('large-buttons-toggle').checked,
+      reducedPrecision: document.getElementById('reduced-precision-toggle').checked,
+      keyboardNav: document.getElementById('keyboard-nav-toggle').checked,
+      customShortcuts: document.getElementById('custom-shortcuts-toggle').checked,
+      simplifiedMenus: document.getElementById('simplified-menus-toggle').checked,
+      extendedTime: document.getElementById('extended-time-toggle').checked,
+      noDoubleClick: document.getElementById('no-double-click-toggle').checked,
+      keyboardOnly: document.getElementById('keyboard-only-toggle').checked,
+      assistiveDevices: document.getElementById('assistive-devices-toggle').checked
+    },
+    cognitiva: {
+      easyRead: document.getElementById('easy-read-toggle').checked,
+      simplifiedText: document.getElementById('simplified-text-toggle').checked,
+      stepByStep: document.getElementById('step-by-step-toggle').checked,
+      minimalUI: document.getElementById('minimal-ui-toggle').checked,
+      simpleMenus: document.getElementById('simple-menus-toggle').checked,
+      confirmActions: document.getElementById('confirm-actions-toggle').checked,
+      reminders: document.getElementById('reminders-toggle').checked,
+      repeatInstructions: document.getElementById('repeat-instructions-toggle').checked,
+      focusMode: document.getElementById('focus-mode-toggle').checked
+    },
+    comunicacion: {
+      voiceDictation: document.getElementById('voice-dictation-toggle').checked,
+      tts: document.getElementById('tts-toggle').checked,
+      quickPhrases: document.getElementById('quick-phrases-toggle').checked,
+      presetResponses: document.getElementById('preset-responses-toggle').checked,
+      pictograms: document.getElementById('pictograms-toggle').checked,
+      voiceToText: document.getElementById('voice-to-text-toggle').checked,
+      adjustableKeyboard: document.getElementById('adjustable-keyboard-toggle').checked
+    },
+    aprendizaje: {
+      studyMode: document.getElementById('study-mode-toggle').checked,
+      guidedReading: document.getElementById('guided-reading-toggle').checked,
+      textSummary: document.getElementById('text-summary-toggle').checked,
+      simpleExplanations: document.getElementById('simple-explanations-toggle').checked,
+      dictionary: document.getElementById('dictionary-toggle').checked,
+      translator: document.getElementById('translator-toggle').checked,
+      visualExamples: document.getElementById('visual-examples-toggle').checked,
+      contentRepeat: document.getElementById('content-repeat-toggle').checked,
+      readingSpeed: document.getElementById('reading-speed-toggle').checked
+    },
+    neurodiversidad: {
+      reduceVisualStimuli: document.getElementById('reduce-visual-stimuli-toggle').checked,
+      reduceAnimations: document.getElementById('reduce-animations-toggle').checked,
+      neuroFocusMode: document.getElementById('neuro-focus-mode-toggle').checked,
+      predictableUI: document.getElementById('predictable-ui-toggle').checked,
+      silentNotifications: document.getElementById('silent-notifications-toggle').checked,
+      soundControl: document.getElementById('sound-control-toggle').checked,
+      routines: document.getElementById('routines-toggle').checked,
+      colorCustomization: document.getElementById('color-customization-toggle').checked
+    }
+  };
+  
+  localStorage.setItem('accesibilidad-config-completa', JSON.stringify(config));
+  showToast('💾 Configuración guardada correctamente.');
+}
+
+function restoreAccessibilityProfile() {
+  const configStr = localStorage.getItem('accesibilidad-config-completa');
+  if (!configStr) {
+    showToast('⚠️ No hay configuración guardada.');
+    return;
+  }
+  
+  const config = JSON.parse(configStr);
+  
+  // Restore visual settings
+  document.getElementById('text-size-select').value = config.visual.textSize;
+  document.getElementById('font-family-select').value = config.visual.fontFamily;
+  document.getElementById('high-contrast-toggle').checked = config.visual.highContrast;
+  document.getElementById('invert-colors-toggle').checked = config.visual.invertColors;
+  document.getElementById('color-filter-select').value = config.visual.colorFilter;
+  document.getElementById('letter-spacing-toggle').checked = config.visual.letterSpacing;
+  document.getElementById('line-spacing-toggle').checked = config.visual.lineSpacing;
+  document.getElementById('large-cursor-toggle').checked = config.visual.largeCursor;
+  document.getElementById('highlight-buttons-toggle').checked = config.visual.highlightButtons;
+  document.getElementById('describe-images-toggle').checked = config.visual.describeImages;
+  document.getElementById('auto-alt-toggle').checked = config.visual.autoAlt;
+  document.getElementById('screen-reader-toggle').checked = config.visual.screenReader;
+  
+  // Apply settings
+  setTextSize(config.visual.textSize);
+  setFontFamily(config.visual.fontFamily);
+  if (config.visual.highContrast) toggleHighContrast({checked: true});
+  if (config.visual.invertColors) toggleInvertColors({checked: true});
+  setColorFilter(config.visual.colorFilter);
+  if (config.visual.letterSpacing) toggleLetterSpacing({checked: true});
+  if (config.visual.lineSpacing) toggleLineSpacing({checked: true});
+  if (config.visual.largeCursor) toggleLargeCursor({checked: true});
+  if (config.visual.highlightButtons) toggleHighlightButtons({checked: true});
+  if (config.visual.screenReader) toggleScreenReader({checked: true});
+  
+  showToast('🔄 Configuración restaurada correctamente.');
+}
+
+function createNewProfile() {
+  const profileName = prompt('Nombre del nuevo perfil de accesibilidad:');
+  if (!profileName) return;
+  
+  const config = {
+    visual: {
+      textSize: document.getElementById('text-size-select').value,
+      fontFamily: document.getElementById('font-family-select').value,
+      highContrast: document.getElementById('high-contrast-toggle').checked,
+      invertColors: document.getElementById('invert-colors-toggle').checked,
+      colorFilter: document.getElementById('color-filter-select').value,
+      letterSpacing: document.getElementById('letter-spacing-toggle').checked,
+      lineSpacing: document.getElementById('line-spacing-toggle').checked,
+      largeCursor: document.getElementById('large-cursor-toggle').checked,
+      highlightButtons: document.getElementById('highlight-buttons-toggle').checked,
+      describeImages: document.getElementById('describe-images-toggle').checked,
+      autoAlt: document.getElementById('auto-alt-toggle').checked,
+      screenReader: document.getElementById('screen-reader-toggle').checked
+    },
+    // ... (rest of config)
+  };
+  
+  const profiles = JSON.parse(localStorage.getItem('accesibilidad-perfiles') || '{}');
+  profiles[profileName] = config;
+  localStorage.setItem('accesibilidad-perfiles', JSON.stringify(profiles));
+  
+  showToast('➕ Perfil "' + profileName + '" creado correctamente.');
+}
+
+function previewAccessibility() {
+  showToast('👁️ Vista previa activada. Los cambios se aplican temporalmente.');
+  // Preview mode - apply settings temporarily
+  document.body.classList.add('preview-mode');
+  setTimeout(() => {
+    document.body.classList.remove('preview-mode');
+    showToast('👁️ Vista previa finalizada.');
+  }, 10000);
+}
+
+function applyRecommendedConfig() {
+  // Apply recommended configuration based on common accessibility needs
+  document.getElementById('text-size-select').value = 'large';
+  document.getElementById('high-contrast-toggle').checked = true;
+  document.getElementById('large-buttons-toggle').checked = true;
+  document.getElementById('keyboard-nav-toggle').checked = true;
+  document.getElementById('extended-time-toggle').checked = true;
+  
+  // Apply settings
+  setTextSize('large');
+  toggleHighContrast({checked: true});
+  toggleLargeButtons({checked: true});
+  toggleKeyboardNav({checked: true});
+  toggleExtendedTime({checked: true});
+  
+  showToast('✨ Configuración recomendada aplicada.');
+}
+
+/* ── Visual Functions ── */
+function setFontFamily(family) {
+  document.body.classList.remove('font-default', 'font-sans-serif', 'font-serif', 'font-monospace');
+  document.body.classList.add('font-' + family);
+  localStorage.setItem('accesibilidad-fuente', family);
+  showToast('🔤 Fuente cambiada a ' + family);
+}
+
+function toggleInvertColors(el) {
+  if (el.checked) {
+    document.body.classList.add('invert-colors');
+  } else {
+    document.body.classList.remove('invert-colors');
+  }
+  localStorage.setItem('accesibilidad-invertir-colores', el.checked);
+  showToast('🔄 Colores invertidos ' + (el.checked ? 'activados' : 'desactivados'));
+}
+
+function setColorFilter(filter) {
+  document.body.classList.remove('filter-none', 'filter-grayscale', 'filter-sepia', 'filter-protanopia', 'filter-deuteranopia', 'filter-tritanopia');
+  document.body.classList.add('filter-' + filter);
+  localStorage.setItem('accesibilidad-filtro-color', filter);
+  showToast('🌈 Filtro de color: ' + filter);
+}
+
+function toggleLetterSpacing(el) {
+  if (el.checked) {
+    document.body.classList.add('letter-spacing-increased');
+  } else {
+    document.body.classList.remove('letter-spacing-increased');
+  }
+  localStorage.setItem('accesibilidad-espaciado-letras', el.checked);
+  showToast('↔️ Espaciado entre letras ' + (el.checked ? 'aumentado' : 'normal'));
+}
+
+function toggleLineSpacing(el) {
+  if (el.checked) {
+    document.body.classList.add('line-spacing-increased');
+  } else {
+    document.body.classList.remove('line-spacing-increased');
+  }
+  localStorage.setItem('accesibilidad-espaciado-lineas', el.checked);
+  showToast('↕️ Espaciado entre líneas ' + (el.checked ? 'aumentado' : 'normal'));
+}
+
+function toggleLargeCursor(el) {
+  if (el.checked) {
+    document.body.classList.add('large-cursor');
+  } else {
+    document.body.classList.remove('large-cursor');
+  }
+  localStorage.setItem('accesibilidad-cursor-grande', el.checked);
+  showToast('👆 Cursor grande ' + (el.checked ? 'activado' : 'desactivado'));
+}
+
+function toggleHighlightButtons(el) {
+  if (el.checked) {
+    document.body.classList.add('highlight-buttons');
+  } else {
+    document.body.classList.remove('highlight-buttons');
+  }
+  localStorage.setItem('accesibilidad-resaltar-botones', el.checked);
+  showToast('✨ Resaltar botones ' + (el.checked ? 'activado' : 'desactivado'));
+}
+
+function toggleDescribeImages(el) {
+  localStorage.setItem('accesibilidad-describir-imagenes', el.checked);
+  showToast('🖼️ Describir imágenes ' + (el.checked ? 'activado' : 'desactivado'));
+}
+
+function toggleAutoAlt(el) {
+  localStorage.setItem('accesibilidad-auto-alt', el.checked);
+  showToast('📝 Texto alternativo automático ' + (el.checked ? 'activado' : 'desactivado'));
+}
+
+/* ── Auditiva Functions ── */
+function toggleAutoSubtitles(el) {
+  localStorage.setItem('accesibilidad-subtitulos-auto', el.checked);
+  showToast('📺 Subtítulos automáticos ' + (el.checked ? 'activados' : 'desactivados'));
+}
+
+function toggleVibration(el) {
+  localStorage.setItem('accesibilidad-vibracion', el.checked);
+  showToast('📳 Vibración ' + (el.checked ? 'activada' : 'desactivada'));
+}
+
+function toggleSoundIndicators(el) {
+  localStorage.setItem('accesibilidad-indicadores-sonido', el.checked);
+  showToast('🔊 Indicadores visuales de sonidos ' + (el.checked ? 'activados' : 'desactivados'));
+}
+
+function toggleIndependentVolume(el) {
+  localStorage.setItem('accesibilidad-volumen-independiente', el.checked);
+  showToast('🎚️ Control independiente de volumen ' + (el.checked ? 'activado' : 'desactivado'));
+}
+
+function toggleSpeakingIndicator(el) {
+  localStorage.setItem('accesibilidad-indicador-habla', el.checked);
+  showToast('💬 Aviso visual al hablar ' + (el.checked ? 'activado' : 'desactivado'));
+}
+
+function toggleAudioAlt(el) {
+  localStorage.setItem('accesibilidad-alt-audio', el.checked);
+  showToast('📝 Texto alternativo para audio ' + (el.checked ? 'activado' : 'desactivado'));
+}
+
+/* ── Física/Motora Functions ── */
+function toggleReducedPrecision(el) {
+  localStorage.setItem('accesibilidad-precision-reducida', el.checked);
+  showToast('🎯 Precisión reducida ' + (el.checked ? 'activada' : 'desactivada'));
+}
+
+function toggleCustomShortcuts(el) {
+  localStorage.setItem('accesibilidad-atajos-personalizados', el.checked);
+  showToast('⌨️ Atajos personalizados ' + (el.checked ? 'activados' : 'desactivados'));
+}
+
+function toggleSimplifiedMenus(el) {
+  localStorage.setItem('accesibilidad-menus-simplificados', el.checked);
+  showToast('🧭 Menús simplificados ' + (el.checked ? 'activados' : 'desactivados'));
+}
+
+function toggleNoDoubleClick(el) {
+  localStorage.setItem('accesibilidad-sin-doble-clic', el.checked);
+  showToast('👆 Sin doble clic ' + (el.checked ? 'activado' : 'desactivado'));
+}
+
+function toggleKeyboardOnly(el) {
+  localStorage.setItem('accesibilidad-solo-teclado', el.checked);
+  showToast('⌨️ Solo teclado ' + (el.checked ? 'activado' : 'desactivado'));
+}
+
+function toggleAssistiveDevices(el) {
+  localStorage.setItem('accesibilidad-dispositivos-asistencia', el.checked);
+  showToast('🦯 Dispositivos de asistencia ' + (el.checked ? 'activados' : 'desactivados'));
+}
+
+/* ── Cognitiva/Intelectual Functions ── */
+function toggleSimplifiedText(el) {
+  localStorage.setItem('accesibilidad-texto-simplificado', el.checked);
+  showToast('📝 Texto simplificado ' + (el.checked ? 'activado' : 'desactivado'));
+}
+
+function toggleSimpleMenus(el) {
+  localStorage.setItem('accesibilidad-menus-sencillos', el.checked);
+  showToast('📋 Menús sencillos ' + (el.checked ? 'activados' : 'desactivados'));
+}
+
+function toggleConfirmActions(el) {
+  localStorage.setItem('accesibilidad-confirmar-acciones', el.checked);
+  showToast('✅ Confirmación de acciones ' + (el.checked ? 'activada' : 'desactivada'));
+}
+
+function toggleReminders(el) {
+  localStorage.setItem('accesibilidad-recordatorios', el.checked);
+  showToast('🔔 Recordatorios ' + (el.checked ? 'activados' : 'desactivados'));
+}
+
+function toggleRepeatInstructions(el) {
+  localStorage.setItem('accesibilidad-repetir-instrucciones', el.checked);
+  showToast('🔄 Repetición de instrucciones ' + (el.checked ? 'activada' : 'desactivada'));
+}
+
+function toggleFocusMode(el) {
+  if (el.checked) {
+    document.body.classList.add('focus-mode');
+  } else {
+    document.body.classList.remove('focus-mode');
+  }
+  localStorage.setItem('accesibilidad-modo-concentracion', el.checked);
+  showToast('🎯 Modo concentración ' + (el.checked ? 'activado' : 'desactivado'));
+}
+
+/* ── Comunicación Functions ── */
+function toggleVoiceDictation(el) {
+  localStorage.setItem('accesibilidad-dictado-voz', el.checked);
+  showToast('🎤 Dictado por voz ' + (el.checked ? 'activado' : 'desactivado'));
+}
+
+function toggleQuickPhrases(el) {
+  localStorage.setItem('accesibilidad-frases-rapidas', el.checked);
+  showToast('💬 Frases rápidas ' + (el.checked ? 'activadas' : 'desactivadas'));
+}
+
+function togglePresetResponses(el) {
+  localStorage.setItem('accesibilidad-respuestas-prediseñadas', el.checked);
+  showToast('📝 Respuestas prediseñadas ' + (el.checked ? 'activadas' : 'desactivadas'));
+}
+
+function togglePictograms(el) {
+  localStorage.setItem('accesibilidad-pictogramas', el.checked);
+  showToast('🖼️ Pictogramas ' + (el.checked ? 'activados' : 'desactivados'));
+}
+
+function toggleVoiceToText(el) {
+  localStorage.setItem('accesibilidad-voz-a-texto', el.checked);
+  showToast('🔄 Voz a texto ' + (el.checked ? 'activado' : 'desactivado'));
+}
+
+function toggleAdjustableKeyboard(el) {
+  localStorage.setItem('accesibilidad-teclado-ajustable', el.checked);
+  showToast('⌨️ Teclado ajustable ' + (el.checked ? 'activado' : 'desactivado'));
+}
+
+/* ── Aprendizaje Functions ── */
+function toggleStudyMode(el) {
+  if (el.checked) {
+    document.body.classList.add('study-mode');
+  } else {
+    document.body.classList.remove('study-mode');
+  }
+  localStorage.setItem('accesibilidad-modo-estudio', el.checked);
+  showToast('📚 Modo estudio ' + (el.checked ? 'activado' : 'desactivado'));
+}
+
+function toggleGuidedReading(el) {
+  localStorage.setItem('accesibilidad-lectura-guiada', el.checked);
+  showToast('📖 Lectura guiada ' + (el.checked ? 'activada' : 'desactivada'));
+}
+
+function toggleTextSummary(el) {
+  localStorage.setItem('accesibilidad-resumen-texto', el.checked);
+  showToast('📝 Resumen de textos ' + (el.checked ? 'activado' : 'desactivado'));
+}
+
+function toggleSimpleExplanations(el) {
+  localStorage.setItem('accesibilidad-explicaciones-sencillas', el.checked);
+  showToast('💡 Explicaciones sencillas ' + (el.checked ? 'activadas' : 'desactivadas'));
+}
+
+function toggleDictionary(el) {
+  localStorage.setItem('accesibilidad-diccionario', el.checked);
+  showToast('📖 Diccionario ' + (el.checked ? 'activado' : 'desactivado'));
+}
+
+function toggleTranslator(el) {
+  localStorage.setItem('accesibilidad-traductor', el.checked);
+  showToast('🌐 Traductor ' + (el.checked ? 'activado' : 'desactivado'));
+}
+
+function toggleVisualExamples(el) {
+  localStorage.setItem('accesibilidad-ejemplos-visuales', el.checked);
+  showToast('🖼️ Ejemplos visuales ' + (el.checked ? 'activados' : 'desactivados'));
+}
+
+function toggleContentRepeat(el) {
+  localStorage.setItem('accesibilidad-repeticion-contenido', el.checked);
+  showToast('🔄 Repetición de contenido ' + (el.checked ? 'activada' : 'desactivada'));
+}
+
+function toggleReadingSpeed(el) {
+  localStorage.setItem('accesibilidad-velocidad-lectura', el.checked);
+  showToast('⏱️ Velocidad de lectura ' + (el.checked ? 'controlada' : 'normal'));
+}
+
+/* ── Neurodiversidad Functions ── */
+function toggleReduceVisualStimuli(el) {
+  if (el.checked) {
+    document.body.classList.add('reduce-visual-stimuli');
+  } else {
+    document.body.classList.remove('reduce-visual-stimuli');
+  }
+  localStorage.setItem('accesibilidad-reducir-estimulos', el.checked);
+  showToast('👁️ Reducir estímulos visuales ' + (el.checked ? 'activado' : 'desactivado'));
+}
+
+function toggleReduceAnimations(el) {
+  if (el.checked) {
+    document.body.classList.add('reduced-animations');
+  } else {
+    document.body.classList.remove('reduced-animations');
+  }
+  localStorage.setItem('accesibilidad-reducir-animaciones', el.checked);
+  showToast('🎬 Reducir animaciones ' + (el.checked ? 'activado' : 'desactivado'));
+}
+
+function toggleNeuroFocusMode(el) {
+  if (el.checked) {
+    document.body.classList.add('neuro-focus-mode');
+  } else {
+    document.body.classList.remove('neuro-focus-mode');
+  }
+  localStorage.setItem('accesibilidad-modo-concentracion-neuro', el.checked);
+  showToast('🎯 Modo concentración neuro ' + (el.checked ? 'activado' : 'desactivado'));
+}
+
+function togglePredictableUI(el) {
+  localStorage.setItem('accesibilidad-interfaz-predecible', el.checked);
+  showToast('🔄 Interfaz predecible ' + (el.checked ? 'activada' : 'desactivada'));
+}
+
+function toggleSilentNotifications(el) {
+  localStorage.setItem('accesibilidad-notificaciones-silenciosas', el.checked);
+  showToast('🔇 Notificaciones silenciosas ' + (el.checked ? 'activadas' : 'desactivadas'));
+}
+
+function toggleSoundControl(el) {
+  localStorage.setItem('accesibilidad-control-sonidos', el.checked);
+  showToast('🔊 Control de sonidos ' + (el.checked ? 'activado' : 'desactivado'));
+}
+
+function toggleRoutines(el) {
+  localStorage.setItem('accesibilidad-rutinas', el.checked);
+  showToast('📅 Rutinas y recordatorios ' + (el.checked ? 'activadas' : 'desactivadas'));
+}
+
+function toggleColorCustomization(el) {
+  localStorage.setItem('accesibilidad-personalizacion-colores', el.checked);
+  showToast('🎨 Personalización de colores ' + (el.checked ? 'activada' : 'desactivada'));
+}
+
+/* ── Entretenimiento Functions ── */
+function setMusicTheme(theme, el) {
+  document.querySelectorAll('#pane-entretenimiento .cfg-espacio-card').forEach(c => {
+    if (c.id.startsWith('music-')) c.classList.remove('selected');
+  });
+  el.classList.add('selected');
+  
+  document.body.classList.remove('music-default', 'music-lofi', 'music-jazz', 'music-electronic', 'music-classical', 'music-ambient');
+  document.body.classList.add('music-' + theme);
+  
+  localStorage.setItem('entretenimiento-musica-tema', theme);
+  showToast('🎵 Tema musical: ' + theme);
+}
+
+function toggleMusicAutoplay(el) {
+  localStorage.setItem('entretenimiento-musica-autoplay', el.checked);
+  showToast('🔊 Reproducción automática ' + (el.checked ? 'activada' : 'desactivada'));
+}
+
+function toggleMusicRepeat(el) {
+  localStorage.setItem('entretenimiento-musica-repeat', el.checked);
+  showToast('🔁 Repetir playlist ' + (el.checked ? 'activado' : 'desactivado'));
+}
+
+function toggleMusicShuffle(el) {
+  localStorage.setItem('entretenimiento-musica-shuffle', el.checked);
+  showToast('🔀 Aleatorio ' + (el.checked ? 'activado' : 'desactivado'));
+}
+
+function setGameTheme(theme, el) {
+  document.querySelectorAll('#pane-entretenimiento .cfg-espacio-card').forEach(c => {
+    if (c.id.startsWith('game-')) c.classList.remove('selected');
+  });
+  el.classList.add('selected');
+  
+  document.body.classList.remove('game-arcade', 'game-puzzle', 'game-memory', 'game-trivia', 'game-word', 'game-math');
+  document.body.classList.add('game-' + theme);
+  
+  localStorage.setItem('entretenimiento-juegos-tema', theme);
+  showToast('🎮 Tema de juegos: ' + theme);
+}
+
+function toggleGameSounds(el) {
+  localStorage.setItem('entretenimiento-juegos-sonidos', el.checked);
+  showToast('🔊 Sonidos de juego ' + (el.checked ? 'activados' : 'desactivados'));
+}
+
+function toggleGameMusic(el) {
+  localStorage.setItem('entretenimiento-juegos-musica', el.checked);
+  showToast('🎵 Música de juego ' + (el.checked ? 'activada' : 'desactivada'));
+}
+
+function toggleGameScores(el) {
+  localStorage.setItem('entretenimiento-juegos-puntuaciones', el.checked);
+  showToast('🏆 Puntuaciones ' + (el.checked ? 'visibles' : 'ocultas'));
+}
+
+function setBlogTheme(theme, el) {
+  document.querySelectorAll('#pane-entretenimiento .cfg-espacio-card').forEach(c => {
+    if (c.id.startsWith('blog-')) c.classList.remove('selected');
+  });
+  el.classList.add('selected');
+  
+  document.body.classList.remove('blog-modern', 'blog-classic', 'blog-minimal', 'blog-magazine', 'blog-dark', 'blog-readable');
+  document.body.classList.add('blog-' + theme);
+  
+  localStorage.setItem('entretenimiento-blog-tema', theme);
+  showToast('📝 Tema de blog: ' + theme);
+}
+
+function toggleBlogComments(el) {
+  localStorage.setItem('entretenimiento-blog-comentarios', el.checked);
+  showToast('💬 Comentarios ' + (el.checked ? 'activados' : 'desactivados'));
+}
+
+function toggleBlogNotifications(el) {
+  localStorage.setItem('entretenimiento-blog-notificaciones', el.checked);
+  showToast('🔔 Notificaciones de posts ' + (el.checked ? 'activadas' : 'desactivadas'));
+}
+
+function toggleBlogCategories(el) {
+  localStorage.setItem('entretenimiento-blog-categorias', el.checked);
+  showToast('📂 Categorías ' + (el.checked ? 'visibles' : 'ocultas'));
+}
+
+/* ── Load Entertainment Settings ── */
+function loadEntertainmentSettings() {
+  const musicTheme = localStorage.getItem('entretenimiento-musica-tema') || 'default';
+  const gameTheme = localStorage.getItem('entretenimiento-juegos-tema') || 'arcade';
+  const blogTheme = localStorage.getItem('entretenimiento-blog-tema') || 'modern';
+  
+  const musicAutoplay = localStorage.getItem('entretenimiento-musica-autoplay') === 'true';
+  const musicRepeat = localStorage.getItem('entretenimiento-musica-repeat') === 'true';
+  const musicShuffle = localStorage.getItem('entretenimiento-musica-shuffle') === 'true';
+  
+  const gameSounds = localStorage.getItem('entretenimiento-juegos-sonidos') === 'true';
+  const gameMusic = localStorage.getItem('entretenimiento-juegos-musica') === 'true';
+  const gameScores = localStorage.getItem('entretenimiento-juegos-puntuaciones') === 'true';
+  
+  const blogComments = localStorage.getItem('entretenimiento-blog-comentarios') === 'true';
+  const blogNotifications = localStorage.getItem('entretenimiento-blog-notificaciones') === 'true';
+  const blogCategories = localStorage.getItem('entretenimiento-blog-categorias') === 'true';
+  
+  // Apply music theme
+  document.body.classList.add('music-' + musicTheme);
+  const musicCard = document.getElementById('music-' + musicTheme);
+  if (musicCard) musicCard.classList.add('selected');
+  
+  // Apply game theme
+  document.body.classList.add('game-' + gameTheme);
+  const gameCard = document.getElementById('game-' + gameTheme);
+  if (gameCard) gameCard.classList.add('selected');
+  
+  // Apply blog theme
+  document.body.classList.add('blog-' + blogTheme);
+  const blogCard = document.getElementById('blog-' + blogTheme);
+  if (blogCard) blogCard.classList.add('selected');
+  
+  // Apply toggles
+  if (musicAutoplay) document.getElementById('music-autoplay-toggle').checked = true;
+  if (musicRepeat) document.getElementById('music-repeat-toggle').checked = true;
+  if (musicShuffle) document.getElementById('music-shuffle-toggle').checked = true;
+  
+  if (gameSounds) document.getElementById('game-sounds-toggle').checked = true;
+  if (gameMusic) document.getElementById('game-music-toggle').checked = true;
+  if (gameScores) document.getElementById('game-scores-toggle').checked = true;
+  
+  if (blogComments) document.getElementById('blog-comments-toggle').checked = true;
+  if (blogNotifications) document.getElementById('blog-notifications-toggle').checked = true;
+  if (blogCategories) document.getElementById('blog-categories-toggle').checked = true;
+}
+
+/* ── Load Accessibility Settings ── */
+function loadAccessibilitySettings() {
+  const textSize = localStorage.getItem('accesibilidad-texto') || 'normal';
+  const contrast = localStorage.getItem('accesibilidad-contraste') || 'normal';
+  const animations = localStorage.getItem('accesibilidad-animaciones') || 'enabled';
+  const screenReader = localStorage.getItem('accesibilidad-lector-pantalla') === 'true';
+  const easyRead = localStorage.getItem('accesibilidad-lectura-facil') === 'true';
+  const largeButtons = localStorage.getItem('accesibilidad-botones-grandes') === 'true';
+  const highlight = localStorage.getItem('accesibilidad-resaltar') === 'true';
+  const noFlash = localStorage.getItem('accesibilidad-no-flash') === 'true';
+  const minimalUI = localStorage.getItem('accesibilidad-ui-minimal') === 'true';
+  
+  // Load accessibility profile
+  const profileStr = localStorage.getItem('accesibilidad-perfil');
+  if (profileStr) {
+    const profile = JSON.parse(profileStr);
+    document.getElementById('acc-visual').checked = profile.visual || false;
+    document.getElementById('acc-auditivo').checked = profile.auditivo || false;
+    document.getElementById('acc-motriz').checked = profile.motriz || false;
+    document.getElementById('acc-cognitivo').checked = profile.cognitivo || false;
+    document.getElementById('acc-comunicacion').checked = profile.comunicacion || false;
+    document.getElementById('acc-otro').checked = profile.otro || false;
+  }
+  
+  // Apply text size
+  document.body.classList.add('text-' + textSize);
+  const textCard = document.getElementById('text-' + textSize);
+  if (textCard) textCard.classList.add('selected');
+  
+  // Apply contrast
+  document.body.classList.add('contrast-' + contrast);
+  const contrastCard = document.getElementById('contrast-' + contrast);
+  if (contrastCard) contrastCard.classList.add('selected');
+  
+  // Apply animations
+  if (animations === 'reduced') {
+    document.body.classList.add('reduced-animations');
+    document.getElementById('anim-reduced').classList.add('selected');
+    document.getElementById('anim-enabled').classList.remove('selected');
+  } else if (animations === 'disabled') {
+    document.body.classList.add('disabled-animations');
+    document.getElementById('anim-disabled').classList.add('selected');
+    document.getElementById('anim-enabled').classList.remove('selected');
+  }
+  
+  // Apply screen reader
+  if (screenReader) {
+    document.body.classList.add('screen-reader-optimized');
+    document.getElementById('screen-reader-toggle').checked = true;
+  }
+  
+  // Apply easy read
+  if (easyRead) {
+    document.body.classList.add('easy-read-mode');
+    document.getElementById('easy-read-toggle').checked = true;
+  }
+  
+  // Apply large buttons
+  if (largeButtons) {
+    document.body.classList.add('large-buttons');
+    document.getElementById('large-buttons-toggle').checked = true;
+  }
+  
+  // Apply highlight
+  if (highlight) {
+    document.body.classList.add('highlight-elements');
+    document.getElementById('highlight-toggle').checked = true;
+  }
+  
+  // Apply no flash
+  if (noFlash) {
+    document.body.classList.add('no-flash');
+    document.getElementById('no-flash-toggle').checked = true;
+  }
+  
+  // Apply minimal UI
+  if (minimalUI) {
+    document.body.classList.add('minimal-ui');
+    document.getElementById('minimal-ui-toggle').checked = true;
+  }
+}
+
 /* ── Init ── */
 document.addEventListener('DOMContentLoaded', () => {
   /* Sync duck image to current theme */
@@ -860,6 +2492,22 @@ document.addEventListener('DOMContentLoaded', () => {
     duck.src = document.body.classList.contains('light')
       ? "{% static 'amigis/amigis-light.svg' %}"
       : "{% static 'amigis/amigis-dark.svg' %}";
+  }
+  
+  /* Load accessibility settings */
+  loadAccessibilitySettings();
+  
+  /* Load entertainment settings */
+  loadEntertainmentSettings();
+  
+  /* Check URL parameter for tab */
+  const urlParams = new URLSearchParams(window.location.search);
+  const tab = urlParams.get('tab');
+  if (tab === 'accesibilidad') {
+    const accesibilidadBtn = document.querySelector('.cfg-nav-btn[onclick*="accesibilidad"]');
+    if (accesibilidadBtn) {
+      showPane('accesibilidad', accesibilidadBtn);
+    }
   }
 });
 </script>

@@ -14,6 +14,11 @@
     </div>
 
     <div class="nav-right">
+        <!-- Accesibilidad -->
+        <a href="{% url 'configuracion_view' %}?tab=accesibilidad" class="accessibility-btn" aria-label="Configurar accesibilidad" title="Configurar accesibilidad">
+            <span>♿</span>
+        </a>
+
         <!-- Sugerencias -->
         <a href="{% url 'lista_sugerencias' %}" class="notification-btn" aria-label="Ver sugerencias" title="Sugerencias">
             <i class="ti ti-message"></i>

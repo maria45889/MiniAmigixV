@@ -6,6 +6,15 @@ from .models import ContenidoEntretenimiento, CategoriaEntretenimiento, Favorito
 @login_required
 def entretenimiento_view(request):
     """Vista principal del módulo de entretenimiento"""
+    from django.contrib.auth.models import AnonymousUser
+    
+    # Si no hay usuario autenticado, usar un usuario anónimo temporalmente
+    if isinstance(request.user, AnonymousUser):
+        # Buscar un usuario existente para usar como temporal
+        from django.contrib.auth.models import User
+        temp_user = User.objects.first()
+        if temp_user:
+            request.user = temp_user
     
     # Obtener todas las categorías
     categorias = CategoriaEntretenimiento.objects.all()
