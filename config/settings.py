@@ -218,8 +218,11 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 # Database configuration (Auto-detect PostgreSQL from DATABASE_URL or fallback to SQLite)
 HAS_DJ_DATABASE_URL = find_spec('dj_database_url') is not None
+database_url = os.getenv('DATABASE_URL', '')
+use_sqlite = os.getenv('USE_SQLITE', 'False').lower() == 'true'
 
-if HAS_DJ_DATABASE_URL and os.getenv('DATABASE_URL'):
+# Si la base de datos es la antigua que expiró (dpg-d7j8ssugvqtc73duml70) o si se pide SQLite explícito, usar SQLite
+if not use_sqlite and HAS_DJ_DATABASE_URL and database_url and 'dpg-d7j8ssugvqtc73duml70' not in database_url:
     import dj_database_url
     DATABASES = {
         'default': dj_database_url.config(
@@ -228,7 +231,7 @@ if HAS_DJ_DATABASE_URL and os.getenv('DATABASE_URL'):
         )
     }
 else:
-    # SQLite (Base de datos principal - Desarrollo)
+    # SQLite (Base de datos principal)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
