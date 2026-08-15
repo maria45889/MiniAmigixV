@@ -278,13 +278,26 @@ SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = True
 SOCIALACCOUNT_ADAPTER = 'apps.app.adapters.SocialAccountAdapter'
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
+GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID', '328700061369-hp894vhju0klmp069dmp54fitos0uie3.apps.googleusercontent.com')
+GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', '')
+
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
-        'OAUTH2_PKCE_ENABLED': False,
-        'VERIFIED_EMAIL': True,
+        'APP': {
+            'client_id': GOOGLE_CLIENT_ID,
+            'secret': GOOGLE_CLIENT_SECRET,
+            'key': ''
+        },
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
         'AUTH_PARAMS': {
+            'access_type': 'online',
             'prompt': 'select_account',
         },
+        'OAUTH2_PKCE_ENABLED': False,
+        'VERIFIED_EMAIL': True,
     },
     'github': {
         # Configuration via Django admin (SocialApp model)

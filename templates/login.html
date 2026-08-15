@@ -926,6 +926,28 @@
 
 
 
+        {% if google_auth_enabled %}
+
+        <div class="separator"><span>O</span></div>
+
+
+
+        <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
+
+            <a href="/accounts/google/login/?process=login" class="social-button google">
+
+                <span class="social-icon">G</span>
+
+                Continuar con Google
+
+            </a>
+
+        </div>
+
+        {% endif %}
+
+
+
         <p class="login-footer">
 
             ¿No tienes cuenta? <a href="{% url 'register' %}">Regístrate aquí</a>

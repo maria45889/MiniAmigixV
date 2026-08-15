@@ -2,6 +2,7 @@
 Authentication views.
 """
 
+from django.conf import settings
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
@@ -34,19 +35,19 @@ def login_view(request):
     else:
         form = LoginForm()
     
-    # Get social providers
-    site = AuthSelector.get_current_site()
-    providers = AuthSelector.get_google_social_apps(site)
+    google_auth_enabled = bool(getattr(settings, 'GOOGLE_CLIENT_ID', '') and getattr(settings, 'GOOGLE_CLIENT_SECRET', ''))
     
     return render(request, 'login.html', {
         'form': form,
-        'providers': providers
+        'google_auth_enabled': google_auth_enabled
     })
 
 
 @require_http_methods(["GET", "POST"])
 def register_view(request):
     """Handle user registration."""
+    google_auth_enabled = bool(getattr(settings, 'GOOGLE_CLIENT_ID', '') and getattr(settings, 'GOOGLE_CLIENT_SECRET', ''))
+    
     if request.method == 'POST':
         form = RegisterForm(request.POST)
         if form.is_valid():
@@ -65,18 +66,15 @@ def register_view(request):
                     'form': form,
                     'error': error,
                     'username': request.POST.get('username', ''),
-                    'email': request.POST.get('email', '')
+                    'email': request.POST.get('email', ''),
+                    'google_auth_enabled': google_auth_enabled
                 })
     else:
         form = RegisterForm()
     
-    # Get social providers
-    site = AuthSelector.get_current_site()
-    providers = AuthSelector.get_google_social_apps(site)
-    
     return render(request, 'register.html', {
         'form': form,
-        'providers': providers
+        'google_auth_enabled': google_auth_enabled
     })
 
 
