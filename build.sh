@@ -4,7 +4,7 @@ set -o errexit
 
 # Upgrade pip and install dependencies
 pip install --upgrade pip
-pip install -r requirements.txt
+pip install --retries 5 --timeout 60 -r requirements.txt
 
 # Collect static files
 python manage.py collectstatic --no-input
