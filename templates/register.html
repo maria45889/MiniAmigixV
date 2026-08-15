@@ -473,14 +473,18 @@
             <button class="login-action" type="submit">Registrarse</button>
         </form>
 
+        {% if providers %}
         <div class="separator"><span>O</span></div>
 
         <div style="display: flex; flex-direction: column; gap: 10px; align-items: center;">
-            <a href="{% provider_login_url 'google' %}" class="social-button google">
-                <span class="social-icon">G</span>
-                Registrarse con Google
+            {% for provider in providers %}
+            <a href="{% provider_login_url provider.provider %}" class="social-button {{ provider.provider }}">
+                <span class="social-icon">{{ provider.name|slice:":1" }}</span>
+                Registrarse con {{ provider.name }}
             </a>
+            {% endfor %}
         </div>
+        {% endif %}
 
         <p class="login-footer">
             ¿Ya tienes cuenta? <a href="{% url 'login' %}">Inicia sesión aquí</a>
