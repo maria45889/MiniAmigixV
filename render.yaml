@@ -1,0 +1,24 @@
+databases:
+  - name: miniamigixv-db
+    plan: free
+    databaseName: miniamigixv
+    user: miniamigixv_user
+
+services:
+  - type: web
+    name: miniamigixv
+    runtime: python
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn config.wsgi:application"
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: miniamigixv-db
+          property: connectionString
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: PYTHON_VERSION
+        value: "3.12.0"

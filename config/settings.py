@@ -41,6 +41,7 @@ sys.path.insert(0, str(BASE_DIR))
 # Optional dependencies
 HAS_DJANGO_RATELIMIT = find_spec('django_ratelimit') is not None
 HAS_CORSHEADERS = find_spec('corsheaders') is not None
+HAS_WHITENOISE = find_spec('whitenoise') is not None
 
 # ============================================================================
 # SECURITY SETTINGS
@@ -52,7 +53,14 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', 'django-insecure-default-dev-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True').lower() == 'true'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,10.19.45.68').split(',')
+ALLOWED_HOSTS = [h.strip() for h in os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,10.19.45.68').split(',') if h.strip()]
+
+RENDER_EXTERNAL_HOSTNAME = os.getenv('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME and RENDER_EXTERNAL_HOSTNAME not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
+if '.onrender.com' not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append('.onrender.com')
 
 # Agregar URL de ngrok si no está presente
 if 'yasmin-uncalumniative-demetria.ngrok-free.dev' not in ALLOWED_HOSTS:
@@ -61,14 +69,17 @@ if 'yasmin-uncalumniative-demetria.ngrok-free.dev' not in ALLOWED_HOSTS:
 # URL base del sitio para correos electrónicos y enlaces absolutos
 SITE_URL = os.getenv('SITE_URL', 'http://127.0.0.1:8000')
 
-# Configuración para túneles (ngrok) y HTTPS
+# Configuración para túneles (ngrok), Render y HTTPS
 CSRF_TRUSTED_ORIGINS = [
     'https://yasmin-uncalumniative-demetria.ngrok-free.dev',
+    'https://*.onrender.com',
     'http://127.0.0.1:8000',
     'http://localhost:8000',
     'http://127.0.0.1:50769',
     'http://10.19.45.68:8000',
 ]
+if RENDER_EXTERNAL_HOSTNAME:
+    CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
 
 # Configuración CORS (solo en desarrollo)
 if DEBUG:
@@ -161,6 +172,9 @@ MIDDLEWARE = [
     'apps.app.middleware.XSSProtectionMiddleware',
 ]
 
+if HAS_WHITENOISE:
+    MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+
 if HAS_CORSHEADERS:
     MIDDLEWARE.insert(1, 'corsheaders.middleware.CorsMiddleware')
 
@@ -202,25 +216,25 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # DATABASE CONFIGURATION
 # ============================================================================
 
-# SQLite (Base de datos principal - Desarrollo)
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    },
-}
+# Database configuration (Auto-detect PostgreSQL from DATABASE_URL or fallback to SQLite)
+HAS_DJ_DATABASE_URL = find_spec('dj_database_url') is not None
 
-# PostgreSQL (Producción - descomentar cuando esté configurado)
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.getenv('POSTGRES_DB', 'miniamigixv_db'),
-#         'USER': os.getenv('POSTGRES_USER', 'postgres'),
-#         'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'postgres'),
-#         'HOST': os.getenv('POSTGRES_HOST', 'localhost'),
-#         'PORT': os.getenv('POSTGRES_PORT', '5432'),
-#     },
-# }
+if HAS_DJ_DATABASE_URL and os.getenv('DATABASE_URL'):
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.config(
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+else:
+    # SQLite (Base de datos principal - Desarrollo)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        },
+    }
 
 # MongoDB Configuration (deshabilitado - requiere instalación de MongoDB)
 # MONGO_APPS = [
@@ -320,6 +334,16 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+if HAS_WHITENOISE:
+    STORAGES = {
+        "default": {
+            "BACKEND": "django.core.files.storage.FileSystemStorage",
+        },
+        "staticfiles": {
+            "BACKEND": "whitenoise.storage.CompressedStaticFilesStorage",
+        },
+    }
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
