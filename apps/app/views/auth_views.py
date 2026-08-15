@@ -57,7 +57,7 @@ def register_view(request):
             
             user, error = AuthService.register_user(username, email, password, password_confirm)
             if user:
-                login(request, user)
+                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                 return redirect('home')
             else:
                 # Preserve form data on error (only clear password fields)

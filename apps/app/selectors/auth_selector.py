@@ -35,9 +35,17 @@ class AuthSelector:
     @staticmethod
     def get_current_site():
         """Get the current site."""
-        return Site.objects.get_current()
+        try:
+            return Site.objects.get_current()
+        except Exception:
+            return None
     
     @staticmethod
     def get_google_social_apps(site):
         """Get all social OAuth apps for the current site."""
-        return SocialApp.objects.filter(sites=site)
+        if not site:
+            return SocialApp.objects.none()
+        try:
+            return SocialApp.objects.filter(sites=site)
+        except Exception:
+            return SocialApp.objects.none()
